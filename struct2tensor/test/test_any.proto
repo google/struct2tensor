@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package struct2tensor.test;
+
+import "google/protobuf/any.proto";
+
+message MessageWithAny {
+  google.protobuf.Any my_any = 1;
+}

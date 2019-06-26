@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package struct2tensor.test;
+
+message SubMessage {
+  repeated float repeated_float = 1;
+  repeated int64 repeated_int64 = 2;
+}
+
+enum TestEnum {
+  DEFAULT = 0;
+  BAR = 1;
+  BAZ = 2;
+}
+
+message MessageWithMap {
+  map<string, SubMessage> string_message_map = 1;
+  map<int64, SubMessage> int64_message_map = 2;
+
+  map<int32, string> int32_string_map = 3;
+  map<int64, string> int64_string_map = 4;
+  map<uint64, string> uint64_string_map = 6;
+  map<uint32, string> uint32_string_map = 7;
+  map<fixed64, string> fixed64_string_map = 8;
+  map<fixed32, string> fixed32_string_map = 9;
+  map<sfixed64, string> sfixed64_string_map = 10;
+  map<sfixed32, string> sfixed32_string_map = 11;
+  map<sint64, string> sint64_string_map = 12;
+  map<sint32, string> sint32_string_map = 13;
+  map<string, string> string_string_map = 14;
+  map<bool, string> bool_string_map = 15;
+
+  map<string, double> string_double_map = 16;
+  map<string, float> string_float_map = 17;
+  map<string, int64> string_int64_map = 18;
+  map<string, int32> string_int32_map = 19;
+  map<string, uint64> string_uint64_map = 20;
+  map<string, uint32> string_uint32_map = 21;
+  map<string, fixed64> string_fixed64_map = 22;
+  map<string, fixed32> string_fixed32_map = 23;
+  map<string, sfixed64> string_sfixed64_map = 24;
+  map<string, sfixed32> string_sfixed32_map = 25;
+  map<string, sint64> string_sint64_map = 26;
+  map<string, sint32> string_sint32_map = 27;
+  map<string, bool> string_bool_map = 28;
+  map<string, TestEnum> string_enum_map = 29;
+}

@@ -1,0 +1,19 @@
+syntax = "proto2";
+
+package struct2tensor.test;
+
+
+import "struct2tensor/test/test.proto";
+
+// Testing placing an extension in an external proto.
+message MyExternalExtension {
+  extend UserInfo {
+    optional MyExternalExtension ext = 188564378;
+  }
+  optional string special = 1;
+}
+
+message MyMessageSet {
+
+  optional string special_message = 1;
+}

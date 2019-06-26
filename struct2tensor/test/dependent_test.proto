@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package struct2tensor.test;
+
+import "struct2tensor/test/test.proto";
+
+message NotSoSimple {
+  optional AllSimple simple = 1;
+}
