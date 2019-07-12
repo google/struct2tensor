@@ -84,6 +84,7 @@ s2t_proto_library(
 s2t_proto_library_py(
     name = "test_extension_py_pb2",
     srcs = ["test_extension.proto"],
+    oss_deps = [":test_py_pb2"],
     proto_library = "test_extension_proto",
 )
 

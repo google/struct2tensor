@@ -17,11 +17,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-
 from struct2tensor import path
-from struct2tensor.test import prensor_test_util
 from struct2tensor import prensor_value
+from struct2tensor.test import prensor_test_util
+import tensorflow as tf
 
 
 class PrensorValueTest(tf.test.TestCase):
@@ -31,8 +30,6 @@ class PrensorValueTest(tf.test.TestCase):
     with self.session(use_gpu=False) as sess:
       pren = prensor_test_util.create_nested_prensor()
       mat = prensor_value.materialize(pren, sess)
-      print("materialized: {}".format(str(mat)))
-      print("size:{}".format(str(type(mat.node.size))))
       self.assertAllEqual(
           mat.get_descendant_or_error(path.Path(["doc", "bar"])).node.values,
           [b"a", b"b", b"c", b"d"])

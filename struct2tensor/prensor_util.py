@@ -233,6 +233,8 @@ def from_value_rowids_bridge(values,
       values,
       value_rowids=value_rowids,
       nrows=nrows
+      ,
+      validate=validate
   )
 
 

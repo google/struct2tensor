@@ -4,7 +4,10 @@
 freshness: { owner: 'martinz' reviewed: '2019-06-14' }
 *-->
 
-[TOC]
+NOTE: The libraries presented here can be used to build a tensorflow server.
+However, there are some outstanding linking issues regarding using the
+python APIs.
+
 
 ## Introduction
 struct2tensor is a library for parsing structured data inside of tensorflow.

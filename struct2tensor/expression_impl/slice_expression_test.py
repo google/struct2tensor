@@ -17,21 +17,21 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
 
 from absl.testing import absltest
 from struct2tensor import calculate
 from struct2tensor import create_expression
 from struct2tensor import path
-from struct2tensor.test import prensor_test_util
 from struct2tensor import prensor_value
 from struct2tensor.expression_impl import slice_expression
+from struct2tensor.test import prensor_test_util
+import tensorflow as tf
 
 
 class SliceExpressionTest(tf.test.TestCase):
 
   def test_slice_end(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
 
       root = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
@@ -121,7 +121,7 @@ class SliceExpressionTest(tf.test.TestCase):
        friends:["e"]
      }]}
     """
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       root_2 = slice_expression.slice_expression(root, path.Path(["doc"]),
@@ -145,7 +145,7 @@ class SliceExpressionTest(tf.test.TestCase):
               ["new_doc", "bar"])).node.values, [b"d"])
 
   def test_slice_mask(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       root_2, new_path = slice_expression._get_slice_mask(
@@ -159,7 +159,7 @@ class SliceExpressionTest(tf.test.TestCase):
           [True, True, False])
 
   def test_slice_mask_end_negative(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       root_2, new_path = slice_expression._get_slice_mask(
@@ -173,7 +173,7 @@ class SliceExpressionTest(tf.test.TestCase):
           [False, True, False])
 
   def test_slice_mask_begin_positive(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       root_2, new_path = slice_expression._get_slice_mask(
@@ -187,7 +187,7 @@ class SliceExpressionTest(tf.test.TestCase):
           [False, False, True])
 
   def test_slice_mask_begin_negative(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       root_2, new_path = slice_expression._get_slice_mask(

@@ -159,7 +159,7 @@ class ExpressionValuesTest(tf.test.TestCase):
       self.assertAllEqual(values, [18, 16, 14])
 
   def test_create_size_field(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       expr = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       new_root = expr.create_size_field("doc.bar", "result")
@@ -171,7 +171,7 @@ class ExpressionValuesTest(tf.test.TestCase):
       self.assertAllEqual(values, [1, 2, 1])
 
   def test_create_has_field(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       expr = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       new_root = expr.create_has_field("doc.keep_me", "result")

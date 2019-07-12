@@ -63,7 +63,7 @@ class IndexTest(unittest.TestCase):
 class GetIndexValuesTest(tf.test.TestCase):
 
   def test_get_positional_index_calculate(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       expr = create_expression.create_expression_from_prensor(
           prensor_test_util.create_nested_prensor())
       new_root, new_path = index.get_positional_index(
@@ -77,7 +77,7 @@ class GetIndexValuesTest(tf.test.TestCase):
       self.assertAllEqual(values, [0, 0, 1, 0, 0])
 
   def test_get_index_from_end_calculate(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       expr = create_expression.create_expression_from_prensor(
           prensor_test_util.create_nested_prensor())
       new_root, new_path = index.get_index_from_end(

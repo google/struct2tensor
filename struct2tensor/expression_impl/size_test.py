@@ -17,21 +17,19 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-
 from absl.testing import absltest
-
 from struct2tensor import create_expression
-from struct2tensor.test import expression_test_util
 from struct2tensor import path
-from struct2tensor.test import prensor_test_util
 from struct2tensor.expression_impl import size
+from struct2tensor.test import expression_test_util
+from struct2tensor.test import prensor_test_util
+import tensorflow as tf
 
 
 class SizeTest(tf.test.TestCase):
 
   def test_size_anonymous(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       expr = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       new_root, new_path = size.size_anonymous(expr, path.Path(["doc", "bar"]))
@@ -43,7 +41,7 @@ class SizeTest(tf.test.TestCase):
       self.assertAllEqual(values, [1, 2, 1])
 
   def test_size(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       expr = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       new_root = size.size(expr, path.Path(["doc", "bar"]), "result")
@@ -55,7 +53,7 @@ class SizeTest(tf.test.TestCase):
       self.assertAllEqual(values, [1, 2, 1])
 
   def test_size_missing_value(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       expr = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       new_root = size.size(expr, path.Path(["doc", "keep_me"]), "result")
@@ -67,7 +65,7 @@ class SizeTest(tf.test.TestCase):
       self.assertAllEqual(values, [1, 1, 0])
 
   def test_has(self):
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       expr = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       new_root = size.has(expr, path.Path(["doc", "keep_me"]), "result")

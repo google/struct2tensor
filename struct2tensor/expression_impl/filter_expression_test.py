@@ -17,19 +17,18 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-
 from absl.testing import absltest
-from struct2tensor.test import test_pb2
 from struct2tensor import calculate
 from struct2tensor import create_expression
-from struct2tensor.test import expression_test_util
 from struct2tensor import path
 from struct2tensor import prensor
-from struct2tensor.test import prensor_test_util
 from struct2tensor import prensor_value
 from struct2tensor.expression_impl import filter_expression
 from struct2tensor.expression_impl import proto_test_util
+from struct2tensor.test import expression_test_util
+from struct2tensor.test import prensor_test_util
+from struct2tensor.test import test_pb2
+import tensorflow as tf
 
 
 def _create_slice_and_project_example():
@@ -174,7 +173,7 @@ class FilterExpressionTest(tf.test.TestCase):
 
   def test_filter_by_child(self):
     """Tests filter_by_child."""
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           prensor_test_util.create_big_prensor())
       root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
@@ -199,7 +198,7 @@ class FilterExpressionTest(tf.test.TestCase):
 
   def test_filter_by_child_create_nested_prensor(self):
     """Tests filter_by_child."""
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           _create_nested_prensor())
       root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
@@ -227,7 +226,7 @@ class FilterExpressionTest(tf.test.TestCase):
 
     In particular, it checks for the case where parent_index != self index.
     """
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           _create_nested_prensor_2())
       root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
@@ -276,7 +275,7 @@ class FilterExpressionTest(tf.test.TestCase):
                              bar:"b" bar:"c" keep_me:True
 
     """
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       root = create_expression.create_expression_from_prensor(
           _create_nested_prensor())
       root_2 = filter_expression.filter_by_sibling(
@@ -313,7 +312,7 @@ class FilterExpressionTest(tf.test.TestCase):
                                                  "action_mask", "taction")
     calculate_value = expression_test_util.calculate_value_slowly(
         root_2.get_descendant_or_error(path.Path(["event", "taction"])))
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       value_indices = sess.run(calculate_value.parent_index)
       self.assertAllEqual(value_indices, [0, 1, 2, 4, 4])
 
@@ -323,7 +322,7 @@ class FilterExpressionTest(tf.test.TestCase):
         [False, True, False, True, False, True, False, False, True, True])
     tensor_result = filter_expression._self_indices_where_true(
         input_prensor_node)
-    with self.test_session(use_gpu=False) as sess:
+    with self.session(use_gpu=False) as sess:
       np_result = sess.run(tensor_result)
       self.assertAllEqual(np_result, [1, 3, 5, 8, 9])
 

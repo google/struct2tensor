@@ -310,7 +310,7 @@ def _ragged_as_leaf_node(ragged_tensor, is_repeated,
   if not is_repeated:
     rowids = ragged_tensor.value_rowids()
     if options.ragged_checks:
-      assertions.append(tf.assert_positive(rowids[1:] - rowids[:-1]))
+      assertions.append(tf.compat.v1.assert_positive(rowids[1:] - rowids[:-1]))
   if assertions:
     with tf.control_dependencies(assertions):
       parent_index = ragged_tensor.value_rowids()
