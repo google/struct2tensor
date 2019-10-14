@@ -1,11 +1,13 @@
 package(
     default_visibility = [
-        "//learning/powerhouse/tensorflow/ops:__subpackages__",
+        "//learning/tfx/autotfx/ops:__subpackages__",
+        "//third_party/py/tensorflow_data_validation:__subpackages__",
+        "//third_party/py/tfx_bsl:__subpackages__",
         "@//:__subpackages__",
     ],
 )
 
-load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_py", "s2t_proto_library_cc", "s2t_pytype_library")
+load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc", "s2t_proto_library_py", "s2t_pytype_library")
 
 licenses(["notice"])  # Apache 2.0
 

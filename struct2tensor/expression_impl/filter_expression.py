@@ -226,9 +226,12 @@ class _FilterChildByParentIndicesToKeepExpression(expression.Expression):
   def get_source_expressions(self):
     return [self._origin, self._parent]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [origin_value, parent_value] = sources
     if (not isinstance(parent_value,
                        (_FilterChildNodeTensor, _FilterRootNodeTensor))):
@@ -284,9 +287,12 @@ class _FilterBySiblingExpression(expression.Expression):
   def get_source_expressions(self):
     return [self._origin, self._sibling]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [origin_value, sibling_value] = sources
     if not isinstance(origin_value,
                       (prensor.ChildNodeTensor, prensor.LeafNodeTensor)):
@@ -332,9 +338,12 @@ class _FilterByChildExpression(expression.Expression):
   def get_source_expressions(self):
     return [self._origin, self._child]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [origin_value, child_value] = sources
     if not isinstance(origin_value,
                       (prensor.ChildNodeTensor, prensor.LeafNodeTensor)):

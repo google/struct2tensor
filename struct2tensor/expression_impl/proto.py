@@ -168,9 +168,12 @@ class _AbstractProtoChildExpression(expression.Expression):
     # In order to parse this proto, you need to parse its parent.
     return [self._parent]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [parent_value] = sources
     if isinstance(parent_value, _ProtoRootNodeTensor) or isinstance(
         parent_value, _ProtoChildNodeTensor):
@@ -227,8 +230,10 @@ class _ProtoLeafExpression(_AbstractProtoChildExpression):
                                   self.is_repeated)
 
   def calculation_equal(self, expr):
+    # pylint: disable=protected-access
     return (isinstance(expr, _ProtoLeafExpression) and
-            self._field_descriptor == expr._field_descriptor)  # pylint: disable=protected-access
+            self._field_descriptor == expr._field_descriptor and
+            self.name_as_field == expr.name_as_field)
 
   def _get_child_impl(self,
                       field_name):
@@ -326,9 +331,12 @@ class _ProtoRootExpression(expression.Expression):
   def get_source_expressions(self):
     return []
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     if sources:
       raise ValueError("_ProtoRootExpression has no sources")
     size = tf.size(self._tensor_of_protos, out_type=tf.int64)

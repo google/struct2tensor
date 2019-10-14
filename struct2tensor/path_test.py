@@ -26,7 +26,6 @@ from struct2tensor.path import parse_map_indexing_step
 from struct2tensor.path import Path
 
 
-
 class PathTest(absltest.TestCase):
 
   def test_get_child(self):

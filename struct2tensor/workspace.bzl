@@ -17,7 +17,7 @@
 """TensorFlow Data Validation external dependencies that can be loaded in WORKSPACE files.
 """
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
 
 def struct2tensor_workspace():

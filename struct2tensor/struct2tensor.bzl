@@ -96,7 +96,6 @@ def s2t_dynamic_library(
         name = name,
         srcs = srcs,
         copts = DYNAMIC_COPTS,
-        alwayslink = 1,
         deps = true_deps + DYNAMIC_DEPS,
     )
 

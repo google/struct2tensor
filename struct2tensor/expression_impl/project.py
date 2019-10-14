@@ -82,9 +82,12 @@ class _ProjectExpression(expression.Expression):
   def get_source_expressions(self):
     return [self._origin]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     if len(sources) != 1:
       raise ValueError("Expected one source.")
     return sources[0]

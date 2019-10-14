@@ -31,6 +31,10 @@ from struct2tensor.test import test_pb2
 import tensorflow as tf
 
 
+from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+
+
+@test_util.run_all_in_graph_and_eager_modes
 class RerootTest(tf.test.TestCase):
 
   def test_reroot_and_create_proto_index(self):
@@ -58,18 +62,10 @@ class RerootTest(tf.test.TestCase):
 
     self.assertEqual(proto_index_node.values.dtype, tf.int64)
 
-    with self.session(use_gpu=False) as sess:
-      [
-          leaf_node_values, leaf_node_parent_index, proto_index_values,
-          proto_index_parent_index
-      ] = sess.run([
-          leaf_node.values, leaf_node.parent_index, proto_index_node.values,
-          proto_index_node.parent_index
-      ])
-    self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node_values)
-    self.assertAllEqual([0, 1, 1, 2], leaf_node_parent_index)
-    self.assertAllEqual([0, 1, 1], proto_index_values)
-    self.assertAllEqual([0, 1, 2], proto_index_parent_index)
+    self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node.values)
+    self.assertAllEqual([0, 1, 1, 2], leaf_node.parent_index)
+    self.assertAllEqual([0, 1, 1], proto_index_node.values)
+    self.assertAllEqual([0, 1, 2], proto_index_node.parent_index)
 
   def test_reroot_and_create_proto_index_deep(self):
     expr = create_expression.create_expression_from_prensor(
@@ -96,18 +92,10 @@ class RerootTest(tf.test.TestCase):
 
     self.assertEqual(proto_index_node.values.dtype, tf.int64)
 
-    with self.session(use_gpu=False) as sess:
-      [
-          leaf_node_values, leaf_node_parent_index, proto_index_values,
-          proto_index_parent_index
-      ] = sess.run([
-          leaf_node.values, leaf_node.parent_index, proto_index_node.values,
-          proto_index_node.parent_index
-      ])
-    self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node_values)
-    self.assertAllEqual([0, 1, 1, 2], leaf_node_parent_index)
-    self.assertAllEqual([0, 1, 1], proto_index_values)
-    self.assertAllEqual([0, 1, 2], proto_index_parent_index)
+    self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node.values)
+    self.assertAllEqual([0, 1, 1, 2], leaf_node.parent_index)
+    self.assertAllEqual([0, 1, 1], proto_index_node.values)
+    self.assertAllEqual([0, 1, 2], proto_index_node.parent_index)
 
   def test_create_proto_index_directly_reroot_at_action(self):
     sessions = [
@@ -127,22 +115,18 @@ class RerootTest(tf.test.TestCase):
         event {  }
         """
     ]
-    with self.session(use_gpu=False) as sess:
-      expr = proto_test_util.text_to_expression(sessions, test_pb2.Session)
-      reroot_expr = expr.reroot("event.action")
-      # Reroot with a depth > 1 (all the other cases are depth == 1)
-      proto_index_directly_reroot_at_action = (
-          reroot_expr.create_proto_index(
-              "proto_index_directly_reroot_at_action").get_child_or_error(
-                  "proto_index_directly_reroot_at_action"))
+    expr = proto_test_util.text_to_expression(sessions, test_pb2.Session)
+    reroot_expr = expr.reroot("event.action")
+    # Reroot with a depth > 1 (all the other cases are depth == 1)
+    proto_index_directly_reroot_at_action = (
+        reroot_expr.create_proto_index("proto_index_directly_reroot_at_action")
+        .get_child_or_error("proto_index_directly_reroot_at_action"))
 
-      self.assertFalse(proto_index_directly_reroot_at_action.is_repeated)
-      result = expression_test_util.calculate_value_slowly(
-          proto_index_directly_reroot_at_action)
-
-      [parent_index, values] = sess.run([result.parent_index, result.values])
-      self.assertAllEqual(parent_index, [0, 1, 2, 3, 4])
-      self.assertAllEqual(values, [0, 0, 0, 2, 2])
+    self.assertFalse(proto_index_directly_reroot_at_action.is_repeated)
+    result = expression_test_util.calculate_value_slowly(
+        proto_index_directly_reroot_at_action)
+    self.assertAllEqual(result.parent_index, [0, 1, 2, 3, 4])
+    self.assertAllEqual(result.values, [0, 0, 0, 2, 2])
 
   def test_create_proto_index_directly_reroot_at_action_sparse_dense(self):
     sessions = [
@@ -162,29 +146,27 @@ class RerootTest(tf.test.TestCase):
         event {  }
         """
     ]
-    with self.session(use_gpu=False) as sess:
-      expr = proto_test_util.text_to_expression(sessions, test_pb2.Session)
-      reroot_expr = expr.reroot("event.action")
-      # Reroot with a depth > 1 (all the other cases are depth == 1)
-      [prensor_tree] = calculate.calculate_prensors([
-          reroot_expr.create_proto_index(
-              "proto_index_directly_reroot_at_action")
-      ])
-      proto_index_node = prensor_tree.get_child_or_error(
-          "proto_index_directly_reroot_at_action").node
-      self.assertFalse(proto_index_node.is_repeated)
-      sparse_tensors = prensor_util.get_sparse_tensors(
-          prensor_tree, calculate_options.get_default_options())
-      proto_index_directly_reroot_at_action = sparse_tensors[path.Path(
-          ["proto_index_directly_reroot_at_action"])]
-      [sparse_value, dense_value] = sess.run([
-          proto_index_directly_reroot_at_action,
-          tf.sparse_tensor_to_dense(proto_index_directly_reroot_at_action)
-      ])
-      self.assertAllEqual(sparse_value.values, [0, 0, 0, 2, 2])
-      self.assertAllEqual(sparse_value.indices, [[0], [1], [2], [3], [4]])
-      self.assertAllEqual(sparse_value.dense_shape, [5])
-      self.assertAllEqual(dense_value, [0, 0, 0, 2, 2])
+    expr = proto_test_util.text_to_expression(sessions, test_pb2.Session)
+    reroot_expr = expr.reroot("event.action")
+    # Reroot with a depth > 1 (all the other cases are depth == 1)
+    [prensor_tree] = calculate.calculate_prensors([
+        reroot_expr.create_proto_index("proto_index_directly_reroot_at_action")
+    ])
+    proto_index_node = prensor_tree.get_child_or_error(
+        "proto_index_directly_reroot_at_action").node
+    self.assertFalse(proto_index_node.is_repeated)
+    sparse_tensors = prensor_util.get_sparse_tensors(
+        prensor_tree, calculate_options.get_default_options())
+    proto_index_directly_reroot_at_action = sparse_tensors[path.Path(
+        ["proto_index_directly_reroot_at_action"])]
+    dense_value = tf.sparse.to_dense(
+        proto_index_directly_reroot_at_action)
+    sparse_value = proto_index_directly_reroot_at_action
+
+    self.assertAllEqual(sparse_value.values, [0, 0, 0, 2, 2])
+    self.assertAllEqual(sparse_value.indices, [[0], [1], [2], [3], [4]])
+    self.assertAllEqual(sparse_value.dense_shape, [5])
+    self.assertAllEqual(dense_value, [0, 0, 0, 2, 2])
 
 
 if __name__ == "__main__":

@@ -69,6 +69,16 @@ s2t_dynamic_library(
         "//struct2tensor/kernels:decode_proto_sparse_op.cc",
         "//struct2tensor/kernels:vector_to_tensor.h",
     ],
+    deps = [
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/base:endian",
+        "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:inlined_vector",
+        "@com_google_absl//absl/container:inlined_vector_internal",
+        "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
+    ],
 )
 
 cc_library(
@@ -97,7 +107,13 @@ s2t_dynamic_library(
         "//struct2tensor/kernels:vector_to_tensor.h",
     ],
     deps = [
+        "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/base:endian",
         "@com_google_absl//absl/container:flat_hash_map",
+        "@com_google_absl//absl/container:inlined_vector",
+        "@com_google_absl//absl/container:inlined_vector_internal",
+        "@com_google_absl//absl/strings",
+        "@com_google_absl//absl/types:span",
     ],
 )
 

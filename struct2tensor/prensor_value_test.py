@@ -18,18 +18,22 @@ from __future__ import division
 from __future__ import print_function
 
 from struct2tensor import path
-from struct2tensor import prensor_value
+from struct2tensor import prensor_value  # pylint: disable=unused-import
 from struct2tensor.test import prensor_test_util
 import tensorflow as tf
 
 
+# This is a V1 test. The prensor value is not meaningful for V2.
 class PrensorValueTest(tf.test.TestCase):
 
-  def test_materialize(self):
+  def test_session_run(self):
     """Tests get_sparse_tensors on a deep expression."""
-    with self.session(use_gpu=False) as sess:
+    if tf.executing_eagerly():
+      return
+
+    with self.cached_session(use_gpu=False) as sess:
       pren = prensor_test_util.create_nested_prensor()
-      mat = prensor_value.materialize(pren, sess)
+      mat = sess.run(pren)
       self.assertAllEqual(
           mat.get_descendant_or_error(path.Path(["doc", "bar"])).node.values,
           [b"a", b"b", b"c", b"d"])

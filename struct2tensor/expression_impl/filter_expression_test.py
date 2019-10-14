@@ -22,13 +22,17 @@ from struct2tensor import calculate
 from struct2tensor import create_expression
 from struct2tensor import path
 from struct2tensor import prensor
-from struct2tensor import prensor_value
+# For tf.Session.Run against a Prensor
+from struct2tensor import prensor_value  # pylint: disable=unused-import
 from struct2tensor.expression_impl import filter_expression
 from struct2tensor.expression_impl import proto_test_util
 from struct2tensor.test import expression_test_util
 from struct2tensor.test import prensor_test_util
 from struct2tensor.test import test_pb2
 import tensorflow as tf
+
+
+from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 
 def _create_slice_and_project_example():
@@ -169,85 +173,89 @@ def _create_nested_prensor_2():
   })
 
 
+@test_util.run_all_in_graph_and_eager_modes
 class FilterExpressionTest(tf.test.TestCase):
 
   def test_filter_by_child(self):
     """Tests filter_by_child."""
-    with self.session(use_gpu=False) as sess:
-      root = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_big_prensor())
-      root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
-                                                 "keep_me", "new_doc")
-      result = prensor_value.materialize(
-          calculate.calculate_prensors([root_2])[0], sess)
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc"])).node.parent_index, [1])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "keep_me"])).node.parent_index, [0])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "keep_me"])).node.values, [True])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "bar"])).node.parent_index, [0, 0])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "bar"])).node.values, [b"b", b"c"])
+    root = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_big_prensor())
+    root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
+                                               "keep_me", "new_doc")
+    [result] = calculate.calculate_prensors([root_2])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc"
+                                                 ])).node.parent_index, [1])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc", "keep_me"
+                                                 ])).node.parent_index, [0])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "keep_me"])).node.values,
+        [True])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "bar"])).node.parent_index,
+        [0, 0])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "bar"])).node.values,
+        [b"b", b"c"])
 
   def test_filter_by_child_create_nested_prensor(self):
     """Tests filter_by_child."""
-    with self.session(use_gpu=False) as sess:
-      root = create_expression.create_expression_from_prensor(
-          _create_nested_prensor())
-      root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
-                                                 "keep_me", "new_doc")
-      result = prensor_value.materialize(
-          calculate.calculate_prensors([root_2])[0], sess)
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc"])).node.parent_index, [1])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "keep_me"])).node.parent_index, [0])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "keep_me"])).node.values, [True])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "bar"])).node.parent_index, [0, 0])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "bar"])).node.values, [b"b", b"c"])
+    root = create_expression.create_expression_from_prensor(
+        _create_nested_prensor())
+    root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
+                                               "keep_me", "new_doc")
+    [result] = calculate.calculate_prensors([root_2])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc"
+                                                 ])).node.parent_index, [1])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc", "keep_me"
+                                                 ])).node.parent_index, [0])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "keep_me"])).node.values,
+        [True])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "bar"])).node.parent_index,
+        [0, 0])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "bar"])).node.values,
+        [b"b", b"c"])
 
   def test_filter_by_child_create_nested_prensor_2(self):
     """Tests filter_by_child.
 
     In particular, it checks for the case where parent_index != self index.
     """
-    with self.session(use_gpu=False) as sess:
-      root = create_expression.create_expression_from_prensor(
-          _create_nested_prensor_2())
-      root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
-                                                 "keep_me", "new_doc")
-      result = prensor_value.materialize(
-          calculate.calculate_prensors([root_2])[0], sess)
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc"])).node.parent_index, [1])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "keep_me"])).node.parent_index, [0])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "keep_me"])).node.values, [True])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "bar"])).node.parent_index, [0, 0])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "bar"])).node.values, [b"b", b"c"])
+    root = create_expression.create_expression_from_prensor(
+        _create_nested_prensor_2())
+    root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
+                                               "keep_me", "new_doc")
+    [result] = calculate.calculate_prensors([root_2])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc"
+                                                 ])).node.parent_index, [1])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc", "keep_me"
+                                                 ])).node.parent_index, [0])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "keep_me"])).node.values,
+        [True])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "bar"])).node.parent_index,
+        [0, 0])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "bar"])).node.values,
+        [b"b", b"c"])
 
   def test_filter_by_sibling(self):
     r"""Tests filter_by_sibling.
@@ -275,28 +283,29 @@ class FilterExpressionTest(tf.test.TestCase):
                              bar:"b" bar:"c" keep_me:True
 
     """
-    with self.session(use_gpu=False) as sess:
-      root = create_expression.create_expression_from_prensor(
-          _create_nested_prensor())
-      root_2 = filter_expression.filter_by_sibling(
-          root, path.create_path("doc"), "keep_my_sib", "new_doc")
-      result_prensor = calculate.calculate_prensors([root_2])[0]
-      result = prensor_value.materialize(result_prensor, sess)
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc"])).node.parent_index, [1])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "keep_me"])).node.parent_index, [0])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "keep_me"])).node.values, [True])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "bar"])).node.parent_index, [0, 0])
-      self.assertAllEqual(
-          result.get_descendant_or_error(path.Path(
-              ["new_doc", "bar"])).node.values, [b"b", b"c"])
+    root = create_expression.create_expression_from_prensor(
+        _create_nested_prensor())
+    root_2 = filter_expression.filter_by_sibling(root, path.create_path("doc"),
+                                                 "keep_my_sib", "new_doc")
+    [result] = calculate.calculate_prensors([root_2])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc"
+                                                 ])).node.parent_index, [1])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc", "keep_me"
+                                                 ])).node.parent_index, [0])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "keep_me"])).node.values,
+        [True])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "bar"])).node.parent_index,
+        [0, 0])
+    self.assertAllEqual(
+        result.get_descendant_or_error(path.Path(["new_doc",
+                                                  "bar"])).node.values,
+        [b"b", b"c"])
 
   def test_slice_and_project_mini(self):
     """Testing a part of query_test.test_slice_and_project.
@@ -312,9 +321,8 @@ class FilterExpressionTest(tf.test.TestCase):
                                                  "action_mask", "taction")
     calculate_value = expression_test_util.calculate_value_slowly(
         root_2.get_descendant_or_error(path.Path(["event", "taction"])))
-    with self.session(use_gpu=False) as sess:
-      value_indices = sess.run(calculate_value.parent_index)
-      self.assertAllEqual(value_indices, [0, 1, 2, 4, 4])
+    value_indices = calculate_value.parent_index
+    self.assertAllEqual(value_indices, [0, 1, 2, 4, 4])
 
   def test_indices_where_true(self):
     input_prensor_node = prensor_test_util.create_repeated_leaf_node(
@@ -322,9 +330,7 @@ class FilterExpressionTest(tf.test.TestCase):
         [False, True, False, True, False, True, False, False, True, True])
     tensor_result = filter_expression._self_indices_where_true(
         input_prensor_node)
-    with self.session(use_gpu=False) as sess:
-      np_result = sess.run(tensor_result)
-      self.assertAllEqual(np_result, [1, 3, 5, 8, 9])
+    self.assertAllEqual(tensor_result, [1, 3, 5, 8, 9])
 
 
 if __name__ == "__main__":

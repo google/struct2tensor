@@ -21,10 +21,10 @@ from setuptools import find_packages
 from setuptools import setup
 from setuptools.dist import Distribution
 
-__version__ = '0.0.1'
+__version__ = '0.0.1.dev1'
 REQUIRED_PACKAGES = [
     'protobuf >= 3.8.0',
-    'tensorflow >= 1.12.0',
+    'tensorflow >= 1.15.0rc3',
     'tensorflow_metadata >= 0.13.0',
 ]
 project_name = 'struct2tensor'

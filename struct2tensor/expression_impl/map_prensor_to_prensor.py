@@ -358,9 +358,11 @@ class _PrensorOpChildExpression(expression.Expression):
   def get_source_expressions(self):
     return [self._parent]
 
-  def calculate(self, source_tensors,
+  def calculate(self,
+                source_tensors,
                 destinations,
-                options):
+                options,
+                side_info = None):
     [parent_result] = source_tensors
     if not isinstance(parent_result,
                       (_PrensorAsLeafNodeTensor, _PrensorAsChildNodeTensor,
@@ -443,9 +445,11 @@ class _PrensorOpExpression(expression.Expression):
     source_paths = self._get_source_paths()
     return [subtree[k] for k in source_paths]
 
-  def calculate(self, sources,
+  def calculate(self,
+                sources,
                 destinations,
-                options):
+                options,
+                side_info = None):
     source_tree = prensor.create_prensor_from_descendant_nodes(
         {k: v for k, v in zip(self._get_source_paths(), sources)})
     result_tree = self._operation(source_tree)

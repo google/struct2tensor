@@ -8,13 +8,13 @@ s2t_proto_library(
     name = "query_metadata_proto",
     srcs = ["query_metadata.proto"],
     cc_api_version = 2,
-    visibility = ["//learning/tfx/pipeline/example_validation:__subpackages__"],
+    visibility = ["//visibility:private"],
     deps = ["@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_cc_pb2"],
 )
 
 s2t_proto_library_cc(
     name = "query_metadata_cc_proto",
-    visibility = ["//learning/tfx/pipeline/example_validation:__subpackages__"],
+    visibility = ["//visibility:private"],
     deps = [":query_metadata_proto"],
 )
 

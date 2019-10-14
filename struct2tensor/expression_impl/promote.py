@@ -127,9 +127,12 @@ class PromoteExpression(expression.Leaf):
   def get_source_expressions(self):
     return [self._origin, self._origin_parent]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [origin_value, origin_parent_value] = sources
     if not isinstance(origin_value, prensor.LeafNodeTensor):
       raise ValueError("origin_value must be a leaf")

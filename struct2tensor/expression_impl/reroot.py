@@ -109,9 +109,12 @@ class _RerootExpression(expression.Expression):
   def get_source_expressions(self):
     return [self._original_root, self._new_root]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [old_root_value, new_root_value] = sources
     if isinstance(old_root_value, prensor.RootNodeTensor) and isinstance(
         new_root_value, prensor.ChildNodeTensor):
@@ -153,9 +156,12 @@ class _InputProtoIndexExpression(expression.Leaf):
   def get_source_expressions(self):
     return [self._root]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [root_node] = sources
     # The following check ensures not just that we can calculate the value,
     # but that no "improper" reroots were done.

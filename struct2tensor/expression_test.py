@@ -33,6 +33,7 @@ from struct2tensor.test import prensor_test_util
 
 import tensorflow as tf
 
+from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 from tensorflow_metadata.proto.v0 import schema_pb2
 
 
@@ -139,48 +140,39 @@ class ExpressionTest(absltest.TestCase):
     self.assertIn("keep_me", doc_feature_map)
 
 
+@test_util.run_all_in_graph_and_eager_modes
 class ExpressionValuesTest(tf.test.TestCase):
 
   def test_map_field_values_test(self):
-    with self.session(use_gpu=False) as sess:
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_simple_prensor())
 
-      expr = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_simple_prensor())
+    new_root = expr.map_field_values("foo", lambda x: x * 2, tf.int64,
+                                     "foo_doubled")
 
-      new_root = expr.map_field_values("foo", lambda x: x * 2, tf.int64,
-                                       "foo_doubled")
+    leaf_node = expression_test_util.calculate_value_slowly(
+        new_root.get_descendant_or_error(path.Path(["foo_doubled"])))
 
-      leaf_node = expression_test_util.calculate_value_slowly(
-          new_root.get_descendant_or_error(path.Path(["foo_doubled"])))
-      [parent_index,
-       values] = sess.run([leaf_node.parent_index, leaf_node.values])
-
-      self.assertAllEqual(parent_index, [0, 1, 2])
-      self.assertAllEqual(values, [18, 16, 14])
+    self.assertAllEqual(leaf_node.parent_index, [0, 1, 2])
+    self.assertAllEqual(leaf_node.values, [18, 16, 14])
 
   def test_create_size_field(self):
-    with self.session(use_gpu=False) as sess:
-      expr = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_big_prensor())
-      new_root = expr.create_size_field("doc.bar", "result")
-      new_field = new_root.get_descendant_or_error(path.Path(["doc", "result"]))
-      leaf_node = expression_test_util.calculate_value_slowly(new_field)
-      [parent_index,
-       values] = sess.run([leaf_node.parent_index, leaf_node.values])
-      self.assertAllEqual(parent_index, [0, 1, 2])
-      self.assertAllEqual(values, [1, 2, 1])
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_big_prensor())
+    new_root = expr.create_size_field("doc.bar", "result")
+    new_field = new_root.get_descendant_or_error(path.Path(["doc", "result"]))
+    leaf_node = expression_test_util.calculate_value_slowly(new_field)
+    self.assertAllEqual(leaf_node.parent_index, [0, 1, 2])
+    self.assertAllEqual(leaf_node.values, [1, 2, 1])
 
   def test_create_has_field(self):
-    with self.session(use_gpu=False) as sess:
-      expr = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_big_prensor())
-      new_root = expr.create_has_field("doc.keep_me", "result")
-      new_field = new_root.get_descendant_or_error(path.Path(["doc", "result"]))
-      leaf_node = expression_test_util.calculate_value_slowly(new_field)
-      [parent_index,
-       values] = sess.run([leaf_node.parent_index, leaf_node.values])
-      self.assertAllEqual(parent_index, [0, 1, 2])
-      self.assertAllEqual(values, [True, True, False])
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_big_prensor())
+    new_root = expr.create_has_field("doc.keep_me", "result")
+    new_field = new_root.get_descendant_or_error(path.Path(["doc", "result"]))
+    leaf_node = expression_test_util.calculate_value_slowly(new_field)
+    self.assertAllEqual(leaf_node.parent_index, [0, 1, 2])
+    self.assertAllEqual(leaf_node.values, [True, True, False])
 
   def test_reroot_and_create_proto_index(self):
     expr = create_expression.create_expression_from_prensor(
@@ -206,18 +198,10 @@ class ExpressionValuesTest(tf.test.TestCase):
 
     self.assertEqual(proto_index_node.values.dtype, tf.int64)
 
-    with self.session(use_gpu=False) as sess:
-      [
-          leaf_node_values, leaf_node_parent_index, proto_index_values,
-          proto_index_parent_index
-      ] = sess.run([
-          leaf_node.values, leaf_node.parent_index, proto_index_node.values,
-          proto_index_node.parent_index
-      ])
-      self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node_values)
-      self.assertAllEqual([0, 1, 1, 2], leaf_node_parent_index)
-      self.assertAllEqual([0, 1, 1], proto_index_values)
-      self.assertAllEqual([0, 1, 2], proto_index_parent_index)
+    self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node.values)
+    self.assertAllEqual([0, 1, 1, 2], leaf_node.parent_index)
+    self.assertAllEqual([0, 1, 1], proto_index_node.values)
+    self.assertAllEqual([0, 1, 2], proto_index_node.parent_index)
 
 
 if __name__ == "__main__":

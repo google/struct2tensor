@@ -50,8 +50,8 @@ def create_subtrees(
       first_step = k.field_list[0]
       suffix = k.suffix(1)
       if first_step not in subtrees:
-        subtrees[first_step] = {}
-      subtrees[first_step][suffix] = v
+        subtrees[first_step] = {}  # pytype: disable=unsupported-operands
+      subtrees[first_step][suffix] = v  # pytype: disable=unsupported-operands
   return (root_expression, subtrees)
 
 

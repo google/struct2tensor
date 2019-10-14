@@ -17,17 +17,18 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-
 from absl.testing import absltest
-from struct2tensor.test import test_any_pb2
-from struct2tensor.test import test_extension_pb2
-from struct2tensor.test import test_pb2
-
-from struct2tensor.test import expression_test_util
 from struct2tensor import path
 from struct2tensor.expression_impl import proto
 from struct2tensor.expression_impl import proto_test_util
+from struct2tensor.test import expression_test_util
+from struct2tensor.test import test_any_pb2
+from struct2tensor.test import test_extension_pb2
+from struct2tensor.test import test_map_pb2
+from struct2tensor.test import test_pb2
+import tensorflow as tf
+
+from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 
 def _get_expression_with_any():
@@ -99,7 +100,8 @@ class ProtoTest(absltest.TestCase):
 
   def test_user_info_with_extension(self):
     expr = _get_user_info_with_extension()
-    ext_expr = expr.get_child_or_error("(struct2tensor.test.MyExternalExtension.ext)")
+    ext_expr = expr.get_child_or_error(
+        "(struct2tensor.test.MyExternalExtension.ext)")
     self.assertFalse(ext_expr.is_repeated)
     self.assertIsNone(ext_expr.type)
     self.assertFalse(ext_expr.is_leaf)
@@ -121,7 +123,8 @@ class ProtoTest(absltest.TestCase):
     expr = _get_expression_with_any()
     any_expr = expr.get_child_or_error("my_any")
     simple_expr = expr.get_descendant_or_error(
-        path.Path(["my_any", "(type.googleapis.com/struct2tensor.test.AllSimple)"]))
+        path.Path(
+            ["my_any", "(type.googleapis.com/struct2tensor.test.AllSimple)"]))
     self.assertFalse(simple_expr.is_repeated)
     self.assertIsNone(simple_expr.type)
     self.assertFalse(simple_expr.is_leaf)
@@ -149,8 +152,9 @@ class ProtoTest(absltest.TestCase):
     expr = _get_expression_with_any()
     any_expr = expr.get_child_or_error("my_any")
     simple_expr = expr.get_descendant_or_error(
-        path.Path(
-            ["my_any", "(type.googleapis.com/struct2tensor.test.SpecialUserInfo)"]))
+        path.Path([
+            "my_any", "(type.googleapis.com/struct2tensor.test.SpecialUserInfo)"
+        ]))
     self.assertFalse(simple_expr.is_repeated)
     self.assertIsNone(simple_expr.type)
     self.assertFalse(simple_expr.is_leaf)
@@ -207,56 +211,52 @@ class ProtoTest(absltest.TestCase):
     self.assertIs(any_expr, sources[0])
 
 
+@test_util.run_all_in_graph_and_eager_modes
 class ProtoValuesTest(tf.test.TestCase):
 
   def test_create_expression_from_proto_and_calculate_root_value(self):
     """Tests get_sparse_tensors on a deep tree."""
-    with self.session(use_gpu=False) as sess:
-      expr = proto_test_util._get_expression_from_session_empty_user_info()
-      root_value = expression_test_util.calculate_value_slowly(expr)
-      size = sess.run(root_value.size)
-      self.assertEqual(size, 2)
+    expr = proto_test_util._get_expression_from_session_empty_user_info()
+    root_value = expression_test_util.calculate_value_slowly(expr)
+    # For some reason, this fails on tf.eager. It could be because it is
+    # a scalar, I don't know.
+    self.assertEqual(self.evaluate(root_value.size), 2)
 
   def test_create_expression_from_proto_and_calculate_event_value(self):
     """Tests get_sparse_tensors on a deep tree."""
-    with self.session(use_gpu=False) as sess:
-      expr = proto_test_util._get_expression_from_session_empty_user_info()
-      event_value = expression_test_util.calculate_value_slowly(
-          expr.get_child_or_error("event"))
-      parent_index = sess.run(event_value.parent_index)
-      self.assertAllEqual(parent_index, [0, 0, 0, 1, 1])
+    expr = proto_test_util._get_expression_from_session_empty_user_info()
+    event_value = expression_test_util.calculate_value_slowly(
+        expr.get_child_or_error("event"))
+    self.assertAllEqual(event_value.parent_index, [0, 0, 0, 1, 1])
 
   def test_create_expression_from_proto_and_calculate_event_id_value(self):
     """Tests get_sparse_tensors on a deep tree."""
-    with self.session(use_gpu=False) as sess:
-      expr = proto_test_util._get_expression_from_session_empty_user_info()
-      event_id_value = expression_test_util.calculate_value_slowly(
-          expr.get_descendant_or_error(path.Path(["event", "event_id"])))
-      [parent_index,
-       values] = sess.run([event_id_value.parent_index, event_id_value.values])
-      self.assertAllEqual(parent_index, [0, 1, 2, 4])
-      self.assertAllEqual(values, [b"A", b"B", b"C", b"D"])
+    expr = proto_test_util._get_expression_from_session_empty_user_info()
+    event_id_value = expression_test_util.calculate_value_slowly(
+        expr.get_descendant_or_error(path.Path(["event", "event_id"])))
+    self.assertAllEqual(event_id_value.parent_index, [0, 1, 2, 4])
+    self.assertAllEqual(event_id_value.values, [b"A", b"B", b"C", b"D"])
 
   def test_create_expression_from_proto_with_any(self):
     """Test an any field."""
-    with self.session(use_gpu=False) as sess:
-      expr = _get_expression_with_any()
-      simple_expr = expr.get_descendant_or_error(
-          path.Path(["my_any", "(type.googleapis.com/struct2tensor.test.AllSimple)"]))
-      child_node = sess.run(
-          expression_test_util.calculate_value_slowly(simple_expr).parent_index)
-      self.assertAllEqual(child_node, [0, 2])
+    expr = _get_expression_with_any()
+    simple_expr = expr.get_descendant_or_error(
+        path.Path(
+            ["my_any", "(type.googleapis.com/struct2tensor.test.AllSimple)"]))
+    child_node = expression_test_util.calculate_value_slowly(
+        simple_expr).parent_index
+    self.assertAllEqual(child_node, [0, 2])
 
   def test_create_expression_from_proto_with_any_missing_message(self):
     """Test an any field with a message that is absent."""
-    with self.session(use_gpu=False) as sess:
-      expr = _get_expression_with_any()
-      simple_expr = expr.get_descendant_or_error(
-          path.Path(
-              ["my_any", "(type.googleapis.com/struct2tensor.test.SpecialUserInfo)"]))
-      child_node = sess.run(
-          expression_test_util.calculate_value_slowly(simple_expr).parent_index)
-      self.assertAllEqual(child_node, [])
+    expr = _get_expression_with_any()
+    simple_expr = expr.get_descendant_or_error(
+        path.Path([
+            "my_any", "(type.googleapis.com/struct2tensor.test.SpecialUserInfo)"
+        ]))
+    child_node = expression_test_util.calculate_value_slowly(
+        simple_expr).parent_index
+    self.assertAllEqual(child_node, [])
 
   def test_project_proto_map(self):
     examples = [
@@ -284,22 +284,42 @@ class ProtoValuesTest(tf.test.TestCase):
         }
         """
     ]
-    with tf.Session() as sess:
-      expr = proto_test_util.text_to_expression(examples, tf.train.Example)
-      result = expression_test_util.calculate_list_map(
-          expr.project([
-              "features.feature[feature1].bytes_list.value",
-              "features.feature[feature2].float_list.value",
-              "features.feature[feature3].int64_list.value",
-          ]), sess)
+    expr = proto_test_util.text_to_expression(examples, tf.train.Example)
+    result = expression_test_util.calculate_list_map(
+        expr.project([
+            "features.feature[feature1].bytes_list.value",
+            "features.feature[feature2].float_list.value",
+            "features.feature[feature3].int64_list.value",
+        ]), self)
 
-      feature1 = result["features.feature[feature1].bytes_list.value"]
-      feature2 = result["features.feature[feature2].float_list.value"]
-      feature3 = result["features.feature[feature3].int64_list.value"]
-      self.assertAllEqual(feature1,
-                          [[[[[b"hello", b"world"]]]], [[[[b"deadbeef"]]]]])
-      self.assertAllEqual(feature2, [[[[[8.0]]]], [[]]])
-      self.assertAllEqual(feature3, [[[]], [[[[123, 456]]]]])
+    feature1 = result["features.feature[feature1].bytes_list.value"]
+    feature2 = result["features.feature[feature2].float_list.value"]
+    feature3 = result["features.feature[feature3].int64_list.value"]
+    self.assertAllEqual(feature1,
+                        [[[[[b"hello", b"world"]]]], [[[[b"deadbeef"]]]]])
+    self.assertAllEqual(feature2, [[[[[8.0]]]], [[]]])
+    self.assertAllEqual(feature3, [[[]], [[[[123, 456]]]]])
+
+  def test_project_proto_map_leaf_value(self):
+    protos = [
+        """
+            int32_string_map {
+              key: 222
+              value: "2"
+            }
+            """
+    ]
+
+    expr = proto_test_util.text_to_expression(protos,
+                                              test_map_pb2.MessageWithMap)
+    result = expression_test_util.calculate_list_map(
+        expr.project([
+            "int32_string_map[222]",
+            "int32_string_map[223]",
+        ]), self)
+    self.assertLen(result, 2)
+    self.assertAllEqual(result["int32_string_map[222]"], [[b"2"]])
+    self.assertAllEqual(result["int32_string_map[223]"], [[]])
 
 
 if __name__ == "__main__":

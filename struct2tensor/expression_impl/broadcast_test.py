@@ -18,15 +18,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
 
 from absl.testing import absltest
-
 from struct2tensor import create_expression
-from struct2tensor.test import expression_test_util
 from struct2tensor import path
-from struct2tensor.test import prensor_test_util
 from struct2tensor.expression_impl import broadcast
+from struct2tensor.test import expression_test_util
+from struct2tensor.test import prensor_test_util
+import tensorflow as tf
+
+from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 
 class BroadcastTest(absltest.TestCase):
@@ -67,21 +68,19 @@ class BroadcastTest(absltest.TestCase):
     self.assertEqual(new_field.known_field_names(), frozenset())
 
 
+@test_util.run_all_in_graph_and_eager_modes
 class BroadcastValuesTest(tf.test.TestCase):
 
   def test_broadcast_and_calculate(self):
     """Tests get_sparse_tensors on a deep tree."""
-    with self.session(use_gpu=False) as sess:
-      expr = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_big_prensor())
-      new_root, new_path = broadcast.broadcast_anonymous(
-          expr, path.Path(["foo"]), "user")
-      new_field = new_root.get_descendant_or_error(new_path)
-      leaf_node = expression_test_util.calculate_value_slowly(new_field)
-      [parent_index,
-       values] = sess.run([leaf_node.parent_index, leaf_node.values])
-      self.assertAllEqual(parent_index, [0, 1, 2, 3])
-      self.assertAllEqual(values, [9, 8, 8, 7])
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_big_prensor())
+    new_root, new_path = broadcast.broadcast_anonymous(expr, path.Path(["foo"]),
+                                                       "user")
+    new_field = new_root.get_descendant_or_error(new_path)
+    leaf_node = expression_test_util.calculate_value_slowly(new_field)
+    self.assertAllEqual(leaf_node.parent_index, [0, 1, 2, 3])
+    self.assertAllEqual(leaf_node.values, [9, 8, 8, 7])
 
 
 if __name__ == "__main__":

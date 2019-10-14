@@ -83,7 +83,7 @@ from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 
 class _BroadcastExpression(expression.Leaf):
@@ -102,9 +102,12 @@ class _BroadcastExpression(expression.Leaf):
   def get_source_expressions(self):
     return [self._origin, self._sibling]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [origin_value, sibling_value] = sources
     if not isinstance(origin_value, prensor.LeafNodeTensor):
       raise ValueError("origin not a LeafNodeTensor")

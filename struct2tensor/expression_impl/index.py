@@ -116,7 +116,7 @@ from struct2tensor import prensor
 from struct2tensor import prensor_util
 from struct2tensor.expression_impl import size
 import tensorflow as tf
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 
 def get_positional_index(expr, source_path,
@@ -191,9 +191,12 @@ class _PositionalIndexExpression(expression.Leaf):
   def get_source_expressions(self):
     return [self._origin]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [origin] = sources
     if isinstance(origin, (prensor.LeafNodeTensor, prensor.ChildNodeTensor)):
       return prensor.LeafNodeTensor(origin.parent_index,
@@ -237,9 +240,12 @@ class _PositionalIndexFromEndExpression(expression.Leaf):
   def get_source_expressions(self):
     return [self._positional_index, self._size]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     [positional_index, size_value] = sources
     if not isinstance(positional_index, prensor.LeafNodeTensor):
       raise ValueError("positional_index must be a LeafNodeTensor")

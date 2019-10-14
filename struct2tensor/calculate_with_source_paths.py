@@ -27,7 +27,6 @@ from struct2tensor.expression_impl import proto
 from struct2tensor.proto import query_metadata_pb2
 from typing import List, Optional, Sequence, Set, Tuple
 
-
 # A proto summary represents the tensor of protos and descriptor, along with
 # all the paths associated with it.
 # tensor is tf.Tensor
@@ -97,15 +96,17 @@ def requirements_to_metadata_proto(
     _requirement_to_parsed_proto_info(x, result.parsed_proto_info.add())  # pytype: disable=wrong-arg-types
 
 
-def _get_proto_summaries(proto_expressions
-                        ):
+def _get_proto_summaries(
+    proto_expressions
+):
   """Gets the proto summaries."""
   result = []  # type: List[ProtoRequirements]
   for expr in proto_expressions:
 
     def get_summary(tensor_of_protos, desc):
       for summary in result:
-        if summary.tensor == tensor_of_protos and summary.descriptor == desc:
+        if id(summary.tensor) == id(
+            tensor_of_protos) and summary.descriptor == desc:
           return summary
       new_summary = ProtoRequirements(
           tensor=tensor_of_protos, descriptor=desc, paths=[])

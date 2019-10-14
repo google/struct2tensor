@@ -17,14 +17,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
 
 from absl.testing import absltest
 from struct2tensor import create_expression
-from struct2tensor.test import expression_test_util
 from struct2tensor import path
-from struct2tensor.test import prensor_test_util
 from struct2tensor.expression_impl import promote_and_broadcast
+from struct2tensor.test import expression_test_util
+from struct2tensor.test import prensor_test_util
+import tensorflow as tf
 
 
 class PromoteAndBroadcastTest(absltest.TestCase):

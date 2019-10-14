@@ -61,13 +61,13 @@ def calculate_value_slowly(
   return expr.calculate(source_node_tensors, real_dest, new_options)
 
 
-def calculate_list_map(expr, sess):
+def calculate_list_map(expr, evaluator):
   """Calculate a map from paths to nested lists, representing the leafs."""
   [my_prensor] = calculate.calculate_prensors([expr])
   ragged_tensor_map = prensor_util.get_ragged_tensors(
       my_prensor, calculate_options.get_default_options())
   string_tensor_map = {str(k): v for k, v in ragged_tensor_map.items()}
-  string_np_map = sess.run(string_tensor_map)
+  string_np_map = evaluator.evaluate(string_tensor_map)
   return {k: v.to_list() for k, v in string_np_map.items()}
 
 
@@ -125,9 +125,12 @@ class MockExpression(expression.Expression):
   def get_source_expressions(self):
     return self._source_expressions
 
-  def calculate(self, source_tensors,
-                destinations,
-                options):
+  def calculate(
+      self,
+      source_tensors,
+      destinations,
+      options,
+      side_info = None):
     if len(source_tensors) != len(self._expected_source_tensors):
       raise ValueError("Unexpected number of inputs for {}.".format(self._name))
     for i in range(len(source_tensors)):

@@ -27,7 +27,7 @@ limitations under the License.
 #include "absl/base/internal/endian.h"
 #include "absl/strings/string_view.h"
 #include "tensorflow/core/lib/core/coding.h"
-#include "tensorflow/core/platform/default/integral_types.h"
+#include "tensorflow/core/platform/types.h"
 
 namespace struct2tensor {
 

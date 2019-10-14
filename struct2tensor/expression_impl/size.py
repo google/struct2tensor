@@ -35,7 +35,7 @@ from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.expression_impl import map_values
 import tensorflow as tf
-from typing import Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 
 def size_anonymous(root, source_path
@@ -104,9 +104,12 @@ class SizeExpression(expression.Leaf):
   def get_source_expressions(self):
     return [self._origin, self._origin_parent]
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
 
     [origin_value, origin_parent_value] = sources
     if not isinstance(origin_value,

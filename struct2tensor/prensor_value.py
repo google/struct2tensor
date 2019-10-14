@@ -17,8 +17,10 @@ PrensorValue represents a tree where all the nodes are represented as ndarrays,
 instead of tensors.
 
 prensor = ...
+assert isinstance(prensor, struct2tensor.Prensor)
 with tf.Session() as sess:
-  prensor_value = materialize(prensor, sess)
+  prensor_value = sess.run(prensor)
+  assert isinstance(prensor_value, struct2tensor.PrensorValue)
 
 """
 
@@ -28,25 +30,19 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
-
-from typing import FrozenSet, Optional, Mapping, Sequence, Text, Union
 from struct2tensor import path
 from struct2tensor import prensor
+import tensorflow as tf
+from typing import FrozenSet, Iterator, Optional, Mapping, Sequence, Text, Union
 
-
-def materialize(pren,
-                sess,
-                feed_dict=None,
-                options=None,
-                run_metadata=None):
-  """Convert a prensor to a prensor value."""
-  tensor_map = _get_tensor_map(pren, sess, feed_dict, options, run_metadata)
-  return _map_prensor(pren, tensor_map)
+# pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.client import session as session_lib
 
 
 class RootNodeValue(object):
   """The value of the root."""
+
+  __slots__ = ["_size"]
 
   def __init__(self, size):
     """Creates a root node.
@@ -76,6 +72,8 @@ class RootNodeValue(object):
 
 class ChildNodeValue(object):
   """The value of an intermediate node."""
+
+  __slots__ = ["_parent_index", "_is_repeated"]
 
   def __init__(self, parent_index, is_repeated):
     """Creates a child node.
@@ -118,6 +116,8 @@ class ChildNodeValue(object):
 
 class LeafNodeValue(object):
   """The value of a leaf node."""
+
+  __slots__ = ["_parent_index", "_values", "_is_repeated"]
 
   def __init__(self, parent_index, values,
                is_repeated):
@@ -164,6 +164,8 @@ NodeValue = Union[RootNodeValue, ChildNodeValue, LeafNodeValue]  # pylint: disab
 
 class PrensorValue(object):
   """A tree of NodeValue objects."""
+
+  __slots__ = ["_node", "_children"]
 
   def __init__(self, node,
                children):
@@ -260,50 +262,42 @@ class PrensorValue(object):
     return "\n".join(self._string_helper(""))
 
 
-def _get_tensors(tree):
-  """Get all the tensors in all the tensor nodes in the tree."""
-  node = tree.node
-  result = []
-  if isinstance(node, prensor.LeafNodeTensor):
-    result.append(node.parent_index)
-    result.append(node.values)
-  elif isinstance(node, prensor.ChildNodeTensor):
-    result.append(node.parent_index)
-  elif isinstance(node, prensor.RootNodeTensor):
-    result.append(node.size)
-  for _, child in tree.get_children().items():
-    result.extend(_get_tensors(child))
-  return result
-
-
-# Maps tensors ids to np.ndarray
-_TensorMap = Mapping[int, np.ndarray]
-
-
-def _get_tensor_map(t, sess, feed_dict, options,
-                    run_metadata):
-  tensor_list = _get_tensors(t)
-  numpy_list = sess.run(
-      tensor_list,
-      feed_dict=feed_dict,
-      options=options,
-      run_metadata=run_metadata)
-  return {id(t): n for t, n in zip(tensor_list, numpy_list)}
-
-
-def _map_node_tensor(node,
-                     tensor_map):
-  if isinstance(node, prensor.LeafNodeTensor):
-    return LeafNodeValue(tensor_map[id(node.parent_index)],
-                         tensor_map[id(node.values)], node.is_repeated)
-  elif isinstance(node, prensor.ChildNodeTensor):
-    return ChildNodeValue(tensor_map[id(node.parent_index)], node.is_repeated)
+def _prensor_value_from_type_spec_and_component_values(
+    prensor_type_spec,
+    component_values):
+  """Creates a PrensorValue from a _PrensorTypeSpec and components."""
+  # pylint: disable=protected-access
+  if prensor_type_spec._node_type == prensor_type_spec._NodeType.ROOT:
+    node = RootNodeValue(next(component_values))
+  elif prensor_type_spec._node_type == prensor_type_spec._NodeType.CHILD:
+    node = ChildNodeValue(next(component_values),
+                          prensor_type_spec._is_repeated)
   else:
-    # isinstance(node, RootNodeTensor)
-    return RootNodeValue(tensor_map[id(node.size)])
+    parent_index = next(component_values)
+    values = next(component_values)
+    node = LeafNodeValue(parent_index, values, prensor_type_spec._is_repeated)
+
+  step_to_child = {}
+  for step, child_spec in prensor_type_spec._children_specs:
+    step_to_child[step] = _prensor_value_from_type_spec_and_component_values(
+        child_spec, component_values)
+  return PrensorValue(node, step_to_child)
 
 
-def _map_prensor(pren, tensor_map):
-  return PrensorValue(
-      _map_node_tensor(pren.node, tensor_map),
-      {k: _map_prensor(v, tensor_map) for k, v in pren.get_children().items()})
+def _prensor_value_fetch(prensor_tree):
+  """Fetch function for PrensorValue. See the document in session_lib."""
+  # pylint: disable=protected-access
+  type_spec = prensor_tree._type_spec
+  components = type_spec._to_components(prensor_tree)
+  def _construct_prensor_value(component_values):
+    return _prensor_value_from_type_spec_and_component_values(
+        type_spec, iter(component_values))
+
+  return components, _construct_prensor_value
+
+
+session_lib.register_session_run_conversion_functions(
+    prensor.Prensor,
+    _prensor_value_fetch,
+    feed_function=None,
+    feed_function_for_partial_run=None)

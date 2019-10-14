@@ -87,7 +87,7 @@ slice_expression = LazyLoader("slice_expression", globals(),
 IndexValue = Union[int, tf.Tensor, tf.Variable]  # pylint: disable=invalid-name
 
 
-class Expression(object):
+class Expression(object):  # pytype: disable=ignored-metaclass
   """An expression represents the calculation of a prensor object."""
 
   __metaclass__ = abc.ABCMeta
@@ -143,9 +143,12 @@ class Expression(object):
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def calculate(self, source_tensors,
-                destinations,
-                options):
+  def calculate(
+      self,
+      source_tensors,
+      destinations,
+      options,
+      side_info = None):
     """Calculates the node tensor of the expression.
 
     The node tensor must be a function of the properties of the expression
@@ -168,6 +171,8 @@ class Expression(object):
         get_source_expressions().
       destinations: The expressions that will use the output of this method.
       options: Options for the calculation.
+      side_info: An optional prensor that is used to bind to a placeholder
+        expression.
 
     Returns:
       A NodeTensor representing the output of this expression.
@@ -556,6 +561,25 @@ class Expression(object):
       A string, describing (a part of) the schema.
     """
     return "\n".join(self._schema_string_helper("root", limit))
+
+  def __hash__(self):
+    """Returns the id of the expression as the hash.
+
+    Do not override this method.
+    """
+    return id(self)
+
+  def __eq__(self, expr):
+    """if hash(expr1) == hash(expr2): then expr1 == expr2.
+
+    Do not override this method.
+    Args:
+      expr: The expression to check equality against
+
+    Returns:
+      Boolean of equality of two expressions
+    """
+    return id(self) == id(expr)
 
   def __str__(self):  # pylint: disable=g-ambiguous-str-annotation
     """If not overridden, returns the schema string."""

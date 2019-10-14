@@ -111,7 +111,7 @@ def parse_message_level(tensor_of_protos,
     tensor_of_protos: a 1-D tensor of strings of protocol buffers.
     descriptor_type: a descriptor for the protocol buffer to parse. See
       https://github.com/protocolbuffers/protobuf/blob/master/python/google/protobuf/descriptor.py
-      field_names: the names of the fields to parse.
+    field_names: the names of the fields to parse.
 
   Returns:
     list of named _ParsedField, one per field_name in field_names:
@@ -125,6 +125,9 @@ def parse_message_level(tensor_of_protos,
   """
   if not field_names:
     return []
+  # We sort the field names so that the input attr to DecodeProtoSparseV2 op
+  # is deterministic.
+  field_names = sorted(field_names)
   message_type = descriptor_type.full_name
   descriptor_set = file_descriptor_set.get_file_descriptor_set_proto(
       descriptor_type, field_names)

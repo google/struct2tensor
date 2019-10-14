@@ -61,7 +61,8 @@ IDNodeTensor = int
 
 def calculate_values_with_graph(
     expressions,
-    options = None
+    options = None,
+    feed_dict = None
 ):
   """Calculates the values of the expressions, and the graph used.
 
@@ -70,20 +71,24 @@ def calculate_values_with_graph(
   Args:
     expressions: a list of expressions to calculate.
     options: options for calculations, passed to calculate(...).
+    feed_dict: a dictionary, mapping expression to prensor that will be used
+      as the initial expression in the expression graph.
 
   Returns:
     the list of values and the graph used to calculate them.
   """
   if options is None:
     options = calculate_options.get_default_options()
-  expression_graph = _create_graph(expressions, options)
+  expression_graph = _create_graph(expressions, options, feed_dict=feed_dict)
   return ([expression_graph.get_value_or_die(x) for x in expressions],
           expression_graph)
 
 
-def calculate_values(expressions,
-                     options = None
-                    ):
+def calculate_values(
+    expressions,
+    options = None,
+    feed_dict = None
+):
   """Calculates the values of the expressions.
 
   Note that this does not return prensors, but instead a list of NodeTensors.
@@ -91,16 +96,20 @@ def calculate_values(expressions,
   Args:
     expressions: A list of expressions to calculate.
     options: options for calculate(...) operations.
+    feed_dict: a dictionary, mapping expression to prensor that will be used
+      as the initial expression in the expression graph.
 
   Returns:
     A list of NodeTensor values.
   """
-  return calculate_values_with_graph(expressions, options=options)[0]
+  return calculate_values_with_graph(
+      expressions, options=options, feed_dict=feed_dict)[0]
 
 
 def calculate_prensors_with_graph(
     expressions,
-    options = None
+    options = None,
+    feed_dict = None
 ):
   """Gets the prensor value of the expressions and the graph used.
 
@@ -110,13 +119,16 @@ def calculate_prensors_with_graph(
   Args:
     expressions: expressions to calculate prensors for.
     options: options for calculate(...) methods.
+    feed_dict: a dictionary, mapping expression to prensor that will be used
+      as the initial expression in the expression graph.
 
   Returns:
     a list of prensors, and the graph used to calculate them.
   """
   subtrees = [x.get_known_descendants() for x in expressions]
   all_expressions = [expr for tree in subtrees for expr in tree.values()]  # pylint: disable=g-complex-comprehension
-  values, graph = calculate_values_with_graph(all_expressions, options=options)
+  values, graph = calculate_values_with_graph(
+      all_expressions, options=options, feed_dict=feed_dict)
   expr_value_pairs = zip(all_expressions, values)
   value_map = {}
   for expr, value in expr_value_pairs:
@@ -125,29 +137,37 @@ def calculate_prensors_with_graph(
   return ([_get_prensor(subtree, value_map) for subtree in subtrees], graph)
 
 
-def calculate_prensors(expressions,
-                       options = None
-                      ):
+def calculate_prensors(
+    expressions,
+    options = None,
+    feed_dict = None
+):
   """Gets the prensor value of the expressions.
 
   Args:
     expressions: expressions to calculate prensors for.
     options: options for calculate(...).
+    feed_dict: a dictionary, mapping expression to prensor that will be used
+      as the initial expression in the expression graph.
 
   Returns:
     a list of prensors.
   """
 
-  return calculate_prensors_with_graph(expressions, options=options)[0]
+  return calculate_prensors_with_graph(
+      expressions, options=options, feed_dict=feed_dict)[0]
 
 
 # TODO(martinz): Create an option to create the original expression graph.
-def _create_graph(expressions,
-                  options):
+def _create_graph(
+    expressions,
+    options,
+    feed_dict = None
+):
   """Create graph and calculate expressions."""
   expression_graph = OriginalExpressionGraph(expressions)
   canonical_graph = CanonicalExpressionGraph(expression_graph)
-  canonical_graph.calculate_values(options)
+  canonical_graph.calculate_values(options, feed_dict=feed_dict)
   return canonical_graph
 
 
@@ -248,11 +268,15 @@ class _ExpressionNode(object):
                                           self.expression.type),
                           _node_type_str(self.value)))
 
-  def calculate(self, source_values,
-                options):
+  def calculate(self,
+                source_values,
+                options,
+                side_info):
     """Calculate the value of the node, and store it in self.value."""
     self.value = self.expression.calculate(
-        source_values, [x.expression for x in self.destinations], options)
+        source_values, [x.expression for x in self.destinations],
+        options,
+        side_info=side_info)
     if self.value.is_repeated != self.expression.is_repeated:
       raise self._create_value_error()
     expected_type = self.expression.type
@@ -325,10 +349,16 @@ class ExpressionGraph(object):
           raise ValueError("Could not find source of node")
         source_node.destinations.append(node)
 
-  def calculate_values(self, options):
+  def calculate_values(
+      self,
+      options,
+      feed_dict = None
+  ):
     for node in self.ordered_node_list:
       source_values = [self._node[id(x)].value for x in node.sources]
-      node.calculate(source_values, options)
+      side_info = feed_dict[node.expression] if feed_dict and (
+          node.expression in feed_dict) else None
+      node.calculate(source_values, options, side_info=side_info)
 
   def get_expressions_needed(self):
     return [x.expression for x in self.ordered_node_list]

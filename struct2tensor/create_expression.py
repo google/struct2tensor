@@ -54,9 +54,12 @@ class _DirectExpression(expression.Expression):
   def get_source_expressions(self):
     return []
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     return self._value
 
   def calculation_is_identity(self):

@@ -138,9 +138,12 @@ class _MapValuesExpression(expression.Expression):
   def get_source_expressions(self):
     return self._origin
 
-  def calculate(self, sources,
-                destinations,
-                options):
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     source_leaves = [_leaf_node_or_error(s) for s in sources]
     source_values = [s.values for s in source_leaves]
     # TODO(martinz): Check that:

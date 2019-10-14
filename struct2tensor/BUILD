@@ -16,7 +16,10 @@
 # simply and efficiently.
 
 package(default_visibility = [
-    "//learning/powerhouse/tensorflow/ops:__subpackages__",
+    "//learning/tfx/autotfx:__subpackages__",
+    "//learning/tfx/users/tfx/util/tf_ranking:__subpackages__",
+    "//nlp/nlx/infrastructure/multiscale:__subpackages__",
+    "//third_party/py/tfx_bsl:__subpackages__",
     "//video/youtube/discovery/tensorflow/python/input/feature_parser:__subpackages__",
     "@//:__subpackages__",
 ])
@@ -42,8 +45,6 @@ cc_library(
     alwayslink = 1,
 )
 
-# Note: do not separate these, as eventually we want to make sure that they
-# are all included in a single package.
 s2t_pytype_library(
     name = "path",
     srcs = [
@@ -51,6 +52,11 @@ s2t_pytype_library(
     ],
     srcs_version = "PY2AND3",
     deps = ["@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_py_pb2"],
+)
+
+s2t_pytype_library(
+    name = "tf_types",
+    srcs = ["tf_types.py"],
 )
 
 # Note: do not separate these, as eventually we want to make sure that they
@@ -66,6 +72,7 @@ s2t_pytype_library(
     deps = [
         ":calculate_options",
         ":path",
+        ":tf_types",
         "//struct2tensor/ops:struct2tensor_ops",
         "//struct2tensor/proto:query_metadata_py_pb2",
         "@protobuf_archive//:protobuf_python",
@@ -128,6 +135,20 @@ s2t_pytype_library(
     srcs_version = "PY2AND3",
     deps = [
         ":expression",
+        ":path",
+        ":prensor",
+    ],
+)
+
+s2t_pytype_library(
+    name = "placeholder",
+    srcs = [
+        "expression_impl/placeholder.py",
+    ],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":expression",
+        ":map_prensor_to_prensor",
         ":path",
         ":prensor",
     ],

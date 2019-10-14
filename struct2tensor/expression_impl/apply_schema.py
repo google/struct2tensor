@@ -125,7 +125,7 @@ def _apply_feature(original_child,
   return _SchemaExpression(original_child, feature_copy, feature)
 
 
-class _SchemaExpression(expression.Expression):
+class _SchemaExpression(expression.Expression):  # pytype: disable=ignored-metaclass
   """An expression represents the application of a schema."""
 
   __metaclass__ = abc.ABCMeta

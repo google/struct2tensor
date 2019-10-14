@@ -18,12 +18,11 @@ from __future__ import division
 from __future__ import print_function
 
 from absl.testing import absltest
-import tensorflow as tf
-
 from struct2tensor import create_expression
-from struct2tensor.test import expression_test_util
 from struct2tensor import path
+from struct2tensor.test import expression_test_util
 from struct2tensor.test import prensor_test_util
+import tensorflow as tf
 
 
 class ExpressionTest(absltest.TestCase):

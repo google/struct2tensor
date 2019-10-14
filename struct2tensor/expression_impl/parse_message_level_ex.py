@@ -139,15 +139,15 @@ def get_full_name_from_any_step(
 def _any_indices_with_type(type_url,
                            full_name):
   """Returns the parent indices that have a type_url of full_name."""
-  tensors_parsed = tf.string_split(type_url.value, delimiter="/")
+  tensors_parsed = tf.compat.v1.string_split(type_url.value, delimiter="/")
   second_column_shape = tf.stack([
       tf.shape(type_url.value, out_type=tf.int64)[0],
       tf.constant(1, dtype=tf.int64)
   ],
                                  axis=0)
   second_column = tf.reshape(
-      tf.sparse_tensor_to_dense(
-          tf.sparse_slice(tensors_parsed, tf.constant([0, 1], dtype=tf.int64),
+      tf.sparse.to_dense(
+          tf.sparse.slice(tensors_parsed, tf.constant([0, 1], dtype=tf.int64),
                           second_column_shape),
           default_value=""), [-1])
   equal_to_full_name = tf.equal(second_column, full_name)

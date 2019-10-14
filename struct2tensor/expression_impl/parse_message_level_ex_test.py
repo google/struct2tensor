@@ -22,14 +22,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-
 from absl.testing import absltest
-
+from struct2tensor.expression_impl import parse_message_level_ex
 from struct2tensor.test import test_any_pb2
 from struct2tensor.test import test_map_pb2
 from struct2tensor.test import test_pb2
-from struct2tensor.expression_impl import parse_message_level_ex
+import tensorflow as tf
+
+from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 _INDEX = "index"
 _VALUE = "value"
@@ -40,7 +40,7 @@ _USERINFO_NO_PARENS = b"type.googleapis.com/struct2tensor.test.UserInfo"
 _USERINFO = "(type.googleapis.com/struct2tensor.test.UserInfo)"
 
 
-def _run_parse_message_level_ex(proto_list, fields, sess):
+def _run_parse_message_level_ex(proto_list, fields):
   serialized = [x.SerializeToString() for x in proto_list]
   parsed_field_dict = parse_message_level_ex.parse_message_level_ex(
       tf.constant(serialized), proto_list[0].DESCRIPTOR, fields)
@@ -50,7 +50,7 @@ def _run_parse_message_level_ex(proto_list, fields, sess):
     local_dict[_INDEX] = value.index
     local_dict[_VALUE] = value.value
     sess_input[key] = local_dict
-  return sess.run(sess_input)
+  return sess_input
 
 
 def _create_any(x):
@@ -76,53 +76,53 @@ def _get_optional_int32(serialized_all_simple):
   return holder.optional_int32
 
 
+def _get_empty_all_simple():
+  """Take a serialized test_pb2.AllSimple object and extract optional_int32."""
+  return test_pb2.AllSimple().SerializeToString()
+
+
+@test_util.run_all_in_graph_and_eager_modes
 class ParseMessageLevelExTest(tf.test.TestCase):
 
   def test_any_field(self):
     original_protos = _create_any_protos()
-    with self.session(use_gpu=False) as sess:
-      result = _run_parse_message_level_ex(original_protos, {_ALLSIMPLE}, sess)
-      self.assertIn(_ALLSIMPLE, result)
-      self.assertIn(_INDEX, result[_ALLSIMPLE])
-      self.assertIn(_VALUE, result[_ALLSIMPLE])
+    result = _run_parse_message_level_ex(original_protos, {_ALLSIMPLE})
+    self.assertIn(_ALLSIMPLE, result)
+    self.assertIn(_INDEX, result[_ALLSIMPLE])
+    self.assertIn(_VALUE, result[_ALLSIMPLE])
 
-      self.assertAllEqual(result[_ALLSIMPLE][_INDEX], [0, 2])
-      # Extract and check the optional_int32 from the result.
-      result_optional_int32 = [
-          _get_optional_int32(x) for x in result[_ALLSIMPLE][_VALUE]
-      ]
-      self.assertAllEqual(result_optional_int32, [0, 20])
+    self.assertAllEqual(result[_ALLSIMPLE][_INDEX], [0, 2])
+    result_optional_int32 = [
+        _get_optional_int32(x)
+        for x in self.evaluate(result[_ALLSIMPLE][_VALUE])
+    ]
+    self.assertAllEqual(result_optional_int32, [0, 20])
 
   def test_any_field_no_special(self):
-    with self.session(use_gpu=False) as sess:
+    result = _run_parse_message_level_ex(_create_any_protos(), {_TYPE_URL})
+    self.assertIn(_TYPE_URL, result)
+    self.assertAllEqual(result[_TYPE_URL][_INDEX], [0, 1, 2])
 
-      result = _run_parse_message_level_ex(_create_any_protos(), {_TYPE_URL},
-                                           sess)
-      self.assertIn(_TYPE_URL, result)
-      self.assertAllEqual(result[_TYPE_URL][_INDEX], [0, 1, 2])
-
-      self.assertAllEqual(
-          result[_TYPE_URL][_VALUE],
-          [_ALLSIMPLE_NO_PARENS, _USERINFO_NO_PARENS, _ALLSIMPLE_NO_PARENS])
+    self.assertAllEqual(
+        result[_TYPE_URL][_VALUE],
+        [_ALLSIMPLE_NO_PARENS, _USERINFO_NO_PARENS, _ALLSIMPLE_NO_PARENS])
 
   def test_any_field_special_and_type_url(self):
-    with self.session(use_gpu=False) as sess:
+    result = _run_parse_message_level_ex(_create_any_protos(),
+                                         {_TYPE_URL, _ALLSIMPLE})
+    self.assertIn(_TYPE_URL, result)
+    self.assertAllEqual(result[_TYPE_URL][_INDEX], [0, 1, 2])
 
-      result = _run_parse_message_level_ex(_create_any_protos(),
-                                           {_TYPE_URL, _ALLSIMPLE}, sess)
-      self.assertIn(_TYPE_URL, result)
-      self.assertAllEqual(result[_TYPE_URL][_INDEX], [0, 1, 2])
+    self.assertAllEqual(
+        result[_TYPE_URL][_VALUE],
+        [_ALLSIMPLE_NO_PARENS, _USERINFO_NO_PARENS, _ALLSIMPLE_NO_PARENS])
 
-      self.assertAllEqual(
-          result[_TYPE_URL][_VALUE],
-          [_ALLSIMPLE_NO_PARENS, _USERINFO_NO_PARENS, _ALLSIMPLE_NO_PARENS])
-
-      self.assertAllEqual(result[_ALLSIMPLE][_INDEX], [0, 2])
-      # Extract and check the optional_int32 from the result.
-      result_optional_int32 = [
-          _get_optional_int32(x) for x in result[_ALLSIMPLE][_VALUE]
-      ]
-      self.assertAllEqual(result_optional_int32, [0, 20])
+    self.assertAllEqual(result[_ALLSIMPLE][_INDEX], [0, 2])
+    actual_values = [
+        _get_optional_int32(x)
+        for x in self.evaluate(result[_ALLSIMPLE][_VALUE])
+    ]
+    self.assertAllEqual(actual_values, [0, 20])
 
   def test_full_name_from_any_step(self):
     self.assertEqual(
@@ -140,20 +140,19 @@ class ParseMessageLevelExTest(tf.test.TestCase):
 
   def test_normal_field(self):
     """Test three messages with a repeated string."""
-    with self.session(use_gpu=False) as sess:
-      all_simple = test_pb2.AllSimple()
-      all_simple.repeated_string.append("foo")
-      all_simple.repeated_string.append("foo2")
-      all_simple_empty = test_pb2.AllSimple()
+    all_simple = test_pb2.AllSimple()
+    all_simple.repeated_string.append("foo")
+    all_simple.repeated_string.append("foo2")
+    all_simple_empty = test_pb2.AllSimple()
 
-      result = _run_parse_message_level_ex(
-          [all_simple, all_simple_empty, all_simple, all_simple],
-          {"repeated_string"}, sess)
-      self.assertNotIn("repeated_bool", result)
+    result = _run_parse_message_level_ex(
+        [all_simple, all_simple_empty, all_simple, all_simple],
+        {"repeated_string"})
+    self.assertNotIn("repeated_bool", result)
 
-      self.assertAllEqual(result["repeated_string"][_INDEX], [0, 0, 2, 2, 3, 3])
-      self.assertAllEqual(result["repeated_string"][_VALUE],
-                          [b"foo", b"foo2", b"foo", b"foo2", b"foo", b"foo2"])
+    self.assertAllEqual(result["repeated_string"][_INDEX], [0, 0, 2, 2, 3, 3])
+    self.assertAllEqual(result["repeated_string"][_VALUE],
+                        [b"foo", b"foo2", b"foo", b"foo2", b"foo", b"foo2"])
 
   def test_bool_key_type(self):
     map_field = "bool_string_map[1]"
@@ -161,12 +160,11 @@ class ParseMessageLevelExTest(tf.test.TestCase):
     message_with_map_0.bool_string_map[False] = "hello"
     message_with_map_1 = test_map_pb2.MessageWithMap()
     message_with_map_1.bool_string_map[True] = "goodbye"
-    with self.session() as sess:
-      result = _run_parse_message_level_ex(
-          [message_with_map_0, message_with_map_1], {map_field}, sess)
-      self.assertIn(map_field, result)
-      self.assertAllEqual(result[map_field][_VALUE], [b"goodbye"])
-      self.assertAllEqual(result[map_field][_INDEX], [1])
+    result = _run_parse_message_level_ex(
+        [message_with_map_0, message_with_map_1], {map_field})
+    self.assertIn(map_field, result)
+    self.assertAllEqual(result[map_field][_VALUE], [b"goodbye"])
+    self.assertAllEqual(result[map_field][_INDEX], [1])
 
 
 if __name__ == "__main__":

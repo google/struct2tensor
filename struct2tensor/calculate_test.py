@@ -31,6 +31,7 @@ from struct2tensor.test import prensor_test_util
 import tensorflow as tf
 
 import unittest
+from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 
 def get_mock_linear_graph(length):
@@ -83,6 +84,7 @@ options_to_test = [
 ]
 
 
+@test_util.run_all_in_graph_and_eager_modes
 class CalculateTest(tf.test.TestCase):
 
   def test_calculate_mock(self):
@@ -125,87 +127,72 @@ class CalculateTest(tf.test.TestCase):
   def test_calculate_root_direct(self):
     """Calculates the value of a node with no sources."""
     for options in options_to_test:
-      with self.session(use_gpu=False) as sess:
-        tree = create_expression.create_expression_from_prensor(
-            prensor_test_util.create_simple_prensor())
-        [root_value] = calculate.calculate_values([tree], options=options)
-        size_result = sess.run(root_value.size)
-        self.assertAllEqual(size_result, 3)
+      tree = create_expression.create_expression_from_prensor(
+          prensor_test_util.create_simple_prensor())
+      [root_value] = calculate.calculate_values([tree], options=options)
+      self.assertAllEqual(root_value.size, 3)
 
   def test_calculate_root_indirect(self):
     """Calculates the value of a node with one source."""
     for options in options_to_test:
-      with self.session(use_gpu=False) as sess:
-        tree = create_expression.create_expression_from_prensor(
-            prensor_test_util.create_simple_prensor())
-        tree_2 = expression_add.add_paths(tree, {})
-        [root_value] = calculate.calculate_values([tree_2], options=options)
-        size_result = sess.run(root_value.size)
-        self.assertAllEqual(size_result, 3)
+      tree = create_expression.create_expression_from_prensor(
+          prensor_test_util.create_simple_prensor())
+      tree_2 = expression_add.add_paths(tree, {})
+      [root_value] = calculate.calculate_values([tree_2], options=options)
+      self.assertAllEqual(root_value.size, 3)
 
   def test_calculate_tree_root_direct(self):
     """Calculates the value of a tree with no sources."""
     for options in options_to_test:
-      with self.session(use_gpu=False) as sess:
-        tree = create_expression.create_expression_from_prensor(
-            prensor_test_util.create_simple_prensor())
-        [new_expr] = calculate.calculate_prensors([tree], options=options)
-        size_result = sess.run(new_expr.node.size)
-        self.assertAllEqual(size_result, 3)
+      tree = create_expression.create_expression_from_prensor(
+          prensor_test_util.create_simple_prensor())
+      [new_expr] = calculate.calculate_prensors([tree], options=options)
+      self.assertAllEqual(new_expr.node.size, 3)
 
   def test_calculate_promote_anonymous(self):
     """Performs promote_test.PromoteValuesTest, but with calculate_values."""
     for options in options_to_test:
-      with self.session(use_gpu=False) as sess:
-        expr = create_expression.create_expression_from_prensor(
-            prensor_test_util.create_nested_prensor())
-        new_root, new_path = promote.promote_anonymous(
-            expr, path.Path(["user", "friends"]))
-        new_field = new_root.get_descendant_or_error(new_path)
-        [leaf_node] = calculate.calculate_values([new_field], options=options)
-        [parent_index,
-         values] = sess.run([leaf_node.parent_index, leaf_node.values])
-        self.assertAllEqual(parent_index, [0, 1, 1, 1, 2])
-        self.assertAllEqual(values, [b"a", b"b", b"c", b"d", b"e"])
+      expr = create_expression.create_expression_from_prensor(
+          prensor_test_util.create_nested_prensor())
+      new_root, new_path = promote.promote_anonymous(
+          expr, path.Path(["user", "friends"]))
+      new_field = new_root.get_descendant_or_error(new_path)
+      [leaf_node] = calculate.calculate_values([new_field], options=options)
+      self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 1, 2])
+      self.assertAllEqual(leaf_node.values, [b"a", b"b", b"c", b"d", b"e"])
 
   def test_calculate_promote_named(self):
     """Performs promote_test.PromoteValuesTest, but with calculate_values."""
     for options in options_to_test:
-      with self.session(use_gpu=False) as sess:
-        expr = create_expression.create_expression_from_prensor(
-            prensor_test_util.create_nested_prensor())
-        new_root = promote.promote(expr, path.Path(["user", "friends"]),
-                                   "new_friends")
-        # projected = project.project(new_root, [path.Path(["new_friends"])])
-        new_field = new_root.get_child_or_error("new_friends")
-        [leaf_node] = calculate.calculate_values([new_field], options=options)
-        [parent_index,
-         values] = sess.run([leaf_node.parent_index, leaf_node.values])
-        self.assertAllEqual(parent_index, [0, 1, 1, 1, 2])
-        self.assertAllEqual(values, [b"a", b"b", b"c", b"d", b"e"])
+      expr = create_expression.create_expression_from_prensor(
+          prensor_test_util.create_nested_prensor())
+      new_root = promote.promote(expr, path.Path(["user", "friends"]),
+                                 "new_friends")
+      # projected = project.project(new_root, [path.Path(["new_friends"])])
+      new_field = new_root.get_child_or_error("new_friends")
+      [leaf_node] = calculate.calculate_values([new_field], options=options)
+      self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 1, 2])
+      self.assertAllEqual(leaf_node.values, [b"a", b"b", b"c", b"d", b"e"])
 
   def test_create_query_and_calculate_event_value(self):
     """Calculating a child value in a proto tests dependencies."""
     for options in options_to_test:
-      with self.session(use_gpu=False) as sess:
-        expr = proto_test_util._get_expression_from_session_empty_user_info()
-        [event_value
-        ] = calculate.calculate_values([expr.get_child_or_error("event")],
-                                       options=options)
-        parent_index = sess.run(event_value.parent_index)
-        self.assertAllEqual(parent_index, [0, 0, 0, 1, 1])
+      expr = proto_test_util._get_expression_from_session_empty_user_info()
+      [event_value
+      ] = calculate.calculate_values([expr.get_child_or_error("event")],
+                                     options=options)
+      self.assertAllEqual(event_value.parent_index, [0, 0, 0, 1, 1])
 
   def test_create_query_modify_and_calculate_event_value(self):
     """Calculating a child value in a proto tests dependencies."""
     for options in options_to_test:
-      with self.session(use_gpu=False) as sess:
-        root = proto_test_util._get_expression_from_session_empty_user_info()
-        root_2 = expression_add.add_paths(
-            root, {path.Path(["event_copy"]): root.get_child_or_error("event")})
-        [event_value] = calculate.calculate_values(
-            [root_2.get_child_or_error("event_copy")], options=options)
-        parent_index = sess.run(event_value.parent_index)
-        self.assertAllEqual(parent_index, [0, 0, 0, 1, 1])
+      root = proto_test_util._get_expression_from_session_empty_user_info()
+      root_2 = expression_add.add_paths(
+          root, {path.Path(["event_copy"]): root.get_child_or_error("event")})
+      [event_value
+      ] = calculate.calculate_values([root_2.get_child_or_error("event_copy")],
+                                     options=options)
+      self.assertAllEqual(event_value.parent_index, [0, 0, 0, 1, 1])
 
 
 if __name__ == "__main__":

@@ -25,6 +25,7 @@ from struct2tensor.test import prensor_test_util
 import tensorflow as tf
 
 import unittest
+from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 from tensorflow_metadata.proto.v0 import schema_pb2
 
 
@@ -254,22 +255,19 @@ class PromoteTest(unittest.TestCase):
     self.assertEqual(new_field.known_field_names(), frozenset())
 
 
+@test_util.run_all_in_graph_and_eager_modes
 class PromoteValuesTest(tf.test.TestCase):
 
   def test_promote_and_calculate(self):
     """Tests get_sparse_tensors on a deep tree."""
-    with self.session(use_gpu=False) as sess:
-      expr = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_nested_prensor())
-      new_root, new_path = promote.promote_anonymous(
-          expr, path.Path(["user", "friends"]))
-      new_field = new_root.get_descendant_or_error(new_path)
-      leaf_node = expression_test_util.calculate_value_slowly(new_field)
-      parent_index, values = sess.run(
-          [leaf_node.parent_index, leaf_node.values])
-
-      self.assertAllEqual(parent_index, [0, 1, 1, 1, 2])
-      self.assertAllEqual(values, [b"a", b"b", b"c", b"d", b"e"])
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_nested_prensor())
+    new_root, new_path = promote.promote_anonymous(
+        expr, path.Path(["user", "friends"]))
+    new_field = new_root.get_descendant_or_error(new_path)
+    leaf_node = expression_test_util.calculate_value_slowly(new_field)
+    self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 1, 2])
+    self.assertAllEqual(leaf_node.values, [b"a", b"b", b"c", b"d", b"e"])
 
 
 if __name__ == "__main__":

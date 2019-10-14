@@ -189,11 +189,12 @@ class _MapPrensorExpression(expression.Expression):
     source_paths = self._get_source_paths()
     return [subtree[k] for k in source_paths]
 
-  def calculate(self, sources,
-                destinations,
-                options):
-    print("map_prensor:calculate:options:{}".format(options))
-
+  def calculate(
+      self,
+      sources,
+      destinations,
+      options,
+      side_info = None):
     source_tree = prensor.create_prensor_from_descendant_nodes(
         {k: v for k, v in zip(self._get_source_paths(), sources)})
     return self._operation(source_tree, options)

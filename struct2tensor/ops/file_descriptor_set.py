@@ -59,7 +59,10 @@ def _order_dependencies(file_descriptors
   result = []
   result_set = set()
   progress = True
-  remaining_file_descriptors = list(file_descriptors)
+  # We sort the file descriptors so that the list of descriptors returned
+  # is deterministic and the attr input to the DecodeProto* ops are stable.
+  remaining_file_descriptors = sorted(list(file_descriptors),
+                                      key=lambda x: x.name)
   while remaining_file_descriptors and progress:
     failed = []
     progress = False

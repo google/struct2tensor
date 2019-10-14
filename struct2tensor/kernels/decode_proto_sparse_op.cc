@@ -47,8 +47,8 @@ limitations under the License.
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/tensor_types.h"
 #include "tensorflow/core/lib/core/errors.h"
-#include "tensorflow/core/platform/default/integral_types.h"
 #include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/types.h"
 
 namespace struct2tensor {
 namespace {
