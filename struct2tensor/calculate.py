@@ -126,7 +126,9 @@ def calculate_prensors_with_graph(
     a list of prensors, and the graph used to calculate them.
   """
   subtrees = [x.get_known_descendants() for x in expressions]
-  all_expressions = [expr for tree in subtrees for expr in tree.values()]  # pylint: disable=g-complex-comprehension
+  all_expressions = []
+  for tree in subtrees:
+    all_expressions.extend(tree.values())
   values, graph = calculate_values_with_graph(
       all_expressions, options=options, feed_dict=feed_dict)
   expr_value_pairs = zip(all_expressions, values)

@@ -1,6 +1,7 @@
 package(
     default_visibility = [
-        "//learning/tfx/autotfx/ops:__subpackages__",
+        "//learning/tfx/autotfx:__subpackages__",
+        "//learning/tfx/pipeline/statistics_gen:__subpackages__",
         "//third_party/py/tensorflow_data_validation:__subpackages__",
         "//third_party/py/tfx_bsl:__subpackages__",
         "@//:__subpackages__",
@@ -13,6 +14,7 @@ licenses(["notice"])  # Apache 2.0
 
 exports_files([
     "LICENSE",
+    "__init__.py",
     "expression_test_util.py",
     "prensor_test_util.py",
 ])

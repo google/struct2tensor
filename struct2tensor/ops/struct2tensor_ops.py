@@ -148,14 +148,19 @@ def parse_message_level(tensor_of_protos,
       num_fields=len(field_names),
       field_names=list(field_names),
       output_types=output_types)
-  return [
-      _ParsedField(  # pylint: disable=g-complex-comprehension
-          field_name=field_name,
-          field_descriptor=field_descriptor,
-          value=value,
-          index=index) for field_name, field_descriptor, value, index in zip(
-              field_names, field_descriptors, values, indices)
-  ]
+
+  result = []
+  for field_name, field_descriptor, value, index in zip(field_names,
+                                                        field_descriptors,
+                                                        values, indices):
+    result.append(
+        _ParsedField(
+            field_name=field_name,
+            field_descriptor=field_descriptor,
+            value=value,
+            index=index))
+
+  return result
 
 
 def run_length_before(a):

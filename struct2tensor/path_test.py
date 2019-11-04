@@ -18,6 +18,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import pprint
 
 from absl.testing import absltest
 from struct2tensor.path import create_path
@@ -223,6 +224,10 @@ class PathTest(absltest.TestCase):
     p_from_proto = from_proto(path_proto)
     self.assertEqual(p, p_from_proto)
     self.assertEqual(path_proto, p_from_proto.as_proto())
+
+  def test_pprint(self):
+    p = create_path("foo.bar.baz")
+    self.assertEqual(pprint.pformat(p), "foo.bar.baz")
 
 
 if __name__ == "__main__":

@@ -51,6 +51,7 @@ cc_library(
     deps = [
         ":vector_to_tensor",
         "@com_google_absl//absl/base:core_headers",
+        "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
         "@org_tensorflow//tensorflow/core:framework",
         "@org_tensorflow//tensorflow/core:framework_lite",

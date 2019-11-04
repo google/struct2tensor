@@ -170,7 +170,7 @@ s2t_gen_op_wrapper_py(
 # Contains only registrations of Prensor ops. Programs that build but do not run
 # Prensor graphs should depend on this target.
 # Open source packages should depend upon this and
-# struct2tensor/kernels:struct2tensor_op_kernels.
+# struct2tensor/kernels:struct2tensor_kernels.
 cc_library(
     name = "struct2tensor_op_registrations",
     visibility = ["//visibility:public"],

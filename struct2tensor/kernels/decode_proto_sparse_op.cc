@@ -50,6 +50,7 @@ limitations under the License.
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/types.h"
 
+
 namespace struct2tensor {
 namespace {
 using ::absl::string_view;
@@ -593,7 +594,10 @@ struct FieldBuilderAndFactory {
 class DecodeProtoSparseOp : public OpKernel {
  public:
   explicit DecodeProtoSparseOp(OpKernelConstruction* context)
-      : OpKernel(context) {
+      : OpKernel(context),
+        legacy_out_of_order_handling_(
+            false
+        ) {
     std::string descriptor_literal;
     OP_REQUIRES_OK(context,
                    context->GetAttr("descriptor_literal", &descriptor_literal));
@@ -804,10 +808,14 @@ class DecodeProtoSparseOp : public OpKernel {
       CodedInputStream input(reinterpret_cast<const uint8_t*>(buf.c_str()),
                              buf.size());
 
+      OP_REQUIRES(ctx, input.IsFlat(),
+                  DataLoss("Failed to construct a flat CodedInputStream"));
+
       Status st =
-          input.IsFlat()
-              ? ConsumeOneProto(&input, message_index, field_builders)
-              : DataLoss("Failed to construct a flat CodedInputStream.");
+          legacy_out_of_order_handling_
+              ? ConsumeOneProtoLegacy(&input, message_index, field_builders)
+              : ConsumeOneProto(&input, message_index, field_builders);
+
       if (st.ok() && !input.ConsumedEntireMessage()) {
         st = DataLoss("Failed to consume entire buffer");
       }
@@ -921,10 +929,7 @@ class DecodeProtoSparseOp : public OpKernel {
     }
   }
 
-  // Traverses a serialized protobuf, dispatching values to the
-  // field_builders. input contains the protobuf. index is the index of the
-  // message. field_builders contains the builders.
-  Status ConsumeOneProto(
+  Status ConsumeOneProtoLegacy(
       CodedInputStream* input, int index,
       const vector<std::unique_ptr<FieldBuilder>>& field_builders) {
     int last_good_field_index = -1;
@@ -1023,6 +1028,113 @@ class DecodeProtoSparseOp : public OpKernel {
 
     return Status::OK();
   }
+  // Traverses a serialized protobuf, dispatching values to the
+  // field_builders. input contains the protobuf. index is the index of the
+  // message. field_builders contains the builders.
+  Status ConsumeOneProto(
+      CodedInputStream* input, int index,
+      const vector<std::unique_ptr<FieldBuilder>>& field_builders) {
+    auto expected_field_builder_iter = field_builders.begin();
+    int last_seen_field_number = -1;
+
+    // The 'tag' variable should always be treated as tainted.
+    uint32_t tag;
+    for (tag = input->ReadTag();
+         tag != 0 && WireFormatLite::GetTagWireType(tag) !=
+                         WireFormatLite::WIRETYPE_END_GROUP;
+         tag = input->ReadTag()) {
+      // Special handling for proto1 MessageSet wire format.
+      // (proto2 MessageSet bridge is also serialized into this wire format
+      // by default).
+      if (has_message_set_wire_format_extension_ &&
+          tag == WireFormatLite::kMessageSetItemStartTag) {
+        if (!HandleMessageSetItemGroup(input, index, field_builders)) {
+          return DataLoss("Unable to parse MessageSet wire format.");
+        }
+        continue;
+      }
+
+      // The field wire number.
+      int field_number = WireFormatLite::GetTagFieldNumber(tag);
+      // The field associated with the field wire number.
+      FieldBuilder* field_builder = nullptr;
+
+      // field_builders are ordered by their field numbers. If the field numbers
+      // on wire are also ordered (which is a convention), then we can
+      // monotonically increment `expected_field_builder_iter` as the field
+      // numbers on wire get larger. If we detect any out-of-order
+      // field number, we reset `expected_field_builder_iter`, and expect that
+      // future wire numbers are ordered. This algorithm is quadratic in the
+      // worst case where field numbers on wire are in descending order, however
+      // it works well in the case where two serialized protobufs are
+      // concatenated together.
+      if (field_number < last_seen_field_number) {
+        expected_field_builder_iter = field_builders.begin();
+      }
+      // We may have gone through all the field builders and if the ordering
+      // convention is held we don't expect to see any field number of interest.
+      const int expected_field_number =
+          expected_field_builder_iter != field_builders.end()
+              ? (*expected_field_builder_iter)->wire_number()
+              : INT_MAX;
+
+      if (field_number == expected_field_number) {
+        field_builder = expected_field_builder_iter->get();
+      } else if (field_number > expected_field_number) {
+        // Advance expected_field_builder_iter until
+        // field_number <= expected_field_number.
+        for (; expected_field_builder_iter != field_builders.end();
+             ++expected_field_builder_iter) {
+          FieldBuilder* expected_field_builder =
+              expected_field_builder_iter->get();
+          if (field_number <= expected_field_builder->wire_number()) {
+            if (field_number == expected_field_builder->wire_number()) {
+              field_builder = expected_field_builder;
+            }
+            break;
+          }
+        }
+        // Otherwise if field_number < expected_field_number, we should skip
+        // this field while still expect the same field number in the next
+        // iteration.
+      }
+
+      last_seen_field_number = field_number;
+
+      // Invariant: `expected_field_builder_iter` should point to the first
+      // field_builder s.t. last_seen_field_number <= iter->wire_number(), or
+      // if such a field_builder does not exist, it should point to
+      // field_builders.end().
+      DCHECK(expected_field_builder_iter == field_builders.begin() ||
+             last_seen_field_number >
+                 (*(expected_field_builder_iter - 1))->wire_number());
+      DCHECK(expected_field_builder_iter == field_builders.end() ||
+             last_seen_field_number <=
+                 (*expected_field_builder_iter)->wire_number());
+
+      if (!field_builder) {
+        // Unknown and unrequested field_builders are skipped.
+        if (!WireFormatLite::SkipField(input, tag)) {
+          return DataLoss("Failed skipping unrequested field");
+        }
+        continue;
+      }
+
+      TF_RETURN_IF_ERROR(field_builder->Consume(
+          input, WireFormatLite::GetTagWireType(tag), index));
+    }
+    // If the last read tag is END_GROUP it should be the very last thing left
+    // in the buffer.
+    if (WireFormatLite::GetTagWireType(tag) ==
+            WireFormatLite::WIRETYPE_END_GROUP &&
+        input->ReadTag() != 0) {
+      return DataLoss(
+          "Encountered WIRETYPE_END_GROUP but the message did not end with "
+          "it.");
+    }
+
+    return Status::OK();
+  }
 
   std::string message_type_;
   // Fields are ordered by wire number.
@@ -1049,6 +1161,11 @@ class DecodeProtoSparseOp : public OpKernel {
   // With that option enabled, the extensions will be serialized into a
   // wire format which needs special handling.
   bool has_message_set_wire_format_extension_ = false;
+
+  // Set to false at initialization in open source.
+  // If true, uses (broken) legacy implementation.
+  // If false, uses new correct implementation.
+  bool legacy_out_of_order_handling_;
 
   TF_DISALLOW_COPY_AND_ASSIGN(DecodeProtoSparseOp);
 };

@@ -31,6 +31,8 @@ licenses(["notice"])
 exports_files([
     "LICENSE",
     "__init__.py",
+    "expression_impl/__init__.py",
+    "version.py",
 ])
 
 # Contains both op registrations and kernels. Programs that need to run a Prensor

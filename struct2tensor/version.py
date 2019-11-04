@@ -12,3 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+"""Contains the version string of struct2tensor."""
+
+# Note that setup.py uses this version.
+__version__ = '0.0.1.dev6'

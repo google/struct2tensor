@@ -106,14 +106,20 @@ def _normalize_feature(feature,
 
 
 def _clean_feature(feature):
-  """Remove name and all children of a feature (if any exist).
+  """Remove name and all children of a feature (if any exist), returning a copy.
 
   Args:
-    feature: feature that is cleaned in place.
+    feature: input feature
+
+  Returns:
+    cleaned feature
   """
-  feature.ClearField("name")
-  if feature.HasField("struct_domain"):
-    del feature.struct_domain.feature[:]
+  copy = schema_pb2.Feature()
+  copy.CopyFrom(feature)
+  copy.ClearField("name")
+  if copy.HasField("struct_domain"):
+    del copy.struct_domain.feature[:]
+  return copy
 
 
 def _apply_feature(original_child,
@@ -121,8 +127,8 @@ def _apply_feature(original_child,
   """Apply a feature to an expression. Feature should be "unclean"."""
   feature_copy = [x for x in feature.struct_domain.feature
                  ] if feature.HasField("struct_domain") else []
-  _clean_feature(feature)
-  return _SchemaExpression(original_child, feature_copy, feature)
+  return _SchemaExpression(original_child, feature_copy,
+                           _clean_feature(feature))
 
 
 class _SchemaExpression(expression.Expression):  # pytype: disable=ignored-metaclass

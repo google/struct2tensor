@@ -216,6 +216,10 @@ class Path(object):
         raise ValueError("Unexpected path element type: %s" % type(x))
     return result
 
+  def __repr__(self):
+    """Formats Path for pprint."""
+    return str(self)
+
   def __str__(self):
     """Get a string representation of this path.
 

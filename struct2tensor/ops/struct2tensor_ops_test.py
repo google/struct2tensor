@@ -17,50 +17,113 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from absl.testing import absltest
-from absl.testing import parameterized
-
-from struct2tensor.ops import struct2tensor_ops
-from struct2tensor.test import test_extension_pb2
-from struct2tensor.test import test_map_pb2
-from struct2tensor.test import test_pb2
-import tensorflow as tf
+import itertools
 
 
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
-INDEX = "index"
-VALUE = "value"
+    fragments = [
+        test_pb2.Event(query_token=["aaa"]).SerializeToString(),
+        test_pb2.Event(query_token=["bbb"]).SerializeToString(),
+        test_pb2.Event(event_id="abc").SerializeToString(),
+        test_pb2.Event(action_mask=[False, True]).SerializeToString(),
+    ]
+    # Test against all 4! permutations of fragments, and for each permutation
+    # test parsing all possible combination of 4 fields.
+    for indices in itertools.permutations(range(len(fragments))):
+      proto = b"".join([fragments[i] for i in indices])
 
+      for i in indices:
+        if i == 0:
+          expected_query_tokens = [b"aaa", b"bbb"]
+          break
+        if i == 1:
+          expected_query_tokens = [b"bbb", b"aaa"]
+          break
 
-def _parse_full_message_level_as_dict(proto_list):
-  serialized = [proto.SerializeToString() for proto in proto_list]
-  parsed_field_list = struct2tensor_ops.parse_full_message_level(
-      tf.constant(serialized), proto_list[0].DESCRIPTOR)
-  parsed_field_dict = {}
-  for parsed_field in parsed_field_list:
-    parsed_field_dict[parsed_field.field_name] = parsed_field
-  return parsed_field_dict
+      # "query" is not on wire at all.
+      all_fields_to_parse = ["query_token", "event_id", "action_mask", "query"]
+      expected_field_value = {
+          "action_mask": [False, True],
+          "query_token": expected_query_tokens,
+          "event_id": [b"abc"],
+          "query": np.array([], dtype=np.object),
+      }
 
+      for num_fields_to_parse in range(len(all_fields_to_parse)):
+        for comb in itertools.combinations(
+            all_fields_to_parse, num_fields_to_parse):
+          parsed_fields = struct2tensor_ops.parse_message_level(
+              [proto], test_pb2.Event.DESCRIPTOR, comb)
+          self.assertLen(parsed_fields, len(comb))
+          for f in parsed_fields:
+            self.assertAllEqual(
+                expected_field_value[f.field_name], f.value,
+                "field: {}, permutation: {}, field_to_parse: {}".format(
+                    f.field_name, indices, comb))
 
-def _make_dict_runnable(level_as_dict):
-  """Prepares output of parse_full_message_level_as_dict for evaluate."""
-  result = {}
-  for key, value in level_as_dict.items():
-    local_dict = {}
-    local_dict[INDEX] = value.index
-    local_dict[VALUE] = value.value
-    result[key] = local_dict
-  return result
+  def test_out_of_order_repeated_fields_1(self):
+    # This is a 2-1-2 wire number pattern.
+    proto = (
+        test_pb2.Event(query_token=["aaa"]).SerializeToString() +
+        test_pb2.Event(event_id="abc").SerializeToString() +
+        test_pb2.Event(query_token=["bbb"]).SerializeToString())
+    expected_field_value = {
+        "query_token": [b"aaa", b"bbb"],
+        "event_id": [b"abc"]
+    }
 
+    for fields_to_parse in [["query_token"], ["event_id"],
+                            ["query_token", "event_id"]]:
+      parsed_fields = struct2tensor_ops.parse_message_level(
+          [proto], test_pb2.Event.DESCRIPTOR, fields_to_parse)
+      for f in parsed_fields:
+        self.assertAllEqual(expected_field_value[f.field_name], f.value)
 
-def _get_full_message_level_runnable(proto_list):
-  return _make_dict_runnable(_parse_full_message_level_as_dict(proto_list))
+  def test_out_of_order_repeated_fields_2(self):
+    # This follows a 3-5-3 wire number pattern, where 3 and 4 parsed fields.
+    proto = (
+        test_pb2.Event(query_token=["aaa"]).SerializeToString() +
+        test_pb2.Event(action_mask=[True]).SerializeToString() +
+        test_pb2.Event(query_token=["bbb"]).SerializeToString())
+    expected_field_value = {
+        "query_token": [b"aaa", b"bbb"],
+        "action_mask": [True],
+        "action": []
+    }
+    for fields_to_parse in [["query_token"], ["action_mask"],
+                            ["query_token", "action_mask"],
+                            ["query_token", "action"],
+                            ["query_token", "action_mask", "action"]]:
+      parsed_fields = struct2tensor_ops.parse_message_level(
+          [proto], test_pb2.Event.DESCRIPTOR, fields_to_parse)
+      for f in parsed_fields:
+        expected_value = expected_field_value[f.field_name]
+        if expected_value:
+          self.assertAllEqual(expected_value, f.value)
 
+  def test_out_of_order_repeated_fields_3(self):
+    # This follows a 3-5-3 wire number pattern, where 3 and 4 parsed fields.
+    proto = (
+        test_pb2.AllSimple(repeated_string=["aaa"]).SerializeToString() +
+        test_pb2.AllSimple(repeated_int64=[12345]).SerializeToString() +
+        test_pb2.AllSimple(repeated_string=["bbb"]).SerializeToString())
+    expected_field_value = {
+        "repeated_string": [b"aaa", b"bbb"],
+        "repeated_int64": [12345],
+        "repeated_int32": [],
+        "repeated_uint32": []
+    }
 
-# TODO(martinz): test empty tensors for decode_proto_sparse more thoroughly.
-@test_util.run_all_in_graph_and_eager_modes
-class PrensorOpsTest(tf.test.TestCase):
+    for fields_to_parse in [["repeated_int64"], ["repeated_string"],
+                            [
+                                "repeated_string",
+                                "repeated_uint32", "repeated_int32"
+                            ]]:
+      parsed_fields = struct2tensor_ops.parse_message_level(
+          [proto], test_pb2.AllSimple.DESCRIPTOR, fields_to_parse)
+      for f in parsed_fields:
+        self.assertAllEqual(expected_field_value[f.field_name], f.value)
 
   def test_parse_full_message_level_for_event(self):
     event = test_pb2.Event()
