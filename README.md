@@ -14,10 +14,10 @@ In particular, it makes it easy to manipulate structured data, e.g., slicing,
 flattening, copying substructures, and so on, as part of a TensorFlow model
 graph. The notebook in 'examples/prensor_playground.ipynb' provides a few
 examples of struct2tensor in action and an introduction to the main
-concepts. You can (run the notebook in your
-browser)[https://colab.research.google.com/github/google/struct2tensor/blob/master/examples/prensor_playground.ipynb]
-through Google's colab environment, or (download the
-file)[examples/prensor_playground.ipynb] to run it in your own Jupyter
+concepts. You can
+[run the notebook in your browser](https://colab.research.google.com/github/google/struct2tensor/blob/master/examples/prensor_playground.ipynb)
+through Google's colab environment, or [download the
+file](examples/prensor_playground.ipynb) to run it in your own Jupyter
 environment.
 
 There are two main use cases of this package. One is to create a PIP package,
