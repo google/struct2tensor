@@ -1031,11 +1031,20 @@ class DecodeProtoSparseOp : public OpKernel {
   // Traverses a serialized protobuf, dispatching values to the
   // field_builders. input contains the protobuf. index is the index of the
   // message. field_builders contains the builders.
+  // field_builders must be sorted by increasing wire_number.
   Status ConsumeOneProto(
       CodedInputStream* input, int index,
       const vector<std::unique_ptr<FieldBuilder>>& field_builders) {
-    auto expected_field_builder_iter = field_builders.begin();
+    // At the beginning of each loop, the last field number that was seen,
+    // regardless of whether it was parsed or not, or -1 if no field has
+    // been seen before.
     int last_seen_field_number = -1;
+    // The field builder that is expected to be used next.
+    // It was either used to parse the last seen field number, or if the
+    // last seen field number was not in field_builders, it is the next
+    // field builder after the last seen field number.
+    // At the beginning it is the first field_builder.
+    auto expected_field_builder_iter = field_builders.begin();
 
     // The 'tag' variable should always be treated as tainted.
     uint32_t tag;
@@ -1043,6 +1052,13 @@ class DecodeProtoSparseOp : public OpKernel {
          tag != 0 && WireFormatLite::GetTagWireType(tag) !=
                          WireFormatLite::WIRETYPE_END_GROUP;
          tag = input->ReadTag()) {
+      DCHECK(expected_field_builder_iter == field_builders.begin() ||
+             last_seen_field_number >
+                 (*(expected_field_builder_iter - 1))->wire_number());
+      DCHECK(expected_field_builder_iter == field_builders.end() ||
+             last_seen_field_number <=
+                 (*expected_field_builder_iter)->wire_number());
+
       // Special handling for proto1 MessageSet wire format.
       // (proto2 MessageSet bridge is also serialized into this wire format
       // by default).
@@ -1055,7 +1071,7 @@ class DecodeProtoSparseOp : public OpKernel {
       }
 
       // The field wire number.
-      int field_number = WireFormatLite::GetTagFieldNumber(tag);
+      const int field_number = WireFormatLite::GetTagFieldNumber(tag);
       // The field associated with the field wire number.
       FieldBuilder* field_builder = nullptr;
 
@@ -1071,48 +1087,40 @@ class DecodeProtoSparseOp : public OpKernel {
       if (field_number < last_seen_field_number) {
         expected_field_builder_iter = field_builders.begin();
       }
-      // We may have gone through all the field builders and if the ordering
-      // convention is held we don't expect to see any field number of interest.
-      const int expected_field_number =
-          expected_field_builder_iter != field_builders.end()
-              ? (*expected_field_builder_iter)->wire_number()
-              : INT_MAX;
 
-      if (field_number == expected_field_number) {
-        field_builder = expected_field_builder_iter->get();
-      } else if (field_number > expected_field_number) {
-        // Advance expected_field_builder_iter until
-        // field_number <= expected_field_number.
-        for (; expected_field_builder_iter != field_builders.end();
-             ++expected_field_builder_iter) {
-          FieldBuilder* expected_field_builder =
-              expected_field_builder_iter->get();
-          if (field_number <= expected_field_builder->wire_number()) {
-            if (field_number == expected_field_builder->wire_number()) {
-              field_builder = expected_field_builder;
-            }
-            break;
+      // Advance expected_field_builder_iter until
+      // field_number <= expected_field_number.
+      for (; expected_field_builder_iter != field_builders.end();
+           ++expected_field_builder_iter) {
+        DCHECK(expected_field_builder_iter == field_builders.begin() ||
+               field_number >
+                   (*(expected_field_builder_iter - 1))->wire_number());
+        FieldBuilder* expected_field_builder =
+            expected_field_builder_iter->get();
+        if (field_number <= expected_field_builder->wire_number()) {
+          if (field_number == expected_field_builder->wire_number()) {
+            field_builder = expected_field_builder;
           }
+          break;
         }
-        // Otherwise if field_number < expected_field_number, we should skip
-        // this field while still expect the same field number in the next
-        // iteration.
       }
 
       last_seen_field_number = field_number;
 
-      // Invariant: `expected_field_builder_iter` should point to the first
-      // field_builder s.t. last_seen_field_number <= iter->wire_number(), or
-      // if such a field_builder does not exist, it should point to
-      // field_builders.end().
-      DCHECK(expected_field_builder_iter == field_builders.begin() ||
-             last_seen_field_number >
-                 (*(expected_field_builder_iter - 1))->wire_number());
-      DCHECK(expected_field_builder_iter == field_builders.end() ||
-             last_seen_field_number <=
-                 (*expected_field_builder_iter)->wire_number());
-
       if (!field_builder) {
+        // This DCHECK verifies that if we skip a field, we didn't want it.
+        // In particular, field_builders is empty or the field_number is either:
+        // before field_builders.begin().wire_number() or
+        // after (field_builders.end() - 1).wire_number() or
+        // in-between expected_field_builder_iter and
+        // expected_field_builder_iter - 1.
+        DCHECK(field_builders.empty() ||
+               (field_number < (*field_builders.begin())->wire_number()) ||
+               (field_number > (*(field_builders.end() - 1))->wire_number()) ||
+               (((*(expected_field_builder_iter - 1))->wire_number() <
+                 field_number) &&
+                (field_number <
+                 (*(expected_field_builder_iter))->wire_number())));
         // Unknown and unrequested field_builders are skipped.
         if (!WireFormatLite::SkipField(input, tag)) {
           return DataLoss("Failed skipping unrequested field");
@@ -1120,6 +1128,7 @@ class DecodeProtoSparseOp : public OpKernel {
         continue;
       }
 
+      DCHECK(field_number == field_builder->wire_number());
       TF_RETURN_IF_ERROR(field_builder->Consume(
           input, WireFormatLite::GetTagWireType(tag), index));
     }
