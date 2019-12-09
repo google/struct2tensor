@@ -75,7 +75,8 @@ class _ProjectExpression(expression.Expression):
   """Project all subfields of an expression."""
 
   def __init__(self, origin, paths):
-    super(_ProjectExpression, self).__init__(origin.is_repeated, origin.type)
+    super(_ProjectExpression, self).__init__(origin.is_repeated, origin.type,
+                                             origin.schema_feature)
     self._paths_map = _group_paths_by_first_step(paths)
     self._origin = origin
 

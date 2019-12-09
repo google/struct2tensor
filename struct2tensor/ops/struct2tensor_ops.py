@@ -30,7 +30,7 @@ from struct2tensor.ops import gen_run_length_before
 
 import tensorflow as tf
 
-from typing import Sequence, Tuple
+from typing import Sequence, Text, Tuple
 
 from google.protobuf import descriptor
 
@@ -63,9 +63,10 @@ _ParsedField = collections.namedtuple(
     "_ParsedField", ["field_name", "field_descriptor", "value", "index"])
 
 
-def parse_full_message_level(tensor_of_protos,
-                             descriptor_type
-                            ):
+def parse_full_message_level(
+    tensor_of_protos,
+    descriptor_type,
+    message_format = "binary"):
   """Parses all of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -75,7 +76,8 @@ def parse_full_message_level(tensor_of_protos,
     tensor_of_protos: a 1-D tensor of strings of protocol buffers.
     descriptor_type: a descriptor for the protocol buffer to parse. See
       https://github.com/protocolbuffers/protobuf/blob/master/python/google/protobuf/descriptor.py
-
+    message_format: Indicates the format of the protocol buffer: is one of
+      'text' or 'binary'.
   Returns:
     list of named tuples, one per field_name in field_names:
     field_name: the string from field_names.
@@ -87,7 +89,8 @@ def parse_full_message_level(tensor_of_protos,
   """
 
   field_names = [field.name for field in descriptor_type.fields]
-  return parse_message_level(tensor_of_protos, descriptor_type, field_names)
+  return parse_message_level(tensor_of_protos, descriptor_type, field_names,
+                             message_format)
 
 
 def _get_field_descriptor(descriptor_type,
@@ -99,9 +102,11 @@ def _get_field_descriptor(descriptor_type,
     return descriptor_type.fields_by_name[field_name]
 
 
-def parse_message_level(tensor_of_protos,
-                        descriptor_type,
-                        field_names):
+def parse_message_level(
+    tensor_of_protos,
+    descriptor_type,
+    field_names,
+    message_format = "binary"):
   """Parses a subset of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -112,7 +117,8 @@ def parse_message_level(tensor_of_protos,
     descriptor_type: a descriptor for the protocol buffer to parse. See
       https://github.com/protocolbuffers/protobuf/blob/master/python/google/protobuf/descriptor.py
     field_names: the names of the fields to parse.
-
+    message_format: Indicates the format of the protocol buffer: is one of
+      'text' or 'binary'.
   Returns:
     list of named _ParsedField, one per field_name in field_names:
     field_name: the string from field_names.
@@ -147,7 +153,8 @@ def parse_message_level(tensor_of_protos,
       message_type=message_type,
       num_fields=len(field_names),
       field_names=list(field_names),
-      output_types=output_types)
+      output_types=output_types,
+      message_format=message_format)
 
   result = []
   for field_name, field_descriptor, value, index in zip(field_names,

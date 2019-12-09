@@ -74,17 +74,16 @@ def calculate_list_map(expr, evaluator):
 class MockExpression(expression.Expression):
   """The mock expression is designed to test calculations."""
 
-  def __init__(
-      self,
-      is_repeated,
-      my_type,
-      name = None,
-      source_expressions = None,
-      calculate_output = None,
-      calculate_is_identity = False,
-      children = None,
-      known_field_names = None,
-      schema_feature = None):
+  def __init__(self,
+               is_repeated,
+               my_type,
+               name = None,
+               source_expressions = None,
+               calculate_output = None,
+               calculate_is_identity = False,
+               children = None,
+               known_field_names = None,
+               schema_feature = None):
     """Initialize an expression.
 
     Args:
@@ -119,7 +118,8 @@ class MockExpression(expression.Expression):
   def calculate_output(self):
     """The output returned by this expression."""
     if self._calculate_output is None:
-      raise ValueError("Did not specify calculate_output for {}".format(self._name))
+      raise ValueError("Did not specify calculate_output for {}".format(
+          self._name))
     return self._calculate_output
 
   def get_source_expressions(self):

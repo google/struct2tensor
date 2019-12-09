@@ -67,6 +67,7 @@ using ::tensorflow::Status;
 using ::tensorflow::Tensor;
 using ::tensorflow::TensorShape;
 using ::tensorflow::TensorShapeUtils;
+using ::tensorflow::tstring;
 namespace errors = ::tensorflow::errors;
 
 constexpr int kKeyFieldNumber = 1;
@@ -124,7 +125,7 @@ struct FieldTypeTraits {};
     using TensorCppType =                                                     \
         typename tensorflow::EnumToDataType<kTFDataType>::Type;               \
     static_assert(sizeof(TensorCppType) == sizeof(FieldCppType) ||            \
-                      (std::is_same<TensorCppType, std::string>::value &&          \
+                      (std::is_same<TensorCppType, tstring>::value &&         \
                        std::is_same<FieldCppType, absl::string_view>::value), \
                   "Unexpected FIELD_CPP_TYPE and TENSOR_DTYPE_ENUM pair");    \
   };
@@ -392,13 +393,13 @@ class MapEntryCollector {
   ~MapEntryCollector() {}
 
   Status ConsumeAndPopulateOutputTensors(
-      absl::Span<const std::string> serialized_protos,
+      absl::Span<const tstring> serialized_protos,
       absl::Span<const tensorflow::int64> parent_indices,
       OpKernelContext* op_kernel_contxt) const {
     std::unique_ptr<ValueCollectorBase> value_collector;
     TF_RETURN_IF_ERROR(MakeValueCollector(num_keys_, &value_collector));
     for (int i = 0; i < serialized_protos.size(); ++i) {
-      const std::string& p = serialized_protos[i];
+      const tstring& p = serialized_protos[i];
       const int64_t parent_index = parent_indices[i];
       StreamingProtoReader reader(p);
       bool key_field_found = false;
@@ -655,7 +656,7 @@ class DecodeProtoMapOp : public OpKernel {
     OP_REQUIRES_OK(
         context,
         map_entry_collector_->ConsumeAndPopulateOutputTensors(
-            absl::MakeConstSpan(serialized_protos_tensor.flat<std::string>().data(),
+            absl::MakeConstSpan(serialized_protos_tensor.flat<tstring>().data(),
                                 num_protos),
             absl::MakeConstSpan(
                 parent_indices_tensor.flat<tensorflow::int64>().data(),

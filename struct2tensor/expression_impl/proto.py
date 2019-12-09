@@ -32,7 +32,7 @@ from struct2tensor import prensor
 from struct2tensor.expression_impl import parse_message_level_ex
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import FrozenSet, Mapping, Optional, Sequence, Set, Tuple, Union
+from typing import FrozenSet, Mapping, Optional, Sequence, Set, Text, Tuple, Union
 
 
 from google.protobuf.descriptor_pb2 import FileDescriptorSet
@@ -55,8 +55,10 @@ def is_proto_expression(expr):
 
 
 def create_expression_from_file_descriptor_set(
-    tensor_of_protos, proto_name,
-    file_descriptor_set):
+    tensor_of_protos,
+    proto_name,
+    file_descriptor_set,
+    message_format = "binary"):
   """Create an expression from a 1D tensor of serialized protos.
 
   Args:
@@ -67,6 +69,8 @@ def create_expression_from_file_descriptor_set(
       and all its dependencies' FileDescriptorProto. Note that if file1 imports
       file2, then file2's FileDescriptorProto must precede file1's in
       file_descriptor_set.file.
+    message_format: Indicates the format of the protocol buffer: is one of
+       'text' or 'binary'.
 
   Returns:
     An expression.
@@ -80,22 +84,25 @@ def create_expression_from_file_descriptor_set(
   # This method raises if proto not found.
   desc = pool.FindMessageTypeByName(proto_name)
 
-  return create_expression_from_proto(tensor_of_protos, desc)
+  return create_expression_from_proto(tensor_of_protos, desc, message_format)
 
 
 def create_expression_from_proto(
     tensor_of_protos,
-    desc):
+    desc,
+    message_format = "binary"):
   """Create an expression from a 1D tensor of serialized protos.
 
   Args:
     tensor_of_protos: 1D tensor of serialized protos.
     desc: a descriptor of protos in tensor of protos.
+    message_format: Indicates the format of the protocol buffer: is one of
+      'text' or 'binary'.
 
   Returns:
     An expression.
   """
-  return _ProtoRootExpression(desc, tensor_of_protos)
+  return _ProtoRootExpression(desc, tensor_of_protos, message_format)
 
 
 class _ProtoRootNodeTensor(prensor.RootNodeTensor):
@@ -309,16 +316,22 @@ class _ProtoRootExpression(expression.Expression):
   _ProtoChildExpression and _ProtoLeafExpression to consume.
   """
 
-  def __init__(self, desc, tensor_of_protos):
+  def __init__(self,
+               desc,
+               tensor_of_protos,
+               message_format = "binary"):
     """Initialize a proto expression.
 
     Args:
       desc: the descriptor of the expression.
       tensor_of_protos: a 1-D tensor to get the protos from.
+      message_format: Indicates the format of the protocol buffer: is one of
+       'text' or 'binary'.
     """
     super(_ProtoRootExpression, self).__init__(True, None)
     self._descriptor = desc
     self._tensor_of_protos = tensor_of_protos
+    self._message_format = message_format
 
   def get_path(self):
     """Returns the path to the root of the proto."""
@@ -342,7 +355,10 @@ class _ProtoRootExpression(expression.Expression):
     size = tf.size(self._tensor_of_protos, out_type=tf.int64)
     needed_fields = _get_needed_fields(destinations)
     fields = parse_message_level_ex.parse_message_level_ex(
-        self._tensor_of_protos, self._descriptor, needed_fields)
+        self._tensor_of_protos,
+        self._descriptor,
+        needed_fields,
+        message_format=self._message_format)
     return _ProtoRootNodeTensor(size, fields)
 
   def calculation_is_identity(self):

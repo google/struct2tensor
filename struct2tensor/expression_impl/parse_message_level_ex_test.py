@@ -23,12 +23,14 @@ from __future__ import division
 from __future__ import print_function
 
 from absl.testing import absltest
+from absl.testing import parameterized
 from struct2tensor.expression_impl import parse_message_level_ex
 from struct2tensor.test import test_any_pb2
 from struct2tensor.test import test_map_pb2
 from struct2tensor.test import test_pb2
 import tensorflow as tf
 
+from google.protobuf import text_format
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 _INDEX = "index"
@@ -39,11 +41,18 @@ _ALLSIMPLE = "(type.googleapis.com/struct2tensor.test.AllSimple)"
 _USERINFO_NO_PARENS = b"type.googleapis.com/struct2tensor.test.UserInfo"
 _USERINFO = "(type.googleapis.com/struct2tensor.test.UserInfo)"
 
+_MESSAGE_FORMATS = ["binary", "text"]
 
-def _run_parse_message_level_ex(proto_list, fields):
-  serialized = [x.SerializeToString() for x in proto_list]
+
+def _run_parse_message_level_ex(proto_list, fields, message_format="binary"):
+  if message_format == "text":
+    serialized = [text_format.MessageToString(x) for x in proto_list]
+  elif message_format == "binary":
+    serialized = [x.SerializeToString() for x in proto_list]
+  else:
+    raise ValueError('Message format must be one of "text", "binary"')
   parsed_field_dict = parse_message_level_ex.parse_message_level_ex(
-      tf.constant(serialized), proto_list[0].DESCRIPTOR, fields)
+      tf.constant(serialized), proto_list[0].DESCRIPTOR, fields, message_format)
   sess_input = {}
   for key, value in parsed_field_dict.items():
     local_dict = {}
@@ -82,8 +91,10 @@ def _get_empty_all_simple():
 
 
 @test_util.run_all_in_graph_and_eager_modes
-class ParseMessageLevelExTest(tf.test.TestCase):
+class ParseMessageLevelExTest(parameterized.TestCase, tf.test.TestCase):
 
+  # TODO(askerryryan): Consider supporting Any types for text format. Currently
+  # only binary format is supported.
   def test_any_field(self):
     original_protos = _create_any_protos()
     result = _run_parse_message_level_ex(original_protos, {_ALLSIMPLE})
@@ -138,7 +149,9 @@ class ParseMessageLevelExTest(tf.test.TestCase):
     self.assertIsNone(
         parse_message_level_ex.get_full_name_from_any_step("broken)"))
 
-  def test_normal_field(self):
+  @parameterized.named_parameters(
+      [dict(testcase_name=f, message_format=f) for f in _MESSAGE_FORMATS])
+  def test_normal_field(self, message_format):
     """Test three messages with a repeated string."""
     all_simple = test_pb2.AllSimple()
     all_simple.repeated_string.append("foo")
@@ -147,21 +160,23 @@ class ParseMessageLevelExTest(tf.test.TestCase):
 
     result = _run_parse_message_level_ex(
         [all_simple, all_simple_empty, all_simple, all_simple],
-        {"repeated_string"})
+        {"repeated_string"}, message_format)
     self.assertNotIn("repeated_bool", result)
 
     self.assertAllEqual(result["repeated_string"][_INDEX], [0, 0, 2, 2, 3, 3])
     self.assertAllEqual(result["repeated_string"][_VALUE],
                         [b"foo", b"foo2", b"foo", b"foo2", b"foo", b"foo2"])
 
-  def test_bool_key_type(self):
+  @parameterized.named_parameters(
+      [dict(testcase_name=f, message_format=f) for f in _MESSAGE_FORMATS])
+  def test_bool_key_type(self, message_format):
     map_field = "bool_string_map[1]"
     message_with_map_0 = test_map_pb2.MessageWithMap()
     message_with_map_0.bool_string_map[False] = "hello"
     message_with_map_1 = test_map_pb2.MessageWithMap()
     message_with_map_1.bool_string_map[True] = "goodbye"
     result = _run_parse_message_level_ex(
-        [message_with_map_0, message_with_map_1], {map_field})
+        [message_with_map_0, message_with_map_1], {map_field}, message_format)
     self.assertIn(map_field, result)
     self.assertAllEqual(result[map_field][_VALUE], [b"goodbye"])
     self.assertAllEqual(result[map_field][_INDEX], [1])

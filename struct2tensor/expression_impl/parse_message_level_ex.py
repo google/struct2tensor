@@ -77,7 +77,7 @@ import collections
 from struct2tensor import path
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import List, Mapping, Optional, Sequence, Set
+from typing import List, Mapping, Optional, Sequence, Set, Text
 
 from google.protobuf import descriptor
 
@@ -89,15 +89,20 @@ ProtoFullName = str  # pylint: disable=g-ambiguous-str-annotation
 StrStep = str  # pylint: disable=g-ambiguous-str-annotation
 
 
-def parse_message_level_ex(tensor_of_protos,
-                           desc,
-                           field_names
-                          ):
+def parse_message_level_ex(
+    tensor_of_protos,
+    desc,
+    field_names,
+    message_format = "binary"
+):
   """Parses regular fields, extensions, any casts, and map protos."""
   raw_field_names = _get_field_names_to_parse(desc, field_names)
   regular_fields = list(
-      struct2tensor_ops.parse_message_level(tensor_of_protos, desc,
-                                            raw_field_names))
+      struct2tensor_ops.parse_message_level(
+          tensor_of_protos,
+          desc,
+          raw_field_names,
+          message_format=message_format))
   regular_field_map = {x.field_name: x for x in regular_fields}
 
   any_fields = _get_any_parsed_fields(desc, regular_field_map, field_names)

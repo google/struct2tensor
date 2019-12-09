@@ -59,9 +59,9 @@ inline void VectorToTensor(const std::vector<uint64_t>& v,
 template <>
 inline void VectorToTensor<absl::string_view>(
     const std::vector<absl::string_view>& v, tensorflow::Tensor* tensor) {
-  std::string* output = tensor->flat<std::string>().data();
+  tensorflow::tstring* output = tensor->flat<tensorflow::tstring>().data();
   for (auto sv : v) {
-    *(output++) = std::string(sv);
+    *(output++) = tensorflow::tstring(sv);
   }
 }
 

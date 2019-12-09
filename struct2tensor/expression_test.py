@@ -139,6 +139,66 @@ class ExpressionTest(absltest.TestCase):
     self.assertEqual(doc_feature_map["bar"].presence.min_count, 17)
     self.assertIn("keep_me", doc_feature_map)
 
+  def test_get_schema_missing_features(self):
+    # The expr has a number of features: foo, foorepeated, doc, user.
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_big_prensor())
+    # The schema has only a subset of the features on the expr.
+    schema = schema_pb2.Schema()
+    feature = schema.feature.add()
+    feature.name = "foo"
+    feature.type = schema_pb2.FeatureType.INT
+    feature.value_count.min = 1
+    feature.value_count.max = 1
+    feature = schema.feature.add()
+    feature.name = "foorepeated"
+    feature.type = schema_pb2.FeatureType.INT
+    feature.value_count.min = 0
+    feature.value_count.max = 5
+    feature = schema.feature.add()
+    feature.name = "doc"
+    feature.type = schema_pb2.FeatureType.STRUCT
+    feature.struct_domain.feature.append(
+        schema_pb2.Feature(name="keep_me", type=schema_pb2.FeatureType.INT))
+
+    # By default, the output schema has all features present in the expr.
+    expr = expr.apply_schema(schema)
+    output_schema = expr.get_schema()
+    self.assertNotEqual(schema, output_schema)
+    self.assertLen(schema.feature, 3)
+    self.assertLen(output_schema.feature, 4)
+
+    # With create_schema_features = False, only features on the original schema
+    # propogate to the new schema.
+    output_schema = expr.get_schema(create_schema_features=False)
+    self.assertLen(output_schema.feature, 3)
+
+  def test_get_schema_empty_schema(self):
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_big_prensor())
+    schema = schema_pb2.Schema()
+    # By default, the output schema has all features present in the proto.
+    expr = expr.apply_schema(schema)
+    output_schema = expr.get_schema()
+    self.assertEmpty(schema.feature)
+    self.assertLen(output_schema.feature, 4)
+
+    # With create_schema_features = False, the schema will be empty.
+    output_schema = expr.get_schema(create_schema_features=False)
+    self.assertEmpty(output_schema.feature)
+    self.assertEqual(schema, output_schema)
+
+  def test_get_schema_no_schema(self):
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_big_prensor())
+    output_schema = expr.get_schema()
+    self.assertLen(output_schema.feature, 4)
+
+    # With create_schema_features = False, the schema will be empty.
+    output_schema = expr.get_schema(create_schema_features=False)
+    self.assertEmpty(output_schema.feature)
+    self.assertEqual(schema_pb2.Schema(), output_schema)
+
 
 @test_util.run_all_in_graph_and_eager_modes
 class ExpressionValuesTest(tf.test.TestCase):

@@ -73,6 +73,7 @@ using ::tensorflow::Status;
 using ::tensorflow::Tensor;
 using ::tensorflow::TensorShape;
 using ::tensorflow::TensorShapeUtils;
+using ::tensorflow::tstring;
 using ::tensorflow::errors::DataLoss;
 using ::tensorflow::errors::InvalidArgument;
 const bool kFailOnDecodeError = true;
@@ -594,10 +595,7 @@ struct FieldBuilderAndFactory {
 class DecodeProtoSparseOp : public OpKernel {
  public:
   explicit DecodeProtoSparseOp(OpKernelConstruction* context)
-      : OpKernel(context),
-        legacy_out_of_order_handling_(
-            false
-        ) {
+      : OpKernel(context) {
     std::string descriptor_literal;
     OP_REQUIRES_OK(context,
                    context->GetAttr("descriptor_literal", &descriptor_literal));
@@ -715,18 +713,18 @@ class DecodeProtoSparseOp : public OpKernel {
 
     // This is used to allocate binary bufs if used. It serves only
     // to define memory ownership.
-    vector<std::string> tmp_binary_bufs;
+    vector<tstring> tmp_binary_bufs;
 
     // These are the actual buffers to use, which may be in tmp_binary_bufs
     // or may be pointers into the buf_tensor. Either way they are not owned
     // here.
-    vector<const std::string*> bufs;
+    vector<const tstring*> bufs;
     bufs.reserve(message_count);
 
     if (is_binary_ && !sanitize_) {
       // Fast path.
       for (int mi = 0; mi < message_count; ++mi) {
-        const std::string* buf = &buf_tensor.flat<std::string>()(mi);
+        const tstring* buf = &buf_tensor.flat<tstring>()(mi);
         bufs.push_back(buf);
       }
     } else {
@@ -735,7 +733,7 @@ class DecodeProtoSparseOp : public OpKernel {
       // binary or to sanitize a binary proto.
       for (int mi = 0; mi < message_count; ++mi) {
         tmp_binary_bufs.emplace_back();
-        ReserializeMessage(ctx, buf_tensor.flat<std::string>()(mi),
+        ReserializeMessage(ctx, buf_tensor.flat<tstring>()(mi),
                            &tmp_binary_bufs.back());
         if (!ctx->status().ok()) {
           return;
@@ -774,8 +772,8 @@ class DecodeProtoSparseOp : public OpKernel {
 
  private:
   // Copy a serialized message to binary, e.g. to handle text proto inputs.
-  void ReserializeMessage(OpKernelContext* ctx, const std::string& buf,
-                          std::string* binary_buf) {
+  void ReserializeMessage(OpKernelContext* ctx, const tstring& buf,
+                          tstring* binary_buf) {
     // Handle text protos by translating them to binary.
     std::unique_ptr<Message> message(message_prototype_->New());
     OP_REQUIRES(ctx, message, DataLoss("Initializing message failed"));
@@ -790,16 +788,16 @@ class DecodeProtoSparseOp : public OpKernel {
                   DataLoss("Unable to parse text protobuf"));
     }
 
-    OP_REQUIRES(ctx, message->SerializeToString(binary_buf),
+    OP_REQUIRES(ctx, ::tensorflow::SerializeToTString(*message, binary_buf),
                 DataLoss("Unable to reserialize text proto as binary"));
   }
 
   // Parse fields from a serialized message into vectors.
   void ConsumeProtos(
-      OpKernelContext* ctx, const vector<const std::string*>& bufs,
+      OpKernelContext* ctx, const vector<const tstring*>& bufs,
       const vector<std::unique_ptr<FieldBuilder>>& field_builders) {
     for (int message_index = 0; message_index < bufs.size(); ++message_index) {
-      const std::string& buf = *bufs[message_index];
+      const tstring& buf = *bufs[message_index];
       // When collecting field values, we don't want to copy values of std::string
       // types (std::string fields, sub messages, etc). Instead we want to collect
       // string_views pointing back to the wire format. Therefore `input` must
@@ -811,10 +809,7 @@ class DecodeProtoSparseOp : public OpKernel {
       OP_REQUIRES(ctx, input.IsFlat(),
                   DataLoss("Failed to construct a flat CodedInputStream"));
 
-      Status st =
-          legacy_out_of_order_handling_
-              ? ConsumeOneProtoLegacy(&input, message_index, field_builders)
-              : ConsumeOneProto(&input, message_index, field_builders);
+      Status st = ConsumeOneProto(&input, message_index, field_builders);
 
       if (st.ok() && !input.ConsumedEntireMessage()) {
         st = DataLoss("Failed to consume entire buffer");
@@ -929,105 +924,6 @@ class DecodeProtoSparseOp : public OpKernel {
     }
   }
 
-  Status ConsumeOneProtoLegacy(
-      CodedInputStream* input, int index,
-      const vector<std::unique_ptr<FieldBuilder>>& field_builders) {
-    int last_good_field_index = -1;
-    bool fields_disordered = false;
-    int last_good_field_number = -1;
-    int next_good_field_number = field_builders[0]->wire_number();
-
-    // The 'tag' variable should always be treated as tainted.
-    uint32_t tag;
-    for (tag = input->ReadTag();
-         tag != 0 && WireFormatLite::GetTagWireType(tag) !=
-                         WireFormatLite::WIRETYPE_END_GROUP;
-         tag = input->ReadTag()) {
-      // Special handling for proto1 MessageSet wire format.
-      // (proto2 MessageSet bridge is also serialized into this wire format
-      // by default).
-      if (has_message_set_wire_format_extension_ &&
-          tag == WireFormatLite::kMessageSetItemStartTag) {
-        if (!HandleMessageSetItemGroup(input, index, field_builders)) {
-          return DataLoss("Unable to parse MessageSet wire format.");
-        }
-        continue;
-      }
-
-      // The field wire number.
-      int field_number = WireFormatLite::GetTagFieldNumber(tag);
-      // The field associated with the field wire number.
-      FieldBuilder* field_builder = nullptr;
-
-      // This takes advantage of the sorted field numbers in most serialized
-      // protos: it tries the next expected field first rather than doing
-      // a lookup by field number.
-      // TODO(nix): haberman@ suggests a hybrid approach with a lookup table
-      // for small field numbers and a hash table for larger ones. This would
-      // be a simpler approach that should offer comparable speed in most
-      // cases.
-      if (field_number == last_good_field_number) {
-        field_builder = field_builders[last_good_field_index].get();
-      } else {
-        if (field_number < last_good_field_number) {
-          fields_disordered = true;
-        }
-
-        if (fields_disordered) {
-          int field_index;
-          if (LookupFieldBuilder(field_number, &field_index, field_builders)) {
-            field_builder = field_builders[field_index].get();
-            last_good_field_index = field_index;
-          }
-        } else {
-          // If we see a field that is past the next field we want,
-          // it was empty. Look for the one after that.
-          // Repeat until we run out of field_builders that we care about.
-          while (field_number >= next_good_field_number) {
-            if (field_number == next_good_field_number) {
-              last_good_field_number = field_number;
-              field_builder = field_builders[last_good_field_index + 1].get();
-            }
-
-            // Start looking for the field after the current one.
-            ++last_good_field_index;
-            if (last_good_field_index < field_builders.size() - 1) {
-              next_good_field_number =
-                  field_builders[last_good_field_index + 1]->wire_number();
-            } else {
-              // Saw something past the last field we care about.
-              // Continue parsing the message just in case there
-              // are disordered field_builders later, but any remaining
-              // ordered field_builders will have no effect.
-              next_good_field_number = INT_MAX;
-            }
-          }
-        }
-      }
-
-      if (!field_builder) {
-        // Unknown and unrequested field_builders are skipped.
-        if (!WireFormatLite::SkipField(input, tag)) {
-          return DataLoss("Failed skipping unrequested field");
-        }
-        continue;
-      }
-
-      TF_RETURN_IF_ERROR(field_builder->Consume(
-          input, WireFormatLite::GetTagWireType(tag), index));
-    }
-    // If the last read tag is END_GROUP it should be the very last thing left
-    // in the buffer.
-    if (WireFormatLite::GetTagWireType(tag) ==
-            WireFormatLite::WIRETYPE_END_GROUP &&
-        input->ReadTag() != 0) {
-      return DataLoss(
-          "Encountered WIRETYPE_END_GROUP but the message did not end with "
-          "it.");
-    }
-
-    return Status::OK();
-  }
   // Traverses a serialized protobuf, dispatching values to the
   // field_builders. input contains the protobuf. index is the index of the
   // message. field_builders contains the builders.
@@ -1170,11 +1066,6 @@ class DecodeProtoSparseOp : public OpKernel {
   // With that option enabled, the extensions will be serialized into a
   // wire format which needs special handling.
   bool has_message_set_wire_format_extension_ = false;
-
-  // Set to false at initialization in open source.
-  // If true, uses (broken) legacy implementation.
-  // If false, uses new correct implementation.
-  bool legacy_out_of_order_handling_;
 
   TF_DISALLOW_COPY_AND_ASSIGN(DecodeProtoSparseOp);
 };

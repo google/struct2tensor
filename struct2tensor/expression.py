@@ -514,6 +514,20 @@ class Expression(object):  # pytype: disable=ignored-metaclass
   def apply_schema(self, schema):
     return apply_schema.apply_schema(self, schema)
 
+  def get_paths_with_schema(self):
+    """Extract only paths that contain schema information."""
+    result = []
+    for name, child in self.get_known_children().items():
+      if child.schema_feature is None:
+        continue
+      result.extend(
+          [path.Path([name]).concat(x) for x in child.get_paths_with_schema()])
+    # Note: We always take the root path and so will return an empty schema
+    # if there is no schema information on any nodes, including the root.
+    if not result:
+      result.append(path.Path([]))
+    return result
+
   def _populate_schema_feature_children(self, feature_list):
     """Populate a feature list from the children of this node.
 
@@ -535,8 +549,17 @@ class Expression(object):  # pytype: disable=ignored-metaclass
             new_feature.struct_domain.feature)
       new_feature.name = name
 
-  def get_schema(self):
-    """Returns a schema for the entire tree."""
+  def get_schema(self, create_schema_features=True):
+    """Returns a schema for the entire tree.
+
+    Args:
+      create_schema_features: If True, schema features are added for all
+        children and a schema entry is created if not available on the child. If
+        False, features are left off of the returned schema if there is no
+        schema_feature on the child.
+    """
+    if not create_schema_features:
+      return self.project(self.get_paths_with_schema()).get_schema()
     result = schema_pb2.Schema()
     self._populate_schema_feature_children(result.feature)
     return result

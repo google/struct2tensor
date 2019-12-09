@@ -19,9 +19,52 @@ from __future__ import print_function
 
 import itertools
 
+from absl.testing import absltest
+from absl.testing import parameterized
+import numpy as np
+from struct2tensor.ops import struct2tensor_ops
+from struct2tensor.test import test_extension_pb2
+from struct2tensor.test import test_map_pb2
+from struct2tensor.test import test_pb2
+import tensorflow as tf
+
 
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
+INDEX = "index"
+VALUE = "value"
+
+
+def _parse_full_message_level_as_dict(proto_list):
+  serialized = [proto.SerializeToString() for proto in proto_list]
+  parsed_field_list = struct2tensor_ops.parse_full_message_level(
+      tf.constant(serialized), proto_list[0].DESCRIPTOR)
+  parsed_field_dict = {}
+  for parsed_field in parsed_field_list:
+    parsed_field_dict[parsed_field.field_name] = parsed_field
+  return parsed_field_dict
+
+
+def _make_dict_runnable(level_as_dict):
+  """Prepares output of parse_full_message_level_as_dict for evaluate."""
+  result = {}
+  for key, value in level_as_dict.items():
+    local_dict = {}
+    local_dict[INDEX] = value.index
+    local_dict[VALUE] = value.value
+    result[key] = local_dict
+  return result
+
+
+def _get_full_message_level_runnable(proto_list):
+  return _make_dict_runnable(_parse_full_message_level_as_dict(proto_list))
+
+
+# TODO(martinz): test empty tensors for decode_proto_sparse more thoroughly.
+@test_util.run_all_in_graph_and_eager_modes
+class PrensorOpsTest(tf.test.TestCase):
+
+  def test_out_of_order_fields(self):
     fragments = [
         test_pb2.Event(query_token=["aaa"]).SerializeToString(),
         test_pb2.Event(query_token=["bbb"]).SerializeToString(),
