@@ -59,7 +59,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'protobuf >= 3.8.0',
-        'tensorflow == 1.15.0',
+        'tensorflow == 1.15.2',
         'tensorflow_metadata >= 0.13.0',
     ],
     # Add in any packaged data.
