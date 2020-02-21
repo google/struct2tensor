@@ -288,8 +288,9 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     """Gets a mapping from known paths to subexpressions.
 
     The difference between this and get_descendants in Prensor is that
-    all paths in a Prensor are known, in the sense that all
-
+    all paths in a Prensor are realized, thus all known. But an Expression's
+    descendants might not all be known at the point this method is called,
+    because an expression may have an infinite number of children.
 
     Returns:
       A mapping from paths (relative to the root of the subexpression) to
