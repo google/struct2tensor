@@ -29,7 +29,7 @@ from struct2tensor.test import prensor_test_util
 class DepthLimitTest(absltest.TestCase):
 
   def test_depth_limit_1(self):
-    """Tests depth_limit wih a limit of 1.
+    """Tests depth_limit with a limit of 1.
 
     Starting with a prensor expression representing:
     {foo:9, foorepeated:[9], user:[{friends:["a"]}],

@@ -97,7 +97,7 @@ http_archive(
 # END: Upstream TensorFlow dependencies
 
 
-# Please add all new TensorFlow Data Validation dependencies in workspace.bzl.
+# Please add all new TensorFlow struct2tensor dependencies in workspace.bzl.
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 
 struct2tensor_workspace()

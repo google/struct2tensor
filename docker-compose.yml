@@ -16,7 +16,7 @@ version: '3.1'
 
 # Extensions are not support until 3.4 thus the repeated boilerplate below.
 
-# We mount the TFDV project root at /build (which is the WORKDIR of the image)
+# We mount the struct2tensor project root at /build (which is the WORKDIR of the image)
 # in the container.
 services:
   manylinux2010_1_36:

@@ -32,6 +32,7 @@ sh_binary(
         "//struct2tensor:expression_impl/__init__.py",
         "//struct2tensor:map_prensor_to_prensor",
         "//struct2tensor:path",
+        "//struct2tensor:placeholder",
         "//struct2tensor:prensor",
         "//struct2tensor:proto_test_util",
         "//struct2tensor:version.py",

@@ -229,7 +229,8 @@ inline void DecodeRawValue(absl::string_view raw_value,
 }
 
 inline void DecodeRawValue(absl::string_view raw_value,
-                           google::protobuf::FieldDescriptor::Type type, std::string* value) {
+                           google::protobuf::FieldDescriptor::Type type,
+                           std::string* value) {
   value->assign(raw_value.data(), raw_value.size());
 }
 

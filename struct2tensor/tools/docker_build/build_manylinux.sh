@@ -18,7 +18,7 @@
 # Assumptions:
 # - CentOS environment.
 # - devtoolset-8 is installed.
-# - $PWD is TFDV's project root.
+# - $PWD is struct2tensor's project root.
 # - Python of different versions are installed at /opt/python/.
 # - patchelf, zip, bazel, rsync are installed and are in $PATH.
 

@@ -113,10 +113,9 @@ def create_nested_prensor():
 
   Returns:
     a prensor expression representing:
-    {doc:[{bar:["a"]}], user:[{friends:["a"]}], keep_me:False}
-    {doc:[{bar:["b","c"]}, {bar:["d"]}],
-     user:[{friends:["b", "c"]}, {friends:["d"]}],
-     keep_me:True}
+    {doc:[{bar:["a"], keep_me:False}], user:[{friends:["a"]}]}
+    {doc:[{bar:["b","c"], keep_me:True}, {bar:["d"]}],
+     user:[{friends:["b", "c"]}, {friends:["d"]}]}
     {user:[friends:["e"]]}
   """
   return prensor.create_prensor_from_descendant_nodes({
@@ -200,20 +199,20 @@ def create_big_prensor():
   return prensor.create_prensor_from_descendant_nodes({
       path.Path([]):
           create_root_node(3),
-      path.Path(["doc"]):
-          create_child_node([0, 1, 1], True),
-      path.Path(["doc", "bar"]):
-          create_repeated_leaf_node([0, 1, 1, 2], ["a", "b", "c", "d"]),
-      path.Path(["doc", "keep_me"]):
-          create_optional_leaf_node([0, 1], [False, True]),
       path.Path(["foo"]):
           create_optional_leaf_node([0, 1, 2], [9, 8, 7]),
-      path.Path(["foorepeated"]):
-          create_repeated_leaf_node([0, 1, 1, 2], [9, 8, 7, 6]),
+      path.Path(["doc"]):
+          create_child_node([0, 1, 1], True),
+      path.Path(["doc", "keep_me"]):
+          create_optional_leaf_node([0, 1], [False, True]),
+      path.Path(["doc", "bar"]):
+          create_repeated_leaf_node([0, 1, 1, 2], ["a", "b", "c", "d"]),
       path.Path(["user"]):
           create_child_node([0, 1, 1, 2], True),
       path.Path(["user", "friends"]):
-          create_repeated_leaf_node([0, 1, 1, 2, 3], ["a", "b", "c", "d", "e"])
+          create_repeated_leaf_node([0, 1, 1, 2, 3], ["a", "b", "c", "d", "e"]),
+      path.Path(["foorepeated"]):
+          create_repeated_leaf_node([0, 1, 1, 2], [9, 8, 7, 6]),
   })
 
 

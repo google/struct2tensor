@@ -19,6 +19,7 @@ from __future__ import division
 from __future__ import print_function
 
 import six
+from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.test import prensor_test_util
 import tensorflow as tf
@@ -49,6 +50,34 @@ class PrensorTest(tf.test.TestCase):
       self.assertEqual(l_child_step, r_child_step)
       self._assert_prensor_equals(l_child, r_child)
 
+  def test_prensor_children_ordered(self):
+    def _recursively_check_sorted(p):
+      self.assertEqual(list(p.get_children().keys()),
+                       sorted(p.get_children().keys()))
+      for c in p.get_children().values():
+        _recursively_check_sorted(c)
+
+    for pren in [
+        prensor_test_util.create_nested_prensor(),
+        prensor_test_util.create_big_prensor(),
+        prensor_test_util.create_deep_prensor()
+    ]:
+      _recursively_check_sorted(pren)
+
+    p = prensor.create_prensor_from_descendant_nodes({
+        path.Path([]):
+            prensor_test_util.create_root_node(1),
+        path.Path(["d"]):
+            prensor_test_util.create_optional_leaf_node([0], [True]),
+        path.Path(["c"]):
+            prensor_test_util.create_optional_leaf_node([0], [True]),
+        path.Path(["b"]):
+            prensor_test_util.create_optional_leaf_node([0], [True]),
+        path.Path(["a"]):
+            prensor_test_util.create_optional_leaf_node([0], [True]),
+    })
+    self.assertEqual(["a", "b", "c", "d"], list(p.get_children().keys()))
+
   def test_prensor_is_composite_tensor(self):
     for pren in [
         prensor_test_util.create_nested_prensor(),
@@ -65,5 +94,5 @@ class PrensorTest(tf.test.TestCase):
 
 # The following are only available post TF 1.14.
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   tf.test.main()

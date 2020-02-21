@@ -15,16 +15,7 @@
 # Prensors provide a way to parse protocol buffers and other structured data in tensorflow
 # simply and efficiently.
 
-package(default_visibility = [
-    "//analysis/dremel/core/tabledefs/tensorflow:__subpackages__",
-    "//learning/tfx/autotfx:__subpackages__",
-    "//learning/tfx/users/tfx/util/tf_ranking:__subpackages__",
-    "//nlp/nlx/infrastructure/multiscale:__subpackages__",
-    "//third_party/py/tfx_bsl:__subpackages__",
-    "//third_party/tensorflow_ranking/google:__subpackages__",
-    "//video/youtube/discovery/tensorflow/python/input/feature_parser:__subpackages__",
-    "@//:__subpackages__",
-])
+package(default_visibility = ["@//:__subpackages__"])
 
 load("//struct2tensor:struct2tensor.bzl", "s2t_pytype_library")
 

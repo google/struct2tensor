@@ -169,7 +169,7 @@ class ExpressionTest(absltest.TestCase):
     self.assertLen(output_schema.feature, 4)
 
     # With create_schema_features = False, only features on the original schema
-    # propogate to the new schema.
+    # propagate to the new schema.
     output_schema = expr.get_schema(create_schema_features=False)
     self.assertLen(output_schema.feature, 3)
 

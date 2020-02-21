@@ -41,7 +41,7 @@ REGISTER_OP("DecodeProtoMap")
 An op to decode serialized protobuf map entries with given keys into Tensors.
 
 `serialized_map_entries`: on wire, a protobuf map is encoded into repeated
-map entries where each entry is a submessage that cotnains a "key" and a "value"
+map entries where each entry is a submessage that contains a "key" and a "value"
 field. This input Tensor should be a vector containing all such submessages from
 the maps to be decoded in serialized form.
 

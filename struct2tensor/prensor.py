@@ -412,25 +412,29 @@ def create_prensor_from_descendant_nodes(
   Raises:
     ValueError: if there is a prefix of a path missing.
   """
-  subexpressions = {}  # type:Mapping[path.Step, Mapping[path.Path, NodeTensor]]
+  subexpressions = collections.OrderedDict()
   root_node = None
-  for k, v in nodes.items():
+  for k, v in sorted(nodes.items()):
     if not k:
       root_node = v
     else:
       first_step = k.field_list[0]
       suffix = k.suffix(1)
       if first_step not in subexpressions:
-        subexpressions[first_step] = {}  # pytype: disable=unsupported-operands
-      subexpressions[first_step][suffix] = v  # pytype: disable=unsupported-operands
+        subexpressions[first_step] = {}
+      subexpressions[first_step][suffix] = v
   if root_node is None:
     raise ValueError("No root found: {}".format(str(nodes)))
-  return create_prensor_from_root_and_children(root_node, {
-      k: create_prensor_from_descendant_nodes(v)
-      for k, v in subexpressions.items()
-  })
+  return create_prensor_from_root_and_children(
+      root_node,
+      collections.OrderedDict((k, create_prensor_from_descendant_nodes(v))
+                              for k, v in subexpressions.items()))
 
 
 def create_prensor_from_root_and_children(
     root, children):
-  return Prensor(root, collections.OrderedDict(children))
+  if isinstance(children, collections.OrderedDict):
+    ordered_children = children
+  else:
+    ordered_children = collections.OrderedDict(sorted(children.items()))
+  return Prensor(root, ordered_children)

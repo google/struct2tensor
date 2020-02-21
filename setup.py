@@ -23,9 +23,9 @@ from setuptools.command.install import install
 from setuptools.dist import Distribution
 
 
-# TFDV is not a purelib. However because of the extension module is not built
-# by setuptools, it will be incorrectly treated as a purelib. The following
-# works around that bug.
+# struct2tensor is not a purelib. However because of the extension module is not
+# built by setuptools, it will be incorrectly treated as a purelib. The
+# following works around that bug.
 class _InstallPlatlib(install):
 
   def finalize_options(self):

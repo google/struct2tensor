@@ -29,6 +29,8 @@ from __future__ import division
 
 from __future__ import print_function
 
+import collections
+
 import numpy as np
 from struct2tensor import path
 from struct2tensor import prensor
@@ -277,7 +279,7 @@ def _prensor_value_from_type_spec_and_component_values(
     values = next(component_values)
     node = LeafNodeValue(parent_index, values, prensor_type_spec._is_repeated)
 
-  step_to_child = {}
+  step_to_child = collections.OrderedDict()
   for step, child_spec in prensor_type_spec._children_specs:
     step_to_child[step] = _prensor_value_from_type_spec_and_component_values(
         child_spec, component_values)

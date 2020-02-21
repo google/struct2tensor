@@ -61,7 +61,7 @@ inline void VectorToTensor<absl::string_view>(
     const std::vector<absl::string_view>& v, tensorflow::Tensor* tensor) {
   tensorflow::tstring* output = tensor->flat<tensorflow::tstring>().data();
   for (auto sv : v) {
-    *(output++) = tensorflow::tstring(sv);
+    (output++)->assign(sv.data(), sv.size());
   }
 }
 
