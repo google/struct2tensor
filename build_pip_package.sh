@@ -19,7 +19,7 @@ set -x
 
 PLATFORM="$(uname -s | tr 'A-Z' 'a-z')"
 
-PIP_FILE_PREFIX="bazel-bin/build_pip_pkg.runfiles/struct2tensor/"
+PIP_FILE_PREFIX="bazel-bin/build_pip_package.runfiles/struct2tensor/"
 
 function main() {
   while [[ ! -z "${1}" ]]; do

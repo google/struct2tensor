@@ -32,7 +32,7 @@ function setup_environment() {
   # TODO(martinz): move this directly to the docker image.
   # RUN yum -y install rsync
   # However, if we move this this, we get
-  # ./bazel-bin/build_pip_pkg: line 55: rsync: command not found
+  # ./bazel-bin/build_pip_package: line 55: rsync: command not found
   sudo yum -y install rsync || exit 1;
   if [[ -z "${PYTHON_VERSION}" ]]; then
     echo "Must set PYTHON_VERSION env to 35|36|37|27"; exit 1;
@@ -76,8 +76,8 @@ function bazel_build() {
   pip install --upgrade pip || exit 1;
   pip install tensorflow==${SPECIFIC_TENSORFLOW_VERSION}  || exit 1;
   ./configure.sh || exit 1;
-  bazel build -c opt build_pip_pkg || exit 1;
-  ./bazel-bin/build_pip_pkg dist || exit 1;
+  bazel build -c opt build_pip_package || exit 1;
+  ./bazel-bin/build_pip_package dist || exit 1;
   deactivate || exit 1;
 }
 
