@@ -19,9 +19,9 @@ licenses(["notice"])  # Apache 2.0
 package(default_visibility = ["//visibility:public"])
 
 sh_binary(
-    name = "build_pip_pkg",
+    name = "build_pip_package",
     testonly = True,  # Some files are testonly
-    srcs = ["build_pip_pkg.sh"],
+    srcs = ["build_pip_package.sh"],
     data = [
         "LICENSE",
         "MANIFEST.in",
