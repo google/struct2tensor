@@ -34,9 +34,9 @@ from tensorflow_metadata.proto.v0 import schema_pb2
 
 
 def calculate_value_slowly(
-    expr,
-    destinations = None,
-    options = None):
+    expr: expression.Expression,
+    destinations: Optional[Sequence[expression.Expression]] = None,
+    options: Optional[calculate_options.Options] = None) -> prensor.NodeTensor:
   """A calculation of the node tensor of an expression, without optimization.
 
   This will not do any common subexpression elimination or caching of
@@ -61,7 +61,7 @@ def calculate_value_slowly(
   return expr.calculate(source_node_tensors, real_dest, new_options)
 
 
-def calculate_list_map(expr, evaluator):
+def calculate_list_map(expr: expression.Expression, evaluator):
   """Calculate a map from paths to nested lists, representing the leafs."""
   [my_prensor] = calculate.calculate_prensors([expr])
   ragged_tensor_map = prensor_util.get_ragged_tensors(
@@ -75,15 +75,16 @@ class MockExpression(expression.Expression):
   """The mock expression is designed to test calculations."""
 
   def __init__(self,
-               is_repeated,
-               my_type,
-               name = None,
-               source_expressions = None,
-               calculate_output = None,
-               calculate_is_identity = False,
-               children = None,
-               known_field_names = None,
-               schema_feature = None):
+               is_repeated: bool,
+               my_type: Optional[tf.DType],
+               name: Optional[Text] = None,
+               source_expressions: Optional[Sequence["MockExpression"]] = None,
+               calculate_output: Optional[prensor.NodeTensor] = None,
+               calculate_is_identity: bool = False,
+               children: Optional[Mapping[path.Step,
+                                          expression.Expression]] = None,
+               known_field_names: Optional[FrozenSet[path.Step]] = None,
+               schema_feature: Optional[schema_pb2.Feature] = None):
     """Initialize an expression.
 
     Args:
@@ -122,15 +123,15 @@ class MockExpression(expression.Expression):
           self._name))
     return self._calculate_output
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return self._source_expressions
 
   def calculate(
       self,
-      source_tensors,
-      destinations,
-      options,
-      side_info = None):
+      source_tensors: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     if len(source_tensors) != len(self._expected_source_tensors):
       raise ValueError("Unexpected number of inputs for {}.".format(self._name))
     for i in range(len(source_tensors)):
@@ -138,28 +139,28 @@ class MockExpression(expression.Expression):
         raise ValueError("Error calculating " + self._name)
     return self._calculate_output
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return self._calculate_is_identity
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return self.calculation_is_identity() and expr.calculation_is_identity()
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     return self._children.get(field_name)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return self._known_field_names
 
-  def __str__(self):  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     return str(self._name)
 
 
-def get_mock_leaf(is_repeated,
-                  my_type,
-                  name = None,
-                  source_expressions = None,
-                  calculate_is_identity = False):
+def get_mock_leaf(is_repeated: bool,
+                  my_type: tf.DType,
+                  name: Optional[Text] = None,
+                  source_expressions: Optional[Sequence[MockExpression]] = None,
+                  calculate_is_identity: bool = False):
   """Gets a leaf expression."""
   if calculate_is_identity:
     calculate_output = source_expressions[0].calculate_output
@@ -177,13 +178,13 @@ def get_mock_leaf(is_repeated,
 
 
 def get_mock_broken_leaf(
-    declared_is_repeated,
-    declared_type,
-    actual_is_repeated,
-    actual_type,
-    name = None,
-    source_expressions = None,
-    calculate_is_identity = False):
+    declared_is_repeated: bool,
+    declared_type: tf.DType,
+    actual_is_repeated: bool,
+    actual_type: tf.DType,
+    name: Optional[Text] = None,
+    source_expressions: Optional[Sequence[MockExpression]] = None,
+    calculate_is_identity: bool = False):
   """Gets a leaf expression flexible enough not to typecheck.
 
   If declared_is_repeated != actual_is_repeated,

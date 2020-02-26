@@ -32,8 +32,8 @@ from google.protobuf import descriptor
 from struct2tensor import path
 
 
-def _are_dependencies_handled(file_descriptor,
-                              dependencies):
+def _are_dependencies_handled(file_descriptor: descriptor.FileDescriptor,
+                              dependencies: Set[descriptor.Descriptor]) -> bool:
   """Returns True iff dependencies of descriptor are in dependencies."""
   for dependency in file_descriptor.dependencies:
     if dependency not in dependencies:
@@ -41,8 +41,8 @@ def _are_dependencies_handled(file_descriptor,
   return True
 
 
-def _order_dependencies(file_descriptors
-                       ):
+def _order_dependencies(file_descriptors: Set[descriptor.FileDescriptor]
+                       ) -> Sequence[descriptor.FileDescriptor]:
   """Given a set of file descriptors, return them as an ordered list.
 
   Each file descriptor in the resulting list follows its dependencies.
@@ -83,8 +83,8 @@ def _order_dependencies(file_descriptors
 
 
 def _get_dependencies_recursively(
-    initial_file_descriptors
-):
+    initial_file_descriptors: Set[descriptor.FileDescriptor]
+) -> Set[descriptor.FileDescriptor]:
   """Gets all dependencies of file_descriptors as a set (including itself)."""
   file_descriptor_set = set(initial_file_descriptors)
   boundary = list(initial_file_descriptors)
@@ -98,8 +98,8 @@ def _get_dependencies_recursively(
 
 
 def _create_file_descriptor_set_proto(
-    file_descriptor_list
-):
+    file_descriptor_list: Sequence[descriptor.FileDescriptor]
+) -> descriptor_pb2.FileDescriptorSet:
   """Creates a FileDescriptorSet proto from a list of file descriptors."""
   result = descriptor_pb2.FileDescriptorSet()
   for file_descriptor in file_descriptor_list:
@@ -107,9 +107,9 @@ def _create_file_descriptor_set_proto(
   return result
 
 
-def _get_initial_file_descriptor_set(descriptor_type,
-                                     field_names
-                                    ):  # pylint:disable=g-ambiguous-str-annotation
+def _get_initial_file_descriptor_set(descriptor_type: descriptor.Descriptor,
+                                     field_names: Sequence[str]
+                                    ) -> Set[descriptor.FileDescriptor]:  # pylint:disable=g-ambiguous-str-annotation
   """Gets a set of file descriptors for a descriptor and extensions."""
   result = set()
   result.add(descriptor_type.file)
@@ -124,8 +124,8 @@ def _get_initial_file_descriptor_set(descriptor_type,
 
 
 def get_file_descriptor_set_proto(
-    descriptor_type,
-    field_names):
+    descriptor_type: descriptor.Descriptor,
+    field_names: Sequence[str]) -> descriptor_pb2.FileDescriptorSet:
   """Returns a FileDescriptorSet for parsing field_names in a descriptor_type.
 
   The FileDescriptorSet has file descriptors for the file of the

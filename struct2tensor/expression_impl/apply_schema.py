@@ -61,8 +61,8 @@ from typing import FrozenSet, Optional, Sequence
 from tensorflow_metadata.proto.v0 import schema_pb2
 
 
-def apply_schema(expr,
-                 schema):
+def apply_schema(expr: expression.Expression,
+                 schema: schema_pb2.Schema) -> expression.Expression:
   schema_copy = schema_pb2.Schema()
   schema_copy.CopyFrom(schema)
   for x in schema.feature:
@@ -70,8 +70,8 @@ def apply_schema(expr,
   return _SchemaExpression(expr, schema.feature, None)
 
 
-def _normalize_feature(feature,
-                       schema):
+def _normalize_feature(feature: schema_pb2.Feature,
+                       schema: schema_pb2.Schema) -> None:
   """Make each feature self-contained.
 
   If the feature references a global domain, copy the global domain locally.
@@ -105,7 +105,7 @@ def _normalize_feature(feature,
         feature.domain, schema))
 
 
-def _clean_feature(feature):
+def _clean_feature(feature: schema_pb2.Feature) -> schema_pb2.Feature:
   """Remove name and all children of a feature (if any exist), returning a copy.
 
   Args:
@@ -122,8 +122,8 @@ def _clean_feature(feature):
   return copy
 
 
-def _apply_feature(original_child,
-                   feature):
+def _apply_feature(original_child: expression.Expression,
+                   feature: schema_pb2.Feature):
   """Apply a feature to an expression. Feature should be "unclean"."""
   feature_copy = [x for x in feature.struct_domain.feature
                  ] if feature.HasField("struct_domain") else []
@@ -136,9 +136,9 @@ class _SchemaExpression(expression.Expression):  # pytype: disable=ignored-metac
 
   __metaclass__ = abc.ABCMeta
 
-  def __init__(self, original,
-               child_features,
-               schema_feature):
+  def __init__(self, original: expression.Expression,
+               child_features: Sequence[schema_pb2.Feature],
+               schema_feature: Optional[schema_pb2.Feature]):
     """Create a new _SchemaExpression.
 
     Args:
@@ -151,31 +151,31 @@ class _SchemaExpression(expression.Expression):  # pytype: disable=ignored-metac
     self._original = original
     self._child_features = child_features
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._original]
 
-  def calculate(self, source_tensors,
-                destinations,
-                options):
+  def calculate(self, source_tensors: Sequence[prensor.NodeTensor],
+                destinations: Sequence[expression.Expression],
+                options: calculate_options.Options) -> prensor.NodeTensor:
     del destinations, options
     [original_result] = source_tensors
     return original_result
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return True
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return expr.calculation_is_identity()
 
-  def _find_feature_proto(self, field_name
-                         ):
+  def _find_feature_proto(self, field_name: path.Step
+                         ) -> Optional[schema_pb2.Feature]:
     for feature in self._child_features:
       if feature.name == field_name:
         return feature
     return None
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     original_child = self._original.get_child(field_name)
     if original_child is None:
       return None
@@ -184,7 +184,7 @@ class _SchemaExpression(expression.Expression):  # pytype: disable=ignored-metac
       return original_child
     return _apply_feature(original_child, feature_proto)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     result = set(self._original.known_field_names())
     for feature_proto in self._child_features:
       field_name = str(feature_proto.name)

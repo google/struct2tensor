@@ -33,8 +33,8 @@ import tensorflow as tf
 from typing import FrozenSet, Optional, Sequence
 
 
-def reroot(root,
-           source_path):
+def reroot(root: expression.Expression,
+           source_path: path.Path) -> expression.Expression:
   """Reroot to a new path, maintaining a input proto index.
 
   Similar to root.get_descendant_or_error(source_path): however, this
@@ -54,9 +54,9 @@ def reroot(root,
   return new_root
 
 
-def create_proto_index_field(root,
-                             new_field_name
-                            ):
+def create_proto_index_field(root: expression.Expression,
+                             new_field_name: path.Step
+                            ) -> expression.Expression:
   return expression_add.add_paths(
       root, {path.Path([new_field_name]): _InputProtoIndexExpression(root)})
 
@@ -67,7 +67,7 @@ class _RerootRootNodeTensor(prensor.RootNodeTensor):
   This contains a map from a current index to the original index of a proto.
   """
 
-  def __init__(self, size, input_proto_index):
+  def __init__(self, size: tf.Tensor, input_proto_index: tf.Tensor):
     super(_RerootRootNodeTensor, self).__init__(size)
     self._input_proto_index = input_proto_index
 
@@ -76,11 +76,11 @@ class _RerootRootNodeTensor(prensor.RootNodeTensor):
     return self._input_proto_index
 
 
-def _get_proto_index_parent_index(node):
+def _get_proto_index_parent_index(node: prensor.RootNodeTensor):
   return tf.range(node.size)
 
 
-def _get_input_proto_index(node):
+def _get_input_proto_index(node: prensor.RootNodeTensor):
   if isinstance(node, _RerootRootNodeTensor):
     return node.input_proto_index
   return _get_proto_index_parent_index(node)
@@ -89,8 +89,8 @@ def _get_input_proto_index(node):
 class _RerootExpression(expression.Expression):
   """Reroot to a new path, maintaining a input proto index."""
 
-  def __init__(self, original_root,
-               field_name):
+  def __init__(self, original_root: expression.Expression,
+               field_name: path.Step):
     super(_RerootExpression, self).__init__(True, None)
     self._field_name = field_name
     self._original_root = original_root
@@ -106,15 +106,15 @@ class _RerootExpression(expression.Expression):
     # Since this check is not present, if it should have fired, there will be
     # an error when calculate(...) is called.
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._original_root, self._new_root]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [old_root_value, new_root_value] = sources
     if isinstance(old_root_value, prensor.RootNodeTensor) and isinstance(
         new_root_value, prensor.ChildNodeTensor):
@@ -125,25 +125,25 @@ class _RerootExpression(expression.Expression):
           tf.gather(old_input_proto_index, new_root_value.parent_index))
     raise ValueError("Source types incorrect")
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     # Although path can vary, it is not used in the calculation, just to
     return isinstance(expr, _RerootExpression)
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     return self._new_root.get_child(field_name)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return self._new_root.known_field_names()
 
 
 class _InputProtoIndexExpression(expression.Leaf):
   """A proto index expression."""
 
-  def __init__(self, root):
+  def __init__(self, root: expression.Expression):
     """Constructor for proto index expression.
 
     Args:
@@ -153,15 +153,15 @@ class _InputProtoIndexExpression(expression.Leaf):
         is_repeated=False, my_type=tf.int64)
     self._root = root
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._root]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [root_node] = sources
     # The following check ensures not just that we can calculate the value,
     # but that no "improper" reroots were done.
@@ -174,9 +174,9 @@ class _InputProtoIndexExpression(expression.Leaf):
         "Illegal operation: expected a true root node: got {}".format(
             str(root_node)))
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     # Although path can vary, it is not used in the calculation, just to
     return isinstance(expr, _InputProtoIndexExpression)

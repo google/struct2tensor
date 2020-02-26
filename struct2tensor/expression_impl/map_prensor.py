@@ -105,11 +105,11 @@ import tensorflow as tf
 from typing import Callable, FrozenSet, Optional, Sequence, Tuple
 
 
-def map_sparse_tensor(root, root_path,
-                      paths,
-                      operation,
-                      is_repeated, dtype,
-                      new_field_name):
+def map_sparse_tensor(root: expression.Expression, root_path: path.Path,
+                      paths: Sequence[path.Path],
+                      operation: Callable[..., tf.SparseTensor],
+                      is_repeated: bool, dtype: tf.DType,
+                      new_field_name: path.Step) -> expression.Expression:
   """Maps a sparse tensor.
 
   Args:
@@ -132,11 +132,11 @@ def map_sparse_tensor(root, root_path,
                                  dtype, new_field_name)[0]
 
 
-def map_ragged_tensor(root, root_path,
-                      paths,
-                      operation,
-                      is_repeated, dtype,
-                      new_field_name):
+def map_ragged_tensor(root: expression.Expression, root_path: path.Path,
+                      paths: Sequence[path.Path],
+                      operation: Callable[..., tf.RaggedTensor],
+                      is_repeated: bool, dtype: tf.DType,
+                      new_field_name: path.Step) -> expression.Expression:
   """Map a ragged tensor.
 
   Args:
@@ -171,50 +171,51 @@ class _MapPrensorExpression(expression.Expression):
 
   """
 
-  def __init__(self, origin,
-               operation,
-               is_repeated, dtype):
+  def __init__(self, origin: expression.Expression,
+               operation: Callable[[prensor.Prensor, calculate_options
+                                    .Options], prensor.LeafNodeTensor],
+               is_repeated: bool, dtype: tf.DType):
     super(_MapPrensorExpression, self).__init__(is_repeated, dtype)
     self._origin = origin
     self._operation = operation
 
-  def _get_source_paths(self):
+  def _get_source_paths(self) -> Sequence[path.Path]:
     """Returns the source paths in a deterministic order."""
     result = [k for k in self._origin.get_known_descendants().keys()]
     result.sort()
     return result
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     subtree = self._origin.get_known_descendants()
     source_paths = self._get_source_paths()
     return [subtree[k] for k in source_paths]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.LeafNodeTensor:
     source_tree = prensor.create_prensor_from_descendant_nodes(
         {k: v for k, v in zip(self._get_source_paths(), sources)})
     return self._operation(source_tree, options)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return self is expr
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     return None
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return frozenset()
 
 
-def _as_leaf_node_no_checks(sparse_tensor,
-                            is_repeated):
+def _as_leaf_node_no_checks(sparse_tensor: tf.SparseTensor,
+                            is_repeated: bool) -> prensor.LeafNodeTensor:
   """Take a SparseTensor and create a LeafNodeTensor, no checks."""
   if is_repeated:
     parent_index = tf.transpose(sparse_tensor.indices)[0]
@@ -223,9 +224,9 @@ def _as_leaf_node_no_checks(sparse_tensor,
   return prensor.LeafNodeTensor(parent_index, sparse_tensor.values, is_repeated)
 
 
-def _as_leaf_node_with_checks(sparse_tensor, is_repeated,
-                              required_batch_size
-                             ):
+def _as_leaf_node_with_checks(sparse_tensor: tf.SparseTensor, is_repeated: bool,
+                              required_batch_size: tf.Tensor
+                             ) -> prensor.LeafNodeTensor:
   """Take a SparseTensor and create a LeafNodeTensor, with checks."""
   assertions = [
       tf.assert_equal(sparse_tensor.dense_shape[0], required_batch_size)
@@ -243,9 +244,9 @@ def _as_leaf_node_with_checks(sparse_tensor, is_repeated,
     return _as_leaf_node_no_checks(sparse_tensor, is_repeated)
 
 
-def _as_leaf_node(sparse_tensor, is_repeated,
-                  required_batch_size,
-                  options):
+def _as_leaf_node(sparse_tensor: tf.SparseTensor, is_repeated: bool,
+                  required_batch_size: tf.Tensor,
+                  options: calculate_options.Options) -> prensor.LeafNodeTensor:
   if options.sparse_checks:
     print("Using sparse_checks")
     return _as_leaf_node_with_checks(sparse_tensor, is_repeated,
@@ -256,10 +257,11 @@ def _as_leaf_node(sparse_tensor, is_repeated,
 
 
 def _map_prensor_impl(
-    root, root_path,
-    paths_needed,
-    operation, is_repeated, dtype,
-    new_field_name):
+    root: expression.Expression, root_path: path.Path,
+    paths_needed: Sequence[path.Path],
+    operation: Callable[[prensor.Prensor, calculate_options.Options], prensor
+                        .LeafNodeTensor], is_repeated: bool, dtype: tf.DType,
+    new_field_name: path.Step) -> Tuple[expression.Expression, path.Path]:
   """Map prensor implementation."""
   child_expr = root.get_descendant_or_error(root_path)
   sibling_child_expr = project.project(child_expr, paths_needed)
@@ -269,16 +271,16 @@ def _map_prensor_impl(
   return expression_add.add_paths(root, {new_path: new_field_expr}), new_path
 
 
-def _map_sparse_tensor_impl(root, root_path,
-                            paths,
-                            operation,
-                            is_repeated, dtype,
-                            new_field_name
-                           ):
+def _map_sparse_tensor_impl(root: expression.Expression, root_path: path.Path,
+                            paths: Sequence[path.Path],
+                            operation: Callable[..., tf.SparseTensor],
+                            is_repeated: bool, dtype: tf.DType,
+                            new_field_name: path.Step
+                           ) -> Tuple[expression.Expression, path.Path]:
   """Helper method for map_sparse_tensor."""
 
-  def new_op(pren,
-             options):
+  def new_op(pren: prensor.Prensor,
+             options: calculate_options.Options) -> prensor.LeafNodeTensor:
     """Op for mapping prensor using the operation."""
     sparse_tensor_map = prensor_util.get_sparse_tensors(pren, options)
     sparse_tensors = [sparse_tensor_map[p] for p in paths]
@@ -294,10 +296,10 @@ def _map_sparse_tensor_impl(root, root_path,
                            new_field_name)
 
 
-def _ragged_as_leaf_node(ragged_tensor, is_repeated,
-                         reference_ragged_tensor,
-                         options
-                        ):
+def _ragged_as_leaf_node(ragged_tensor: tf.RaggedTensor, is_repeated: bool,
+                         reference_ragged_tensor: tf.RaggedTensor,
+                         options: calculate_options.Options
+                        ) -> prensor.LeafNodeTensor:
   """Creates a ragged tensor as a leaf node."""
   assertions = []
   if (ragged_tensor.shape[0].value is not None and
@@ -323,12 +325,12 @@ def _ragged_as_leaf_node(ragged_tensor, is_repeated,
                                   is_repeated)
 
 
-def _map_ragged_tensor_impl(root, root_path,
-                            paths,
-                            operation,
-                            is_repeated, dtype,
-                            new_field_name
-                           ):
+def _map_ragged_tensor_impl(root: expression.Expression, root_path: path.Path,
+                            paths: Sequence[path.Path],
+                            operation: Callable[..., tf.RaggedTensor],
+                            is_repeated: bool, dtype: tf.DType,
+                            new_field_name: path.Step
+                           ) -> Tuple[expression.Expression, path.Path]:
   """Maps a ragged tensor.
 
   Args:
@@ -348,8 +350,8 @@ def _map_ragged_tensor_impl(root, root_path,
     root_path.get_child(new_field_name), with the result of the operation.
   """
 
-  def new_op(tree,
-             options):
+  def new_op(tree: prensor.Prensor,
+             options: calculate_options.Options) -> prensor.LeafNodeTensor:
     """Apply operation to tree."""
     ragged_tensor_map = prensor_util.get_ragged_tensors(tree, options)
     ragged_tensors = [ragged_tensor_map[p] for p in paths]

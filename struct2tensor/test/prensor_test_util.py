@@ -33,18 +33,18 @@ from google.protobuf import text_format
 from tensorflow_metadata.proto.v0 import schema_pb2
 
 
-def create_root_node(size):
+def create_root_node(size: int) -> prensor.RootNodeTensor:
   return prensor.RootNodeTensor(tf.constant(size, dtype=tf.int64))
 
 
-def create_child_node(parent_index,
-                      is_repeated):
+def create_child_node(parent_index: Sequence[int],
+                      is_repeated: bool) -> prensor.ChildNodeTensor:
   return prensor.ChildNodeTensor(
       tf.constant(parent_index, dtype=tf.int64), is_repeated)
 
 
-def create_optional_leaf_node(parent_index,
-                              values):
+def create_optional_leaf_node(parent_index: Sequence[int],
+                              values: Sequence[Any]) -> prensor.LeafNodeTensor:
   """Creates an optional leaf node.
 
   Args:
@@ -58,8 +58,8 @@ def create_optional_leaf_node(parent_index,
       tf.constant(parent_index, dtype=tf.int64), tf.constant(values), False)
 
 
-def create_repeated_leaf_node(parent_index,
-                              values):
+def create_repeated_leaf_node(parent_index: Sequence[int],
+                              values: Sequence[Any]):
   """Creates a repeated PrensorField.
 
   Args:
@@ -73,7 +73,7 @@ def create_repeated_leaf_node(parent_index,
       tf.constant(parent_index, dtype=tf.int64), tf.constant(values), True)
 
 
-def create_simple_prensor():
+def create_simple_prensor() -> prensor.Prensor:
   """Creates a prensor expression representing a list of flat protocol buffers.
 
   Returns:
@@ -92,7 +92,7 @@ def create_simple_prensor():
   })
 
 
-def create_broken_prensor():
+def create_broken_prensor() -> prensor.Prensor:
   """Creates a broken prensor where the parent indices are out of order.
 
   Returns:
@@ -108,7 +108,7 @@ def create_broken_prensor():
   })
 
 
-def create_nested_prensor():
+def create_nested_prensor() -> prensor.Prensor:
   """Creates a prensor representing a list of nested protocol buffers.
 
   Returns:

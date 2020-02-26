@@ -119,9 +119,9 @@ import tensorflow as tf
 from typing import Optional, Sequence, Tuple
 
 
-def get_positional_index(expr, source_path,
-                         new_field_name
-                        ):
+def get_positional_index(expr: expression.Expression, source_path: path.Path,
+                         new_field_name: path.Step
+                        ) -> Tuple[expression.Expression, path.Path]:
   """Gets the positional index.
 
   Given a field with parent_index [0,1,1,2,3,4,4], this returns:
@@ -144,9 +144,9 @@ def get_positional_index(expr, source_path,
       }), new_path
 
 
-def get_index_from_end(t, source_path,
-                       new_field_name
-                      ):
+def get_index_from_end(t: expression.Expression, source_path: path.Path,
+                       new_field_name: path.Step
+                      ) -> Tuple[expression.Expression, path.Path]:
   """Gets the number of steps from the end of the array.
 
   Given an array ["a", "b", "c"], with indices [0, 1, 2], the result of this
@@ -183,20 +183,20 @@ class _PositionalIndexExpression(expression.Leaf):
   The operation will return a field that has the same parent index as source.
   """
 
-  def __init__(self, origin):
+  def __init__(self, origin: expression.Expression):
     super(_PositionalIndexExpression, self).__init__(origin.is_repeated,
                                                      tf.int64)
     self._origin = origin
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [origin] = sources
     if isinstance(origin, (prensor.LeafNodeTensor, prensor.ChildNodeTensor)):
       return prensor.LeafNodeTensor(origin.parent_index,
@@ -204,10 +204,10 @@ class _PositionalIndexExpression(expression.Leaf):
                                     self.is_repeated)
     raise ValueError("Cannot calculate the positional index of the root")
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(expr, _PositionalIndexExpression)
 
 
@@ -219,8 +219,8 @@ class _PositionalIndexFromEndExpression(expression.Leaf):
   The operation will return a field that has the same parent index as source.
   """
 
-  def __init__(self, positional_index,
-               size_inp):
+  def __init__(self, positional_index: expression.Expression,
+               size_inp: expression.Expression):
     """Create a new expression.
 
     Note that while positional_index and size are both siblings of the
@@ -237,15 +237,15 @@ class _PositionalIndexFromEndExpression(expression.Leaf):
     self._positional_index = positional_index
     self._size = size_inp
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._positional_index, self._size]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [positional_index, size_value] = sources
     if not isinstance(positional_index, prensor.LeafNodeTensor):
       raise ValueError("positional_index must be a LeafNodeTensor")
@@ -257,8 +257,8 @@ class _PositionalIndexFromEndExpression(expression.Leaf):
                                   positional_index.values - size_per_index,
                                   self.is_repeated)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(expr, _PositionalIndexFromEndExpression)

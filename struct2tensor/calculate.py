@@ -60,10 +60,10 @@ IDNodeTensor = int
 
 
 def calculate_values_with_graph(
-    expressions,
-    options = None,
-    feed_dict = None
-):
+    expressions: List[expression.Expression],
+    options: Optional[calculate_options.Options] = None,
+    feed_dict: Optional[Dict[expression.Expression, prensor.Prensor]] = None
+) -> Tuple[List[prensor.NodeTensor], "ExpressionGraph"]:
   """Calculates the values of the expressions, and the graph used.
 
   Note that this does not return prensors, but instead a list of NodeTensors.
@@ -85,10 +85,10 @@ def calculate_values_with_graph(
 
 
 def calculate_values(
-    expressions,
-    options = None,
-    feed_dict = None
-):
+    expressions: List[expression.Expression],
+    options: Optional[calculate_options.Options] = None,
+    feed_dict: Optional[Dict[expression.Expression, prensor.Prensor]] = None
+) -> List[prensor.NodeTensor]:
   """Calculates the values of the expressions.
 
   Note that this does not return prensors, but instead a list of NodeTensors.
@@ -107,10 +107,10 @@ def calculate_values(
 
 
 def calculate_prensors_with_graph(
-    expressions,
-    options = None,
-    feed_dict = None
-):
+    expressions: Sequence[expression.Expression],
+    options: Optional[calculate_options.Options] = None,
+    feed_dict: Optional[Dict[expression.Expression, prensor.Prensor]] = None
+) -> Tuple[Sequence[prensor.Prensor], "ExpressionGraph"]:
   """Gets the prensor value of the expressions and the graph used.
 
   This method is useful for getting information like the protobuf fields parsed
@@ -140,10 +140,10 @@ def calculate_prensors_with_graph(
 
 
 def calculate_prensors(
-    expressions,
-    options = None,
-    feed_dict = None
-):
+    expressions: Sequence[expression.Expression],
+    options: Optional[calculate_options.Options] = None,
+    feed_dict: Optional[Dict[expression.Expression, prensor.Prensor]] = None
+) -> Sequence[prensor.Prensor]:
   """Gets the prensor value of the expressions.
 
   Args:
@@ -162,10 +162,10 @@ def calculate_prensors(
 
 # TODO(martinz): Create an option to create the original expression graph.
 def _create_graph(
-    expressions,
-    options,
-    feed_dict = None
-):
+    expressions: List[expression.Expression],
+    options: calculate_options.Options,
+    feed_dict: Optional[Dict[expression.Expression, prensor.Prensor]] = None
+) -> "ExpressionGraph":
   """Create graph and calculate expressions."""
   expression_graph = OriginalExpressionGraph(expressions)
   canonical_graph = CanonicalExpressionGraph(expression_graph)
@@ -173,9 +173,9 @@ def _create_graph(
   return canonical_graph
 
 
-def _get_prensor(subtree,
-                 values
-                ):
+def _get_prensor(subtree: Mapping[path.Path, expression.Expression],
+                 values: Mapping[IDNodeTensor, prensor.NodeTensor]
+                ) -> prensor.Prensor:
   """Gets the prensor tree value of the subtree.
 
   Args:
@@ -190,7 +190,7 @@ def _get_prensor(subtree,
       {k: values[id(v)] for k, v in subtree.items()})
 
 
-def _get_earliest_equal_calculation(expr):
+def _get_earliest_equal_calculation(expr: expression.Expression):
   """Finds an expression with an equal value.
 
   Recursively traverses sources while expressions are the identity.
@@ -206,11 +206,11 @@ def _get_earliest_equal_calculation(expr):
   return result
 
 
-def _fancy_type_str(is_repeated, dtype):
+def _fancy_type_str(is_repeated: bool, dtype: Optional[tf.DType]):
   return "{} {}".format("repeated" if is_repeated else "optional", dtype)
 
 
-def _node_type_str(node_tensor):
+def _node_type_str(node_tensor: prensor.NodeTensor):
   if isinstance(node_tensor, prensor.LeafNodeTensor):
     return _fancy_type_str(node_tensor.is_repeated, node_tensor.values.dtype)
   else:
@@ -220,7 +220,7 @@ def _node_type_str(node_tensor):
 class _ExpressionNode(object):
   """A node representing an expression in the ExpressionGraph."""
 
-  def __init__(self, expr):
+  def __init__(self, expr: expression.Expression):
     """Construct a node in the graph.
 
     Args:
@@ -235,7 +235,7 @@ class _ExpressionNode(object):
     self.destinations = []  # type: List[_ExpressionNode]
     self.value = None
 
-  def __eq__(self, node):
+  def __eq__(self, node: "_ExpressionNode") -> bool:
     """Test if this node is equal to the other.
 
     Requires that all sources are already canonical.
@@ -252,7 +252,7 @@ class _ExpressionNode(object):
     # as opposed to semantic equality.
     return all([a is b for a, b in zip(self.sources, node.sources)])
 
-  def __str__(self):  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     return ("expression: {expression} sources: {sources} destinations: "
             "{destinations} value: {value}").format(
                 expression=str(self.expression),
@@ -260,7 +260,7 @@ class _ExpressionNode(object):
                 destinations=str(self.destinations),
                 value=str(self.value))
 
-  def _create_value_error(self):
+  def _create_value_error(self) -> ValueError:
     """Creates a ValueError, assuming there should be one for this node."""
     return ValueError("Expression {} returned the wrong type:"
                       " expected: {}"
@@ -271,9 +271,9 @@ class _ExpressionNode(object):
                           _node_type_str(self.value)))
 
   def calculate(self,
-                source_values,
-                options,
-                side_info):
+                source_values: Sequence[prensor.NodeTensor],
+                options: calculate_options.Options,
+                side_info: Optional[prensor.Prensor]) -> None:
     """Calculate the value of the node, and store it in self.value."""
     self.value = self.expression.calculate(
         source_values, [x.expression for x in self.destinations],
@@ -293,7 +293,7 @@ class _ExpressionNode(object):
     else:
       raise self._create_value_error()
 
-  def __hash__(self):
+  def __hash__(self) -> int:
     """This assumes all sources are canonical."""
     return hash(tuple([id(x) for x in self.sources]))
 
@@ -311,7 +311,7 @@ class ExpressionGraph(object):
     """Do not add or delete elements."""
     return self._ordered_node_list
 
-  def _get_node(self, expr):
+  def _get_node(self, expr: expression.Expression) -> Optional[_ExpressionNode]:
     """Gets a node corresponding to the expression.
 
     Args:
@@ -325,17 +325,17 @@ class ExpressionGraph(object):
     return self._node.get(id(earliest))
 
   def get_value(self,
-                expr):
+                expr: expression.Expression) -> Optional[prensor.NodeTensor]:
     node = self._get_node(expr)
     return None if node is None else node.value
 
-  def get_value_or_die(self, expr):
+  def get_value_or_die(self, expr: expression.Expression) -> prensor.NodeTensor:
     result = self.get_value(expr)
     if result is None:
       raise ValueError("Could not find expression's value")
     return result
 
-  def _find_destinations(self, nodes):
+  def _find_destinations(self, nodes: Sequence[_ExpressionNode]) -> None:
     """Initialize destinations of nodes.
 
     For all nodes u,v in nodes:
@@ -353,16 +353,16 @@ class ExpressionGraph(object):
 
   def calculate_values(
       self,
-      options,
-      feed_dict = None
-  ):
+      options: calculate_options.Options,
+      feed_dict: Optional[Dict[expression.Expression, prensor.Prensor]] = None
+  ) -> None:
     for node in self.ordered_node_list:
       source_values = [self._node[id(x)].value for x in node.sources]
       side_info = feed_dict[node.expression] if feed_dict and (
           node.expression in feed_dict) else None
       node.calculate(source_values, options, side_info=side_info)
 
-  def get_expressions_needed(self):
+  def get_expressions_needed(self) -> Sequence[expression.Expression]:
     return [x.expression for x in self.ordered_node_list]
 
   def __str__(self):
@@ -377,7 +377,7 @@ class OriginalExpressionGraph(ExpressionGraph):
   all expressions.
   """
 
-  def __init__(self, expressions):
+  def __init__(self, expressions: Sequence[expression.Expression]):
     super(OriginalExpressionGraph, self).__init__()
     self._add_expressions(expressions)
     original_nodes = list(self._node.values())
@@ -385,7 +385,7 @@ class OriginalExpressionGraph(ExpressionGraph):
     self._order_nodes()
 
   def _add_expressions(self,
-                       expressions):
+                       expressions: Sequence[expression.Expression]) -> None:
     """Add expressions to the graph."""
     if self.ordered_node_list:
       raise ValueError("Only call once during construction")
@@ -398,7 +398,7 @@ class OriginalExpressionGraph(ExpressionGraph):
         self._node[id(earliest_expr)] = node
         to_add.extend(node.sources)
 
-  def _order_nodes(self):
+  def _order_nodes(self) -> None:
     """Topologically sorts the nodes and puts them in ordered_node_list."""
     nodes_to_process = []  # type: List[_ExpressionNode]
     if self.ordered_node_list:
@@ -430,7 +430,7 @@ class CanonicalExpressionGraph(ExpressionGraph):
   the input graph (to avoid Python recursion limits).
   """
 
-  def __init__(self, original):
+  def __init__(self, original: ExpressionGraph):
     super(CanonicalExpressionGraph, self).__init__()
     # Nodes indexed by _ExpressionNode.
     self._node_map = {}  # type: Dict[_ExpressionNode, _ExpressionNode]
@@ -438,7 +438,7 @@ class CanonicalExpressionGraph(ExpressionGraph):
     self._find_destinations(self.ordered_node_list)
 
   def _add_expressions(self,
-                       expressions):
+                       expressions: Sequence[expression.Expression]) -> None:
     """Add expressions to the graph.
 
     Args:
@@ -450,8 +450,8 @@ class CanonicalExpressionGraph(ExpressionGraph):
       if maybe_node is not None:
         self._ordered_node_list.append(maybe_node)
 
-  def _create_node_if_not_exists(self, expr
-                                ):
+  def _create_node_if_not_exists(self, expr: expression.Expression
+                                ) -> Optional[_ExpressionNode]:
     """Creates a canonical node for an expression if none exists.
 
     This method assumes that the method has already been called on all
@@ -481,8 +481,8 @@ class CanonicalExpressionGraph(ExpressionGraph):
       self._node[id(expr)] = maybe_canonical
       return maybe_canonical
 
-  def _get_canonical_or_error(self, expr
-                             ):
+  def _get_canonical_or_error(self, expr: expression.Expression
+                             ) -> expression.Expression:
     """Gets a canonical expression or dies."""
     node = self._get_node(expr)
     if node is not None:

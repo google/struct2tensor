@@ -37,9 +37,9 @@ ProtoRequirements = collections.namedtuple("ProtoRequirements",
 
 
 def calculate_prensors_with_source_paths(
-    trees,
-    options = None
-):
+    trees: Sequence[expression.Expression],
+    options: Optional[calculate_options.Options] = None
+) -> Tuple[Sequence[prensor.Prensor], Sequence[ProtoRequirements]]:
   """Returns a list of prensor trees, and proto summaries."""
   prensors, graph = calculate.calculate_prensors_with_graph(
       trees, options=options)
@@ -50,7 +50,7 @@ def calculate_prensors_with_source_paths(
   return prensors, summaries
 
 
-def _dedup_paths(paths):
+def _dedup_paths(paths: Sequence[path.Path]) -> List[path.Path]:
   """Deduplicates paths including prefixes.
 
   Args:
@@ -79,8 +79,8 @@ def _dedup_paths(paths):
 
 
 def requirements_to_metadata_proto(
-    inp,
-    result):
+    inp: Sequence[ProtoRequirements],
+    result: query_metadata_pb2.QueryMetadata) -> None:
   """Populates result with a proto representation of the ProtoRequirements.
 
   This drops the link to the individual tensor of protos objects, which cannot
@@ -97,8 +97,8 @@ def requirements_to_metadata_proto(
 
 
 def _get_proto_summaries(
-    proto_expressions
-):
+    proto_expressions: Sequence[proto.ProtoExpression]
+) -> Sequence[ProtoRequirements]:
   """Gets the proto summaries."""
   result = []  # type: List[ProtoRequirements]
   for expr in proto_expressions:
@@ -123,7 +123,7 @@ def _get_proto_summaries(
 
 
 def _requirement_to_parsed_proto_info(
-    inp, result):
+    inp: ProtoRequirements, result: query_metadata_pb2.ParsedProtoInfo) -> None:
   result.message_name = inp.descriptor.full_name
   for p in inp.paths:
     result.field_paths.add().MergeFrom(p.as_proto())

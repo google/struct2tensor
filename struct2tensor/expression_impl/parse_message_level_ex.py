@@ -90,11 +90,11 @@ StrStep = str  # pylint: disable=g-ambiguous-str-annotation
 
 
 def parse_message_level_ex(
-    tensor_of_protos,
-    desc,
-    field_names,
-    message_format = "binary"
-):
+    tensor_of_protos: tf.Tensor,
+    desc: descriptor.Descriptor,
+    field_names: Set[ProtoFieldName],
+    message_format: Text = "binary"
+) -> Mapping[StrStep, struct2tensor_ops._ParsedField]:
   """Parses regular fields, extensions, any casts, and map protos."""
   raw_field_names = _get_field_names_to_parse(desc, field_names)
   regular_fields = list(
@@ -113,13 +113,13 @@ def parse_message_level_ex(
   return result
 
 
-def is_any_descriptor(desc):
+def is_any_descriptor(desc: descriptor.Descriptor) -> bool:
   """Returns true if it is an Any descriptor."""
   return desc.full_name == "google.protobuf.Any"
 
 
 def get_full_name_from_any_step(
-    step):
+    step: ProtoFieldName) -> Optional[ProtoFieldName]:
   """Gets the full name of a protobuf from a google.protobuf.Any step.
 
   An any step is of the form (foo.com/bar.Baz). In this case the result would
@@ -141,8 +141,8 @@ def get_full_name_from_any_step(
   return step_without_parens.split("/")[-1]
 
 
-def _any_indices_with_type(type_url,
-                           full_name):
+def _any_indices_with_type(type_url: struct2tensor_ops._ParsedField,
+                           full_name: ProtoFullName) -> tf.Tensor:
   """Returns the parent indices that have a type_url of full_name."""
   tensors_parsed = tf.compat.v1.string_split(type_url.value, delimiter="/")
   second_column_shape = tf.stack([
@@ -159,10 +159,10 @@ def _any_indices_with_type(type_url,
   return tf.boolean_mask(type_url.index, equal_to_full_name)
 
 
-def _get_any_parsed_field(value_field,
-                          type_url_field,
-                          field_name
-                         ):
+def _get_any_parsed_field(value_field: struct2tensor_ops._ParsedField,
+                          type_url_field: struct2tensor_ops._ParsedField,
+                          field_name: StrStep
+                         ) -> struct2tensor_ops._ParsedField:
   """Helper function for _get_any_parsed_fields."""
   full_name = get_full_name_from_any_step(field_name)
   indices_with_type = _any_indices_with_type(type_url_field, full_name)
@@ -179,10 +179,10 @@ def _get_any_parsed_field(value_field,
 
 
 def _get_any_parsed_fields(
-    desc,
-    raw_parsed_fields,
-    field_names
-):
+    desc: descriptor.Descriptor,
+    raw_parsed_fields: Mapping[StrStep, struct2tensor_ops._ParsedField],
+    field_names: Set[StrStep]
+) -> Mapping[StrStep, struct2tensor_ops._ParsedField]:
   """Gets the _ParsedField sequence for an Any protobuf."""
   if not is_any_descriptor(desc):
     return {}
@@ -198,8 +198,8 @@ def _get_any_parsed_fields(
 
 
 def _get_field_names_to_parse(
-    desc,
-    needed_field_names):
+    desc: descriptor.Descriptor,
+    needed_field_names: Set[StrStep]) -> Sequence[ProtoFieldName]:
   """Gets the field names to parse from the original protobuf."""
   result = set()  # Set[ProtoFieldName]
   for x in needed_field_names:
@@ -215,10 +215,10 @@ def _get_field_names_to_parse(
 
 
 def _get_map_parsed_fields(
-    desc,
-    regular_fields,
-    field_names
-):
+    desc: descriptor.Descriptor,
+    regular_fields: Mapping[StrStep, struct2tensor_ops._ParsedField],
+    field_names: Set[StrStep]
+) -> Mapping[StrStep, struct2tensor_ops._ParsedField]:
   """Gets the map proto ParsedFields.
 
   field_names includes all the fields: map fields, any fields, and
@@ -258,9 +258,9 @@ def _get_map_parsed_fields(
   return {x.field_name: x for x in result_as_list}
 
 
-def _get_parsed_field(data,
-                      field_name
-                     ):
+def _get_parsed_field(data: Sequence[struct2tensor_ops._ParsedField],
+                      field_name: ProtoFieldName
+                     ) -> Optional[struct2tensor_ops._ParsedField]:
   for x in data:
     if x.field_name == field_name:
       return x

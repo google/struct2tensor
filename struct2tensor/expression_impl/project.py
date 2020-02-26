@@ -39,8 +39,8 @@ from struct2tensor import prensor
 from typing import FrozenSet, List, Mapping, Optional, Sequence
 
 
-def project(expr,
-            paths):
+def project(expr: expression.Expression,
+            paths: Sequence[path.Path]) -> expression.Expression:
   """select a subtree.
 
   Paths not selected are removed.
@@ -62,7 +62,7 @@ def project(expr,
 
 
 def _group_paths_by_first_step(
-    paths):
+    paths: Sequence[path.Path]) -> Mapping[path.Step, List[path.Path]]:
   result = collections.defaultdict(list)
   for p in paths:
     if p:
@@ -74,33 +74,33 @@ def _group_paths_by_first_step(
 class _ProjectExpression(expression.Expression):
   """Project all subfields of an expression."""
 
-  def __init__(self, origin, paths):
+  def __init__(self, origin: expression.Expression, paths: Sequence[path.Path]):
     super(_ProjectExpression, self).__init__(origin.is_repeated, origin.type,
                                              origin.schema_feature)
     self._paths_map = _group_paths_by_first_step(paths)
     self._origin = origin
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     if len(sources) != 1:
       raise ValueError("Expected one source.")
     return sources[0]
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return True
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return expr.calculation_is_identity()
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     paths = self._paths_map.get(field_name)
     if paths is None:
       return None
@@ -110,5 +110,5 @@ class _ProjectExpression(expression.Expression):
           "Project a field that doesn't exist: {}".format(field_name))
     return _ProjectExpression(original, paths)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return frozenset(self._paths_map.keys())

@@ -38,8 +38,8 @@ import tensorflow as tf
 from typing import Optional, Sequence, Tuple
 
 
-def size_anonymous(root, source_path
-                  ):
+def size_anonymous(root: expression.Expression, source_path: path.Path
+                  ) -> Tuple[expression.Expression, path.Path]:
   """Calculate the size of a field, and store it as an anonymous sibling.
 
   Args:
@@ -52,8 +52,8 @@ def size_anonymous(root, source_path
   return _size_impl(root, source_path, path.get_anonymous_field())
 
 
-def size(root, source_path,
-         new_field_name):
+def size(root: expression.Expression, source_path: path.Path,
+         new_field_name: path.Step) -> expression.Expression:
   """Get the size of a field as a new sibling field.
 
   Args:
@@ -67,8 +67,8 @@ def size(root, source_path,
   return _size_impl(root, source_path, new_field_name)[0]
 
 
-def has(root, source_path,
-        new_field_name):
+def has(root: expression.Expression, source_path: path.Path,
+        new_field_name: path.Step) -> expression.Expression:
   """Get the has of a field as a new sibling field.
 
   Args:
@@ -95,21 +95,21 @@ class SizeExpression(expression.Leaf):
 
   """
 
-  def __init__(self, origin,
-               origin_parent):
+  def __init__(self, origin: expression.Expression,
+               origin_parent: expression.Expression):
     super(SizeExpression, self).__init__(False, tf.int64)
     self._origin = origin
     self._origin_parent = origin_parent
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin, self._origin_parent]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
 
     [origin_value, origin_parent_value] = sources
     if not isinstance(origin_value,
@@ -137,16 +137,16 @@ class SizeExpression(expression.Leaf):
     new_parent_index = tf.range(num_parent_protos, dtype=tf.int64)
     return prensor.LeafNodeTensor(new_parent_index, values, False)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(expr, SizeExpression)
 
 
 def _size_impl(
-    root, source_path,
-    new_field_name):
+    root: expression.Expression, source_path: path.Path,
+    new_field_name: path.Step) -> Tuple[expression.Expression, path.Path]:
   if not source_path:
     raise ValueError("Cannot get the size of the root.")
   if root.get_descendant(source_path) is None:

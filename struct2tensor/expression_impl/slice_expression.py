@@ -124,9 +124,9 @@ from typing import Callable, Optional, Tuple
 IndexValue = expression.IndexValue
 
 
-def slice_expression(expr, p,
-                     new_field_name, begin,
-                     end):
+def slice_expression(expr: expression.Expression, p: path.Path,
+                     new_field_name: path.Step, begin: Optional[IndexValue],
+                     end: Optional[IndexValue]) -> expression.Expression:
   """Creates a new subtree with a sliced expression.
 
   This follows the pattern of python slice() method.
@@ -151,9 +151,9 @@ def slice_expression(expr, p,
   return expression_add.add_to(expr, {new_path: work_expr})
 
 
-def _get_mask(t, p, threshold,
-              relation
-             ):
+def _get_mask(t: expression.Expression, p: path.Path, threshold: IndexValue,
+              relation: Callable[[tf.Tensor, IndexValue], tf.Tensor]
+             ) -> Tuple[expression.Expression, path.Path]:
   """Gets a mask based on a relation of the index to a threshold.
 
   If the threshold is non-negative, then we create a mask that is true if
@@ -205,21 +205,21 @@ def _get_mask(t, p, threshold,
     ], tf_cond_on_threshold, tf.bool, path.get_anonymous_field())
 
 
-def _get_begin_mask(expr, p, begin
-                   ):
+def _get_begin_mask(expr: expression.Expression, p: path.Path, begin: IndexValue
+                   ) -> Tuple[expression.Expression, path.Path]:
   """Get a boolean mask of what indices to retain for slice given begin."""
   return _get_mask(expr, p, begin, tf.greater_equal)
 
 
-def _get_end_mask(t, p,
-                  end):
+def _get_end_mask(t: expression.Expression, p: path.Path,
+                  end: IndexValue) -> Tuple[expression.Expression, path.Path]:
   """Get a boolean mask of what indices to retain for slice given end."""
   return _get_mask(t, p, end, tf.less)
 
 
 def _get_slice_mask(
-    expr, p, begin,
-    end):
+    expr: expression.Expression, p: path.Path, begin: Optional[IndexValue],
+    end: Optional[IndexValue]) -> Tuple[expression.Expression, path.Path]:
   """Gets a mask for slicing a path.
 
   One way to consider the elements of a path "foo.bar" is as a list of list of

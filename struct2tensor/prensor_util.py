@@ -31,7 +31,7 @@ import tensorflow as tf
 from typing import Mapping, Sequence, Tuple, Union
 
 
-def get_positional_index(node):
+def get_positional_index(node: prensor.NodeTensor) -> tf.Tensor:
   if isinstance(node, (prensor.LeafNodeTensor, prensor.ChildNodeTensor)):
     return struct2tensor_ops.run_length_before(node.parent_index)
   # RootNodeTensor
@@ -48,23 +48,23 @@ class _LeafNodePath(object):
   root node.
   """
 
-  def __init__(self, head,
-               middle,
-               tail):
+  def __init__(self, head: prensor.RootNodeTensor,
+               middle: Sequence[prensor.ChildNodeTensor],
+               tail: prensor.LeafNodeTensor):
     self._head = head
     self._middle = middle
     self._tail = tail
 
   @property
-  def head(self):
+  def head(self) -> prensor.RootNodeTensor:
     return self._head
 
   @property
-  def middle(self):
+  def middle(self) -> Sequence[prensor.ChildNodeTensor]:
     return self._middle
 
   @property
-  def tail(self):
+  def tail(self) -> prensor.LeafNodeTensor:
     return self._tail
 
 
@@ -75,28 +75,28 @@ class _ChildNodePath(object):
   We use these in _get_dewey_encoding.
   """
 
-  def __init__(self, head,
-               middle,
-               tail):
+  def __init__(self, head: prensor.RootNodeTensor,
+               middle: Sequence[prensor.ChildNodeTensor],
+               tail: prensor.ChildNodeTensor):
     self._head = head
     self._middle = middle
     self._tail = tail
 
   @property
-  def head(self):
+  def head(self) -> prensor.RootNodeTensor:
     return self._head
 
   @property
-  def middle(self):
+  def middle(self) -> Sequence[prensor.ChildNodeTensor]:
     return self._middle
 
   @property
-  def tail(self):
+  def tail(self) -> prensor.ChildNodeTensor:
     return self._tail
 
 
-def _as_root_node_tensor(node_tensor
-                        ):
+def _as_root_node_tensor(node_tensor: prensor.NodeTensor
+                        ) -> prensor.RootNodeTensor:
   if isinstance(node_tensor, prensor.RootNodeTensor):
     return node_tensor
   if isinstance(node_tensor, prensor.ChildNodeTensor):
@@ -105,7 +105,7 @@ def _as_root_node_tensor(node_tensor
       type(node_tensor)))
 
 
-def _get_leaf_node_path(p, t):
+def _get_leaf_node_path(p: path.Path, t: prensor.Prensor) -> _LeafNodePath:
   """Creates a _LeafNodePath to p."""
   leaf_node = t.get_descendant_or_error(p).node
   if not isinstance(leaf_node, prensor.LeafNodeTensor):
@@ -136,18 +136,18 @@ def _get_leaf_node_path(p, t):
   return _LeafNodePath(root_node, child_nodes, leaf_node)
 
 
-def _get_leaf_node_path_suffix(p):
+def _get_leaf_node_path_suffix(p: _LeafNodePath) -> _LeafNodePath:
   """Get the suffix of a LeafNodePath."""
   return _LeafNodePath(_as_root_node_tensor(p.middle[0]), p.middle[1:], p.tail)
 
 
-def _get_node_path_parent(p
-                         ):
+def _get_node_path_parent(p: Union[_LeafNodePath, _ChildNodePath]
+                         ) -> _ChildNodePath:
   return _ChildNodePath(p.head, p.middle[:-1], p.middle[-1])
 
 
-def _get_leaf_node_paths(t
-                        ):
+def _get_leaf_node_paths(t: prensor.Prensor
+                        ) -> Mapping[path.Path, _LeafNodePath]:
   """Gets a map of paths to leaf nodes in the expression."""
   return {
       k: _get_leaf_node_path(k, t)
@@ -159,8 +159,8 @@ def _get_leaf_node_paths(t
 #################### Code for get_sparse_tensors(...) ##########################
 
 
-def _get_dewey_encoding(p
-                       ):
+def _get_dewey_encoding(p: Union[_LeafNodePath, _ChildNodePath]
+                       ) -> Tuple[tf.Tensor, tf.Tensor]:
   """Gets a pair of the indices and shape of these protos.
 
   See http://db.ucsd.edu/static/cse232B-s05/papers/tatarinov02.pdf
@@ -199,14 +199,14 @@ def _get_dewey_encoding(p
       return tf.gather(parent_dewey_encoding, p.tail.parent_index), parent_size
 
 
-def _get_sparse_tensor(p):
+def _get_sparse_tensor(p: _LeafNodePath) -> tf.SparseTensor:
   indices, dense_shape = _get_dewey_encoding(p)
   return tf.SparseTensor(
       indices=indices, values=p.tail.values, dense_shape=dense_shape)
 
 
-def get_sparse_tensors(t, options
-                      ):
+def get_sparse_tensors(t: prensor.Prensor, options: calculate_options.Options
+                      ) -> Mapping[path.Path, tf.SparseTensor]:
   """Gets sparse tensors for all the leaves of the prensor expression.
 
   Args:
@@ -238,9 +238,9 @@ def from_value_rowids_bridge(values,
   )
 
 
-def _get_ragged_tensor_from_leaf_node_path(nodes,
-                                           options
-                                          ):
+def _get_ragged_tensor_from_leaf_node_path(nodes: _LeafNodePath,
+                                           options: calculate_options.Options
+                                          ) -> tf.RaggedTensor:
   """Gets a ragged tensor from a leaf node path."""
   if not nodes.middle:
     return from_value_rowids_bridge(
@@ -258,8 +258,8 @@ def _get_ragged_tensor_from_leaf_node_path(nodes,
       validate=options.ragged_checks)
 
 
-def get_ragged_tensors(t, options
-                      ):
+def get_ragged_tensors(t: prensor.Prensor, options: calculate_options.Options
+                      ) -> Mapping[path.Path, tf.RaggedTensor]:
   """Gets ragged tensors for all the leaves of the prensor expression.
 
   Args:

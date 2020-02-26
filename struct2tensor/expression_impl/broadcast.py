@@ -91,23 +91,23 @@ class _BroadcastExpression(expression.Leaf):
 
   """
 
-  def __init__(self, origin,
-               sibling):
+  def __init__(self, origin: expression.Expression,
+               sibling: expression.Expression):
     super(_BroadcastExpression, self).__init__(origin.is_repeated, origin.type)
     if origin.type is None:
       raise ValueError("Can only broadcast a field")
     self._origin = origin
     self._sibling = sibling
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin, self._sibling]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [origin_value, sibling_value] = sources
     if not isinstance(origin_value, prensor.LeafNodeTensor):
       raise ValueError("origin not a LeafNodeTensor")
@@ -127,16 +127,16 @@ class _BroadcastExpression(expression.Leaf):
     return prensor.LeafNodeTensor(broadcasted_to_sibling_index, new_values,
                                   self.is_repeated)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(expr, _BroadcastExpression)
 
 
 def _broadcast_impl(
-    root, origin, sibling,
-    new_field_name):
+    root: expression.Expression, origin: path.Path, sibling: path.Step,
+    new_field_name: path.Step) -> Tuple[expression.Expression, path.Path]:
   sibling_path = origin.get_parent().get_child(sibling)
   new_expr = _BroadcastExpression(
       root.get_descendant_or_error(origin),
@@ -146,12 +146,12 @@ def _broadcast_impl(
 
 
 def broadcast_anonymous(
-    root, origin,
-    sibling):
+    root: expression.Expression, origin: path.Path,
+    sibling: path.Step) -> Tuple[expression.Expression, path.Path]:
   return _broadcast_impl(root, origin, sibling, path.get_anonymous_field())
 
 
-def broadcast(root, origin,
-              sibling_name,
-              new_field_name):
+def broadcast(root: expression.Expression, origin: path.Path,
+              sibling_name: path.Step,
+              new_field_name: path.Step) -> expression.Expression:
   return _broadcast_impl(root, origin, sibling_name, new_field_name)[0]

@@ -37,7 +37,7 @@ class Options(object):
 
   """
 
-  def __init__(self, ragged_checks, sparse_checks):
+  def __init__(self, ragged_checks: bool, sparse_checks: bool):
     """Create options."""
     self.ragged_checks = ragged_checks
     self.sparse_checks = sparse_checks
@@ -47,11 +47,11 @@ class Options(object):
             str(self.sparse_checks) + "}")
 
 
-def get_default_options():
+def get_default_options() -> Options:
   """Get the default options."""
   return Options(ragged_checks=True, sparse_checks=True)
 
 
-def get_options_with_minimal_checks():
+def get_options_with_minimal_checks() -> Options:
   """Options for calculation with minimal runtime checks."""
   return Options(ragged_checks=False, sparse_checks=False)

@@ -72,9 +72,9 @@ import tensorflow as tf
 from typing import FrozenSet, Optional, Sequence, Union
 
 
-def filter_by_sibling(expr, p,
-                      sibling_field_name,
-                      new_field_name):
+def filter_by_sibling(expr: expression.Expression, p: path.Path,
+                      sibling_field_name: path.Step,
+                      new_field_name: path.Step) -> expression.Expression:
   """Filter an expression by its sibling.
 
 
@@ -100,9 +100,9 @@ def filter_by_sibling(expr, p,
   return expression_add.add_paths(expr, {new_path: new_expr})
 
 
-def filter_by_child(expr, p,
-                    child_field_name,
-                    new_field_name):
+def filter_by_child(expr: expression.Expression, p: path.Path,
+                    child_field_name: path.Step,
+                    new_field_name: path.Step) -> expression.Expression:
   """Filter an expression by an optional boolean child field.
 
   If the child field is present and True, then keep that parent.
@@ -131,7 +131,7 @@ def filter_by_child(expr, p,
 class _FilterRootNodeTensor(prensor.RootNodeTensor):
   """The value of the root."""
 
-  def __init__(self, size, indices_to_keep):
+  def __init__(self, size: tf.Tensor, indices_to_keep: tf.Tensor):
     """Initialize a root tensor that has indices_to_keep.
 
     Args:
@@ -142,7 +142,7 @@ class _FilterRootNodeTensor(prensor.RootNodeTensor):
     self._indices_to_keep = indices_to_keep
 
   @property
-  def indices_to_keep(self):
+  def indices_to_keep(self) -> tf.Tensor:
     return self._indices_to_keep
 
   def __str__(self):
@@ -152,8 +152,8 @@ class _FilterRootNodeTensor(prensor.RootNodeTensor):
 class _FilterChildNodeTensor(prensor.ChildNodeTensor):
   """The value of an intermediate node."""
 
-  def __init__(self, parent_index, is_repeated,
-               indices_to_keep):
+  def __init__(self, parent_index: tf.Tensor, is_repeated: bool,
+               indices_to_keep: tf.Tensor):
     """Initialize a child node tensor with indices_to_keep.
 
     Args:
@@ -169,13 +169,13 @@ class _FilterChildNodeTensor(prensor.ChildNodeTensor):
         "repeated" if self.is_repeated else "optional")
 
   @property
-  def indices_to_keep(self):
+  def indices_to_keep(self) -> tf.Tensor:
     return self._indices_to_keep
 
 
-def _filter_by_self_indices_to_keep(node_value,
-                                    self_indices_to_keep
-                                   ):
+def _filter_by_self_indices_to_keep(node_value: prensor.NodeTensor,
+                                    self_indices_to_keep: tf.Tensor
+                                   ) -> prensor.NodeTensor:
   """Filter the node by the indices you want to keep."""
   if isinstance(node_value, prensor.RootNodeTensor):
     return _FilterRootNodeTensor(
@@ -193,8 +193,8 @@ def _filter_by_self_indices_to_keep(node_value,
 
 
 def _filter_by_parent_indices_to_keep(
-    node_value,
-    parent_indices_to_keep):
+    node_value: Union[prensor.ChildNodeTensor, prensor.LeafNodeTensor],
+    parent_indices_to_keep: tf.Tensor) -> prensor.NodeTensor:
   """Filter by parent indices to keep."""
   [new_parent_index, self_indices_to_keep
   ] = struct2tensor_ops.equi_join_indices(parent_indices_to_keep,
@@ -216,22 +216,22 @@ class _FilterChildByParentIndicesToKeepExpression(expression.Expression):
   _FilterBySiblingExpression and _FilterByChildExpression.
   """
 
-  def __init__(self, origin,
-               parent):
+  def __init__(self, origin: expression.Expression,
+               parent: expression.Expression):
     super(_FilterChildByParentIndicesToKeepExpression,
           self).__init__(origin.is_repeated, origin.type)
     self._origin = origin
     self._parent = parent
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin, self._parent]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [origin_value, parent_value] = sources
     if (not isinstance(parent_value,
                        (_FilterChildNodeTensor, _FilterRootNodeTensor))):
@@ -245,38 +245,38 @@ class _FilterChildByParentIndicesToKeepExpression(expression.Expression):
     return _filter_by_parent_indices_to_keep(origin_value,
                                              parent_indices_to_keep)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(self, _FilterChildByParentIndicesToKeepExpression)
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     original_child = self._origin.get_child(field_name)
     if original_child is None:
       return None
     return _FilterChildByParentIndicesToKeepExpression(original_child, self)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return self._origin.known_field_names()
 
 
-def _self_indices_where_true(leaf_node):
+def _self_indices_where_true(leaf_node: prensor.LeafNodeTensor) -> tf.Tensor:
   self_index = tf.range(
       tf.size(leaf_node.parent_index, out_type=tf.int64), dtype=tf.int64)
   return tf.boolean_mask(self_index, leaf_node.values)
 
 
-def _parent_indices_where_true(leaf_node):
+def _parent_indices_where_true(leaf_node: prensor.LeafNodeTensor) -> tf.Tensor:
   return tf.boolean_mask(leaf_node.parent_index, leaf_node.values)
 
 
 class _FilterBySiblingExpression(expression.Expression):
   """Project all subfields of an expression."""
 
-  def __init__(self, origin,
-               sibling):
+  def __init__(self, origin: expression.Expression,
+               sibling: expression.Expression):
     super(_FilterBySiblingExpression, self).__init__(origin.is_repeated,
                                                      origin.type)
     self._origin = origin
@@ -284,15 +284,15 @@ class _FilterBySiblingExpression(expression.Expression):
     if sibling.type != tf.bool:
       raise ValueError("Sibling must be a boolean leaf.")
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin, self._sibling]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [origin_value, sibling_value] = sources
     if not isinstance(origin_value,
                       (prensor.ChildNodeTensor, prensor.LeafNodeTensor)):
@@ -304,28 +304,28 @@ class _FilterBySiblingExpression(expression.Expression):
     self_indices_to_keep = _self_indices_where_true(sibling_value)
     return _filter_by_self_indices_to_keep(origin_value, self_indices_to_keep)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(self, _FilterBySiblingExpression)
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     original = self._origin.get_child(field_name)
     if original is None:
       return None
     return _FilterChildByParentIndicesToKeepExpression(original, self)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return self._origin.known_field_names()
 
 
 class _FilterByChildExpression(expression.Expression):
   """Project all subfields of an expression."""
 
-  def __init__(self, origin,
-               child):
+  def __init__(self, origin: expression.Expression,
+               child: expression.Expression):
     super(_FilterByChildExpression, self).__init__(origin.is_repeated,
                                                    origin.type)
     self._origin = origin
@@ -335,15 +335,15 @@ class _FilterByChildExpression(expression.Expression):
     if child.is_repeated:
       raise ValueError("Child must not be repeated")
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin, self._child]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [origin_value, child_value] = sources
     if not isinstance(origin_value,
                       (prensor.ChildNodeTensor, prensor.LeafNodeTensor)):
@@ -355,18 +355,18 @@ class _FilterByChildExpression(expression.Expression):
     self_indices_to_keep = _parent_indices_where_true(child_value)
     return _filter_by_self_indices_to_keep(origin_value, self_indices_to_keep)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(self, _FilterByChildExpression)
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     original = self._origin.get_child(field_name)
     if original is None:
       return None
     return _FilterChildByParentIndicesToKeepExpression(original, self)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return self._origin.known_field_names()

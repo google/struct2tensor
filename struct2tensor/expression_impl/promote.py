@@ -109,8 +109,8 @@ from tensorflow_metadata.proto.v0 import schema_pb2
 class PromoteExpression(expression.Leaf):
   """A promoted leaf."""
 
-  def __init__(self, origin,
-               origin_parent):
+  def __init__(self, origin: expression.Expression,
+               origin_parent: expression.Expression):
 
     super(PromoteExpression, self).__init__(
         origin.is_repeated or origin_parent.is_repeated,
@@ -124,15 +124,15 @@ class PromoteExpression(expression.Leaf):
     if self._origin_parent.type is not None:
       raise ValueError("origin_parent cannot be a field")
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin, self._origin_parent]
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [origin_value, origin_parent_value] = sources
     if not isinstance(origin_value, prensor.LeafNodeTensor):
       raise ValueError("origin_value must be a leaf")
@@ -144,14 +144,14 @@ class PromoteExpression(expression.Leaf):
     return prensor.LeafNodeTensor(new_parent_index, origin_value.values,
                                   self.is_repeated)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(expr, PromoteExpression)
 
 
-def _lifecycle_stage_number(a):
+def _lifecycle_stage_number(a) -> int:
   """Return a number indicating the quality of the lifecycle stage.
 
   When there is more than one input field, the minimum lifecycle stage could be
@@ -185,14 +185,14 @@ def _min_lifecycle_stage(a, b):
   return a
 
 
-def _feature_is_dense(feature):
+def _feature_is_dense(feature: schema_pb2.Feature) -> bool:
   return (feature.presence.min_fraction == 1.0 and
           feature.value_count.HasField("min") and
           feature.value_count.HasField("max") and
           feature.value_count.min == feature.value_count.max)
 
 
-def _copy_domain_info(origin, dest):
+def _copy_domain_info(origin: schema_pb2.Feature, dest: schema_pb2.Feature):
   """Copy the domain info."""
   one_of_field_name = origin.WhichOneof("domain_info")
   if one_of_field_name is None:
@@ -208,9 +208,9 @@ def _copy_domain_info(origin, dest):
     dest_field.CopyFrom(origin_field)
 
 
-def _get_promote_schema_feature(original,
-                                parent
-                               ):
+def _get_promote_schema_feature(original: Optional[schema_pb2.Feature],
+                                parent: Optional[schema_pb2.Feature]
+                               ) -> Optional[schema_pb2.Feature]:
   """Generate the schema feature for the field resulting from promote.
 
   Note that promote results in the exact same number of values.
@@ -257,9 +257,9 @@ def _get_promote_schema_feature(original,
   return result
 
 
-def _promote_impl(root, p,
-                  new_field_name
-                 ):
+def _promote_impl(root: expression.Expression, p: path.Path,
+                  new_field_name: path.Step
+                 ) -> Tuple[expression.Expression, path.Path]:
   if len(p) < 2:
     raise ValueError("Cannot do a promotion beyond the root: {}".format(str(p)))
   parent_path = p.get_parent()
@@ -274,13 +274,13 @@ def _promote_impl(root, p,
       }), new_path
 
 
-def promote_anonymous(root,
-                      p):
+def promote_anonymous(root: expression.Expression,
+                      p: path.Path) -> Tuple[expression.Expression, path.Path]:
   """Promote a path to be a new anonymous child of its grandparent."""
   return _promote_impl(root, p, path.get_anonymous_field())
 
 
-def promote(root, p,
-            new_field_name):
+def promote(root: expression.Expression, p: path.Path,
+            new_field_name: path.Step) -> expression.Expression:
   """Promote a path to be a child of its grandparent, and give it a name."""
   return _promote_impl(root, p, new_field_name)[0]

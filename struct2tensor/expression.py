@@ -93,9 +93,9 @@ class Expression(object):  # pytype: disable=ignored-metaclass
   __metaclass__ = abc.ABCMeta
 
   def __init__(self,
-               is_repeated,
-               my_type,
-               schema_feature = None):
+               is_repeated: bool,
+               my_type: Optional[tf.DType],
+               schema_feature: Optional[schema_pb2.Feature] = None):
     """Initialize an expression.
 
     Args:
@@ -110,27 +110,27 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     self._schema_feature = schema_feature
 
   @property
-  def is_repeated(self):
+  def is_repeated(self) -> bool:
     """True iff the same parent value can have multiple children values."""
     return self._is_repeated
 
   @property
-  def type(self):
+  def type(self) -> Optional[tf.DType]:
     """dtype of the expression, or None if not a leaf expression."""
     return self._type
 
   @property
-  def is_leaf(self):
+  def is_leaf(self) -> bool:
     """True iff the node tensor is a LeafNodeTensor."""
     return self.type is not None
 
   @property
-  def schema_feature(self):
+  def schema_feature(self) -> Optional[schema_pb2.Feature]:
     """Return the schema of the field."""
     return self._schema_feature
 
   @abc.abstractmethod
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence["Expression"]:
     """Gets the sources of this expression.
 
     The node tensors of the source expressions must be sufficient to
@@ -145,10 +145,10 @@ class Expression(object):  # pytype: disable=ignored-metaclass
   @abc.abstractmethod
   def calculate(
       self,
-      source_tensors,
-      destinations,
-      options,
-      side_info = None):
+      source_tensors: Sequence[prensor.NodeTensor],
+      destinations: Sequence["Expression"],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     """Calculates the node tensor of the expression.
 
     The node tensor must be a function of the properties of the expression
@@ -180,7 +180,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     """True iff the self.calculate is the identity.
 
     There is exactly one source, and the output of self.calculate(...) is the
@@ -189,7 +189,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def calculation_equal(self, expression):
+  def calculation_equal(self, expression: "Expression") -> bool:
     """self.calculate is equal to another expression.calculate.
 
     Given the same source node tensors, self.calculate(...) and
@@ -209,7 +209,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def _get_child_impl(self, field_name):
+  def _get_child_impl(self, field_name: path.Step) -> Optional["Expression"]:
     """Implementation of getting a named child in a subclass.
 
     This is called and cached inside get_child().
@@ -223,7 +223,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     raise NotImplementedError()
 
   @abc.abstractmethod
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     """Returns known field names of the expression.
 
     TODO(martinz): implement set_field and project.
@@ -244,7 +244,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
       An immutable set of field names.
     """
 
-  def get_child(self, field_name):
+  def get_child(self, field_name: path.Step) -> Optional["Expression"]:
     """Gets a named child."""
     if field_name in self._child_cache:
       return self._child_cache[field_name]
@@ -252,14 +252,14 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     self._child_cache[field_name] = result
     return result
 
-  def get_child_or_error(self, field_name):
+  def get_child_or_error(self, field_name: path.Step) -> "Expression":
     """Gets a named child."""
     result = self.get_child(field_name)
     if result is None:
       raise KeyError("No such field: {}".format(field_name))
     return result
 
-  def get_descendant(self, p):
+  def get_descendant(self, p: path.Path) -> Optional["Expression"]:
     """Finds the descendant at the path."""
     result = self
     for field_name in p.field_list:
@@ -268,7 +268,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
         return None
     return result
 
-  def get_descendant_or_error(self, p):
+  def get_descendant_or_error(self, p: path.Path) -> "Expression":
     """Finds the descendant at the path."""
     result = self.get_descendant(p)
     if result is None:
@@ -276,14 +276,14 @@ class Expression(object):  # pytype: disable=ignored-metaclass
           str(p), self.schema_string(limit=20)))
     return result
 
-  def get_known_children(self):
+  def get_known_children(self) -> Mapping[path.Step, "Expression"]:
     known_field_names = self.known_field_names()
     result = {}
     for name in known_field_names:
       result[name] = self.get_child_or_error(name)
     return result
 
-  def get_known_descendants(self):
+  def get_known_descendants(self) -> Mapping[path.Path, "Expression"]:
     # Rename get_known_descendants
     """Gets a mapping from known paths to subexpressions.
 
@@ -308,8 +308,8 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     result[path.Path([])] = self
     return result
 
-  def _schema_string_helper(self, field_name,
-                            limit):  # pylint: disable=g-ambiguous-str-annotation
+  def _schema_string_helper(self, field_name: path.Step,
+                            limit: Optional[int]) -> List[str]:  # pylint: disable=g-ambiguous-str-annotation
     """Helper for schema_string."""
     repeated_as_string = "repeated" if self.is_repeated else "optional"
     if self.type is None:
@@ -332,11 +332,11 @@ class Expression(object):  # pytype: disable=ignored-metaclass
 
   # Begin methods compatible with v1 API. ######################################
   # TODO(martinz): Implement cogroup_by_index.
-  def map_sparse_tensors(self, parent_path,
-                         source_fields,
-                         operator,
-                         is_repeated, dtype,
-                         new_field_name):
+  def map_sparse_tensors(self, parent_path: CoercableToPath,
+                         source_fields: Sequence[path.Step],
+                         operator: Callable[..., tf.SparseTensor],
+                         is_repeated: bool, dtype: tf.DType,
+                         new_field_name: path.Step) -> "Expression":
     """Maps a set of primitive fields of a message to a new field.
 
     Unlike map_field_values, this operation allows you to some degree reshape
@@ -365,11 +365,11 @@ class Expression(object):  # pytype: disable=ignored-metaclass
         [path.Path([f]) for f in source_fields], operator, is_repeated, dtype,
         new_field_name)
 
-  def map_ragged_tensors(self, parent_path,
-                         source_fields,
-                         operator,
-                         is_repeated, dtype,
-                         new_field_name):
+  def map_ragged_tensors(self, parent_path: CoercableToPath,
+                         source_fields: Sequence[path.Step],
+                         operator: Callable[..., tf.SparseTensor],
+                         is_repeated: bool, dtype: tf.DType,
+                         new_field_name: path.Step) -> "Expression":
     """Maps a set of primitive fields of a message to a new field.
 
     Unlike map_field_values, this operation allows you to some degree reshape
@@ -398,16 +398,16 @@ class Expression(object):  # pytype: disable=ignored-metaclass
         [path.Path([f]) for f in source_fields], operator, is_repeated, dtype,
         new_field_name)
 
-  def truncate(self, source_path, limit,
-               new_field_name):
+  def truncate(self, source_path: CoercableToPath, limit: Union[int, tf.Tensor],
+               new_field_name: path.Step) -> "Expression":
     """Creates a truncated copy of source_path at new_field_path."""
     return self.slice(source_path, new_field_name, end=limit)
 
   def slice(self,
-            source_path,
-            new_field_name,
-            begin = None,
-            end = None):
+            source_path: CoercableToPath,
+            new_field_name: path.Step,
+            begin: Optional[IndexValue] = None,
+            end: Optional[IndexValue] = None) -> "Expression":
     """Creates a slice copy of source_path at new_field_path.
 
     Note that if begin or end is negative, it is considered relative to
@@ -427,31 +427,31 @@ class Expression(object):  # pytype: disable=ignored-metaclass
                                              path.create_path(source_path),
                                              new_field_name, begin, end)
 
-  def promote(self, source_path, new_field_name):
+  def promote(self, source_path: CoercableToPath, new_field_name: path.Step):
     """Promotes source_path to be a field new_field_name in its grandparent."""
     return promote.promote(self, path.create_path(source_path), new_field_name)
 
-  def broadcast(self, source_path, sibling_field,
-                new_field_name):
+  def broadcast(self, source_path: CoercableToPath, sibling_field: path.Step,
+                new_field_name: path.Step) -> "Expression":
     """Broadcasts the existing field at source_path to the sibling_field."""
     return broadcast_module.broadcast(self, path.create_path(source_path),
                                       sibling_field, new_field_name)
 
-  def project(self, path_list):
+  def project(self, path_list: Sequence[CoercableToPath]) -> "Expression":
     """Constrains the paths to those listed."""
     return project.project(self, [path.create_path(x) for x in path_list])
 
   def promote_and_broadcast(
-      self, path_dictionary,
-      dest_path_parent):
+      self, path_dictionary: Mapping[path.Step, CoercableToPath],
+      dest_path_parent: CoercableToPath) -> "Expression":
     return promote_and_broadcast.promote_and_broadcast(
         self, {k: path.create_path(v) for k, v in path_dictionary.items()},
         path.create_path(dest_path_parent))
 
-  def map_field_values(self, source_path,
-                       operator,
-                       dtype,
-                       new_field_name):
+  def map_field_values(self, source_path: CoercableToPath,
+                       operator: Callable[[tf.Tensor], tf.Tensor],
+                       dtype: tf.DType,
+                       new_field_name: path.Step) -> "Expression":
     """Map a primitive field to create a new primitive field.
 
     Note: the dtype argument is added since the v1 API.
@@ -468,21 +468,21 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     return map_values.map_values(self, path.create_path(source_path), operator,
                                  dtype, new_field_name)
 
-  def reroot(self, new_root):
+  def reroot(self, new_root: CoercableToPath) -> "Expression":
     """Returns a new list of protocol buffers available at new_root."""
     return reroot.reroot(self, path.create_path(new_root))
 
-  def create_size_field(self, source_path,
-                        new_field_name):
+  def create_size_field(self, source_path: CoercableToPath,
+                        new_field_name: path.Step) -> "Expression":
     """Creates a field that is the size of the source path."""
     return size.size(self, path.create_path(source_path), new_field_name)
 
-  def create_has_field(self, source_path,
-                       new_field_name):
+  def create_has_field(self, source_path: CoercableToPath,
+                       new_field_name: path.Step) -> "Expression":
     """Creates a field that is the presence of the source path."""
     return size.has(self, path.create_path(source_path), new_field_name)
 
-  def create_proto_index(self, field_name):
+  def create_proto_index(self, field_name: path.Step) -> "Expression":
     """Creates a proto index field as a direct child of the current root.
 
     The proto index maps each root element to the original batch index.
@@ -500,22 +500,22 @@ class Expression(object):  # pytype: disable=ignored-metaclass
 
     return reroot.create_proto_index_field(self, field_name)
 
-  def cogroup_by_index(self, source_path, left_name,
-                       right_name,
-                       new_field_name):
+  def cogroup_by_index(self, source_path: CoercableToPath, left_name: path.Step,
+                       right_name: path.Step,
+                       new_field_name: path.Step) -> "Expression":
     """Creates a cogroup of left_name and right_name at new_field_name."""
     raise NotImplementedError("cogroup_by_index is not implemented")
 
   # End methods compatible with v1 API. ########################################
 
   def apply(self,
-            transform):
+            transform: Callable[["Expression"], "Expression"]) -> "Expression":
     return transform(self)
 
-  def apply_schema(self, schema):
+  def apply_schema(self, schema: schema_pb2.Schema) -> "Expression":
     return apply_schema.apply_schema(self, schema)
 
-  def get_paths_with_schema(self):
+  def get_paths_with_schema(self) -> List[path.Path]:
     """Extract only paths that contain schema information."""
     result = []
     for name, child in self.get_known_children().items():
@@ -529,7 +529,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
       result.append(path.Path([]))
     return result
 
-  def _populate_schema_feature_children(self, feature_list):
+  def _populate_schema_feature_children(self, feature_list) -> None:
     """Populate a feature list from the children of this node.
 
     The argument is a protobuf repeated field that is populated. The names
@@ -550,7 +550,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
             new_feature.struct_domain.feature)
       new_feature.name = name
 
-  def get_schema(self, create_schema_features=True):
+  def get_schema(self, create_schema_features=True) -> schema_pb2.Schema:
     """Returns a schema for the entire tree.
 
     Args:
@@ -565,7 +565,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     self._populate_schema_feature_children(result.feature)
     return result
 
-  def schema_string(self, limit = None):  # pylint: disable=g-ambiguous-str-annotation
+  def schema_string(self, limit: Optional[int] = None) -> str:  # pylint: disable=g-ambiguous-str-annotation
     """Returns a schema for the expression.
 
     E.g.
@@ -586,14 +586,14 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     """
     return "\n".join(self._schema_string_helper("root", limit))
 
-  def __hash__(self):
+  def __hash__(self) -> int:
     """Returns the id of the expression as the hash.
 
     Do not override this method.
     """
     return id(self)
 
-  def __eq__(self, expr):
+  def __eq__(self, expr: "Expression") -> bool:
     """if hash(expr1) == hash(expr2): then expr1 == expr2.
 
     Do not override this method.
@@ -605,7 +605,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     """
     return id(self) == id(expr)
 
-  def __str__(self):  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     """If not overridden, returns the schema string."""
     return self.schema_string(limit=20)
 
@@ -615,9 +615,9 @@ class Leaf(Expression):
   """An abstract supertype for expression subtypes without any children."""
 
   def __init__(self,
-               is_repeated,
-               my_type,
-               schema_feature = None):  # pylint: disable=useless-super-delegation
+               is_repeated: bool,
+               my_type: tf.DType,
+               schema_feature: Optional[schema_pb2.Feature] = None):  # pylint: disable=useless-super-delegation
     """Initialize a Leaf.
 
     Note that a leaf must have a specified type.
@@ -630,8 +630,8 @@ class Leaf(Expression):
     super(Leaf, self).__init__(
         is_repeated, my_type, schema_feature=schema_feature)
 
-  def _get_child_impl(self, field_name):
+  def _get_child_impl(self, field_name: path.Step) -> Optional["Expression"]:
     return None
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return frozenset()

@@ -116,8 +116,8 @@ from typing import Mapping, Tuple
 
 
 def promote_and_broadcast_anonymous(
-    root, origin,
-    new_parent):
+    root: expression.Expression, origin: path.Path,
+    new_parent: path.Path) -> Tuple[expression.Expression, path.Path]:
   """Promotes then broadcasts the origin until its parent is new_parent."""
   least_common_ancestor = origin.get_least_common_ancestor(new_parent)
 
@@ -133,9 +133,9 @@ def promote_and_broadcast_anonymous(
   return new_expr, new_path
 
 
-def _promote_and_broadcast_name(root, origin,
-                                dest_path_parent,
-                                field_name):
+def _promote_and_broadcast_name(root: expression.Expression, origin: path.Path,
+                                dest_path_parent: path.Path,
+                                field_name: path.Step) -> expression.Expression:
   new_root, anonymous_path = promote_and_broadcast_anonymous(
       root, origin, dest_path_parent)
   path_result = dest_path_parent.get_child(field_name)
@@ -143,9 +143,9 @@ def _promote_and_broadcast_name(root, origin,
       new_root, {path_result: new_root.get_descendant_or_error(anonymous_path)})
 
 
-def promote_and_broadcast(root,
-                          path_dictionary,
-                          dest_path_parent):
+def promote_and_broadcast(root: expression.Expression,
+                          path_dictionary: Mapping[path.Step, path.Path],
+                          dest_path_parent: path.Path) -> expression.Expression:
   """Promote and broadcast a set of paths to a particular location.
 
   Args:

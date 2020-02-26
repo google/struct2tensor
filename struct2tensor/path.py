@@ -45,7 +45,7 @@ Step = Union[AnonymousId, str]  # pylint: disable=invalid-name
 _NEXT_ANONYMOUS_FIELD = 0
 
 
-def get_anonymous_field():
+def get_anonymous_field() -> AnonymousId:
   """Gets a globally unique anonymous field."""
   # TODO(martinz): Add thread safety here.
   global _NEXT_ANONYMOUS_FIELD
@@ -54,7 +54,7 @@ def get_anonymous_field():
   return result
 
 
-def _compare_step(a, b):
+def _compare_step(a: Step, b: Step) -> int:
   """Return positive, zero, or negative if a>b, a==b, or a<b, respectively.
 
   AnonymousIds are greater than string values.
@@ -89,7 +89,7 @@ class Path(object):
 
   """
 
-  def __init__(self, field_list):
+  def __init__(self, field_list: Sequence[Step]):
     """Create a path object.
 
     Args:
@@ -103,7 +103,7 @@ class Path(object):
         raise ValueError('Field "' + field + '" is invalid.')
     self.field_list = tuple(field_list)
 
-  def __cmp__(self, other):
+  def __cmp__(self, other: "Path") -> int:
     """Lexicographical ordering of paths.
 
     If one path is a strict prefix of the other, the prefix is less.
@@ -128,28 +128,28 @@ class Path(object):
       return -1
     return 0
 
-  def __eq__(self, other):
+  def __eq__(self, other: "Path") -> bool:
     return self.__cmp__(other) == 0
 
-  def __ne__(self, other):
+  def __ne__(self, other: "Path") -> bool:
     return self.__cmp__(other) != 0
 
-  def __le__(self, other):
+  def __le__(self, other: "Path") -> bool:
     return self.__cmp__(other) <= 0
 
-  def __lt__(self, other):
+  def __lt__(self, other: "Path") -> bool:
     return self.__cmp__(other) < 0
 
-  def __ge__(self, other):
+  def __ge__(self, other: "Path") -> bool:
     return self.__cmp__(other) >= 0
 
-  def __gt__(self, other):
+  def __gt__(self, other: "Path") -> bool:
     return self.__cmp__(other) > 0
 
-  def __hash__(self):
+  def __hash__(self) -> int:
     return hash(self.field_list)
 
-  def get_parent(self):
+  def get_parent(self) -> "Path":
     """Get the parent path.
 
     Returns:
@@ -162,25 +162,25 @@ class Path(object):
       raise ValueError("Tried to find parent of root")
     return Path(self.field_list[:-1])
 
-  def get_child(self, field_name):
+  def get_child(self, field_name: Step) -> "Path":
     """Get the child path."""
     if isinstance(field_name, str) and not is_valid_step(field_name):
       raise ValueError("field_name is not valid: " + field_name)
     return Path(self.field_list + (field_name,))
 
-  def concat(self, other_path):
+  def concat(self, other_path: "Path") -> "Path":
     return Path(self.field_list + other_path.field_list)
 
-  def prefix(self, ending_index):
+  def prefix(self, ending_index: int) -> "Path":
     return Path(self.field_list[:ending_index])
 
-  def suffix(self, starting_index):
+  def suffix(self, starting_index: int) -> "Path":
     return Path(self.field_list[starting_index:])
 
-  def __len__(self):
+  def __len__(self) -> int:
     return len(self.field_list)
 
-  def _get_least_common_ancestor_len(self, other):
+  def _get_least_common_ancestor_len(self, other: "Path") -> int:
     """Get the length of the LCA path (the longest shared prefix)."""
     min_length = min(len(self.field_list), len(other.field_list))
     for i in range(min_length):
@@ -188,12 +188,12 @@ class Path(object):
         return i
     return min_length
 
-  def get_least_common_ancestor(self, other):
+  def get_least_common_ancestor(self, other: "Path") -> "Path":
     """Get the least common ancestor, the longest shared prefix."""
     lca_len = self._get_least_common_ancestor_len(other)
     return Path(self.field_list[:lca_len])
 
-  def is_ancestor(self, other):
+  def is_ancestor(self, other: "Path") -> bool:
     """True if self is ancestor of other (i.e. a prefix)."""
     return len(self.field_list) <= len(other.field_list) and self == Path(
         other.field_list[:len(self.field_list)])
@@ -216,11 +216,11 @@ class Path(object):
         raise ValueError("Unexpected path element type: %s" % type(x))
     return result
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     """Formats Path for pprint."""
     return str(self)
 
-  def __str__(self):
+  def __str__(self) -> str:
     """Get a string representation of this path.
 
     Note that if some fields have periods in them, then:
@@ -232,14 +232,14 @@ class Path(object):
     return ".".join([str(x) for x in self.field_list])
 
 
-def is_valid_step(step_str):
+def is_valid_step(step_str: str) -> bool:
   """Return true if step_str is a valid step (see create_path)."""
   return re.match(
       "(?:" + _EXTENSION_REGEX + "|" + _SIMPLE_STEP_REGEX + "|" +
       _MAP_INDEXING_STEP_REGEX + ")$", step_str, re.VERBOSE) is not None
 
 
-def is_extension(step_str):
+def is_extension(step_str: str) -> bool:
   """Return true if step_str is an extension or Any.
 
   Args:
@@ -255,7 +255,7 @@ def is_extension(step_str):
   return step_str[0] == "("
 
 
-def get_raw_extension_name(step_str):
+def get_raw_extension_name(step_str: str) -> str:
   """Gets the step without the parentheses."""
   if not is_valid_step(step_str):
     raise ValueError('Not a valid step in a path: "' + step_str + '"')
@@ -274,16 +274,16 @@ def get_raw_extension_name(step_str):
 CoercableToPath = Union[Path, str]
 
 
-def is_map_indexing_step(step):
+def is_map_indexing_step(step: str) -> bool:
   return re.match(_MAP_INDEXING_STEP_REGEX, step, re.VERBOSE) is not None
 
 
-def parse_map_indexing_step(step):
+def parse_map_indexing_step(step: str) -> Tuple[str, str]:
   first_bracket = step.find("[")
   return step[:first_bracket], step[first_bracket + 1:-1]
 
 
-def create_path(path_source):
+def create_path(path_source: CoercableToPath) -> Path:
   """Create a path from an object.
 
   The BNF for a path is:
@@ -327,7 +327,7 @@ def create_path(path_source):
   return Path(result)
 
 
-def from_proto(path_proto):
+def from_proto(path_proto: tf_metadata_path_pb2.Path) -> Path:
   # Coerce each step to a native string. The steps in the proto are always
   # Unicode strings, but the Path class may contain either unicode or bytes
   # depending on whether this module is loaded with Python2 or Python3.

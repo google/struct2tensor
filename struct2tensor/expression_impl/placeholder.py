@@ -46,7 +46,7 @@ from typing import FrozenSet, List, Optional, Sequence, Union
 
 
 def create_expression_from_schema(
-    schema):
+    schema: mpp.Schema) -> "_PlaceholderRootExpression":
   """Creates a placeholder expression from a parquet schema.
 
   Args:
@@ -61,14 +61,14 @@ def create_expression_from_schema(
   return _PlaceholderRootExpression(schema)
 
 
-def _is_placeholder_expression(expr):
+def _is_placeholder_expression(expr: expression.Expression) -> bool:
   """Returns true if an expression is a ParquetExpression."""
   return isinstance(expr,
                     (_PlaceholderRootExpression, _PlaceholderChildExpression))
 
 
 def get_placeholder_paths_from_graph(
-    graph):
+    graph: calculate.ExpressionGraph) -> List[path.Path]:
   """Gets all placeholder paths from an expression graph.
 
   This finds all leaf placeholder expressions in an expression graph, and gets
@@ -92,8 +92,8 @@ class _PlaceholderChildExpression(expression.Expression):
   """A child or leaf parquet expression."""
 
   # pylint: disable=protected-access
-  def __init__(self, parent, step,
-               schema):
+  def __init__(self, parent: "_PlaceholderExpression", step: path.Step,
+               schema: mpp.Schema):
     super(_PlaceholderChildExpression, self).__init__(
         schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
     self._parent = parent
@@ -105,20 +105,20 @@ class _PlaceholderChildExpression(expression.Expression):
     return self._schema
 
   @property
-  def is_leaf(self):
+  def is_leaf(self) -> bool:
     return not self._schema._children
 
-  def get_path(self):
+  def get_path(self) -> path.Path:
     return self._parent.get_path().get_child(self._step)
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._parent]
 
   def calculate(self,
-                source_tensors,
-                destinations,
-                options,
-                side_info = None):
+                source_tensors: Sequence[mpp._TreeAsNode],
+                destinations: Sequence[expression.Expression],
+                options: calculate_options.Options,
+                side_info: Optional[prensor.Prensor] = None) -> mpp._TreeAsNode:
     if side_info:
       return mpp._tree_as_node(side_info)
     [parent] = source_tensors
@@ -133,27 +133,27 @@ class _PlaceholderChildExpression(expression.Expression):
                        str(parent.prensor))
     return mpp._tree_as_node(my_pren)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return self is expr
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     if field_name not in self._schema.known_field_names():
       return None
     child_schema = self._schema.get_child(field_name)
     return _PlaceholderChildExpression(self, field_name, child_schema)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return self._schema.known_field_names()
 
 
 class _PlaceholderRootExpression(expression.Expression):
   """An expression that calculates to the side_info passed in at calculate()."""
 
-  def __init__(self, schema):
+  def __init__(self, schema: mpp.Schema):
     """Initializes the root of the placeholder expression.
 
     Args:
@@ -167,19 +167,19 @@ class _PlaceholderRootExpression(expression.Expression):
     return self._schema
 
   @property
-  def is_leaf(self):
+  def is_leaf(self) -> bool:
     return False
 
-  def get_path(self):
+  def get_path(self) -> path.Path:
     return path.Path([])
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return []
 
-  def calculate(self, source_tensors,
-                destinations,
-                options,
-                side_info):
+  def calculate(self, source_tensors: Sequence[prensor.NodeTensor],
+                destinations: Sequence[expression.Expression],
+                options: calculate_options.Options,
+                side_info: prensor.Prensor) -> mpp._TreeAsNode:
     if source_tensors:
       raise ValueError("_PlaceholderRootExpression has no sources")
     if side_info:
@@ -187,23 +187,23 @@ class _PlaceholderRootExpression(expression.Expression):
     else:
       raise ValueError("_PlaceholderRootExpression requires side_info")
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return self is expr
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     if field_name not in self._schema.known_field_names():
       return None
     child_schema = self._schema.get_child(field_name)
     return _PlaceholderChildExpression(self, field_name, child_schema)
 
-  def __str__(self):  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     return "_PlaceholderRootExpression: {}".format(str(self._schema))
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return self._schema.known_field_names()
 
 

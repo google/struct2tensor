@@ -37,8 +37,9 @@ from typing import FrozenSet, Mapping, Optional, Sequence, Tuple
 
 
 def create_subtrees(
-    path_map
-):
+    path_map: Mapping[path.Path, expression.Expression]
+) -> Tuple[Optional[expression.Expression],
+           Mapping[path.Step, Mapping[path.Path, expression.Expression]]]:
   """Breaks a tree into a root node and dictionary of subtrees."""
   subtrees = {
   }  # type:Mapping[path.Step, Mapping[path.Path, expression.Expression]]
@@ -63,31 +64,31 @@ class _AddPathsExpression(expression.Expression):
   """
 
   def __init__(
-      self, origin,
-      path_map):
+      self, origin: expression.Expression,
+      path_map: Mapping[path.Step, Mapping[path.Path, expression.Expression]]):
     super(_AddPathsExpression, self).__init__(
         origin.is_repeated, origin.type, schema_feature=origin.schema_feature)
     self._origin = origin
     self._path_map = path_map
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._origin]
 
-  def calculate(self, source_values,
-                destinations,
-                options):
+  def calculate(self, source_values: Sequence[prensor.NodeTensor],
+                destinations: Sequence[expression.Expression],
+                options: Options) -> prensor.NodeTensor:
     if len(source_values) != 1:
       raise ValueError("Expected one source.")
     return source_values[0]
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return True
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return expr.calculation_is_identity()
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     child_from_origin = self._origin.get_child(field_name)
     path_map = self._path_map.get(field_name)
     if path_map is None:
@@ -101,17 +102,17 @@ class _AddPathsExpression(expression.Expression):
       raise ValueError("Tried to overwrite an existing expression")
     return _AddPathsExpression(child_from_origin, subtrees)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return self._origin.known_field_names().union(self._path_map.keys())
 
-  def __str__(self):  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     keys_to_add = ",".join([str(k) for k in self._path_map.keys()])
     return "_AddPathsExpression({}, [{}])".format(
         str(self._origin), keys_to_add)
 
 
-def add_paths(root,
-              path_map):
+def add_paths(root: expression.Expression,
+              path_map: Mapping[path.Path, expression.Expression]):
   """Creates a new expression based on `root` with paths in `path_map` added.
 
   This operation should be used with care: e.g., there is no guarantee that
@@ -137,8 +138,8 @@ def add_paths(root,
   return _AddPathsExpression(root, map_of_maps)
 
 
-def _is_true_source_expression(candidate,
-                               dest):
+def _is_true_source_expression(candidate: expression.Expression,
+                               dest: expression.Expression) -> bool:
   """True if dest is an expression derived from candidate through add_paths.
 
   More precisely, true if dest is the result of zero or more add_paths
@@ -164,8 +165,8 @@ def _is_true_source_expression(candidate,
   return False
 
 
-def add_to(root,
-           origins):
+def add_to(root: expression.Expression,
+           origins: Mapping[path.Path, expression.Expression]):
   """Copies subtrees from the origins to the root.
 
   This operation can be used to reduce the number of expressions in the graph.

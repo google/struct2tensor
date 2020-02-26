@@ -36,10 +36,10 @@ from typing import Callable, FrozenSet, Optional, Sequence, Tuple
 
 
 def map_many_values(
-    root, parent_path,
-    source_fields, operation,
-    dtype,
-    new_field_name):
+    root: expression.Expression, parent_path: path.Path,
+    source_fields: Sequence[path.Step], operation: Callable[..., tf.Tensor],
+    dtype: tf.DType,
+    new_field_name: path.Step) -> Tuple[expression.Expression, path.Path]:
   """Map multiple sibling fields into a new sibling.
 
   All source fields must have the same shape, and the shape of the output
@@ -68,9 +68,9 @@ def map_many_values(
 
 
 def map_values_anonymous(
-    root, source_path,
-    operation,
-    dtype):
+    root: expression.Expression, source_path: path.Path,
+    operation: Callable[[tf.Tensor], tf.Tensor],
+    dtype: tf.DType) -> Tuple[expression.Expression, path.Path]:
   """Map field into a new sibling.
 
   The shape of the output must be the same as the input.
@@ -91,9 +91,9 @@ def map_values_anonymous(
                          path.get_anonymous_field())
 
 
-def map_values(root, source_path,
-               operation, dtype,
-               new_field_name):
+def map_values(root: expression.Expression, source_path: path.Path,
+               operation: Callable[[tf.Tensor], tf.Tensor], dtype: tf.DType,
+               new_field_name: path.Step) -> expression.Expression:
   """Map field into a new sibling.
 
   The shape of the output must be the same as the input.
@@ -115,7 +115,7 @@ def map_values(root, source_path,
                          new_field_name)[0]
 
 
-def _leaf_node_or_error(node):
+def _leaf_node_or_error(node: prensor.NodeTensor) -> prensor.LeafNodeTensor:
   if isinstance(node, prensor.LeafNodeTensor):
     return node
   raise ValueError('node is {} not LeafNodeTensor'.format(str(type(node))))
@@ -128,22 +128,22 @@ class _MapValuesExpression(expression.Expression):
   The operation should return a tensor that is the same size as its input.
   """
 
-  def __init__(self, origin,
-               operation, dtype):
+  def __init__(self, origin: Sequence[expression.Expression],
+               operation: Callable[..., tf.Tensor], dtype: tf.DType):
     super(_MapValuesExpression, self).__init__(origin[0].is_repeated, dtype)
     assert all([self.is_repeated == x.is_repeated for x in origin])
     self._origin = origin
     self._operation = operation
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return self._origin
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     source_leaves = [_leaf_node_or_error(s) for s in sources]
     source_values = [s.values for s in source_leaves]
     # TODO(martinz): Check that:
@@ -153,15 +153,15 @@ class _MapValuesExpression(expression.Expression):
                                   self._operation(*source_values),
                                   self._is_repeated)
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return self is expr
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     return None
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return frozenset()

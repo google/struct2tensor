@@ -35,7 +35,7 @@ from typing import Sequence, Text, Tuple
 from google.protobuf import descriptor
 
 
-def _get_dtype_from_cpp_type(cpp_type):
+def _get_dtype_from_cpp_type(cpp_type: int) -> tf.DType:
   """Converts a cpp type in FieldDescriptor to the appropriate dtype."""
   library = {
       descriptor.FieldDescriptor.CPPTYPE_INT32: tf.int32,
@@ -64,9 +64,9 @@ _ParsedField = collections.namedtuple(
 
 
 def parse_full_message_level(
-    tensor_of_protos,
-    descriptor_type,
-    message_format = "binary"):
+    tensor_of_protos: tf.Tensor,
+    descriptor_type: descriptor.Descriptor,
+    message_format: Text = "binary") -> Sequence[_ParsedField]:
   """Parses all of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -93,8 +93,8 @@ def parse_full_message_level(
                              message_format)
 
 
-def _get_field_descriptor(descriptor_type,
-                          field_name):
+def _get_field_descriptor(descriptor_type: descriptor.Descriptor,
+                          field_name: str):
   if path.is_extension(field_name):
     return descriptor_type.file.pool.FindExtensionByName(
         path.get_raw_extension_name(field_name))
@@ -103,10 +103,10 @@ def _get_field_descriptor(descriptor_type,
 
 
 def parse_message_level(
-    tensor_of_protos,
-    descriptor_type,
-    field_names,
-    message_format = "binary"):
+    tensor_of_protos: tf.Tensor,
+    descriptor_type: descriptor.Descriptor,
+    field_names: Sequence[str],
+    message_format: Text = "binary") -> Sequence[_ParsedField]:
   """Parses a subset of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -170,7 +170,7 @@ def parse_message_level(
   return result
 
 
-def run_length_before(a):
+def run_length_before(a: tf.Tensor) -> tf.Tensor:
   r"""Returns the run length of each set of elements in a vector.
 
 
@@ -184,9 +184,9 @@ def run_length_before(a):
   return gen_run_length_before.run_length_before(a)
 
 
-def create_sparse_tensor_for_repeated(parent_index,
-                                      values, dense_shape
-                                     ):
+def create_sparse_tensor_for_repeated(parent_index: tf.Tensor,
+                                      values: tf.Tensor, dense_shape: tf.Tensor
+                                     ) -> tf.SparseTensor:
   """Helps to get the sparse tensor for a repeated PrensorField.
 
   Args:
@@ -203,7 +203,7 @@ def create_sparse_tensor_for_repeated(parent_index,
       indices=indices, values=values, dense_shape=dense_shape)
 
 
-def equi_join_indices(a, b):
+def equi_join_indices(a: tf.Tensor, b: tf.Tensor) -> tf.Tensor:
   """A custom op such that a broadcast operation can be done.
 
   Args:
@@ -223,9 +223,9 @@ def equi_join_indices(a, b):
 
 
 def parse_proto_map(map_entries, map_entry_parent_indices,
-                    map_entry_descriptor,
-                    keys_needed
-                   ):
+                    map_entry_descriptor: descriptor.Descriptor,
+                    keys_needed: Sequence[str]
+                   ) -> Sequence[Tuple[tf.Tensor, tf.Tensor]]:
   """A custom op to parse serialized Protobuf map entries.
 
   Args:

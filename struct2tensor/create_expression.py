@@ -36,9 +36,9 @@ class _DirectExpression(expression.Expression):
   This expression has no sources, and a NodeTensor is set at construction time.
   """
 
-  def __init__(self, is_repeated, my_type,
-               value,
-               children):
+  def __init__(self, is_repeated: bool, my_type: Optional[tf.DType],
+               value: prensor.NodeTensor,
+               children: Mapping[path.Step, expression.Expression]):
     """Initializes an expression.
 
     Args:
@@ -51,35 +51,35 @@ class _DirectExpression(expression.Expression):
     self._value = value
     self._children = children
 
-  def get_source_expressions(self):
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
     return []
 
   def calculate(
       self,
-      sources,
-      destinations,
-      options,
-      side_info = None):
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     return self._value
 
-  def calculation_is_identity(self):
+  def calculation_is_identity(self) -> bool:
     return False
 
-  def calculation_equal(self, expr):
+  def calculation_equal(self, expr: expression.Expression) -> bool:
     return isinstance(expr, _DirectExpression) and expr._value is self._value  # pylint: disable=protected-access
 
   def _get_child_impl(self,
-                      field_name):
+                      field_name: path.Step) -> Optional[expression.Expression]:
     return self._children.get(field_name)
 
-  def known_field_names(self):
+  def known_field_names(self) -> FrozenSet[path.Step]:
     return frozenset(self._children.keys())
 
-  def __str__(self):  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     return "_DirectExpression: {}".format(str(id(self)))
 
 
-def create_expression_from_prensor(t):
+def create_expression_from_prensor(t: prensor.Prensor) -> expression.Expression:
   """Gets an expression representing the prensor.
 
   Args:

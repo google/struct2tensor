@@ -46,7 +46,7 @@ class RootNodeValue(object):
 
   __slots__ = ["_size"]
 
-  def __init__(self, size):
+  def __init__(self, size: np.int64):
     """Creates a root node.
 
     Args:
@@ -77,7 +77,7 @@ class ChildNodeValue(object):
 
   __slots__ = ["_parent_index", "_is_repeated"]
 
-  def __init__(self, parent_index, is_repeated):
+  def __init__(self, parent_index: np.ndarray, is_repeated: bool):
     """Creates a child node.
 
     Args:
@@ -106,7 +106,7 @@ class ChildNodeValue(object):
   def is_repeated(self):
     return self._is_repeated
 
-  def schema_string(self):
+  def schema_string(self) -> Text:
     return "repeated" if self.is_repeated else "optional"
 
   def data_string(self):
@@ -121,8 +121,8 @@ class LeafNodeValue(object):
 
   __slots__ = ["_parent_index", "_values", "_is_repeated"]
 
-  def __init__(self, parent_index, values,
-               is_repeated):
+  def __init__(self, parent_index: np.ndarray, values: np.ndarray,
+               is_repeated: bool):
     """Creates a leaf node.
 
     Args:
@@ -152,7 +152,7 @@ class LeafNodeValue(object):
     return "parent_index: {} values: {}".format(self._parent_index,
                                                 self._values)
 
-  def schema_string(self):
+  def schema_string(self) -> Text:
     return u"{} {}".format("repeated" if self.is_repeated else "optional",
                            str(self.values.dtype))
 
@@ -169,8 +169,8 @@ class PrensorValue(object):
 
   __slots__ = ["_node", "_children"]
 
-  def __init__(self, node,
-               children):
+  def __init__(self, node: NodeValue,
+               children: "collections.OrderedDict[path.Step, PrensorValue]"):
     """Construct a PrensorValue.
 
     Do not call directly, instead call materialize(...) below.
@@ -184,26 +184,26 @@ class PrensorValue(object):
 
   # TODO(martinz): This could be Value.
   @property
-  def node(self):
+  def node(self) -> NodeValue:
     """The node of the root of the subtree."""
     return self._node
 
-  def get_child(self, field_name):
+  def get_child(self, field_name: path.Step) -> Optional["PrensorValue"]:
     """Gets the child at field_name."""
     return self._children.get(field_name)
 
-  def is_leaf(self):
+  def is_leaf(self) -> bool:
     """True iff the node value is a LeafNodeValue."""
     return isinstance(self._node, LeafNodeValue)
 
-  def get_child_or_error(self, field_name):
+  def get_child_or_error(self, field_name: path.Step) -> "PrensorValue":
     """Gets the child at field_name."""
     result = self._children.get(field_name)
     if result is not None:
       return result
     raise ValueError("Field not found: {}".format(str(field_name)))
 
-  def get_descendant(self, p):
+  def get_descendant(self, p: path.Path) -> Optional["PrensorValue"]:
     """Finds the descendant at the path."""
     result = self
     for field_name in p.field_list:
@@ -212,18 +212,18 @@ class PrensorValue(object):
         return None
     return result
 
-  def get_descendant_or_error(self, p):
+  def get_descendant_or_error(self, p: path.Path) -> "PrensorValue":
     """Finds the descendant at the path."""
     result = self.get_descendant(p)
     if result is None:
       raise ValueError("Missing path: {}".format(str(p)))
     return result
 
-  def get_children(self):
+  def get_children(self) -> Mapping[path.Step, "PrensorValue"]:
     """A map from field name to subtree."""
     return self._children
 
-  def get_descendants(self):
+  def get_descendants(self) -> Mapping[path.Path, "PrensorValue"]:
     """A map from paths to all subtrees."""
     result = {path.Path([]): self}
     for k, v in self._children.items():
@@ -232,11 +232,11 @@ class PrensorValue(object):
         result[path.Path([k]).concat(k2)] = v2
     return result
 
-  def field_names(self):
+  def field_names(self) -> FrozenSet[path.Step]:
     """Returns the field names of the children."""
     return frozenset(self._children.keys())
 
-  def _string_helper(self, field_name):  # pylint: disable=g-ambiguous-str-annotation
+  def _string_helper(self, field_name: str) -> Sequence[str]:  # pylint: disable=g-ambiguous-str-annotation
     """Helper for __str__ that outputs a list of lines."""
     result = [
         "{} {} {}".format(self.node.schema_string(), str(field_name),
@@ -247,7 +247,7 @@ class PrensorValue(object):
       result.extend(["  {}".format(x) for x in recursive])
     return result
 
-  def _schema_string_helper(self, field_name):  # pylint: disable=g-ambiguous-str-annotation
+  def _schema_string_helper(self, field_name: str) -> Sequence[Text]:  # pylint: disable=g-ambiguous-str-annotation
     """Helper for __str__ that outputs a list of lines."""
     result = [u"{} {}".format(self.node.schema_string(), str(field_name))]
     for k, v in self._children.items():
@@ -265,8 +265,8 @@ class PrensorValue(object):
 
 
 def _prensor_value_from_type_spec_and_component_values(
-    prensor_type_spec,
-    component_values):
+    prensor_type_spec: prensor._PrensorTypeSpec,
+    component_values: Iterator[Union[int, np.ndarray]]) -> PrensorValue:
   """Creates a PrensorValue from a _PrensorTypeSpec and components."""
   # pylint: disable=protected-access
   if prensor_type_spec._node_type == prensor_type_spec._NodeType.ROOT:
@@ -286,7 +286,7 @@ def _prensor_value_from_type_spec_and_component_values(
   return PrensorValue(node, step_to_child)
 
 
-def _prensor_value_fetch(prensor_tree):
+def _prensor_value_fetch(prensor_tree: prensor.Prensor):
   """Fetch function for PrensorValue. See the document in session_lib."""
   # pylint: disable=protected-access
   type_spec = prensor_tree._type_spec

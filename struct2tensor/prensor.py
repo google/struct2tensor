@@ -43,7 +43,7 @@ class RootNodeTensor(object):
 
   __slots__ = ["_size"]
 
-  def __init__(self, size):
+  def __init__(self, size: tf.Tensor):
     """Creates a root node.
 
     Args:
@@ -68,7 +68,7 @@ class ChildNodeTensor(object):
 
   __slots__ = ["_parent_index", "_is_repeated"]
 
-  def __init__(self, parent_index, is_repeated):
+  def __init__(self, parent_index: tf.Tensor, is_repeated: bool):
     """Creates a child node.
 
     Args:
@@ -107,8 +107,8 @@ class LeafNodeTensor(object):
 
   __slots__ = ["_parent_index", "_values", "_is_repeated"]
 
-  def __init__(self, parent_index, values,
-               is_repeated):
+  def __init__(self, parent_index: tf.Tensor, values: tf.Tensor,
+               is_repeated: bool):
     """Creates a LeafNodeTensor.
 
     Args:
@@ -139,7 +139,7 @@ class LeafNodeTensor(object):
                           str(self.values.dtype))
 
 
-def create_required_leaf_node(values):
+def create_required_leaf_node(values: tf.Tensor) -> LeafNodeTensor:
   """Create a required leaf node."""
   return LeafNodeTensor(
       tf.range(tf.size(values, out_type=tf.int64)), values, False)
@@ -159,9 +159,9 @@ class _PrensorTypeSpec(tf_types.TypeSpec):
   __slots__ = [
       "_is_repeated", "_node_type", "_value_dtype", "_children_specs"]
 
-  def __init__(self, is_repeated, node_type,
-               value_dtype,
-               children_specs):
+  def __init__(self, is_repeated: Optional[bool], node_type: _NodeType,
+               value_dtype: Optional[tf.DType],
+               children_specs: List[Tuple[path.Step, "_PrensorTypeSpec"]]):
     self._is_repeated = is_repeated
     self._node_type = node_type
     self._value_dtype = value_dtype
@@ -172,8 +172,8 @@ class _PrensorTypeSpec(tf_types.TypeSpec):
     return Prensor
 
   def _append_to_components(self,
-                            value,
-                            components):
+                            value: "Prensor",
+                            components: List[tf.Tensor]):
     node = value.node
     if self._node_type == self._NodeType.ROOT:
       assert isinstance(node, RootNodeTensor)
@@ -191,7 +191,7 @@ class _PrensorTypeSpec(tf_types.TypeSpec):
       child_spec._append_to_components(  # pylint: disable=protected-access
           child, components)
 
-  def _to_components(self, value):
+  def _to_components(self, value: "Prensor") -> List[tf.Tensor]:
     """Encodes a Prensor into a tuple of lists of Tensors.
 
     Args:
@@ -209,7 +209,7 @@ class _PrensorTypeSpec(tf_types.TypeSpec):
 
   def _from_component_iter(
       self,
-      component_iter):
+      component_iter: Iterator[tf.Tensor]) -> "Prensor":
     if self._node_type == self._NodeType.ROOT:
       node = RootNodeTensor(next(component_iter))
     elif self._node_type == self._NodeType.CHILD:
@@ -225,11 +225,11 @@ class _PrensorTypeSpec(tf_types.TypeSpec):
               component_iter))
     return Prensor(node, step_to_child)
 
-  def _from_components(self, components):
+  def _from_components(self, components: List[tf.Tensor]) -> "Prensor":
     """Creates a Prensor from the components encoded by _to_components()."""
     return self._from_component_iter(iter(components))
 
-  def _append_to_component_specs(self, component_specs):
+  def _append_to_component_specs(self, component_specs: List[tf.TensorSpec]):
     if self._node_type == self._NodeType.ROOT:
       component_specs.append(tf.TensorSpec([], tf.int64))
     elif self._node_type == self._NodeType.CHILD:
@@ -243,7 +243,7 @@ class _PrensorTypeSpec(tf_types.TypeSpec):
           component_specs)
 
   @property
-  def _component_specs(self):
+  def _component_specs(self) -> List[tf.TensorSpec]:
     """Returns TensorSpecs for each tensors returned by _to_components().
 
     Returns:
@@ -253,14 +253,14 @@ class _PrensorTypeSpec(tf_types.TypeSpec):
     self._append_to_component_specs(result)
     return result
 
-  def _serialize(self):  # pylint: disable=g-bare-generic
+  def _serialize(self) -> Tuple[bool, int, tf.DType, Tuple]:  # pylint: disable=g-bare-generic
     return (self._is_repeated, int(self._node_type), self._value_dtype,
             tuple((step,
                    child_spec._serialize())  # pylint: disable=protected-access
                   for step, child_spec in self._children_specs))
 
   @classmethod
-  def _deserialize(cls, serialization):  # pylint: disable=g-bare-generic
+  def _deserialize(cls, serialization: Tuple[bool, int, tf.DType, Tuple]):  # pylint: disable=g-bare-generic
     children_serializations = serialization[3]
     children_specs = [(step, cls._deserialize(child_serialization))
                       for step, child_serialization in children_serializations]
@@ -285,8 +285,8 @@ class Prensor(tf_types.CompositeTensorMixin):
 
   __slots__ = ["_node", "_children"]
 
-  def __init__(self, node,
-               children):
+  def __init__(self, node: NodeTensor,
+               children: "collections.OrderedDict[path.Step, Prensor]"):
     """Construct a Prensor.
 
     Do not call directly, instead call either:
@@ -301,20 +301,20 @@ class Prensor(tf_types.CompositeTensorMixin):
     self._children = children
 
   @property
-  def node(self):
+  def node(self) -> NodeTensor:
     """The node of the root of the subtree."""
     return self._node
 
-  def get_child(self, field_name):
+  def get_child(self, field_name: path.Step) -> Optional["Prensor"]:
     """Gets the child at field_name."""
     return self._children.get(field_name)
 
   @property
-  def is_leaf(self):
+  def is_leaf(self) -> bool:
     """True iff the node value is a LeafNodeTensor."""
     return isinstance(self._node, LeafNodeTensor)
 
-  def get_child_or_error(self, field_name):
+  def get_child_or_error(self, field_name: path.Step) -> "Prensor":
     """Gets the child at field_name."""
     result = self._children.get(field_name)
     if result is not None:
@@ -322,7 +322,7 @@ class Prensor(tf_types.CompositeTensorMixin):
     raise ValueError("Field not found: {} in {}".format(
         str(field_name), str(self)))
 
-  def get_descendant(self, p):
+  def get_descendant(self, p: path.Path) -> Optional["Prensor"]:
     """Finds the descendant at the path."""
     result = self
     for field_name in p.field_list:
@@ -331,18 +331,18 @@ class Prensor(tf_types.CompositeTensorMixin):
         return None
     return result
 
-  def get_descendant_or_error(self, p):
+  def get_descendant_or_error(self, p: path.Path) -> "Prensor":
     """Finds the descendant at the path."""
     result = self.get_descendant(p)
     if result is None:
       raise ValueError("Missing path: {} in {}".format(str(p), str(self)))
     return result
 
-  def get_children(self):
+  def get_children(self) -> "collections.OrderedDict[path.Step, Prensor]":
     """A map from field name to subexpression."""
     return self._children
 
-  def get_descendants(self):
+  def get_descendants(self) -> Mapping[path.Path, "Prensor"]:
     """A map from paths to all subexpressions."""
     result = {path.Path([]): self}
     for k, v in self._children.items():
@@ -351,11 +351,11 @@ class Prensor(tf_types.CompositeTensorMixin):
         result[path.Path([k]).concat(k2)] = v2
     return result
 
-  def field_names(self):
+  def field_names(self) -> FrozenSet[path.Step]:
     """Returns the field names of the children."""
     return frozenset(self._children.keys())
 
-  def _string_helper(self, field_name):  # pylint: disable=g-ambiguous-str-annotation
+  def _string_helper(self, field_name: path.Step) -> Sequence[str]:  # pylint: disable=g-ambiguous-str-annotation
     """Helper for __str__ that outputs a list of lines.
 
     Args:
@@ -370,12 +370,12 @@ class Prensor(tf_types.CompositeTensorMixin):
       result.extend(["  {}".format(x) for x in recursive])
     return result
 
-  def __str__(self):  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     """Returns a string representing the schema of the Prensor."""
     return "\n".join(self._string_helper("root"))
 
   @property
-  def _type_spec(self):
+  def _type_spec(self) -> _PrensorTypeSpec:
     is_repeated = None
     value_dtype = None
     # pylint: disable=protected-access
@@ -398,7 +398,7 @@ class Prensor(tf_types.CompositeTensorMixin):
 
 
 def create_prensor_from_descendant_nodes(
-    nodes):
+    nodes: Mapping[path.Path, NodeTensor]) -> "Prensor":
   """Create a prensor from a map of paths to NodeTensor.
 
   If a path is a key in the map, all prefixes of that path must be present.
@@ -432,7 +432,7 @@ def create_prensor_from_descendant_nodes(
 
 
 def create_prensor_from_root_and_children(
-    root, children):
+    root: NodeTensor, children: Mapping[path.Step, Prensor]) -> Prensor:
   if isinstance(children, collections.OrderedDict):
     ordered_children = children
   else:
