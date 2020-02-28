@@ -13,56 +13,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-# Later changes made by Martin Zinkevich.
-set -e
-set -x
+#
+# Convenience binary to build struct2tensor from source.
+#
+# Usage: build_pip_package.sh [--python_bin_path PYTHON_BIN_PATH]
 
-PLATFORM="$(uname -s | tr 'A-Z' 'a-z')"
+if [[ -z "$1" ]]; then
+  PYTHON_BIN_PATH=python
+else
+  if [[ "$1" == --python_bin_path ]]; then
+    shift
+    PYTHON_BIN_PATH=$1
+  else
+    printf "Unrecognized argument $1"
+    exit 1
+  fi
+fi
 
-PIP_FILE_PREFIX="bazel-bin/build_pip_package.runfiles/struct2tensor/"
+set -u -x
 
 function main() {
-  while [[ ! -z "${1}" ]]; do
-    if [[ ${1} == "make" ]]; then
-      echo "Using Makefile to build pip package."
-      PIP_FILE_PREFIX=""
-    else
-      DEST=${1}
-    fi
-    shift
-  done
+  TMPDIR=$(mktemp -d)
 
-  if [[ -z ${DEST} ]]; then
-    DEST=artifacts
-  fi
+  cp ${BUILD_WORKSPACE_DIRECTORY}/setup.py "${TMPDIR}"
+  cp ${BUILD_WORKSPACE_DIRECTORY}/MANIFEST.in "${TMPDIR}"
+  cp ${BUILD_WORKSPACE_DIRECTORY}/LICENSE "${TMPDIR}"
+  rsync -avm -L --exclude='*_test.py' ${BUILD_WORKSPACE_DIRECTORY}/struct2tensor "${TMPDIR}"
 
-  # Create the directory, then do dirname on a non-existent file inside it to
-  # give us an absolute paths with tilde characters resolved to the destination
-  # directory.
-  mkdir -p ${DEST}
-  DEST=$(readlink -f "${DEST}")
-  echo "=== destination directory: ${DEST}"
+  ${PYTHON_BIN_PATH} setup.py bdist_wheel
 
-  TMPDIR=$(mktemp -d -t tmp.XXXXXXXXXX)
-
-  echo $(date) : "=== Using tmpdir: ${TMPDIR}"
-
-  echo "=== Copy Struct2Tensor files"
-
-  cp ${PIP_FILE_PREFIX}setup.py "${TMPDIR}"
-  cp ${PIP_FILE_PREFIX}MANIFEST.in "${TMPDIR}"
-  cp ${PIP_FILE_PREFIX}LICENSE "${TMPDIR}"
-  rsync -avm -L --exclude='*_test.py' ${PIP_FILE_PREFIX}/struct2tensor "${TMPDIR}"
-
-  pushd ${TMPDIR}
-  echo $(date) : "=== Building wheel"
-
-  python setup.py bdist_wheel > /dev/null
-
-  cp dist/*.whl "${DEST}"
-  popd
+  mkdir -p ${BUILD_WORKSPACE_DIRECTORY}/dist/
+  cp dist/*.whl ${BUILD_WORKSPACE_DIRECTORY}/dist/
   rm -rf ${TMPDIR}
-  echo $(date) : "=== Output wheel file is in: ${DEST}"
 }
 
 main "$@"
