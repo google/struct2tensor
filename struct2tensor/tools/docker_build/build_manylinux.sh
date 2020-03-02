@@ -28,12 +28,13 @@ WORKING_DIR=$PWD
 function setup_environment() {
   # Since someone may run this twice from the same directory,
   # it is important to delete the dist directory.
-  rm -rf dist || exit 1;
+  rm -rf dist
   # TODO(martinz): move this directly to the docker image.
   # RUN yum -y install rsync
   # However, if we move this this, we get
   # ./bazel-bin/build_pip_package: line 55: rsync: command not found
-  sudo yum -y install rsync || exit 1;
+  sudo yum -y install rsync
+
   if [[ -z "${PYTHON_VERSION}" ]]; then
     echo "Must set PYTHON_VERSION env to 35|36|37|27"; exit 1;
   fi
@@ -54,9 +55,9 @@ function setup_environment() {
   fi
   # pip will use SPECIFIC_TENSORFLOW_VERSION to install.
   if [[ "${TENSORFLOW_VERSION}" == 1 ]]; then
-    export SPECIFIC_TENSORFLOW_VERSION="1.15.0"
+    export SPECIFIC_TENSORFLOW_VERSION="<2"
   elif [[ "${TENSORFLOW_VERSION}" == 2 ]]; then
-    export SPECIFIC_TENSORFLOW_VERSION="2.0.0"
+    export SPECIFIC_TENSORFLOW_VERSION=">=2"
   else
     echo "Must set TENSORFLOW_VERSION env to 1|2"; exit 1;
   fi
@@ -71,13 +72,19 @@ function setup_environment() {
 }
 
 function bazel_build() {
+  # we need to install tensorflow before running configure.sh. This is because
+  # we build and link against code and shared libraries shipped with a
+  # tensorflow pip package.
   virtualenv --python=${PYTHON_BIN_PATH} venv || exit 1;
   source venv/bin/activate || exit 1;
+  VENV_PYTHON_BIN_PATH="$(which python)"
   pip install --upgrade pip || exit 1;
-  pip install tensorflow==${SPECIFIC_TENSORFLOW_VERSION}  || exit 1;
-  ./configure.sh || exit 1;
-  bazel build -c opt build_pip_package || exit 1;
-  ./bazel-bin/build_pip_package dist || exit 1;
+  pip install tensorflow${SPECIFIC_TENSORFLOW_VERSION}  || exit 1;
+  ./configure.sh --python_bin_path "${VENV_PYTHON_BIN_PATH}"
+  bazel run -c opt \
+    :build_pip_package \
+    -- \
+    --python_bin_path "${PYTHON_BIN_PATH}"
   deactivate || exit 1;
 }
 
