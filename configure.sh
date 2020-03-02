@@ -14,6 +14,12 @@
 # limitations under the License.
 # ==============================================================================
 # Later changes made by Martin Zinkevich.
+#
+# This script prepares the bazel workspace for build, by configuring the
+# .bazelrc file.
+#
+# Usage: configure.sh [--python_bin_path PYTHON_BIN_PATH]
+
 function write_to_bazelrc() {
   echo "$1" >> .bazelrc
 }
@@ -22,32 +28,38 @@ function write_action_env_to_bazelrc() {
   write_to_bazelrc "build --action_env $1=\"$2\""
 }
 
-# Remove .bazelrc if it already exist
-[ -e .bazelrc ] && rm .bazelrc
+function has_tensorflow() {
+  ${PYTHON_BIN_PATH} -c "import tensorflow" > /dev/null
+}
 
-
-# Check if tensorflow is installed in pip
-if [[ $(pip show tensorflow) == *tensorflow* ]] || [[ $(pip show tf-nightly) == *tf-nightly* ]] ; then
-  echo 'Using installed tensorflow'
-else
-  # Uninstall GPU version if it is installed.
-  if [[ $(pip show tensorflow-gpu) == *tensorflow-gpu* ]]; then
-    echo 'Already have gpu version of tensorflow installed. Uninstalling......\n'
-    pip uninstall tensorflow-gpu
-  elif [[ $(pip show tf-nightly-gpu) == *tf-nightly-gpu* ]]; then
-    echo 'Already have gpu version of tensorflow installed. Uninstalling......\n'
-    pip uninstall tf-nightly-gpu
+function ensure_tensorflow() {
+  if has_tensorflow; then
+    echo "Using installed tf..."
+  else
+    echo "Building struct2tensor requires tensorflow. Please install tensorflow."
+    exit 1
   fi
-  # Install CPU version
-  echo 'Installing tensorflow......\n'
-  pip install tensorflow
+}
+
+if [[ -z "$1" ]]; then
+  PYTHON_BIN_PATH=python
+else
+  if [[ "$1" == --python_bin_path ]]; then
+    shift
+    PYTHON_BIN_PATH=$1
+  else
+    printf "Unrecognized argument $1"
+    exit 1
+  fi
 fi
 
 
+# Remove .bazelrc if it already exist
+rm -f .bazelrc
 
-TF_CFLAGS=( $(python -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_compile_flags()))') )
-TF_LFLAGS="$(python -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_link_flags()))')"
-
+ensure_tensorflow
+TF_CFLAGS=( $(${PYTHON_BIN_PATH} -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_compile_flags()))') )
+TF_LFLAGS="$(${PYTHON_BIN_PATH} -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_link_flags()))')"
 
 write_action_env_to_bazelrc "TF_HEADER_DIR" ${TF_CFLAGS:2}
 SHARED_LIBRARY_DIR=${TF_LFLAGS:2}
