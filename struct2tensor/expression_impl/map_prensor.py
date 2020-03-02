@@ -302,9 +302,11 @@ def _ragged_as_leaf_node(ragged_tensor: tf.RaggedTensor, is_repeated: bool,
                         ) -> prensor.LeafNodeTensor:
   """Creates a ragged tensor as a leaf node."""
   assertions = []
-  if (ragged_tensor.shape[0].value is not None and
-      reference_ragged_tensor.shape[0].value is not None):
-    if ragged_tensor.shape[0].value != reference_ragged_tensor.shape[0].value:
+  size_dim = tf.compat.dimension_at_index(ragged_tensor.shape, 0).value
+  reference_size_dim = tf.compat.dimension_at_index(
+      reference_ragged_tensor.shape, 0).value
+  if (size_dim is not None and reference_size_dim is not None):
+    if size_dim != reference_size_dim:
       raise ValueError("Returned ragged tensor is not the right size.")
   elif options.ragged_checks:
     assertions.append(
