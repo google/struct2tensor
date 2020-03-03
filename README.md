@@ -58,19 +58,20 @@ cd ~/struct2tensor
 ### Use docker-compose
 Install [docker-compose](https://docs.docker.com/compose/).
 
-Use it to build a pip wheel for Python 3.6:
+Use it to build a pip wheel for Python 3.6 with tensorflow version 2:
 
 ```bash
-docker-compose up manylinux2010_1_36
+docker-compose build manylinux2010
+docker-compose run -e PYTHON_VERSION=36 -e TF_VERSION=NIGHTLY_TF manylinux2010
 ```
 
-Or build a pip wheel for Python 3.7 (note that if you run one of these
-docker-compose commands after the other, the second will erase the result
-from the first):
-
+Or build a pip wheel for Python 3.7 with tensorflow version 2 (note that if you
+run one of these docker-compose commands after the other, the second will erase
+the result from the first):
 
 ```bash
-docker-compose up manylinux2010_1_37
+docker-compose build manylinux2010
+docker-compose run -e PYTHON_VERSION=37 -e TF_VERSION=NIGHTLY_TF manylinux2010
 ```
 
 This will create a manylinux package in the ~/struct2tensor/dist directory.

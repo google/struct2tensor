@@ -16,24 +16,19 @@ version: '3.1'
 
 # Extensions are not support until 3.4 thus the repeated boilerplate below.
 
-# We mount the struct2tensor project root at /build (which is the WORKDIR of the image)
+# We mount the struct2tensor project root at /struct2tensor (which is the WORKDIR of the image)
 # in the container.
+#
+# The expected environment variables to be set are PYTHON_VERSION and TF_VERSION
+# Valid PYTHON_VERSION are 35|36|37|27
+# Valid TF_VERSION are NIGHTLY_TF|NIGHTLY_TF_2|RELEASED_TF|PRERELEASED_TF|RELEASED_TF_2|PRERELEASED_TF_2
+# Sample usage:
+# docker-compose build manylinux2010
+# docker-compose run -e PYTHON_VERSION=36 -e TF_VERSION=NIGHTLY_TF manylinux2010
+
 services:
-  manylinux2010_1_36:
+  manylinux2010:
     image: struct2tensor-build:manylinux2010
-    environment:
-    - TENSORFLOW_VERSION=1
-    - PYTHON_VERSION=36
-    build:
-      context: .
-      dockerfile: struct2tensor/tools/docker_build/Dockerfile.manylinux2010
-    volumes:
-      - .:/struct2tensor:delegated
-  manylinux2010_1_37:
-    image: struct2tensor-build:manylinux2010
-    environment:
-    - TENSORFLOW_VERSION=1
-    - PYTHON_VERSION=37
     build:
       context: .
       dockerfile: struct2tensor/tools/docker_build/Dockerfile.manylinux2010

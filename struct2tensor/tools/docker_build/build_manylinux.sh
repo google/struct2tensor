@@ -24,6 +24,40 @@
 
 WORKING_DIR=$PWD
 
+function install_tensorflow() {
+  # Install tensorflow from pip.
+  #
+  # Usage: install_tensorflow NIGHTLY_TF|NIGHTLY_TF_2|RELEASED_TF|PRERELEASED_TF|RELEASED_TF_2|PRERELEASED_TF_2 /PATH/TO/PIP /PATH/TO/PYTHON
+  if [[ ("$1" == NIGHTLY_TF) || ("$1" == NIGHTLY_TF_2) ]]; then
+    TF_PIP_PACKAGE="tf-nightly"
+  elif [[ "$1" == RELEASED_TF ]]; then
+    TF_PIP_PACKAGE="tensorflow<2"
+  elif [[ "$1" == PRERELEASED_TF ]]; then
+    TF_PIP_PACKAGE="tensorflow<2"
+  elif [[ "$1" == RELEASED_TF_2 ]]; then
+    TF_PIP_PACKAGE="tensorflow>=2"
+  elif [[ "$1" == PRERELEASED_TF_2 ]]; then
+    TF_PIP_PACKAGE="tensorflow>=2"
+  else
+    echo "Invalid tensorflow version string must be one of NIGHTLY_TF, NIGHTLY_TF_2, RELEASED_TF, PRERELEASED_TF, RELEASED_TF_2, PRERELEASED_TF_2."
+    exit 1
+  fi
+
+  set -x
+  PIP_COMMAND=$2
+  PYTHON_BIN_PATH=$3
+
+  if [[ ("$1" == PRERELEASED_TF) || ("$1" == PRERELEASED_TF_2) ]]; then
+    "${PIP_COMMAND}" install --pre "${TF_PIP_PACKAGE}"
+  else
+    "${PIP_COMMAND}" install "${TF_PIP_PACKAGE}"
+  fi
+
+  "${PYTHON_BIN_PATH}" -c 'import tensorflow as tf; print(tf.version.VERSION)'
+
+  set +x
+}
+
 
 function setup_environment() {
   # Since someone may run this twice from the same directory,
@@ -50,17 +84,7 @@ function setup_environment() {
   else
     echo "Must set PYTHON_VERSION env to 35|36|37|27"; exit 1;
   fi
-  if [[ -z "${TENSORFLOW_VERSION}" ]]; then
-    echo "Must set TENSORFLOW_VERSION env to 1 or 2"; exit 1;
-  fi
-  # pip will use SPECIFIC_TENSORFLOW_VERSION to install.
-  if [[ "${TENSORFLOW_VERSION}" == 1 ]]; then
-    export SPECIFIC_TENSORFLOW_VERSION="<2"
-  elif [[ "${TENSORFLOW_VERSION}" == 2 ]]; then
-    export SPECIFIC_TENSORFLOW_VERSION=">=2"
-  else
-    echo "Must set TENSORFLOW_VERSION env to 1|2"; exit 1;
-  fi
+
   export PIP_BIN="${PYTHON_DIR}"/bin/pip || exit 1;
   export PYTHON_BIN_PATH="${PYTHON_DIR}"/bin/python || exit 1;
   echo "PYTHON_BIN_PATH=${PYTHON_BIN_PATH}" || exit 1;
@@ -78,8 +102,11 @@ function bazel_build() {
   virtualenv --python=${PYTHON_BIN_PATH} venv || exit 1;
   source venv/bin/activate || exit 1;
   VENV_PYTHON_BIN_PATH="$(which python)"
-  pip install --upgrade pip || exit 1;
-  pip install tensorflow${SPECIFIC_TENSORFLOW_VERSION}  || exit 1;
+  pip install --upgrade pip;
+  VENV_PIP_PATH="$(which pip)"
+
+  install_tensorflow ${TF_VERSION} ${VENV_PIP_PATH} ${VENV_PYTHON_BIN_PATH}
+
   ./configure.sh --python_bin_path "${VENV_PYTHON_BIN_PATH}"
   bazel run -c opt \
     :build_pip_package \
