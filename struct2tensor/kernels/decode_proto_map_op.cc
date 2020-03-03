@@ -81,7 +81,7 @@ template <typename T>
 Status ParseStringAs(const std::string& str, T* val) {
   if (!absl::SimpleAtoi(str, val)) {
     return errors::InvalidArgument(
-        absl::StrCat("Failed to parse std::string: ", str, " as integer."));
+        absl::StrCat("Failed to parse string: ", str, " as integer."));
   }
   return Status::OK();
 }
@@ -106,7 +106,7 @@ Status ParseStringAs<bool>(const std::string& str, bool* val) {
     return Status::OK();
   }
   return errors::InvalidArgument(
-      absl::StrCat("Failed to parse std::string: ", str, " as bool."));
+      absl::StrCat("Failed to parse string: ", str, " as bool."));
 }
 
 // Statically bind proto field types with in-memory types (which the wire bytes
@@ -138,7 +138,7 @@ MATCH_TYPES(FieldDescriptor::TYPE_INT32, int32_t, tensorflow::DT_INT32);
 MATCH_TYPES(FieldDescriptor::TYPE_FIXED64, uint64_t, tensorflow::DT_UINT64);
 MATCH_TYPES(FieldDescriptor::TYPE_FIXED32, uint32_t, tensorflow::DT_UINT32);
 MATCH_TYPES(FieldDescriptor::TYPE_BOOL, bool, tensorflow::DT_BOOL);
-// We store string_view for std::string-typed fields, and only copy the std::string
+// We store string_view for string-typed fields, and only copy the string
 // when populating the output tensors. (Also see VectorToTensor()).
 MATCH_TYPES(FieldDescriptor::TYPE_STRING, absl::string_view,
             tensorflow::DT_STRING);
@@ -420,7 +420,7 @@ class MapEntryCollector {
       // reader.Next() also returns false on parsing error.
       if (reader.ptr() != reader.end()) {
         return errors::DataLoss(
-            "Failed to consume the entire serialized std::string.");
+            "Failed to consume the entire serialized string.");
       }
       if (!key_field_found) {
         return errors::DataLoss("Key field not found in a map.");

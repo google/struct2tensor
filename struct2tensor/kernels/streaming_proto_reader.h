@@ -210,7 +210,7 @@ const char* SkipGroup(const char* ptr, const char* limit);
 // Functions for decoding values from "raw" values. Raw data types are
 // the following: uint32_t, uint64_t, StringPiece.
 // Target value types are primitive values such as: int32_t, uint32_t, int64_t,
-// uint64_t, bool, float, double, std::string, StringPiece and PackedValue.
+// uint64_t, bool, float, double, string, StringPiece and PackedValue.
 
 inline void DecodeRawValue(uint32_t raw_value, google::protobuf::FieldDescriptor::Type type,
                            uint32_t* value) {

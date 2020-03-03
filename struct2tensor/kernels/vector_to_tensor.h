@@ -54,7 +54,7 @@ inline void VectorToTensor(const std::vector<uint64_t>& v,
   std::copy_n(v.data(), v.size(), tensor->flat<tensorflow::uint64>().data());
 }
 
-// Specialization for vector<string_view> - copies the strings into a std::string
+// Specialization for vector<string_view> - copies the strings into a string
 // tensor.
 template <>
 inline void VectorToTensor<absl::string_view>(

@@ -138,7 +138,7 @@ bool ReadFieldValue(CodedInputStream* input, T* value) {
   return WireFormatLite::ReadPrimitive<T, DataType>(input, value);
 }
 
-// Specializations for length-delimited fields (std::string, bytes, message). Avoid
+// Specializations for length-delimited fields (string, bytes, message). Avoid
 // reading into strings, instead, read into a string_view that refers to bytes
 // on the wire.
 template <>
@@ -798,8 +798,8 @@ class DecodeProtoSparseOp : public OpKernel {
       const vector<std::unique_ptr<FieldBuilder>>& field_builders) {
     for (int message_index = 0; message_index < bufs.size(); ++message_index) {
       const tstring& buf = *bufs[message_index];
-      // When collecting field values, we don't want to copy values of std::string
-      // types (std::string fields, sub messages, etc). Instead we want to collect
+      // When collecting field values, we don't want to copy values of string
+      // types (string fields, sub messages, etc). Instead we want to collect
       // string_views pointing back to the wire format. Therefore `input` must
       // be backed by a flat array that contains the entire message. This
       // c'tor ensures that, and the IsFlat() check below verifies that.
@@ -859,7 +859,7 @@ class DecodeProtoSparseOp : public OpKernel {
     //   // extension field number.
     //   required int32_t type_id = 1;
     //   // serialized extension message.
-    //   required std::string message = 2;
+    //   required string message = 2;
     // }
     //
     // There might be multiple of each field on wire, the last appearence of
