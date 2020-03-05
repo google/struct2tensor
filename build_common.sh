@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 #
-# Usage: build_common.sh [--python_bin_path PYTHON_BIN_PATH] [--tf_version TF_VERSION]
+# Usage: build_common.sh [--python_bin_path=PYTHON_BIN_PATH] [--tf_version=TF_VERSION]
 
 function install_tensorflow() {
   # Install tensorflow from pip.
@@ -53,15 +53,13 @@ set -x
 
 for i in "$@"; do
   case "$i" in
-    --python_bin_path)
-      shift # past argument
-      PYTHON_BIN_PATH=$1
-      shift # past value
+    --python_bin_path=*)
+      shift # past argument=value
+      PYTHON_BIN_PATH=${i#*=}
       ;;
-    --tf_version)
-      shift # past argument
-      TF_VERSION=$1
-      shift # past value
+    --tf_version=*)
+      shift # past argument=value
+      TF_VERSION=${i#*=}
       ;;
     *)
       printf "Unrecognized argument $1"
