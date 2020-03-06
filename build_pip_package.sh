@@ -33,13 +33,27 @@ fi
 set -u -x
 
 function main() {
+  # We will build the wheel in a temp directory.
   TMPDIR=$(mktemp -d)
+
+  # If run by "bazel run", $(pwd) is the .runfiles dir that contains all the
+  # data dependencies.
+  RUNFILES_DIR=$(pwd)
 
   cp ${BUILD_WORKSPACE_DIRECTORY}/setup.py "${TMPDIR}"
   cp ${BUILD_WORKSPACE_DIRECTORY}/MANIFEST.in "${TMPDIR}"
   cp ${BUILD_WORKSPACE_DIRECTORY}/LICENSE "${TMPDIR}"
+
   rsync -avm -L --exclude='*_test.py' ${BUILD_WORKSPACE_DIRECTORY}/struct2tensor "${TMPDIR}"
 
+  cp -f ${RUNFILES_DIR}/struct2tensor/proto/*_pb2.py "${TMPDIR}"/struct2tensor/proto/
+  cp -f ${RUNFILES_DIR}/struct2tensor/test/*_pb2.py "${TMPDIR}"/struct2tensor/test/
+  cp -f ${RUNFILES_DIR}/struct2tensor/ops/*.so "${TMPDIR}"/struct2tensor/ops/
+
+  chmod +w "${TMPDIR}"/struct2tensor/ops/*
+
+
+  cd ${TMPDIR}
   ${PYTHON_BIN_PATH} setup.py bdist_wheel
 
   mkdir -p ${BUILD_WORKSPACE_DIRECTORY}/dist/
