@@ -103,7 +103,8 @@ def s2t_gen_op_wrapper_py(
         name,
         out,
         static_library,
-        dynamic_library):
+        dynamic_library,
+        visibility = ["//visibility:private"]):
     """Applies gen_op_wrapper_py externally.
 
     Instead of a static library, links to a dynamic library.
@@ -114,6 +115,7 @@ def s2t_gen_op_wrapper_py(
       out: a file that must be provided. Included as source.
       static_library: a static library (ignored).
       dynamic_library: a dynamic library included as data.
+      visibility: The visibility attribute on a rule controls whether the rule can be used by other packages. Rules are always visible to other rules declared in the same package.
     """
     native.py_library(
         name = name,
@@ -124,6 +126,7 @@ def s2t_gen_op_wrapper_py(
             dynamic_library,
         ],
         srcs_version = "PY2AND3",
+        visibility = visibility,
     )
 
 def s2t_proto_library_cc(
