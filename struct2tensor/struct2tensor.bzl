@@ -104,7 +104,7 @@ def s2t_gen_op_wrapper_py(
         out,
         static_library,
         dynamic_library,
-        visibility = ["//visibility:private"]):
+        visibility = None):
     """Applies gen_op_wrapper_py externally.
 
     Instead of a static library, links to a dynamic library.
