@@ -42,19 +42,13 @@ using tensorflow::TensorShapeUtils;
 // Creates an output vector tensor of dtype int64_t from a vector<int64_t>.
 ::tensorflow::Status ToOutputVector(OpKernelContext* context, int index,
                                     const std::vector<tensorflow::int64>& vec) {
-  TensorShape output_shape;
   tensorflow::int64 tensor_size = vec.size();
-  TF_RETURN_IF_ERROR(
-      TensorShapeUtils::MakeShape(&tensor_size, 1, &output_shape));
-
   Tensor* result = nullptr;
-  TF_RETURN_IF_ERROR(context->allocate_output(index, output_shape, &result));
+  TF_RETURN_IF_ERROR(context->allocate_output(index, {tensor_size}, &result));
   if (tensor_size > 0) {
     auto result_flat = result->flat<tensorflow::int64>();
-
-    for (tensorflow::int64 i = 0; i < tensor_size; ++i) {
-      result_flat(i) = vec[i];
-    }
+    memcpy(result_flat.data(), vec.data(),
+           tensor_size * sizeof(tensorflow::int64));
   }
   return tensorflow::Status::OK();
 }
