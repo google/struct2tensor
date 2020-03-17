@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 #
-# Usage: build_common.sh [--python_bin_path=PYTHON_BIN_PATH] [--tf_version=TF_VERSION]
+# Usage: build_common.sh [--python_bin_path=PYTHON_BIN_PATH] [--pip_bin_path=PIP_BIN_PATH] [--tf_version=TF_VERSION]
 
 function install_tensorflow() {
   # Install tensorflow from pip.
@@ -57,6 +57,10 @@ for i in "$@"; do
       shift # past argument=value
       PYTHON_BIN_PATH=${i#*=}
       ;;
+    --pip_bin_path=*)
+      shift # past argument=value
+      PIP_BIN_PATH=${i#*=}
+      ;;
     --tf_version=*)
       shift # past argument=value
       TF_VERSION=${i#*=}
@@ -68,20 +72,12 @@ for i in "$@"; do
   esac
 done
 
-virtualenv --python=${PYTHON_BIN_PATH} venv \
-    || (echo "failed to create a virtualenv" && exit 1)
-source venv/bin/activate
-VENV_PYTHON_BIN_PATH="$(which python)"
-VENV_PIP_PATH="$(which pip)"
-pip install --upgrade pip;
-install_tensorflow ${TF_VERSION} ${VENV_PIP_PATH} ${VENV_PYTHON_BIN_PATH}
-./configure.sh --python_bin_path "${VENV_PYTHON_BIN_PATH}"
+set -x
 
-deactivate
+install_tensorflow ${TF_VERSION} ${PIP_BIN_PATH} ${PYTHON_BIN_PATH}
+./configure.sh --python_bin_path "${PYTHON_BIN_PATH}"
 
 bazel run -c opt \
   :build_pip_package \
   -- \
   --python_bin_path "${PYTHON_BIN_PATH}"
-
-set +x

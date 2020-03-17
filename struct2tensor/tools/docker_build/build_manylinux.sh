@@ -61,7 +61,7 @@ function setup_environment() {
 }
 
 function bazel_build() {
-  ./build_common.sh --python_bin_path=${PYTHON_BIN_PATH} --tf_version=${TF_VERSION}
+  ./build_common.sh --python_bin_path=${PYTHON_BIN_PATH} --pip_bin_path=${PIP_BIN} --tf_version=${TF_VERSION}
 }
 
 libraries=(
