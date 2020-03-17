@@ -128,7 +128,8 @@ struct FieldTypeTraits {};
                       (std::is_same<TensorCppType, tstring>::value &&         \
                        std::is_same<FieldCppType, absl::string_view>::value), \
                   "Unexpected FIELD_CPP_TYPE and TENSOR_DTYPE_ENUM pair");    \
-  };
+  };                                                                          \
+  constexpr DataType FieldTypeTraits<FIELD_TYPE_ENUM>::kTFDataType;
 
 MATCH_TYPES(FieldDescriptor::TYPE_DOUBLE, double, tensorflow::DT_DOUBLE);
 MATCH_TYPES(FieldDescriptor::TYPE_FLOAT, float, tensorflow::DT_FLOAT);
