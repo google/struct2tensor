@@ -199,10 +199,28 @@ def _get_dewey_encoding(p: Union[_LeafNodePath, _ChildNodePath]
       return tf.gather(parent_dewey_encoding, p.tail.parent_index), parent_size
 
 
-def _get_sparse_tensor(p: _LeafNodePath) -> tf.SparseTensor:
+def _get_sparse_tensor_from_leaf_node_path(p: _LeafNodePath) -> tf.SparseTensor:
   indices, dense_shape = _get_dewey_encoding(p)
   return tf.SparseTensor(
       indices=indices, values=p.tail.values, dense_shape=dense_shape)
+
+
+def get_sparse_tensor(t: prensor.Prensor, p: path.Path) -> tf.SparseTensor:
+  """Gets a sparse tensor for path p.
+
+  Note that any optional fields are not registered as dimensions, as they can't
+  be represented in a sparse tensor.
+
+  Args:
+    t: The Prensor to extract tensors from.
+    p: the path to a leaf node in `t`.
+
+  Returns:
+    A sparse tensor containing values of the leaf node, preserving the
+    structure along the path. Raises an error if the path is not found.
+  """
+  leaf_node_path = _get_leaf_node_path(p, t)
+  return _get_sparse_tensor_from_leaf_node_path(leaf_node_path)
 
 
 def get_sparse_tensors(t: prensor.Prensor, options: calculate_options.Options
@@ -218,7 +236,10 @@ def get_sparse_tensors(t: prensor.Prensor, options: calculate_options.Options
   """
 
   del options
-  return {p: _get_sparse_tensor(v) for p, v in _get_leaf_node_paths(t).items()}
+  return {
+      p: _get_sparse_tensor_from_leaf_node_path(v)
+      for p, v in _get_leaf_node_paths(t).items()
+  }
 
 
 #################### Code for get_ragged_tensors(...) ##########################
@@ -256,6 +277,25 @@ def _get_ragged_tensor_from_leaf_node_path(nodes: _LeafNodePath,
       value_rowids=first_child_node.parent_index,
       nrows=nodes.head.size,
       validate=options.ragged_checks)
+
+
+def get_ragged_tensor(t: prensor.Prensor, p: path.Path,
+                      options: calculate_options.Options) -> tf.RaggedTensor:
+  """Get a ragged tensor for a path.
+
+  All steps are represented in the ragged tensor.
+
+  Args:
+    t: The Prensor to extract tensors from.
+    p: the path to a leaf node in `t`.
+    options: used to pass options for calculating ragged tensors.
+
+  Returns:
+    A ragged tensor containing values of the leaf node, preserving the
+    structure along the path. Raises an error if the path is not found.
+  """
+  leaf_node_path = _get_leaf_node_path(p, t)
+  return _get_ragged_tensor_from_leaf_node_path(leaf_node_path, options)
 
 
 def get_ragged_tensors(t: prensor.Prensor, options: calculate_options.Options

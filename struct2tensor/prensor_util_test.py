@@ -95,6 +95,14 @@ class PrensorUtilTest(tf.test.TestCase):
       self.assertAllEqual(string_tensor_map["foorepeated"].values, [9, 8, 7, 6])
       self.assertAllEqual(string_tensor_map["foorepeated"].dense_shape, [3, 2])
 
+  def test_get_sparse_tensor(self):
+    expression = prensor_test_util.create_simple_prensor()
+    sparse_tensor = prensor_util.get_sparse_tensor(expression,
+                                                   path.create_path("foo"))
+    self.assertAllEqual(sparse_tensor.indices, [[0], [1], [2]])
+    self.assertAllEqual(sparse_tensor.dense_shape, [3])
+    self.assertAllEqual(sparse_tensor.values, [9, 8, 7])
+
   def test_get_sparse_tensors_simple_dense(self):
     """Tests get_sparse_tensors on a deep expression."""
     for options in options_to_test:
@@ -133,6 +141,15 @@ class PrensorUtilTest(tf.test.TestCase):
                           [[[False]], [[True], []], []])
       self.assertAllEqual(string_np_map["user.friends"].to_list(),
                           [[[b"a"]], [[b"b", b"c"], [b"d"]], [[b"e"]]])
+
+  def test_get_ragged_tensor(self):
+    """Tests get_ragged_tensor on a deep field."""
+    for options in options_to_test:
+      expression = prensor_test_util.create_nested_prensor()
+      ragged_tensor = prensor_util.get_ragged_tensor(
+          expression, path.create_path("doc.bar"), options)
+      self.assertAllEqual(ragged_tensor,
+                          [[[b"a"]], [[b"b", b"c"], [b"d"]], []])
 
 
 if __name__ == "__main__":
