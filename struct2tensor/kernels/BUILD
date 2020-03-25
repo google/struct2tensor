@@ -123,7 +123,6 @@ cc_library(
     hdrs = ["vector_to_tensor.h"],
     deps = [
         "@com_google_absl//absl/strings",
-        "@com_google_absl//absl/types:span",
         "@org_tensorflow//tensorflow/core:framework",
         "@org_tensorflow//tensorflow/core:lib",
     ],
