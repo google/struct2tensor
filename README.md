@@ -20,9 +20,12 @@ through Google's colab environment, or [download the
 file](examples/prensor_playground.ipynb) to run it in your own Jupyter
 environment.
 
-There are two main use cases of this package. One is to create a PIP package,
-useful for creating models.
-The other is to create static libraries for tensorflow-serving.
+There are two main use cases of this repo:
+
+1.  To create a PIP package. The PIP package contains plug-ins (OpKernels) to an
+    existing tensorflow installation.
+2.  To staticlly link with tensorflow-serving.
+
 As these processes are independent, one can follow either set of directions
 below.
 
