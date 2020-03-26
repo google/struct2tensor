@@ -49,11 +49,6 @@ s2t_pytype_library(
     deps = ["@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_py_pb2"],
 )
 
-s2t_pytype_library(
-    name = "tf_types",
-    srcs = ["tf_types.py"],
-)
-
 # Note: do not separate these, as eventually we want to make sure that they
 # are all included in a single package.
 s2t_pytype_library(
@@ -67,7 +62,6 @@ s2t_pytype_library(
     deps = [
         ":calculate_options",
         ":path",
-        ":tf_types",
         "//struct2tensor/ops:struct2tensor_ops",
         "//struct2tensor/proto:query_metadata_py_pb2",
         "@protobuf_archive//:protobuf_python",

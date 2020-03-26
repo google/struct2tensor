@@ -30,9 +30,9 @@ import collections
 import enum
 import six
 from struct2tensor import path
-from struct2tensor import tf_types
 import tensorflow as tf
 from typing import FrozenSet, Iterator, List, Mapping, Optional, Sequence, Tuple, Union
+from tensorflow.python.framework import composite_tensor  # pylint: disable=g-direct-tensorflow-import
 
 
 # TODO(martinz): Consider creating node.py with the LeafNodeTensor,
@@ -148,7 +148,7 @@ def create_required_leaf_node(values: tf.Tensor) -> LeafNodeTensor:
 NodeTensor = Union[LeafNodeTensor, ChildNodeTensor, RootNodeTensor]  # pylint: disable=invalid-name
 
 
-class _PrensorTypeSpec(tf_types.TypeSpec):
+class _PrensorTypeSpec(tf.TypeSpec):
   """TypeSpec for Prensor."""
 
   class _NodeType(enum.IntEnum):
@@ -280,7 +280,7 @@ class _PrensorTypeSpec(tf_types.TypeSpec):
     return tuple(tf.Tensor for spec in self._component_specs)
 
 
-class Prensor(tf_types.CompositeTensorMixin):
+class Prensor(composite_tensor.CompositeTensor):
   """A expression of NodeTensor objects."""
 
   __slots__ = ["_node", "_children"]
