@@ -34,7 +34,7 @@ git_repository(
 load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
 boost_deps()
 
-# LINT.IfChange(thrift_gen_version)
+# LINT.IfChange(thrift_archive_version)
 http_archive(
     name = "thrift",
     build_file = "//third_party:thrift.BUILD",
@@ -44,7 +44,7 @@ http_archive(
         "https://github.com/apache/thrift/archive/0.12.0.tar.gz",
     ],
 )
-# LINT.ThenChange(third_party/thrift.BUILD)
+# LINT.ThenChange(third_party/thrift.BUILD:thrift_gen_version)
 
 # https://github.com/protocolbuffers/protobuf/tree/v3.8.0
 PROTOBUF_COMMIT="09745575a923640154bcf307fba8aedff47f240a"

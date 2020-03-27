@@ -46,7 +46,7 @@ cc_library(
     ],
 )
 
-# LINT.IfChange(thrift_archive_version)
+# LINT.IfChange(thrift_gen_version)
 genrule(
     name = "version_h",
     srcs = [
@@ -73,4 +73,4 @@ genrule(
            "-e 's/$${PACKAGE_STRING}/thrift 0.12.0/g' " +
            "$< >$@"),
 )
-# LINT.ThenChange(../WORKSPACE)
+# LINT.ThenChange(../WORKSPACE:thrift_archive_version)
