@@ -46,6 +46,18 @@ http_archive(
 )
 # LINT.ThenChange(third_party/thrift.BUILD:thrift_gen_version)
 
+# LINT.IfChange(snappy_archive_version)
+http_archive(
+    name = "snappy",
+    build_file = "//third_party:snappy.BUILD",
+    sha256 = "16b677f07832a612b0836178db7f374e414f94657c138e6993cbfc5dcc58651f",
+    strip_prefix = "snappy-1.1.8",
+    urls = [
+        "https://github.com/google/snappy/archive/1.1.8.tar.gz",
+    ],
+)
+# LINT.ThenChange(third_party/snappy.BUILD:snappy_gen_version)
+
 # https://github.com/protocolbuffers/protobuf/tree/v3.8.0
 PROTOBUF_COMMIT="09745575a923640154bcf307fba8aedff47f240a"
 
