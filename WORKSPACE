@@ -34,6 +34,16 @@ git_repository(
 load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
 boost_deps()
 
+http_archive(
+    name = "com_github_google_flatbuffers",
+    sha256 = "12a13686cab7ffaf8ea01711b8f55e1dbd3bf059b7c46a25fefa1250bdd9dd23",
+    strip_prefix = "flatbuffers-b99332efd732e6faf60bb7ce1ce5902ed65d5ba3",
+    urls = [
+        "https://mirror.bazel.build/github.com/google/flatbuffers/archive/b99332efd732e6faf60bb7ce1ce5902ed65d5ba3.tar.gz",
+        "https://github.com/google/flatbuffers/archive/b99332efd732e6faf60bb7ce1ce5902ed65d5ba3.tar.gz",
+    ],
+)
+
 # LINT.IfChange(thrift_archive_version)
 http_archive(
     name = "thrift",
@@ -57,6 +67,18 @@ http_archive(
     ],
 )
 # LINT.ThenChange(third_party/snappy.BUILD:snappy_gen_version)
+
+# LINT.IfChange(arrow_archive_version)
+http_archive(
+    name = "arrow",
+    build_file = "//third_party:arrow.BUILD",
+    sha256 = "d7b3838758a365c8c47d55ab0df1006a70db951c6964440ba354f81f518b8d8d",
+    strip_prefix = "arrow-apache-arrow-0.16.0",
+    urls = [
+        "https://github.com/apache/arrow/archive/apache-arrow-0.16.0.tar.gz",
+    ],
+)
+# LINT.ThenChange(third_party/arrow.BUILD:parquet_gen_version)
 
 # https://github.com/protocolbuffers/protobuf/tree/v3.8.0
 PROTOBUF_COMMIT="09745575a923640154bcf307fba8aedff47f240a"
