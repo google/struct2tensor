@@ -24,6 +24,28 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 tf_configure(name = "local_config_tf")
 
+git_repository(
+    name = "com_github_nelhage_rules_boost",
+    commit = "9f9fb8b2f0213989247c9d5c0e814a8451d18d7f",
+    remote = "https://github.com/nelhage/rules_boost",
+    shallow_since = "1570056263 -0700",
+)
+
+load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
+boost_deps()
+
+# LINT.IfChange(thrift_gen_version)
+http_archive(
+    name = "thrift",
+    build_file = "//third_party:thrift.BUILD",
+    sha256 = "b7452d1873c6c43a580d2b4ae38cfaf8fa098ee6dc2925bae98dce0c010b1366",
+    strip_prefix = "thrift-0.12.0",
+    urls = [
+        "https://github.com/apache/thrift/archive/0.12.0.tar.gz",
+    ],
+)
+# LINT.ThenChange(third_party/thrift.BUILD)
+
 # https://github.com/protocolbuffers/protobuf/tree/v3.8.0
 PROTOBUF_COMMIT="09745575a923640154bcf307fba8aedff47f240a"
 
