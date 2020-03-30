@@ -62,6 +62,18 @@ genrule(
 # LINT.ThenChange(../WORKSPACE:arrow_archive_version)
 
 cc_library(
+    name = "xxhash",
+    srcs = [],
+    hdrs = [
+        "cpp/src/arrow/vendored/xxhash/xxh3.h",
+        "cpp/src/arrow/vendored/xxhash/xxhash.c",
+        "cpp/src/arrow/vendored/xxhash/xxhash.h",
+    ],
+    copts = ["-Wno-implicit-fallthrough"],
+    visibility = ["//visibility:private"],
+)
+
+cc_library(
     name = "arrow",
     srcs = glob(
         [
@@ -95,7 +107,6 @@ cc_library(
             "cpp/src/arrow/util/compression_z*",
             "cpp/src/**/*_benchmark.cc",
             "cpp/src/**/*_main.cc",
-            "cpp/src/**/*_nossl.cc",
             "cpp/src/**/*_test.cc",
             "cpp/src/**/*-test.cc",
             "cpp/src/**/test_*.cc",
@@ -105,6 +116,7 @@ cc_library(
             "cpp/src/**/stream_to_file.cc",
             "cpp/src/arrow/ipc/json*.cc",
             "cpp/src/arrow/vendored/xxhash/**",
+            "cpp/src/parquet/encryption_internal.cc",
         ],
     ) + [
         "@struct2tensor//third_party:parquet/parquet_types.cpp",
@@ -128,6 +140,7 @@ cc_library(
     ],
     deps = [
         ":arrow_format",
+        ":xxhash",
         "@snappy",
         "@struct2tensor//third_party:parquet_types_h",
         "@thrift",
