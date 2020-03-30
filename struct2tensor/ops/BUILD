@@ -167,6 +167,38 @@ s2t_gen_op_wrapper_py(
     static_library = ":decode_proto_map_op",
 )
 
+cc_library(
+    name = "parquet_dataset_op",
+    srcs = ["parquet_dataset_op.cc"],
+    deps = [
+        "@org_tensorflow//tensorflow/core:dataset_ops_op_lib",
+        "@org_tensorflow//tensorflow/core:framework",
+    ],
+    alwayslink = 1,
+)
+
+s2t_dynamic_library(
+    name = "parquet_dataset_op_dynamic",
+    srcs = [
+        "parquet_dataset_op.cc",
+    ],
+)
+
+s2t_dynamic_binary(
+    name = "_parquet_dataset_op.so",
+    deps = [
+        ":parquet_dataset_op_dynamic",
+        "//struct2tensor/kernels/parquet:parquet_dataset_kernel_dynamic",
+    ],
+)
+
+s2t_gen_op_wrapper_py(
+    name = "gen_parquet_dataset_py",
+    out = "gen_parquet_dataset.py",
+    dynamic_library = ":_parquet_dataset_op.so",
+    static_library = ":parquet_dataset_op",
+)
+
 # Contains only registrations of Prensor ops. Programs that build but do not run
 # Prensor graphs should depend on this target.
 # Open source packages should depend upon this and

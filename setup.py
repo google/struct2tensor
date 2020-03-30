@@ -61,6 +61,7 @@ setup(
         'protobuf>=3.8.0',
         'tensorflow>=1.15,<3',
         'tensorflow_metadata>=0.13.0',
+        'pyarrow>=0.15,<1',
     ],
     # Add in any packaged data.
     include_package_data=True,

@@ -25,6 +25,7 @@
 WORKING_DIR=$PWD
 
 function setup_environment() {
+  set -x
   # Since someone may run this twice from the same directory,
   # it is important to delete the dist directory.
   rm -rf dist
@@ -61,6 +62,7 @@ function setup_environment() {
 }
 
 function bazel_build() {
+  set -x
   ./build_common.sh --python_bin_path=${PYTHON_BIN_PATH} --pip_bin_path=${PIP_BIN} --tf_version=${TF_VERSION}
 }
 
@@ -69,6 +71,7 @@ libraries=(
 "_decode_proto_sparse_op.so"
 "_run_length_before_op.so"
 "_equi_join_indices_op.so"
+"_parquet_dataset_op.so"
 )
 
 LIBRARY_DIR="struct2tensor/ops/"
@@ -81,6 +84,7 @@ LIBRARY_DIR="struct2tensor/ops/"
 # it's still manylinux2010 compliant according to the standard, because it only
 # depends on the specified shared libraries, assuming pyarrow is installed.
 function stamp_wheel() {
+  set -x
   WHEEL_PATH="$(ls "$PWD"/dist/*.whl)"
   WHEEL_DIR=$(dirname "${WHEEL_PATH}")
 
@@ -96,10 +100,7 @@ function stamp_wheel() {
   unzip "${WHEEL_PATH}" || exit 1;
   for SO_FILE in "${libraries[@]}"; do
     SO_FILE_PATH="${LIBRARY_DIR}${SO_FILE}"
-    echo "file path: ${SO_FILE_PATH}"
-    # LIBTENSORFLOW="libtensorflow_framework.so.1"
     LIBTENSORFLOW=$(patchelf --print-needed ${SO_FILE_PATH} | fgrep "libtensorflow_framework")
-    echo "LIBTENSORFLOW: ${LIBTENSORFLOW}"
     patchelf --remove-needed "${LIBTENSORFLOW}" "${SO_FILE_PATH}"  || exit 1;
     zip "${WHEEL_PATH}" "${SO_FILE_PATH}" || exit 1;
   done
@@ -122,6 +123,7 @@ function stamp_wheel() {
   ${WHEEL_BIN} pack "${TMP_DIR}" --dest-dir "${WHEEL_DIR}" || exit 1;
 }
 
+set -x
 setup_environment && \
 bazel_build && \
 stamp_wheel

@@ -144,6 +144,21 @@ s2t_pytype_library(
 )
 
 s2t_pytype_library(
+    name = "parquet",
+    srcs = [
+        "expression_impl/parquet.py",
+    ],
+    deps = [
+        ":expression",
+        ":map_prensor_to_prensor",
+        ":path",
+        ":placeholder",
+        ":prensor",
+        "//struct2tensor/ops:gen_parquet_dataset_py",
+    ],
+)
+
+s2t_pytype_library(
     name = "proto_test_util",
     testonly = 1,
     srcs = [
