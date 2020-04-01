@@ -126,15 +126,17 @@ class PeekableColumnReader : public PeekableColumnReaderBase {
       : column_index_(column_index),
         row_group_counter_(-1),
         end_of_column_(false),
+        value_exists_(false),
+        curr_def_level_(-1),
+        curr_rep_level_(-1),
         file_reader_(file_reader) {}
 
   const int column_index_;
   int row_group_counter_;
-
+  bool end_of_column_;
+  bool value_exists_;
   int16_t curr_def_level_;
   int16_t curr_rep_level_;
-  bool value_exists_;
-  bool end_of_column_;
   typename ParquetDataType::c_type curr_value_;
   parquet::ParquetFileReader* file_reader_;
   std::shared_ptr<parquet::RowGroupReader> row_group_reader_;
