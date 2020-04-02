@@ -42,6 +42,9 @@ class BinaryDistribution(Distribution):
   def has_ext_modules(self):
     return True
 
+# Get the long description from the README file.
+with open('README.md') as fp:
+  _LONG_DESCRIPTION = fp.read()
 
 with open('struct2tensor/version.py') as fp:
   globals_dict = {}
@@ -89,4 +92,6 @@ setup(
     ],
     license='Apache 2.0',
     keywords='tensorflow protobuf machine learning',
+    long_description=_LONG_DESCRIPTION,
+    long_description_content_type='text/markdown',
     cmdclass={'install': _InstallPlatlib})

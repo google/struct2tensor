@@ -43,6 +43,7 @@ function main() {
   cp ${BUILD_WORKSPACE_DIRECTORY}/setup.py "${TMPDIR}"
   cp ${BUILD_WORKSPACE_DIRECTORY}/MANIFEST.in "${TMPDIR}"
   cp ${BUILD_WORKSPACE_DIRECTORY}/LICENSE "${TMPDIR}"
+  cp ${BUILD_WORKSPACE_DIRECTORY}/README.md "${TMPDIR}"
 
   rsync -avm -L --exclude='*_test.py' ${BUILD_WORKSPACE_DIRECTORY}/struct2tensor "${TMPDIR}"
 
