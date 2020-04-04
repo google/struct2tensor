@@ -14,9 +14,10 @@
 """Apache Parquet Dataset.
 
 Example usage:
-  exp = create_expression_from_parquet_file(filenames, batch_size)
+  exp = create_expression_from_parquet_file(filenames)
   docid_project_exp = project.project(exp, [path.Path(["DocId"])])
-  pqds = parquet_dataset.calculate_parquet_values([docid_project_exp], exp)
+  pqds = parquet_dataset.calculate_parquet_values([docid_project_exp], exp,
+                                                  filenames, batch_size)
 
   for prensors in pqds:
     doc_id_prensor = prensors[0]
@@ -98,7 +99,7 @@ class _RawParquetDataset(tf.compat.v1.data.Dataset):
   The user has control over which parent indices of which fields in a path to
   read, and is determined by parent_index_paths and path_index.
 
-  View //struct2tensor/parquet_dataset/ops/parquet_dataset_op.cc
+  View //struct2tensor/ops/parquet_dataset_op.cc
   for a better understanding of what format the vector of tensors is in.
   """
 
