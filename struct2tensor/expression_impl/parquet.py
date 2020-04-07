@@ -393,7 +393,7 @@ class ParquetDataset(_RawParquetDataset):
     return prensor._PrensorTypeSpec(
         None, prensor._PrensorTypeSpec._NodeType.ROOT, tf.int64, [
             self._create_children_spec(
-                arrow_schema.field_by_name(step), curr_steps_as_set[step])
+                arrow_schema.field(step), curr_steps_as_set[step])
             for step in curr_steps_as_set
         ])
 
