@@ -14,6 +14,7 @@
 
 # Description:
 #   Apache Thrift library
+load("@org_tensorflow//tensorflow:tensorflow.bzl", "clean_dep")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -37,6 +38,12 @@ cc_library(
     includes = [
         "lib/cpp/src",
     ],
+    # boost needs functions in librt.so if built with glibc<2.17 (which is the
+    # case in our manylinux docker image).
+    linkopts = select({
+        clean_dep("@org_tensorflow//tensorflow:macos"): None,
+        "//conditions:default": ["-lrt"],
+    }),
     textual_hdrs = [
         "lib/cpp/src/thrift/protocol/TBinaryProtocol.tcc",
         "lib/cpp/src/thrift/protocol/TCompactProtocol.tcc",

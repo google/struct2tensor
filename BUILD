@@ -23,11 +23,7 @@ sh_binary(
     testonly = True,  # Some files are testonly
     srcs = ["build_pip_package.sh"],
     data = [
-        # :struct2tensor_kernels_and_ops is not required to build the wheel,
-        # but is included here as a sanity check to make sure our kernels
-        # and ops are not broken.
-        "//struct2tensor:struct2tensor_kernels_and_ops",
-        "//struct2tensor:parquet",
+        "//struct2tensor/ops:gen_parquet_dataset_py",
         "//struct2tensor/ops:struct2tensor_ops",
         "//struct2tensor/proto:query_metadata_py_pb2",
         "//struct2tensor/test:dependent_test_py_pb2",

@@ -214,3 +214,16 @@ cc_library(
     ],
     alwayslink = 1,
 )
+
+cc_test(
+    name = "op_kernel_registration_test",
+    srcs = ["op_kernel_registration_test.cc"],
+    deps = [
+        ":parquet_dataset_op",  # build_cleaner: keep
+        ":struct2tensor_op_registrations",  # build_cleaner: keep
+        "//struct2tensor/kernels:struct2tensor_kernels",  # build_cleaner: keep
+        "//struct2tensor/kernels/parquet:parquet_dataset_kernel",  # build_cleaner: keep
+        "@com_google_googletest//:gtest_main",
+        "@org_tensorflow//tensorflow/core:framework",
+    ],
+)

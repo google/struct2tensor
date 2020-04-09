@@ -77,7 +77,15 @@ set -x
 install_tensorflow ${TF_VERSION} ${PIP_BIN_PATH} ${PYTHON_BIN_PATH}
 ./configure.sh --python_bin_path "${PYTHON_BIN_PATH}"
 
+# :build_pip_package builds and links struct2tensor ops against a TF
+# installation and packages the result dynamic libraries.
 bazel run -c opt \
   :build_pip_package \
   -- \
-  --python_bin_path "${PYTHON_BIN_PATH}"
+  --python_bin_path "${PYTHON_BIN_PATH}" \
+  || (echo "failed to build the pip package" && exit 1)
+
+# struct2tensor/ops:op_kernel_registration_test builds and links struct2tensor
+# ops against TF source (pulled from @org_tensorflow).
+bazel test -c opt struct2tensor/ops:op_kernel_registration_test \
+  || (echo "failed to build struct2tensor ops statically" && exit 1)

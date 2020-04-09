@@ -93,6 +93,7 @@ git_repository(
     name = "com_google_protobuf",
     commit = PROTOBUF_COMMIT,
     remote = "https://github.com/google/protobuf.git",
+    shallow_since = "1558721209 -0700",
 )
 
 
@@ -100,6 +101,7 @@ git_repository(
     name = "protobuf_archive",
     commit = PROTOBUF_COMMIT,
     remote = "https://github.com/google/protobuf.git",
+    shallow_since = "1558721209 -0700",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -118,11 +120,11 @@ git_repository(
 
 #####################################################################################
 
-_TENSORFLOW_GIT_COMMIT = "dada3c36881425c5824ac6cf7389548b76a8c91c"
+_TENSORFLOW_GIT_COMMIT = "e5bf8de410005de06a7ff5393fafdf832ef1d4ad" # 2.1.0
 
 http_archive(
     name = "org_tensorflow",
-    sha256 = "5044554782257c269bd6b28e30560aa1d18ed36fe38c6dc52d4bb90c46009592",
+    sha256 = "1f4b09e6bff7f847bb1034699076055e50e87534d76008af8295ed71195b2b36",
     urls = [
       "https://mirror.bazel.build/github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
       "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
@@ -136,20 +138,20 @@ http_archive(
 
 http_archive(
     name = "io_bazel_rules_closure",
-    sha256 = "e0a111000aeed2051f29fcc7a3f83be3ad8c6c93c186e64beb1ad313f0c7f9f9",
-    strip_prefix = "rules_closure-cf1e44edb908e9616030cc83d085989b8e6cd6df",
+    sha256 = "5b00383d08dd71f28503736db0500b6fb4dda47489ff5fc6bed42557c07c6ba9",
+    strip_prefix = "rules_closure-308b05b2419edb5c8ee0471b67a40403df940149",
     urls = [
-        "http://mirror.tensorflow.org/github.com/bazelbuild/rules_closure/archive/cf1e44edb908e9616030cc83d085989b8e6cd6df.tar.gz",
-        "https://github.com/bazelbuild/rules_closure/archive/cf1e44edb908e9616030cc83d085989b8e6cd6df.tar.gz",  # 2019-04-04
+        "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_closure/archive/308b05b2419edb5c8ee0471b67a40403df940149.tar.gz",
+        "https://github.com/bazelbuild/rules_closure/archive/308b05b2419edb5c8ee0471b67a40403df940149.tar.gz",  # 2019-06-13
     ],
 )
 
 http_archive(
     name = "bazel_skylib",
-    sha256 = "2c62d8cd4ab1e65c08647eb4afe38f51591f43f7f0885e7769832fa137633dcb",
-    strip_prefix = "bazel-skylib-0.7.0",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/archive/0.7.0.tar.gz"],
-)
+    sha256 = "1dde365491125a3db70731e25658dfdd3bc5dbdfd11b840b3e987ecf043c7ca0",
+    urls = ["https://github.com/bazelbuild/bazel-skylib/releases/download/0.9.0/bazel-skylib.0.9.0.tar.gz"],
+)  # https://github.com/bazelbuild/bazel-skylib/releases
+
 # END: Upstream TensorFlow dependencies
 
 
