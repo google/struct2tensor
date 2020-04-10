@@ -15,4 +15,4 @@
 """Contains the version string of struct2tensor."""
 
 # Note that setup.py uses this version.
-__version__ = '0.21.1'
+__version__ = '0.22.0.dev'
