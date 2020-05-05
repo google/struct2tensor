@@ -97,7 +97,9 @@ class _AddPathsExpression(expression.Expression):
     if child_from_origin is None:
       if set_root_expr is None:
         raise ValueError("Must have a value in the original if there are paths")
-      return _AddPathsExpression(set_root_expr, subtrees)
+      if subtrees:
+        return _AddPathsExpression(set_root_expr, subtrees)
+      return set_root_expr
     if set_root_expr is not None:
       raise ValueError("Tried to overwrite an existing expression")
     return _AddPathsExpression(child_from_origin, subtrees)

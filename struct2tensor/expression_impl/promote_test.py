@@ -39,8 +39,7 @@ class PromoteTest(unittest.TestCase):
         prensor_test_util.create_nested_prensor())
     new_root, new_field = promote.promote_anonymous(
         expr, path.Path(["user", "friends"]))
-    [new_field
-    ] = new_root.get_descendant_or_error(new_field).get_source_expressions()
+    new_field = new_root.get_descendant_or_error(new_field)
     self.assertTrue(new_field.is_repeated)
     self.assertEqual(new_field.type, tf.string)
     self.assertTrue(new_field.is_leaf)
@@ -65,8 +64,7 @@ class PromoteTest(unittest.TestCase):
 
     new_root, new_field = promote.promote_anonymous(
         expr, path.Path(["user", "friends"]))
-    [new_field
-    ] = new_root.get_descendant_or_error(new_field).get_source_expressions()
+    new_field = new_root.get_descendant_or_error(new_field)
     new_schema_feature = new_field.schema_feature
     self.assertIsNotNone(new_schema_feature)
     self.assertEqual(new_schema_feature.string_domain.value[0], "a")
@@ -96,8 +94,7 @@ class PromoteTest(unittest.TestCase):
 
     new_root, new_field = promote.promote_anonymous(
         expr, path.Path(["user", "friends"]))
-    [new_field
-    ] = new_root.get_descendant_or_error(new_field).get_source_expressions()
+    new_field = new_root.get_descendant_or_error(new_field)
     new_schema_feature = new_field.schema_feature
     self.assertIsNotNone(new_schema_feature)
     self.assertEqual(new_schema_feature.string_domain.value[0], "a")
@@ -140,8 +137,7 @@ class PromoteTest(unittest.TestCase):
 
       new_root, new_field = promote.promote_anonymous(
           expr, path.Path(["user", "friends"]))
-      [new_field
-      ] = new_root.get_descendant_or_error(new_field).get_source_expressions()
+      new_field = new_root.get_descendant_or_error(new_field)
       return new_field.schema_feature.lifecycle_stage
 
     self.assertEqual(
@@ -225,8 +221,7 @@ class PromoteTest(unittest.TestCase):
 
     new_root, new_field = promote.promote_anonymous(
         expr, path.Path(["user", "friends"]))
-    [new_field
-    ] = new_root.get_descendant_or_error(new_field).get_source_expressions()
+    new_field = new_root.get_descendant_or_error(new_field)
     new_schema_feature = new_field.schema_feature
     self.assertIsNotNone(new_schema_feature)
     self.assertEqual(new_schema_feature.presence.min_fraction, 0.3)

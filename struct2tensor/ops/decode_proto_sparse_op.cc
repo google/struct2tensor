@@ -78,7 +78,7 @@ to `DT_STRING` (the serialized submessage). This is to reduce the
 complexity of the API. The resulting string can be used as input
 to another instance of the decode_proto op.
 
-- TensorFlow lacks support for unsigned integers. The ops represent uint64
+- TensorFlow lacks support for unsigned integers. The ops represent uint64_t
 types as a `DT_INT64` with the same twos-complement bit pattern
 (the obvious way). Unsigned int32_t values can be represented exactly by
 specifying type `DT_INT64`, or using twos-complement if the caller

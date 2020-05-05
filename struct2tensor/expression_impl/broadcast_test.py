@@ -37,7 +37,7 @@ class BroadcastTest(absltest.TestCase):
         prensor_test_util.create_big_prensor())
     new_root, p = broadcast.broadcast_anonymous(expr, path.Path(["foo"]),
                                                 "user")
-    [new_field] = new_root.get_descendant_or_error(p).get_source_expressions()
+    new_field = new_root.get_descendant_or_error(p)
     self.assertFalse(new_field.is_repeated)
     self.assertEqual(new_field.type, tf.int32)
     self.assertTrue(new_field.is_leaf)

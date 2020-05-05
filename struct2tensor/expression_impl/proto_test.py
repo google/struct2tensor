@@ -210,6 +210,35 @@ class ProtoTest(absltest.TestCase):
     self.assertLen(sources, 1)
     self.assertIs(any_expr, sources[0])
 
+  def test_create_transformed_field(self):
+    expr = proto_test_util._get_expression_from_session_empty_user_info()
+    reversed_events_expr = proto.create_transformed_field(
+        expr, path.Path(["event"]), "reversed_event", _reverse_values)
+    source_events = expr.get_child_or_error("event")
+    dest_events = reversed_events_expr.get_child_or_error("reversed_event")
+    self.assertTrue(dest_events.is_repeated)
+    self.assertFalse(dest_events.is_leaf)
+    self.assertEqual(source_events.type, dest_events.type)
+    leaf_expr = reversed_events_expr.get_descendant_or_error(
+        path.Path(["reversed_event", "action", "doc_id"]))
+    leaf_tensor = expression_test_util.calculate_value_slowly(leaf_expr)
+    self.assertEqual(leaf_tensor.parent_index.dtype, tf.int64)
+    self.assertEqual(leaf_tensor.values.dtype, tf.string)
+
+  def test_create_reversed_field_nested(self):
+    expr = proto_test_util._get_expression_from_session_empty_user_info()
+    first_reverse = proto.create_transformed_field(expr, path.Path(["event"]),
+                                                   "reversed_event",
+                                                   _reverse_values)
+    second_reverse = proto.create_transformed_field(
+        first_reverse, path.Path(["reversed_event", "action"]),
+        "reversed_action", _reverse_values)
+    leaf_expr = second_reverse.get_descendant_or_error(
+        path.Path(["reversed_event", "reversed_action", "doc_id"]))
+    leaf_tensor = expression_test_util.calculate_value_slowly(leaf_expr)
+    self.assertEqual(leaf_tensor.parent_index.dtype, tf.int64)
+    self.assertEqual(leaf_tensor.values.dtype, tf.string)
+
 
 @test_util.run_all_in_graph_and_eager_modes
 class ProtoValuesTest(tf.test.TestCase):
@@ -320,6 +349,50 @@ class ProtoValuesTest(tf.test.TestCase):
     self.assertLen(result, 2)
     self.assertAllEqual(result["int32_string_map[222]"], [[b"2"]])
     self.assertAllEqual(result["int32_string_map[223]"], [[]])
+
+  def test_transformed_field_values(self):
+    expr = proto_test_util._get_expression_from_session_empty_user_info()
+    reversed_events_expr = proto.create_transformed_field(
+        expr, path.Path(["event"]), "reversed_event", _reverse_values)
+    result = expression_test_util.calculate_list_map(
+        reversed_events_expr.project(["reversed_event.action.doc_id"]), self)
+    self.assertAllEqual(result["reversed_event.action.doc_id"],
+                        [[[[b"h"], [b"i"], [b"j"]], [[b"g"]], [[b"e"], [b"f"]]],
+                         [[[b"c"], []], [[b"a"], [b"b"]]]])
+
+  def test_transformed_field_values_with_transformed_parent(self):
+    expr = proto_test_util._get_expression_from_session_empty_user_info()
+    first_reversed_expr = proto.create_transformed_field(
+        expr, path.Path(["event"]), "reversed_event", _reverse_values)
+    second_reversed_expr = proto.create_transformed_field(
+        first_reversed_expr, path.Path(["reversed_event", "action"]),
+        "reversed_action", _reverse_values)
+    result = expression_test_util.calculate_list_map(
+        second_reversed_expr.project(["reversed_event.reversed_action.doc_id"]),
+        self)
+    self.assertAllEqual(result["reversed_event.reversed_action.doc_id"],
+                        [[[[b"b"], [b"a"], []], [[b"c"]], [[b"f"], [b"e"]]],
+                         [[[b"g"], [b"j"]], [[b"i"], [b"h"]]]])
+
+  def test_transformed_field_values_with_multiple_transforms(self):
+    expr = proto_test_util._get_expression_from_session_empty_user_info()
+    reversed_events_expr = proto.create_transformed_field(
+        expr, path.Path(["event"]), "reversed_event", _reverse_values)
+    reversed_events_again_expr = proto.create_transformed_field(
+        reversed_events_expr, path.Path(["reversed_event"]),
+        "reversed_reversed_event", _reverse_values)
+
+    result = expression_test_util.calculate_list_map(
+        reversed_events_again_expr.project(
+            ["reversed_reversed_event.action.doc_id"]), self)
+    self.assertAllEqual(result["reversed_reversed_event.action.doc_id"],
+                        [[[[b"a"], [b"b"]], [[b"c"], []], [[b"e"], [b"f"]]],
+                         [[[b"g"]], [[b"h"], [b"i"], [b"j"]]]])
+
+
+def _reverse_values(parent_indices, values):
+  """A simple function for testing create_transformed_field."""
+  return parent_indices, tf.reverse(values, axis=[-1])
 
 
 if __name__ == "__main__":

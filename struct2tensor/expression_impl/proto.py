@@ -27,12 +27,13 @@ from __future__ import print_function
 import abc
 from struct2tensor import calculate_options
 from struct2tensor import expression
+from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.expression_impl import parse_message_level_ex
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import FrozenSet, Mapping, Optional, Sequence, Set, Text, Tuple, Union
+from typing import Callable, FrozenSet, Mapping, Optional, Sequence, Set, Text, Tuple, Union
 
 
 from google.protobuf.descriptor_pb2 import FileDescriptorSet
@@ -103,6 +104,88 @@ def create_expression_from_proto(
     An expression.
   """
   return _ProtoRootExpression(desc, tensor_of_protos, message_format)
+
+
+# The function signature expected by `created_transformed_field`.
+# It describes functions of the form:
+#
+# def transform_fn(parent_indices, values):
+#   ...
+#   return (transformed_parent_indices, transformed_values).
+#
+# Where values/transformed_values are serialized protos of the same type
+# and parent_indices/transformed_parent_indices are non-decreasing int64
+# vectors.  Each pair of indices and values must have the same shape.
+TransformFn = Callable[[tf.Tensor, tf.Tensor], Tuple[tf.Tensor, tf.Tensor]]
+
+
+def create_transformed_field(
+    expr: expression.Expression, source_path: path.CoercableToPath,
+    dest_field: StrStep, transform_fn: TransformFn) -> expression.Expression:
+  """Create an expression that transforms serialized proto tensors.
+
+  The transform_fn argument should take the form:
+
+  def transform_fn(parent_indices, values):
+    ...
+    return (transformed_parent_indices, transformed_values)
+
+  Given:
+  - parent_indices: an int64 vector of non-decreasing parent message indices.
+  - values: a string vector of serialized protos having the same shape as
+    `parent_indices`.
+  `transform_fn` must return new parent indices and serialized values encoding
+  the same proto message as the passed in `values`.  These two vectors must
+  have the same size, but it need not be the same as the input arguments.
+
+  Args:
+    expr: a source expression containing `source_path`.
+    source_path: the path to the field to reverse.
+    dest_field: the name of the newly created field. This field will be a
+      sibling of the field identified by `source_path`.
+    transform_fn: a callable that accepts parent_indices and serialized proto
+      values and returns a posibly modified parent_indices and values.
+
+  Returns:
+    An expression.
+
+  Raises:
+    ValueError: if the source path is not a proto message field.
+  """
+  source_path = path.create_path(source_path)
+  source_expr = expr.get_descendant_or_error(source_path)
+  if not isinstance(source_expr, _ProtoChildExpression):
+    raise ValueError(
+        "Expected _ProtoChildExpression for field {}, but found {}.".format(
+            str(source_path), source_expr))
+
+  if isinstance(source_expr, _TransformProtoChildExpression):
+    # In order to be able to propagate fields needed for parsing, the source
+    # expression of _TransformProtoChildExpression must always be the original
+    # _ProtoChildExpression before any transformation. This means that two
+    # sequentially applied _TransformProtoChildExpression would have the same
+    # source and would apply the transformation to the source directly, instead
+    # of one transform operating on the output of the other.
+    # To work around this, the user supplied transform function is wrapped to
+    # first call the source's transform function.
+    # The downside of this approach is that the initial transform may be
+    # applied redundantly if there are other expressions derived directly
+    # from it.
+    def final_transform(parent_indices: tf.Tensor,
+                        values: tf.Tensor) -> Tuple[tf.Tensor, tf.Tensor]:
+      parent_indices, values = source_expr.transform_fn(parent_indices, values)
+      return transform_fn(parent_indices, values)
+  else:
+    final_transform = transform_fn
+
+  transformed_expr = _TransformProtoChildExpression(
+      parent=source_expr._parent,  # pylint: disable=protected-access
+      desc=source_expr._desc,  # pylint: disable=protected-access
+      is_repeated=source_expr.is_repeated,
+      name_as_field=source_expr.name_as_field,
+      transform_fn=final_transform)
+  dest_path = source_path.get_parent().get_child(dest_field)
+  return expression_add.add_paths(expr, {dest_path: transformed_expr})
 
 
 class _ProtoRootNodeTensor(prensor.RootNodeTensor):
@@ -307,6 +390,44 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
   def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     return "_ProtoChildExpression: name_as_field: {} desc: {} from {}".format(
         str(self.name_as_field), str(self._desc.full_name), self._parent)
+
+
+class _TransformProtoChildExpression(_ProtoChildExpression):
+  """Transforms the parent indices and values prior to parsing."""
+
+  def __init__(self, parent: "_ParentProtoExpression",
+               desc: descriptor.Descriptor, is_repeated: bool,
+               name_as_field: StrStep, transform_fn: TransformFn):
+    super(_TransformProtoChildExpression,
+          self).__init__(parent, desc, is_repeated, name_as_field)
+    self._transform_fn = transform_fn
+
+  @property
+  def transform_fn(self):
+    return self._transform_fn
+
+  def calculate_from_parsed_field(
+      self, parsed_field: struct2tensor_ops._ParsedField,
+      destinations: Sequence[expression.Expression]) -> prensor.NodeTensor:
+    needed_fields = _get_needed_fields(destinations)
+    transformed_parent_indices, transformed_values = self._transform_fn(
+        parsed_field.index, parsed_field.value)
+    fields = parse_message_level_ex.parse_message_level_ex(
+        transformed_values, self._desc, needed_fields)
+    return _ProtoChildNodeTensor(transformed_parent_indices, self.is_repeated,
+                                 fields)
+
+  def calculation_equal(self, expr: expression.Expression) -> bool:
+    return (isinstance(expr, _TransformProtoChildExpression) and
+            self._desc == expr._desc and  # pylint: disable=protected-access
+            self.name_as_field == expr.name_as_field
+            and self.transform_fn == expr.transform_fn)
+
+  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+    return ("_TransformProtoChildExpression: name_as_field: {} desc: {} from {}"
+            .format(
+                str(self.name_as_field), str(self._desc.full_name),
+                self._parent))
 
 
 class _ProtoRootExpression(expression.Expression):
