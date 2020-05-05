@@ -406,7 +406,7 @@ class OriginalExpressionGraph(ExpressionGraph):
     expr_id_to_count = {
         expr_id: len(node.sources) for expr_id, node in self._node.items()
     }
-    for k, v in expr_id_to_count.items():
+    for k, v in sorted(expr_id_to_count.items()):
       if v == 0:
         nodes_to_process.append(self._node[k])
     while nodes_to_process:

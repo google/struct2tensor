@@ -33,7 +33,7 @@ from struct2tensor import prensor
 from struct2tensor.expression_impl import parse_message_level_ex
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import Callable, FrozenSet, Mapping, Optional, Sequence, Set, Text, Tuple, Union
+from typing import cast, Callable, FrozenSet, Mapping, Optional, Sequence, Set, Text, Tuple, Union
 
 
 from google.protobuf.descriptor_pb2 import FileDescriptorSet
@@ -376,8 +376,12 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
     return _ProtoChildNodeTensor(parsed_field.index, self.is_repeated, fields)
 
   def calculation_equal(self, expr: expression.Expression) -> bool:
-    return (isinstance(expr, _ProtoChildExpression) and
-            self._desc == expr._desc and  # pylint: disable=protected-access
+    # Ensure that we're dealing with the _ProtoChildExpression and not any
+    # of its subclasses.
+    if type(expr) != _ProtoChildExpression:  # pylint: disable=unidiomatic-typecheck
+      return False
+    expr = cast(_ProtoChildExpression, expr)  # Keep pytype happy.
+    return (self._desc == expr._desc and  # pylint: disable=protected-access
             self.name_as_field == expr.name_as_field)
 
   def _get_child_impl(self,
@@ -421,7 +425,7 @@ class _TransformProtoChildExpression(_ProtoChildExpression):
     return (isinstance(expr, _TransformProtoChildExpression) and
             self._desc == expr._desc and  # pylint: disable=protected-access
             self.name_as_field == expr.name_as_field
-            and self.transform_fn == expr.transform_fn)
+            and self.transform_fn is expr.transform_fn)
 
   def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
     return ("_TransformProtoChildExpression: name_as_field: {} desc: {} from {}"
