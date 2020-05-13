@@ -64,7 +64,7 @@ s2t_pytype_library(
         ":path",
         "//struct2tensor/ops:struct2tensor_ops",
         "//struct2tensor/proto:query_metadata_py_pb2",
-        "@protobuf_archive//:protobuf_python",
+        "@com_google_protobuf//:protobuf_python",
     ],
 )
 
@@ -110,7 +110,7 @@ s2t_pytype_library(
         ":path",
         ":prensor",
         "//struct2tensor/ops:struct2tensor_ops",
-        "@protobuf_archive//:protobuf_python",
+        "@com_google_protobuf//:protobuf_python",
     ],
 )
 
@@ -168,6 +168,6 @@ s2t_pytype_library(
     deps = [
         ":expression",
         "//struct2tensor/test:test_py_pb2",
-        "@protobuf_archive//:protobuf_python",
+        "@com_google_protobuf//:protobuf_python",
     ],
 )

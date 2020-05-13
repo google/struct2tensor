@@ -32,4 +32,5 @@ def struct2tensor_workspace():
         name = "com_github_tensorflow_metadata",
         commit = "8452a799153412972a4fbf00b9a019db23ef60f9",
         remote = "https://github.com/tensorflow/metadata.git",
+        shallow_since = "1550110183 -0800",
     )

@@ -58,7 +58,7 @@ s2t_pytype_library(
         ":gen_equi_join_indices_py",
         ":gen_run_length_before_py",
         "//struct2tensor:path",
-        "@protobuf_archive//:protobuf_python",
+        "@com_google_protobuf//:protobuf_python",
     ],
 )
 
@@ -67,7 +67,7 @@ s2t_pytype_library(
     srcs = ["file_descriptor_set.py"],
     deps = [
         "//struct2tensor:path",
-        "@protobuf_archive//:protobuf_python",
+        "@com_google_protobuf//:protobuf_python",
     ],
 )
 

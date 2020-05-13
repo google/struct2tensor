@@ -58,7 +58,7 @@ http_archive(
 
 # LINT.IfChange(snappy_archive_version)
 http_archive(
-    name = "snappy",
+    name = "s2t_snappy",
     build_file = "//third_party:snappy.BUILD",
     sha256 = "16b677f07832a612b0836178db7f374e414f94657c138e6993cbfc5dcc58651f",
     strip_prefix = "snappy-1.1.8",
@@ -83,20 +83,8 @@ http_archive(
 # https://github.com/protocolbuffers/protobuf/tree/v3.8.0
 PROTOBUF_COMMIT="09745575a923640154bcf307fba8aedff47f240a"
 
-# Needed by tf_py_wrap_cc rule from Tensorflow.
-# When upgrading tensorflow version, also check tensorflow/WORKSPACE for the
-# version of this -- keep in sync.
-# NOTE: tensorflow-serving uses:
-# = "2c62d8cd4ab1e65c08647eb4afe38f51591f43f7f0885e7769832fa137633dcb",
-
-git_repository(
-    name = "com_google_protobuf",
-    commit = PROTOBUF_COMMIT,
-    remote = "https://github.com/google/protobuf.git",
-    shallow_since = "1558721209 -0700",
-)
-
-
+# This is needed by the version of tensorflow metadata we depend on.
+# TODO(andylou): remove this once com_github_tensorflow_metadata is updated.
 git_repository(
     name = "protobuf_archive",
     commit = PROTOBUF_COMMIT,
@@ -104,27 +92,13 @@ git_repository(
     shallow_since = "1558721209 -0700",
 )
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
-protobuf_deps()
-
-
-
-# Fetch tf.Metadata repo from GitHub.
-git_repository(
-    name = "com_github_tensorflow_metadata",
-    commit = "8452a799153412972a4fbf00b9a019db23ef60f9",
-    remote = "https://github.com/tensorflow/metadata.git",
-)
-
-
 #####################################################################################
 
-_TENSORFLOW_GIT_COMMIT = "e5bf8de410005de06a7ff5393fafdf832ef1d4ad" # 2.1.0
+_TENSORFLOW_GIT_COMMIT = "2b96f3662bd776e277f86997659e61046b56c315" # 2.2.0
 
 http_archive(
     name = "org_tensorflow",
-    sha256 = "1f4b09e6bff7f847bb1034699076055e50e87534d76008af8295ed71195b2b36",
+    sha256 = "b3d7829fac84e3a26264d84057367730b6b85b495a0fce15929568f4b55dc144",
     urls = [
       "https://mirror.bazel.build/github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
       "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
@@ -135,7 +109,6 @@ http_archive(
 # START: Upstream TensorFlow dependencies
 # TensorFlow build depends on these dependencies.
 # Needs to be in-sync with TensorFlow sources.
-
 http_archive(
     name = "io_bazel_rules_closure",
     sha256 = "5b00383d08dd71f28503736db0500b6fb4dda47489ff5fc6bed42557c07c6ba9",
@@ -145,23 +118,17 @@ http_archive(
         "https://github.com/bazelbuild/rules_closure/archive/308b05b2419edb5c8ee0471b67a40403df940149.tar.gz",  # 2019-06-13
     ],
 )
-
-http_archive(
-    name = "bazel_skylib",
-    sha256 = "1dde365491125a3db70731e25658dfdd3bc5dbdfd11b840b3e987ecf043c7ca0",
-    urls = ["https://github.com/bazelbuild/bazel-skylib/releases/download/0.9.0/bazel-skylib.0.9.0.tar.gz"],
-)  # https://github.com/bazelbuild/bazel-skylib/releases
-
 # END: Upstream TensorFlow dependencies
-
 
 # Please add all new TensorFlow struct2tensor dependencies in workspace.bzl.
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
-
 struct2tensor_workspace()
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
 
 # Specify the minimum required bazel version.
 load("@org_tensorflow//tensorflow:version_check.bzl", "check_bazel_version_at_least")
 
-check_bazel_version_at_least("0.24.1")
+check_bazel_version_at_least("2.0.0")
 

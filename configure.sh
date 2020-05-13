@@ -53,10 +53,6 @@ else
   fi
 fi
 
-
-# Remove .bazelrc if it already exist
-rm -f .bazelrc
-
 ensure_tensorflow
 TF_CFLAGS=( $(${PYTHON_BIN_PATH} -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_compile_flags()))') )
 TF_LFLAGS="$(${PYTHON_BIN_PATH} -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_link_flags()))')"

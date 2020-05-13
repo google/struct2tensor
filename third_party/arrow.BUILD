@@ -141,7 +141,7 @@ cc_library(
     deps = [
         ":arrow_format",
         ":xxhash",
-        "@snappy",
+        "@s2t_snappy//:snappy",
         "@struct2tensor//third_party:parquet_types_h",
         "@thrift",
     ],
