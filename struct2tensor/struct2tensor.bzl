@@ -95,6 +95,7 @@ def s2t_dynamic_library(
     native.cc_library(
         name = name,
         srcs = srcs,
+        alwayslink = 1,
         copts = DYNAMIC_COPTS,
         deps = true_deps + DYNAMIC_DEPS,
     )
