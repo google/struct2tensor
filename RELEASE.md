@@ -1,10 +1,12 @@
 # `struct2tensor` release notes
 
-## Current Version(Still in Development)
+## Release 0.22.0
 
 ### Major Features and Improvements
 
 ### Bug Fixes and Other Changes
+
+*   Depends on `tensorflow>=2.2.0,<2.3
 
 ### Breaking Changes
 
