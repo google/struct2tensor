@@ -1070,8 +1070,6 @@ class DecodeProtoSparseOp : public OpKernel {
   TF_DISALLOW_COPY_AND_ASSIGN(DecodeProtoSparseOp);
 };
 
-REGISTER_KERNEL_BUILDER(Name("DecodeProtoSparse").Device(DEVICE_CPU),
-                        DecodeProtoSparseOp);
 REGISTER_KERNEL_BUILDER(Name("DecodeProtoSparseV2").Device(DEVICE_CPU),
                         DecodeProtoSparseOp);
 
