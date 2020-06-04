@@ -216,6 +216,61 @@ def create_big_prensor():
   })
 
 
+def create_deep_prensor_schema():
+  """Create a schema that is aligned with create_deep_prensor."""
+  return text_format.Parse(
+      """
+      int_domain: {
+        name: 'zero_to_ten'
+        min: 0
+        max: 10
+      }
+      string_domain: {
+        name: 'abcde'
+        value: ['a', 'b', 'c', 'd', 'e']
+      }
+      feature: {
+        name: 'foo'
+        value_count: {max: 1}
+        presence: {min_count: 1}
+        int_domain: {min: 0 max: 10}
+      }
+      feature: {
+        name: 'foorepeated'
+        presence: {min_count: 1}
+        domain: 'zero_to_ten'
+      }
+      feature: {
+        name: 'event'
+        struct_domain: {
+          feature: {
+            name: 'doc'
+            struct_domain: {
+              feature: {
+                name: 'bar'
+                domain: 'abcde'
+              }
+              feature: {
+                name: 'keep_me'
+                presence: {min_count: 1}
+              }
+            }
+          }
+        }
+      }
+      feature: {
+        name: 'user'
+        struct_domain: {
+          feature: {
+            name: 'friends'
+            presence: {min_count: 1}
+            domain: 'abcde'
+          }
+        }
+      }
+      """, schema_pb2.Schema())
+
+
 def create_deep_prensor():
   """Creates prensor with three layers: root, event, and doc.
 
@@ -247,4 +302,53 @@ def create_deep_prensor():
           create_child_node([0, 1, 1, 2], True),
       path.Path(["user", "friends"]):
           create_repeated_leaf_node([0, 1, 1, 2, 3], ["a", "b", "c", "d", "e"])
+  })
+
+
+def create_four_layer_prensor():
+  """Creates prensor with four layers: root, event, doc, and nested_child.
+
+  Returns:
+    a prensor expression representing:
+    {
+      event: {
+        doc: {
+          nested_child: {
+            bar:["a"],
+            keep_me:False
+          }
+        }
+      }
+    }
+    {
+      event: {
+        doc: {
+          nested_child: {
+            bar:["b","c"],
+            keep_me:True
+          },
+          nested_child: {
+            bar:["d"]
+          }
+        },
+        doc: {
+          nested_child: {}
+        }
+      }
+    }
+    {event: {}}
+  """
+  return prensor.create_prensor_from_descendant_nodes({
+      path.Path([]):
+          create_root_node(3),
+      path.Path(["event"]):
+          create_child_node([0, 1, 2], True),
+      path.Path(["event", "doc"]):
+          create_child_node([0, 1, 1], True),
+      path.Path(["event", "doc", "nested_child"]):
+          create_child_node([0, 1, 1, 2], True),
+      path.Path(["event", "doc", "nested_child", "bar"]):
+          create_repeated_leaf_node([0, 1, 1, 2], ["a", "b", "c", "d"]),
+      path.Path(["event", "doc", "nested_child", "keep_me"]):
+          create_optional_leaf_node([0, 1], [False, True])
   })

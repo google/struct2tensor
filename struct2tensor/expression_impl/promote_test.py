@@ -249,12 +249,127 @@ class PromoteTest(unittest.TestCase):
     self.assertEqual(leaf_node.values.dtype, tf.string)
     self.assertEqual(new_field.known_field_names(), frozenset())
 
+  def test_promote_substructure(self):
+    """Tests promote.promote(...) of substructure."""
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_deep_prensor())
+    new_root = promote.promote(expr, path.Path(["event", "doc"]), "new_field")
+
+    new_field = new_root.get_child_or_error("new_field")
+    self.assertIsNotNone(new_field)
+    self.assertTrue(new_field.is_repeated)
+    self.assertEqual(new_field.known_field_names(),
+                     frozenset(["bar", "keep_me"]))
+
+    bar_expr = new_field.get_child_or_error("bar")
+    self.assertIsNotNone(bar_expr)
+    self.assertTrue(bar_expr.is_repeated)
+    self.assertEqual(bar_expr.type, tf.string)
+    self.assertTrue(bar_expr.is_leaf)
+
+    keep_me_expr = new_field.get_child_or_error("keep_me")
+    self.assertIsNotNone(keep_me_expr)
+    self.assertFalse(keep_me_expr.is_repeated)
+    self.assertEqual(keep_me_expr.type, tf.bool)
+    self.assertTrue(keep_me_expr.is_leaf)
+
+    child_node = expression_test_util.calculate_value_slowly(new_field)
+    self.assertEqual(child_node.size, 3)
+    self.assertTrue(child_node.is_repeated)
+
+    bar_node = expression_test_util.calculate_value_slowly(bar_expr)
+    self.assertEqual(bar_node.values.dtype, tf.string)
+
+    keep_me_node = expression_test_util.calculate_value_slowly(keep_me_expr)
+    self.assertEqual(keep_me_node.values.dtype, tf.bool)
+
+  def test_promote_substructure_then_leaf(self):
+    """Tests expr.promote(...) of substructure and then a leaf."""
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_deep_prensor())
+    new_root = (expr
+                .promote(path.Path(["event", "doc"]), "new_field")
+                .promote(path.Path(["new_field", "bar"]), "new_bar"))
+
+    new_bar = new_root.get_child_or_error("new_bar")
+    self.assertIsNotNone(new_bar)
+    self.assertTrue(new_bar.is_repeated)
+    self.assertEqual(new_bar.type, tf.string)
+    self.assertTrue(new_bar.is_leaf)
+
+    new_field_bar = new_root.get_descendant_or_error(
+        path.Path(["new_field", "bar"]))
+    self.assertIsNotNone(new_field_bar)
+    self.assertTrue(new_bar.is_repeated)
+    self.assertEqual(new_bar.type, tf.string)
+    self.assertTrue(new_bar.is_leaf)
+
+    new_field_keep_me = new_root.get_descendant_or_error(
+        path.Path(["new_field", "keep_me"]))
+    self.assertIsNotNone(new_field_keep_me)
+    self.assertFalse(new_field_keep_me.is_repeated)
+    self.assertEqual(new_field_keep_me.type, tf.bool)
+    self.assertTrue(new_field_keep_me.is_leaf)
+
+    bar_node = expression_test_util.calculate_value_slowly(new_bar)
+    self.assertEqual(bar_node.values.dtype, tf.string)
+
+    new_field_bar_node = expression_test_util.calculate_value_slowly(
+        new_field_bar)
+    self.assertEqual(new_field_bar_node.values.dtype, tf.string)
+
+    new_field_keep_me_node = expression_test_util.calculate_value_slowly(
+        new_field_keep_me)
+    self.assertEqual(new_field_keep_me_node.values.dtype, tf.bool)
+
+  def test_promote_leaf_then_substructure(self):
+    """Tests expr.promote(...) of leaf and then a substructure."""
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_four_layer_prensor())
+    new_root = (
+        expr
+        .promote(path.Path(["event", "doc", "nested_child", "bar"]), "new_bar")
+        .promote(path.Path(["event", "doc"]), "new_doc"))
+
+    new_doc = new_root.get_child_or_error("new_doc")
+    self.assertIsNotNone(new_doc)
+    self.assertTrue(new_doc.is_repeated)
+    self.assertEqual(new_doc.known_field_names(),
+                     frozenset(["nested_child", "new_bar"]))
+
+    new_bar_expr = new_doc.get_child_or_error("new_bar")
+    self.assertIsNotNone(new_bar_expr)
+    self.assertTrue(new_bar_expr.is_repeated)
+    self.assertEqual(new_bar_expr.type, tf.string)
+    self.assertTrue(new_bar_expr.is_leaf)
+
+    nested_child_expr = new_doc.get_child_or_error("nested_child")
+    self.assertIsNotNone(nested_child_expr)
+    self.assertTrue(nested_child_expr.is_repeated)
+    self.assertEqual(nested_child_expr.known_field_names(),
+                     frozenset(["bar", "keep_me"]))
+
+    bar_expr = nested_child_expr.get_child_or_error("bar")
+    self.assertIsNotNone(bar_expr)
+    self.assertTrue(bar_expr.is_repeated)
+    self.assertEqual(bar_expr.type, tf.string)
+    self.assertTrue(bar_expr.is_leaf)
+
+    keep_me_expr = nested_child_expr.get_child_or_error("keep_me")
+    self.assertIsNotNone(keep_me_expr)
+    self.assertFalse(keep_me_expr.is_repeated)
+    self.assertEqual(keep_me_expr.type, tf.bool)
+    self.assertTrue(keep_me_expr.is_leaf)
+
+    bar_node = expression_test_util.calculate_value_slowly(new_bar_expr)
+    self.assertEqual(bar_node.values.dtype, tf.string)
+
 
 @test_util.run_all_in_graph_and_eager_modes
 class PromoteValuesTest(tf.test.TestCase):
 
   def test_promote_and_calculate(self):
-    """Tests get_sparse_tensors on a deep tree."""
+    """Tests promoting a leaf on a nested tree."""
     expr = create_expression.create_expression_from_prensor(
         prensor_test_util.create_nested_prensor())
     new_root, new_path = promote.promote_anonymous(
@@ -263,6 +378,144 @@ class PromoteValuesTest(tf.test.TestCase):
     leaf_node = expression_test_util.calculate_value_slowly(new_field)
     self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 1, 2])
     self.assertAllEqual(leaf_node.values, [b"a", b"b", b"c", b"d", b"e"])
+
+  def test_promote_and_calculate_substructure(self):
+    """Tests promoting substructure on a tree with depth of 4."""
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_four_layer_prensor())
+    new_root, new_path = promote.promote_anonymous(
+        expr, path.Path(["event", "doc", "nested_child"]))
+    new_nested_child = new_root.get_descendant_or_error(new_path)
+    bar_expr = new_root.get_descendant_or_error(new_path.get_child("bar"))
+    keep_me_expr = new_root.get_descendant_or_error(
+        new_path.get_child("keep_me"))
+
+    # the promoted nested_child's parent index is changed.
+    nested_child_node = expression_test_util.calculate_value_slowly(
+        new_nested_child)
+    self.assertAllEqual(nested_child_node.parent_index, [0, 1, 1, 1])
+    self.assertTrue(nested_child_node.is_repeated)
+
+    # bar's parent index should be unchanged.
+    bar_node = expression_test_util.calculate_value_slowly(bar_expr)
+    self.assertAllEqual(bar_node.parent_index, [0, 1, 1, 2])
+    self.assertAllEqual(bar_node.values, [b"a", b"b", b"c", b"d"])
+    self.assertTrue(bar_node.is_repeated)
+
+    # keep_me's parent index should be unchanged.
+    keep_me_node = expression_test_util.calculate_value_slowly(keep_me_expr)
+    self.assertAllEqual(keep_me_node.parent_index, [0, 1])
+    self.assertAllEqual(keep_me_node.values, [False, True])
+    self.assertFalse(keep_me_node.is_repeated)
+
+  def test_promote_and_calculate_substructure_then_leaf(self):
+    """Tests promoting of substructure and then a leaf."""
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_four_layer_prensor())
+    new_root, new_nested_child_path = promote.promote_anonymous(
+        expr, path.Path(["event", "doc", "nested_child"]))
+    new_root, new_bar_path = promote.promote_anonymous(
+        new_root, new_nested_child_path.get_child("bar"))
+
+    # the promoted nested_child's parent index is changed.
+    new_nested_child = new_root.get_descendant_or_error(new_nested_child_path)
+    nested_child_node = expression_test_util.calculate_value_slowly(
+        new_nested_child)
+    self.assertAllEqual(nested_child_node.parent_index, [0, 1, 1, 1])
+    self.assertTrue(nested_child_node.is_repeated)
+
+    # promoted bar's parent index is changed.
+    new_bar = new_root.get_descendant_or_error(new_bar_path)
+    bar_node = expression_test_util.calculate_value_slowly(new_bar)
+    self.assertAllEqual(bar_node.parent_index, [0, 1, 1, 1])
+    self.assertAllEqual(bar_node.values, [b"a", b"b", b"c", b"d"])
+    self.assertTrue(bar_node.is_repeated)
+
+    # bar's parent index should be unchanged.
+    nested_child_bar = new_root.get_descendant_or_error(
+        new_nested_child_path.get_child("bar"))
+    nested_child_bar_node = expression_test_util.calculate_value_slowly(
+        nested_child_bar)
+    self.assertAllEqual(nested_child_bar_node.parent_index, [0, 1, 1, 2])
+    self.assertAllEqual(nested_child_bar_node.values, [b"a", b"b", b"c", b"d"])
+    self.assertTrue(nested_child_bar_node.is_repeated)
+
+    # keep_me's parent index should be unchanged.
+    nested_child_keep_me = new_root.get_descendant_or_error(
+        new_nested_child_path.get_child("keep_me"))
+    nested_child_keep_me_node = expression_test_util.calculate_value_slowly(
+        nested_child_keep_me)
+    self.assertAllEqual(nested_child_keep_me_node.parent_index, [0, 1])
+    self.assertAllEqual(nested_child_keep_me_node.values, [False, True])
+    self.assertFalse(nested_child_keep_me_node.is_repeated)
+
+  def test_promote_and_calculate_leaf_then_substructure(self):
+    """Tests promoting of leaf and then a substructure."""
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_four_layer_prensor())
+    new_root, new_bar_path = promote.promote_anonymous(
+        expr, path.Path(["event", "doc", "nested_child", "bar"]))
+    new_root, new_path = promote.promote_anonymous(new_root,
+                                                   path.Path(["event", "doc"]))
+
+    new_doc = new_root.get_descendant_or_error(new_path)
+    new_bar = new_root.get_descendant_or_error(
+        new_path.concat(new_bar_path.suffix(2)))
+    bar_expr = new_root.get_descendant_or_error(
+        new_path.concat(path.Path(["nested_child", "bar"])))
+    keep_me_expr = new_root.get_descendant_or_error(
+        new_path.concat(path.Path(["nested_child", "keep_me"])))
+
+    new_doc_node = expression_test_util.calculate_value_slowly(new_doc)
+    self.assertAllEqual(new_doc_node.parent_index, [0, 1, 1])
+    self.assertTrue(new_doc_node.is_repeated)
+
+    # new_bar's parent index is changed (from the first promote).
+    # The second promote should not change new_bar's parent index.
+    new_bar_node = expression_test_util.calculate_value_slowly(new_bar)
+    self.assertAllEqual(new_bar_node.parent_index, [0, 1, 1, 1])
+    self.assertAllEqual(new_bar_node.values, [b"a", b"b", b"c", b"d"])
+    self.assertTrue(new_bar_node.is_repeated)
+
+    # bar's parent index should be unchanged.
+    bar_node = expression_test_util.calculate_value_slowly(bar_expr)
+    self.assertAllEqual(bar_node.parent_index, [0, 1, 1, 2])
+    self.assertAllEqual(bar_node.values, [b"a", b"b", b"c", b"d"])
+    self.assertTrue(bar_node.is_repeated)
+
+    # keep_me's parent index should be unchanged.
+    keep_me_node = expression_test_util.calculate_value_slowly(keep_me_expr)
+    self.assertAllEqual(keep_me_node.parent_index, [0, 1])
+    self.assertAllEqual(keep_me_node.values, [False, True])
+    self.assertFalse(keep_me_node.is_repeated)
+
+  def test_promote_substructure_with_schema(self):
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_deep_prensor()).apply_schema(
+            prensor_test_util.create_deep_prensor_schema())
+
+    original_schema = expr.get_descendant_or_error(path.Path(["event", "doc"
+                                                             ])).schema_feature
+
+    new_root, new_field_path = promote.promote_anonymous(
+        expr, path.Path(["event", "doc"]))
+    new_field = new_root.get_descendant_or_error(new_field_path)
+    new_schema_feature = new_field.schema_feature
+    self.assertIsNotNone(new_schema_feature)
+
+    # The struct_domain of this feature should not be changed.
+    self.assertProtoEquals(new_schema_feature.struct_domain,
+                           original_schema.struct_domain)
+
+    bar_schema = new_root.get_descendant_or_error(
+        new_field_path.concat(path.Path(["bar"]))).schema_feature
+    self.assertIsNotNone(bar_schema)
+    self.assertEqual(bar_schema.string_domain.value[0], "a")
+
+    keep_me_schema = new_root.get_descendant_or_error(
+        new_field_path.concat(path.Path(["keep_me"]))).schema_feature
+    self.assertIsNotNone(keep_me_schema)
+    self.assertEqual(keep_me_schema.presence.min_count, 1)
 
 
 if __name__ == "__main__":

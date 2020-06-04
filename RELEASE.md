@@ -4,6 +4,8 @@
 
 ### Major Features and Improvements
 
+*   Add promote for substructures.
+
 ### Bug Fixes and Other Changes
 
 ### Breaking Changes

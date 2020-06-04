@@ -86,8 +86,6 @@ session: {
   nval: 1
 }
 
-
-TODO(martinz): promote structures in addition to leaves.
 """
 
 from __future__ import absolute_import
@@ -95,13 +93,13 @@ from __future__ import division
 
 from __future__ import print_function
 
+from typing import FrozenSet, Optional, Sequence, Tuple
 from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import Optional, Sequence, Tuple
 
 from tensorflow_metadata.proto.v0 import schema_pb2
 
@@ -138,8 +136,7 @@ class PromoteExpression(expression.Leaf):
       raise ValueError("origin_value must be a leaf")
     if not isinstance(origin_parent_value, prensor.ChildNodeTensor):
       raise ValueError("origin_parent_value must be a child node")
-    parent_to_grandparent_index = origin_parent_value.parent_index
-    new_parent_index = tf.gather(parent_to_grandparent_index,
+    new_parent_index = tf.gather(origin_parent_value.parent_index,
                                  origin_value.parent_index)
     return prensor.LeafNodeTensor(new_parent_index, origin_value.values,
                                   self.is_repeated)
@@ -151,6 +148,54 @@ class PromoteExpression(expression.Leaf):
     return isinstance(expr, PromoteExpression)
 
 
+class PromoteChildExpression(expression.Expression):
+  """The root of the promoted sub tree."""
+
+  def __init__(self, origin: expression.Expression,
+               origin_parent: expression.Expression):
+
+    super(PromoteChildExpression, self).__init__(
+        origin.is_repeated or origin_parent.is_repeated,
+        origin.type,
+        schema_feature=_get_promote_schema_feature(
+            origin.schema_feature, origin_parent.schema_feature))
+    self._origin = origin
+    self._origin_parent = origin_parent
+    if self._origin_parent.type is not None:
+      raise ValueError("origin_parent cannot be a field")
+
+  def get_source_expressions(self) -> Sequence[expression.Expression]:
+    return [self._origin, self._origin_parent]
+
+  def calculate(
+      self,
+      sources: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
+    [origin_value, origin_parent_value] = sources
+    if not isinstance(origin_value, prensor.ChildNodeTensor):
+      raise ValueError("origin_value must be a child")
+    if not isinstance(origin_parent_value, prensor.ChildNodeTensor):
+      raise ValueError("origin_parent_value must be a child node")
+    new_parent_index = tf.gather(origin_parent_value.parent_index,
+                                 origin_value.parent_index)
+    return prensor.ChildNodeTensor(new_parent_index, self.is_repeated)
+
+  def calculation_is_identity(self) -> bool:
+    return False
+
+  def calculation_equal(self, expr: expression.Expression) -> bool:
+    return isinstance(expr, PromoteChildExpression)
+
+  def _get_child_impl(self,
+                      field_name: path.Step) -> Optional[expression.Expression]:
+    return self._origin.get_child(field_name)
+
+  def known_field_names(self) -> FrozenSet[path.Step]:
+    return self._origin.known_field_names()
+
+
 def _lifecycle_stage_number(a) -> int:
   """Return a number indicating the quality of the lifecycle stage.
 
@@ -159,7 +204,9 @@ def _lifecycle_stage_number(a) -> int:
 
   Args:
     a: an Optional[LifecycleStage]
-  Returns: an integer
+
+  Returns:
+    An integer that corresponds to the lifecycle stage of 'a'.
   """
   stages = [
       schema_pb2.LifecycleStage.DEPRECATED, schema_pb2.LifecycleStage.PLANNED,
@@ -260,17 +307,34 @@ def _get_promote_schema_feature(original: Optional[schema_pb2.Feature],
 def _promote_impl(root: expression.Expression, p: path.Path,
                   new_field_name: path.Step
                  ) -> Tuple[expression.Expression, path.Path]:
+  """Promotes a path to be a child of its grandparent, and gives it a name.
+
+  Args:
+    root: The root expression.
+    p: The path to promote. This can be the path to a leaf or child node.
+    new_field_name: The name of the promoted field.
+
+  Returns:
+    An _AddPathsExpression that wraps a PromoteExpression.
+  """
   if len(p) < 2:
     raise ValueError("Cannot do a promotion beyond the root: {}".format(str(p)))
   parent_path = p.get_parent()
   grandparent_path = parent_path.get_parent()
+
+  p_expression = root.get_descendant_or_error(p)
   new_path = grandparent_path.get_child(new_field_name)
+
+  if p_expression.is_leaf:
+    promote_expression_factory = PromoteExpression
+  else:
+    promote_expression_factory = PromoteChildExpression
+
   return expression_add.add_paths(
       root, {
           new_path:
-              PromoteExpression(
-                  root.get_descendant_or_error(p),
-                  root.get_descendant_or_error(parent_path))
+              promote_expression_factory(
+                  p_expression, root.get_descendant_or_error(parent_path))
       }), new_path
 
 
