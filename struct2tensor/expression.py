@@ -56,11 +56,11 @@ CoercableToPath = path.CoercableToPath
 promote = LazyLoader("promote", globals(),
                      "struct2tensor.expression_impl.promote")
 
-broadcast_module = LazyLoader("broadcast", globals(),
-                              "struct2tensor.expression_impl.broadcast")
+broadcast = LazyLoader("broadcast", globals(),
+                       "struct2tensor.expression_impl.broadcast")
 
 promote_and_broadcast = LazyLoader(
-    "broadcast", globals(), "struct2tensor.expression_impl"
+    "promote_and_broadcast", globals(), "struct2tensor.expression_impl"
     ".promote_and_broadcast")
 
 map_values = LazyLoader("map_values", globals(),
@@ -434,8 +434,8 @@ class Expression(object):  # pytype: disable=ignored-metaclass
   def broadcast(self, source_path: CoercableToPath, sibling_field: path.Step,
                 new_field_name: path.Step) -> "Expression":
     """Broadcasts the existing field at source_path to the sibling_field."""
-    return broadcast_module.broadcast(self, path.create_path(source_path),
-                                      sibling_field, new_field_name)
+    return broadcast.broadcast(self, path.create_path(source_path),
+                               sibling_field, new_field_name)
 
   def project(self, path_list: Sequence[CoercableToPath]) -> "Expression":
     """Constrains the paths to those listed."""
