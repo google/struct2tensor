@@ -15,9 +15,9 @@
 # Prensors provide a way to parse protocol buffers and other structured data in tensorflow
 # simply and efficiently.
 
-package(default_visibility = ["@//:__subpackages__"])
-
 load("//struct2tensor:struct2tensor.bzl", "s2t_pytype_library")
+
+package(default_visibility = ["@//:__subpackages__"])
 
 licenses(["notice"])
 
@@ -27,6 +27,21 @@ exports_files([
     "expression_impl/__init__.py",
     "version.py",
 ])
+
+s2t_pytype_library(
+    name = "struct2tensor",
+    srcs = [
+        "__init__.py",
+    ],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":calculate_options",
+        ":expression",
+        ":parquet",
+        ":path",
+        ":prensor",
+    ],
+)
 
 # Contains both op registrations and kernels. Programs that need to run a Prensor
 # graph (e.g. servo) should depend on this target.
