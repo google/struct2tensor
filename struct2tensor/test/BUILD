@@ -31,7 +31,6 @@ s2t_proto_library_py(
     srcs = ["test.proto"],
     api_version = 2,
     proto_library = "test_proto",
-    deps = [],
 )
 
 s2t_proto_library(
@@ -51,14 +50,12 @@ s2t_proto_library_py(
     srcs = ["test_any.proto"],
     api_version = 2,
     proto_library = "test_any_proto",
-    deps = [],
 )
 
 s2t_proto_library(
     name = "test_map_proto",
     srcs = ["test_map.proto"],
     cc_api_version = 2,
-    deps = [],
 )
 
 s2t_proto_library_cc(
@@ -70,7 +67,6 @@ s2t_proto_library_py(
     name = "test_map_py_pb2",
     srcs = ["test_map.proto"],
     proto_library = "test_map_proto",
-    deps = [],
 )
 
 s2t_proto_library(
