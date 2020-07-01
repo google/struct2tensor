@@ -131,6 +131,7 @@ class ExpressionTest(absltest.TestCase):
     self.assertEqual(feature_map["foo"].int_domain.max, 10)
     self.assertIn("foorepeated", feature_map)
 
+    self.assertEqual(feature_map["doc"].type, schema_pb2.FeatureType.STRUCT)
     doc_feature_map = _features_as_map(feature_map["doc"].struct_domain.feature)
     # Test that second level features are correctly handled.
     self.assertIn("bar", doc_feature_map)

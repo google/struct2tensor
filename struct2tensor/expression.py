@@ -546,6 +546,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
       else:
         new_feature.CopyFrom(child.schema_feature)
       if child.get_known_children():
+        new_feature.type = schema_pb2.FeatureType.STRUCT
         child._populate_schema_feature_children(  # pylint:disable=protected-access
             new_feature.struct_domain.feature)
       new_feature.name = name
