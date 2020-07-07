@@ -3,9 +3,8 @@
 [![Python](https://img.shields.io/pypi/pyversions/struct2tensor.svg?style=plastic)](https://github.com/google/struct2tensor)
 [![PyPI](https://badge.fury.io/py/struct2tensor.svg)](https://badge.fury.io/py/struct2tensor)
 
-
 <!--*
-freshness: { owner: 'martinz' reviewed: '2019-10-28' }
+freshness: { owner: 'zhuo' reviewed: '2020-07-07' }
 *-->
 
 ## Introduction
@@ -41,7 +40,7 @@ pip install struct2tensor
 ## Creating a PIP package.
 
 The struct2tensor PIP package is useful for creating models.
-It works with either tensorflow 2.0 or tensorflow 1.15.0.
+It works with tensorflow 2.x.
 
 In order to unify the process, we recommend compiling struct2tensor inside
 a docker container.
@@ -65,7 +64,7 @@ Use it to build a pip wheel for Python 3.6 with tensorflow version 2:
 
 ```bash
 docker-compose build manylinux2010
-docker-compose run -e PYTHON_VERSION=36 -e TF_VERSION=NIGHTLY_TF manylinux2010
+docker-compose run -e PYTHON_VERSION=36 -e TF_VERSION=RELEASED_TF_2 manylinux2010
 ```
 
 Or build a pip wheel for Python 3.7 with tensorflow version 2 (note that if you
@@ -74,7 +73,7 @@ the result from the first):
 
 ```bash
 docker-compose build manylinux2010
-docker-compose run -e PYTHON_VERSION=37 -e TF_VERSION=NIGHTLY_TF manylinux2010
+docker-compose run -e PYTHON_VERSION=37 -e TF_VERSION=RELEASED_TF_2 manylinux2010
 ```
 
 This will create a manylinux package in the ~/struct2tensor/dist directory.
@@ -93,6 +92,9 @@ This can also be linked into another library.
 
 ## Compatibility
 
-| struct2tensor                                                            |tensorflow        |
-|--------------------------------------------------------------------------------------|------------------|
-|0.0.1.dev*       |1.15        |
+struct2tensor                                                          | tensorflow
+---------------------------------------------------------------------- | ----------
+[0.22.0](https://github.com/google/struct2tensor/releases/tag/v0.22.0) | 2.2.0
+[0.21.1](https://github.com/google/struct2tensor/releases/tag/v0.21.1) | 2.1.0
+[0.21.0](https://github.com/google/struct2tensor/releases/tag/v0.21.0) | 2.1.0
+0.0.1.dev*                                                             | 1.15
