@@ -19,7 +19,7 @@ from __future__ import print_function
 
 from struct2tensor.expression_impl import parquet
 import tensorflow as tf
-import unittest
+from absl.testing import absltest
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 
@@ -1027,4 +1027,4 @@ class ParquetDatasetForTestingOpRowGroupTest(ParquetDatasetTestBase):
 
 
 if __name__ == "__main__":
-  unittest.main()
+  absltest.main()

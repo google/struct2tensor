@@ -30,7 +30,7 @@ from struct2tensor.test import expression_test_util
 from struct2tensor.test import prensor_test_util
 import tensorflow as tf
 
-import unittest
+from absl.testing import absltest
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 
@@ -196,4 +196,4 @@ class CalculateTest(tf.test.TestCase):
 
 
 if __name__ == "__main__":
-  unittest.main()
+  absltest.main()

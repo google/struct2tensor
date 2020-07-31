@@ -56,18 +56,6 @@ http_archive(
 )
 # LINT.ThenChange(third_party/thrift.BUILD:thrift_gen_version)
 
-# LINT.IfChange(snappy_archive_version)
-http_archive(
-    name = "s2t_snappy",
-    build_file = "//third_party:snappy.BUILD",
-    sha256 = "16b677f07832a612b0836178db7f374e414f94657c138e6993cbfc5dcc58651f",
-    strip_prefix = "snappy-1.1.8",
-    urls = [
-        "https://github.com/google/snappy/archive/1.1.8.tar.gz",
-    ],
-)
-# LINT.ThenChange(third_party/snappy.BUILD:snappy_gen_version)
-
 # LINT.IfChange(arrow_archive_version)
 http_archive(
     name = "arrow",
@@ -94,11 +82,11 @@ git_repository(
 
 #####################################################################################
 
-_TENSORFLOW_GIT_COMMIT = "2b96f3662bd776e277f86997659e61046b56c315" # 2.2.0
+_TENSORFLOW_GIT_COMMIT = "b36436b087bd8e8701ef51718179037cccdfc26e" # 2.3.0
 
 http_archive(
     name = "org_tensorflow",
-    sha256 = "b3d7829fac84e3a26264d84057367730b6b85b495a0fce15929568f4b55dc144",
+    sha256 = "a474d4328524de1951655cd6afb4888d256c37a0b4a47e6c623b353ab382b39f",
     urls = [
       "https://mirror.bazel.build/github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
       "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,

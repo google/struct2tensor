@@ -82,8 +82,6 @@ cc_library(
             "cpp/src/arrow/csv/*.cc",
             "cpp/src/arrow/io/*.cc",
             "cpp/src/arrow/util/*.cc",
-            "cpp/src/arrow/util/compression_snappy.h",
-            "cpp/src/arrow/util/compression_snappy.cc",
             "cpp/src/arrow/compute/**/*.cc",
             "cpp/src/arrow/compute/**/*.h",
             "cpp/src/arrow/vendored/optional.hpp",
@@ -105,6 +103,7 @@ cc_library(
             "cpp/src/arrow/util/compression_bz2*",
             "cpp/src/arrow/util/compression_lz4*",
             "cpp/src/arrow/util/compression_z*",
+            "cpp/src/arrow/util/compression_snappy*",
             "cpp/src/**/*_benchmark.cc",
             "cpp/src/**/*_main.cc",
             "cpp/src/**/*_test.cc",
@@ -126,11 +125,6 @@ cc_library(
         "cpp/src/arrow/util/config.h",
         "cpp/src/parquet/parquet_version.h",
     ],
-    defines = [
-        # LINT.IfChange
-        "ARROW_WITH_SNAPPY",
-        # LINT.ThenChange(../WORKSPACE:snappy_archive_version)
-    ],
     includes = [
         "cpp/src",
         "cpp/src/arrow/vendored/xxhash",
@@ -141,7 +135,6 @@ cc_library(
     deps = [
         ":arrow_format",
         ":xxhash",
-        "@s2t_snappy//:snappy",
         "@struct2tensor//third_party:parquet_types_h",
         "@thrift",
     ],

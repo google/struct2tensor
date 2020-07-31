@@ -24,7 +24,7 @@ from struct2tensor import path
 from struct2tensor import structured_tensor_to_prensor
 import tensorflow.compat.v2 as tf
 
-import unittest  # pylint: disable=g-direct-tensorflow-import
+from absl.testing import absltest  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.ops.ragged.row_partition import RowPartition  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
@@ -584,4 +584,4 @@ class StructuredTensorExpandDims(test_util.TensorFlowTestCase,
 
 
 if __name__ == "__main__":
-  unittest.main()
+  absltest.main()

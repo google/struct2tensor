@@ -62,7 +62,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'protobuf>=3.8.0,<4',
-        'tensorflow>=2.2.0,<2.3',
+        'tensorflow>=2.3.0,<2.4',
         'tensorflow_metadata>=0.21,<0.22',
         'pyarrow>=0.15,<1',
     ],

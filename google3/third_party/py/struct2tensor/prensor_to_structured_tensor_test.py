@@ -24,7 +24,7 @@ from struct2tensor.test import prensor_test_util
 
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
-from tensorflow.python.platform import unittest  # pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.platform import absltest  # pylint: disable=g-direct-tensorflow-import
 
 
 def _make_structured_tensor(shape, fields):
@@ -105,4 +105,4 @@ class PrensorToStructuredTensorTest(test_util.TensorFlowTestCase):
 
 
 if __name__ == "__main__":
-  unittest.main()
+  absltest.main()

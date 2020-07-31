@@ -1,8 +1,4 @@
 load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_binary", "s2t_dynamic_library", "s2t_gen_op_wrapper_py", "s2t_pytype_library")
-load(
-    "@org_tensorflow//tensorflow:tensorflow.bzl",
-    "tf_gen_op_wrapper_cc",
-)
 
 # TODO(martinz): Add back integration_with_servo_test.
 
@@ -218,6 +214,7 @@ cc_library(
 cc_test(
     name = "op_kernel_registration_test",
     srcs = ["op_kernel_registration_test.cc"],
+    linkstatic = 1,
     deps = [
         ":parquet_dataset_op",  # build_cleaner: keep
         ":struct2tensor_op_registrations",  # build_cleaner: keep

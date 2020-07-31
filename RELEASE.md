@@ -8,6 +8,9 @@
 
 ### Bug Fixes and Other Changes
 
+*   Depends on `tensorflow>=2.3.0,<2.4
+*   Drop snappy support for parquet dataset.
+
 ### Breaking Changes
 
 ### Deprecations

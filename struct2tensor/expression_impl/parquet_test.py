@@ -24,7 +24,7 @@ from struct2tensor.expression_impl import parquet
 from struct2tensor.expression_impl import project
 from struct2tensor.expression_impl import promote
 import tensorflow.compat.v2 as tf
-import unittest
+from absl.testing import absltest
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 tf.enable_v2_behavior()
@@ -189,4 +189,4 @@ class ParquetDatasetWithExpressionTest(ParquetDatasetTestBase):
 
 
 if __name__ == "__main__":
-  unittest.main()
+  absltest.main()
