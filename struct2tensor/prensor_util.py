@@ -223,12 +223,15 @@ def get_sparse_tensor(t: prensor.Prensor, p: path.Path) -> tf.SparseTensor:
   return _get_sparse_tensor_from_leaf_node_path(leaf_node_path)
 
 
-def get_sparse_tensors(t: prensor.Prensor, options: calculate_options.Options
-                      ) -> Mapping[path.Path, tf.SparseTensor]:
+def get_sparse_tensors(
+    t: prensor.Prensor,
+    options: calculate_options.Options = calculate_options.get_default_options(
+    )
+) -> Mapping[path.Path, tf.SparseTensor]:
   """Gets sparse tensors for all the leaves of the prensor expression.
 
   Args:
-    t: The expression to extract tensors from.
+    t: The Prensor to extract tensors from.
     options: Currently unused.
 
   Returns:
@@ -251,17 +254,14 @@ def from_value_rowids_bridge(values,
                              validate=True):
   """validate option is only available internally for tf 0.13.1."""
   return tf.RaggedTensor.from_value_rowids(
-      values,
-      value_rowids=value_rowids,
-      nrows=nrows
-      ,
-      validate=validate
-  )
+      values, value_rowids=value_rowids, nrows=nrows, validate=validate)
 
 
-def _get_ragged_tensor_from_leaf_node_path(nodes: _LeafNodePath,
-                                           options: calculate_options.Options
-                                          ) -> tf.RaggedTensor:
+def _get_ragged_tensor_from_leaf_node_path(
+    nodes: _LeafNodePath,
+    options: calculate_options.Options = calculate_options.get_default_options(
+    )
+) -> tf.RaggedTensor:
   """Gets a ragged tensor from a leaf node path."""
   if not nodes.middle:
     return from_value_rowids_bridge(
@@ -279,8 +279,12 @@ def _get_ragged_tensor_from_leaf_node_path(nodes: _LeafNodePath,
       validate=options.ragged_checks)
 
 
-def get_ragged_tensor(t: prensor.Prensor, p: path.Path,
-                      options: calculate_options.Options) -> tf.RaggedTensor:
+def get_ragged_tensor(
+    t: prensor.Prensor,
+    p: path.Path,
+    options: calculate_options.Options = calculate_options.get_default_options(
+    )
+) -> tf.RaggedTensor:
   """Get a ragged tensor for a path.
 
   All steps are represented in the ragged tensor.
@@ -298,12 +302,15 @@ def get_ragged_tensor(t: prensor.Prensor, p: path.Path,
   return _get_ragged_tensor_from_leaf_node_path(leaf_node_path, options)
 
 
-def get_ragged_tensors(t: prensor.Prensor, options: calculate_options.Options
-                      ) -> Mapping[path.Path, tf.RaggedTensor]:
+def get_ragged_tensors(
+    t: prensor.Prensor,
+    options: calculate_options.Options = calculate_options.get_default_options(
+    )
+) -> Mapping[path.Path, tf.RaggedTensor]:
   """Gets ragged tensors for all the leaves of the prensor expression.
 
   Args:
-    t: The expression to extract tensors from.
+    t: The Prensor to extract tensors from.
     options: used to pass options for calculating ragged tensors.
 
   Returns:
