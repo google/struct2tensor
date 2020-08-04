@@ -10,6 +10,7 @@
 
 *   Depends on `tensorflow>=2.3.0,<2.4
 *   Drop snappy support for parquet dataset.
+*   Drop py2.x support for unit tests.
 
 ### Breaking Changes
 
