@@ -5,6 +5,7 @@
 ### Major Features and Improvements
 
 *   Add promote for substructures.
+*   Add support for converting `StructuredTensor` to prensor.
 
 ### Bug Fixes and Other Changes
 

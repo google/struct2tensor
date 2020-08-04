@@ -186,3 +186,15 @@ s2t_pytype_library(
         "@com_google_protobuf//:protobuf_python",
     ],
 )
+
+s2t_pytype_library(
+    name = "structured_tensor_to_prensor",
+    srcs = [
+        "structured_tensor_to_prensor.py",
+    ],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":path",
+        ":prensor",
+    ],
+)
