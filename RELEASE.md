@@ -1,6 +1,6 @@
 # `struct2tensor` release notes
 
-## Current version (not yet released; still in development)
+## Release 0.23.0
 
 ### Major Features and Improvements
 
@@ -9,13 +9,16 @@
 
 ### Bug Fixes and Other Changes
 
-*   Depends on `tensorflow>=2.3.0,<2.4
-*   Drop snappy support for parquet dataset.
-*   Drop py2.x support for unit tests.
+*   Depends on `tensorflow>=2.3.0,<2.4`
+*   Depends on `tensorflow-metadata>=0.23,<0.24`
 
 ### Breaking Changes
 
+*   Drop snappy support for parquet dataset.
+
 ### Deprecations
+
+*   Deprecating Py2 support.
 
 ## Release 0.22.0
 
