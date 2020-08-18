@@ -24,8 +24,6 @@ from struct2tensor import path
 from struct2tensor import structured_tensor_to_prensor
 import tensorflow.compat.v2 as tf
 
-from absl.testing import absltest  # pylint: disable=g-direct-tensorflow-import
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.ops.ragged.row_partition import RowPartition  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
 
@@ -35,9 +33,7 @@ def _make_structured_tensor(shape, fields):
       fields=fields, shape=shape)
 
 
-# pylint: disable=g-long-lambda
-class StructuredTensorToPrensorTest(test_util.TensorFlowTestCase,
-                                    parameterized.TestCase):
+class StructuredTensorToPrensorTest(tf.test.TestCase, parameterized.TestCase):
 
   @parameterized.named_parameters([
       {
@@ -355,8 +351,7 @@ class StructuredTensorToPrensorTest(test_util.TensorFlowTestCase,
                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
 
 
-class StructuredTensorExpandDims(test_util.TensorFlowTestCase,
-                                 parameterized.TestCase):
+class StructuredTensorExpandDims(tf.test.TestCase, parameterized.TestCase):
 
   @parameterized.named_parameters([
       {
@@ -579,9 +574,9 @@ class StructuredTensorExpandDims(test_util.TensorFlowTestCase,
   ])  # pyformat: disable
   def testRaises(self, shape, fields, axis=0, reg_error=None):
     struct = _make_structured_tensor(shape, fields)
-    with self.assertRaisesRegexp(ValueError, reg_error):
+    with self.assertRaisesRegex(ValueError, reg_error):
       structured_tensor_to_prensor._expand_dims(struct, axis=axis)
 
 
 if __name__ == "__main__":
-  absltest.main()
+  tf.test.main()

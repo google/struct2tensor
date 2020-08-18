@@ -16,6 +16,7 @@
 
 *   Add promote for substructures.
 *   Add support for converting `StructuredTensor` to prensor.
+*   Add support for converting prensor to `StructuredTensor`.
 
 ### Bug Fixes and Other Changes
 

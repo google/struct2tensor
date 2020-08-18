@@ -188,6 +188,18 @@ s2t_pytype_library(
 )
 
 s2t_pytype_library(
+    name = "prensor_to_structured_tensor",
+    srcs = [
+        "prensor_to_structured_tensor.py",
+    ],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":path",
+        ":prensor",
+    ],
+)
+
+s2t_pytype_library(
     name = "structured_tensor_to_prensor",
     srcs = [
         "structured_tensor_to_prensor.py",
