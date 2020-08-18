@@ -37,7 +37,7 @@ function setup_environment() {
   yum -y install rsync
 
   if [[ -z "${PYTHON_VERSION}" ]]; then
-    echo "Must set PYTHON_VERSION env to 35|36|37"; exit 1;
+    echo "Must set PYTHON_VERSION env to 35|36|37|38"; exit 1;
   fi
   # Bazel will use PYTHON_BIN_PATH to determine the right python library.
   if [[ "${PYTHON_VERSION}" == 35 ]]; then
@@ -46,8 +46,10 @@ function setup_environment() {
     PYTHON_DIR=/opt/python/cp36-cp36m
   elif [[ "${PYTHON_VERSION}" == 37 ]]; then
     PYTHON_DIR=/opt/python/cp37-cp37m
+  elif [[ "${PYTHON_VERSION}" == 38 ]]; then
+    PYTHON_DIR=/opt/python/cp38-cp38
   else
-    echo "Must set PYTHON_VERSION env to 35|36|37"; exit 1;
+    echo "Must set PYTHON_VERSION env to 35|36|37|38"; exit 1;
   fi
 
   export PIP_BIN="${PYTHON_DIR}"/bin/pip || exit 1;
