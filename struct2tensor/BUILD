@@ -33,7 +33,7 @@ s2t_pytype_library(
     srcs = [
         "__init__.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         ":calculate_options",
         ":expression",
@@ -60,7 +60,7 @@ s2t_pytype_library(
     srcs = [
         "path.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = ["@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_py_pb2"],
 )
 
@@ -73,7 +73,7 @@ s2t_pytype_library(
         "prensor_util.py",
         "prensor_value.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         ":calculate_options",
         ":path",
@@ -90,7 +90,7 @@ s2t_pytype_library(
     srcs = [
         "calculate_options.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
 )
 
 # Note: do not separate these, as eventually we want to make sure that they
@@ -119,7 +119,7 @@ s2t_pytype_library(
         "expression_impl/size.py",
         "expression_impl/slice_expression.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         ":calculate_options",
         ":path",
@@ -136,7 +136,7 @@ s2t_pytype_library(
     srcs = [
         "expression_impl/map_prensor_to_prensor.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         ":expression",
         ":path",
@@ -149,7 +149,7 @@ s2t_pytype_library(
     srcs = [
         "expression_impl/placeholder.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         ":expression",
         ":map_prensor_to_prensor",
@@ -163,6 +163,7 @@ s2t_pytype_library(
     srcs = [
         "expression_impl/parquet.py",
     ],
+    srcs_version = "PY3ONLY",
     deps = [
         ":expression",
         ":map_prensor_to_prensor",
@@ -179,7 +180,7 @@ s2t_pytype_library(
     srcs = [
         "expression_impl/proto_test_util.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         ":expression",
         "//struct2tensor/test:test_py_pb2",
@@ -192,7 +193,7 @@ s2t_pytype_library(
     srcs = [
         "prensor_to_structured_tensor.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         ":path",
         ":prensor",
@@ -204,7 +205,7 @@ s2t_pytype_library(
     srcs = [
         "structured_tensor_to_prensor.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         ":path",
         ":prensor",

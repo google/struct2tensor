@@ -20,7 +20,7 @@ def s2t_pytype_library(
         name,
         srcs = [],
         deps = [],
-        srcs_version = "PY2AND3",
+        srcs_version = "PY3ONLY",
         testonly = False):
     native.py_library(name = name, srcs = srcs, deps = deps, testonly = testonly)
 
@@ -126,7 +126,7 @@ def s2t_gen_op_wrapper_py(
         data = [
             dynamic_library,
         ],
-        srcs_version = "PY2AND3",
+        srcs_version = "PY3ONLY",
         visibility = visibility,
     )
 
@@ -177,7 +177,7 @@ def s2t_proto_library_py(name, proto_library, srcs = [], deps = [], oss_deps = [
     py_proto_library(
         name = name,
         srcs = srcs,
-        srcs_version = "PY2AND3",
+        srcs_version = "PY3ONLY",
         deps = ["@com_google_protobuf//:protobuf_python"] + oss_deps,
         default_runtime = "@com_google_protobuf//:protobuf_python",
         protoc = "@com_google_protobuf//:protoc",
