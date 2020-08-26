@@ -10,6 +10,8 @@
 
 ## Deprecations
 
+*   Deprecated py3.5 support
+
 ## Release 0.23.0
 
 ### Major Features and Improvements
