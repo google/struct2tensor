@@ -18,7 +18,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import six
 from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.test import prensor_test_util
@@ -45,8 +44,8 @@ class PrensorTest(tf.test.TestCase):
       self.assertEqual(lhs.node.is_repeated, rhs.node.is_repeated)
 
     self.assertEqual(len(lhs.get_children()), len(rhs.get_children()))
-    for (l_child_step, l_child), (r_child_step, r_child) in six.moves.zip(
-        six.iteritems(lhs.get_children()), six.iteritems(rhs.get_children())):
+    for (l_child_step, l_child), (r_child_step, r_child) in zip(
+        lhs.get_children().items(), rhs.get_children().items()):
       self.assertEqual(l_child_step, r_child_step)
       self._assert_prensor_equals(l_child, r_child)
 

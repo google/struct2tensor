@@ -31,11 +31,12 @@ from __future__ import absolute_import
 from __future__ import division
 
 from __future__ import print_function
-import six
+
+from typing import Mapping, Union
+
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import Mapping, Union
 
 from tensorflow.python.ops.ragged.row_partition import RowPartition  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
@@ -91,7 +92,7 @@ def _prensor_to_field_map(
   """Convert a map of prensors to map of structured tensors."""
   return {
       step: _prensor_to_structured_tensor_helper(child, nrows)
-      for step, child in six.iteritems(p_fields)
+      for step, child in p_fields.items()
   }
 
 
