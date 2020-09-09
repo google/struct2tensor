@@ -27,7 +27,6 @@ get_known_descendants() return the "known" children. In general, it is best
 to call project.project() to get the desired fields before calling
 get_known_children().
 
-
 """
 
 from __future__ import absolute_import
