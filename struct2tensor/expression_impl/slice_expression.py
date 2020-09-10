@@ -106,11 +106,7 @@ result_2 = [{
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
+from typing import Callable, Optional, Tuple
 
 from struct2tensor import expression
 from struct2tensor import expression_add
@@ -119,7 +115,6 @@ from struct2tensor.expression_impl import filter_expression
 from struct2tensor.expression_impl import index
 from struct2tensor.expression_impl import map_values
 import tensorflow as tf
-from typing import Callable, Optional, Tuple
 
 IndexValue = expression.IndexValue
 

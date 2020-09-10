@@ -13,10 +13,6 @@
 # limitations under the License.
 """Tests for calculate_with_source_paths."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import absltest
 from struct2tensor import calculate_with_source_paths
 from struct2tensor import path

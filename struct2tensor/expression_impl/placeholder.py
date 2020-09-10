@@ -29,10 +29,8 @@ result = calculate.calculate_values([new_exp],
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+import typing
+from typing import FrozenSet, List, Optional, Sequence, Union
 
 from struct2tensor import calculate
 from struct2tensor import calculate_options
@@ -40,9 +38,6 @@ from struct2tensor import expression
 from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.expression_impl import map_prensor_to_prensor as mpp
-
-import typing
-from typing import FrozenSet, List, Optional, Sequence, Union
 
 
 def create_expression_from_schema(
@@ -94,7 +89,7 @@ class _PlaceholderChildExpression(expression.Expression):
   # pylint: disable=protected-access
   def __init__(self, parent: "_PlaceholderExpression", step: path.Step,
                schema: mpp.Schema):
-    super(_PlaceholderChildExpression, self).__init__(
+    super().__init__(
         schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
     self._parent = parent
     self._step = step
@@ -159,7 +154,7 @@ class _PlaceholderRootExpression(expression.Expression):
     Args:
       schema: the schema that represents what the expression tree looks like.
     """
-    super(_PlaceholderRootExpression, self).__init__(True, None)
+    super().__init__(True, None)
     self._schema = schema
 
   @property
@@ -200,7 +195,7 @@ class _PlaceholderRootExpression(expression.Expression):
     child_schema = self._schema.get_child(field_name)
     return _PlaceholderChildExpression(self, field_name, child_schema)
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return "_PlaceholderRootExpression: {}".format(str(self._schema))
 
   def known_field_names(self) -> FrozenSet[path.Step]:

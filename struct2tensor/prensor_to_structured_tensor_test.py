@@ -14,10 +14,6 @@
 # limitations under the License.
 """Tests for StructuredTensor."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from struct2tensor import prensor
 from struct2tensor import prensor_to_structured_tensor
 from struct2tensor.test import prensor_test_util

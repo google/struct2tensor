@@ -14,10 +14,6 @@
 
 """Tests for struct2tensor.prensor."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.test import prensor_test_util

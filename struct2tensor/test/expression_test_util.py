@@ -16,10 +16,7 @@
 This method is very slow, and should only be used for testing purposes.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import FrozenSet, Mapping, Optional, Sequence
 
 from struct2tensor import calculate
 from struct2tensor import calculate_options
@@ -28,7 +25,6 @@ from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor import prensor_util
 import tensorflow as tf
-from typing import FrozenSet, Optional, Mapping, Sequence, Text
 
 from tensorflow_metadata.proto.v0 import schema_pb2
 
@@ -77,7 +73,7 @@ class MockExpression(expression.Expression):
   def __init__(self,
                is_repeated: bool,
                my_type: Optional[tf.DType],
-               name: Optional[Text] = None,
+               name: Optional[str] = None,
                source_expressions: Optional[Sequence["MockExpression"]] = None,
                calculate_output: Optional[prensor.NodeTensor] = None,
                calculate_is_identity: bool = False,
@@ -98,8 +94,7 @@ class MockExpression(expression.Expression):
       known_field_names: the known children of this expression.
       schema_feature: schema information about the feature.
     """
-    super(MockExpression, self).__init__(
-        is_repeated, my_type, schema_feature=schema_feature)
+    super().__init__(is_repeated, my_type, schema_feature=schema_feature)
     self._name = "Unknown" if name is None else name
     self._source_expressions = []
     if source_expressions is not None:
@@ -152,13 +147,13 @@ class MockExpression(expression.Expression):
   def known_field_names(self) -> FrozenSet[path.Step]:
     return self._known_field_names
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return str(self._name)
 
 
 def get_mock_leaf(is_repeated: bool,
                   my_type: tf.DType,
-                  name: Optional[Text] = None,
+                  name: Optional[str] = None,
                   source_expressions: Optional[Sequence[MockExpression]] = None,
                   calculate_is_identity: bool = False):
   """Gets a leaf expression."""
@@ -182,7 +177,7 @@ def get_mock_broken_leaf(
     declared_type: tf.DType,
     actual_is_repeated: bool,
     actual_type: tf.DType,
-    name: Optional[Text] = None,
+    name: Optional[str] = None,
     source_expressions: Optional[Sequence[MockExpression]] = None,
     calculate_is_identity: bool = False):
   """Gets a leaf expression flexible enough not to typecheck.

@@ -20,16 +20,12 @@
    upon later ones (fails on circular dependencies but that won't happen).
 4. It serializes the file descriptors into a FileDescriptorSet.
 """
+from typing import Sequence, Set
 
-from __future__ import absolute_import
-from __future__ import division
+from struct2tensor import path
 
-from __future__ import print_function
-
-from typing import Set, Sequence
 from google.protobuf import descriptor_pb2
 from google.protobuf import descriptor
-from struct2tensor import path
 
 
 def _are_dependencies_handled(file_descriptor: descriptor.FileDescriptor,

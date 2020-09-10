@@ -65,35 +65,30 @@ my_any_parsed = parse_message_level_ex(
 At this point, my_message_parsed["my_map[x]"].value AND
 my_any_parsed["(foo.bar.Baz)"].value are serialized Baz tensors.
 """
-
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 # pylint: disable=protected-access
 
 import collections
+from typing import List, Mapping, Optional, Sequence, Set
+
 from struct2tensor import path
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import List, Mapping, Optional, Sequence, Set, Text
 
 from google.protobuf import descriptor
 
 # To the best of my knowledge, ProtoFieldNames ARE strings.
-ProtoFieldName = str  # pylint: disable=g-ambiguous-str-annotation
-ProtoFullName = str  # pylint: disable=g-ambiguous-str-annotation
+ProtoFieldName = str
+ProtoFullName = str
 
 # A string representing a step in a path.
-StrStep = str  # pylint: disable=g-ambiguous-str-annotation
+StrStep = str
 
 
 def parse_message_level_ex(
     tensor_of_protos: tf.Tensor,
     desc: descriptor.Descriptor,
     field_names: Set[ProtoFieldName],
-    message_format: Text = "binary"
+    message_format: str = "binary"
 ) -> Mapping[StrStep, struct2tensor_ops._ParsedField]:
   """Parses regular fields, extensions, any casts, and map protos."""
   raw_field_names = _get_field_names_to_parse(desc, field_names)

@@ -21,19 +21,12 @@ add_to: a way to copy fields back to an earlier tree.
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
+from typing import FrozenSet, Mapping, Optional, Sequence, Tuple
 
 from struct2tensor import expression
 from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.calculate_options import Options
-
-
-from typing import FrozenSet, Mapping, Optional, Sequence, Tuple
 
 
 def create_subtrees(
@@ -66,7 +59,7 @@ class _AddPathsExpression(expression.Expression):
   def __init__(
       self, origin: expression.Expression,
       path_map: Mapping[path.Step, Mapping[path.Path, expression.Expression]]):
-    super(_AddPathsExpression, self).__init__(
+    super().__init__(
         origin.is_repeated, origin.type, schema_feature=origin.schema_feature)
     self._origin = origin
     self._path_map = path_map
@@ -107,7 +100,7 @@ class _AddPathsExpression(expression.Expression):
   def known_field_names(self) -> FrozenSet[path.Step]:
     return self._origin.known_field_names().union(self._path_map.keys())
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     keys_to_add = ",".join([str(k) for k in self._path_map.keys()])
     return "_AddPathsExpression({}, [{}])".format(
         str(self._origin), keys_to_add)

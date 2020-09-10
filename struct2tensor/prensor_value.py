@@ -24,21 +24,15 @@ with tf.Session() as sess:
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 import collections
+from typing import FrozenSet, Iterator, Mapping, Optional, Sequence, Union
 
 import numpy as np
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import FrozenSet, Iterator, Optional, Mapping, Sequence, Text, Union
 
-# pylint: disable=g-direct-tensorflow-import
-from tensorflow.python.client import session as session_lib
+from tensorflow.python.client import session as session_lib  # pylint: disable=g-direct-tensorflow-import
 
 
 class RootNodeValue(object):
@@ -106,7 +100,7 @@ class ChildNodeValue(object):
   def is_repeated(self):
     return self._is_repeated
 
-  def schema_string(self) -> Text:
+  def schema_string(self) -> str:
     return "repeated" if self.is_repeated else "optional"
 
   def data_string(self):
@@ -152,7 +146,7 @@ class LeafNodeValue(object):
     return "parent_index: {} values: {}".format(self._parent_index,
                                                 self._values)
 
-  def schema_string(self) -> Text:
+  def schema_string(self) -> str:
     return u"{} {}".format("repeated" if self.is_repeated else "optional",
                            str(self.values.dtype))
 
@@ -236,7 +230,7 @@ class PrensorValue(object):
     """Returns the field names of the children."""
     return frozenset(self._children.keys())
 
-  def _string_helper(self, field_name: str) -> Sequence[str]:  # pylint: disable=g-ambiguous-str-annotation
+  def _string_helper(self, field_name: str) -> Sequence[str]:
     """Helper for __str__ that outputs a list of lines."""
     result = [
         "{} {} {}".format(self.node.schema_string(), str(field_name),
@@ -247,7 +241,7 @@ class PrensorValue(object):
       result.extend(["  {}".format(x) for x in recursive])
     return result
 
-  def _schema_string_helper(self, field_name: str) -> Sequence[Text]:  # pylint: disable=g-ambiguous-str-annotation
+  def _schema_string_helper(self, field_name: str) -> Sequence[str]:
     """Helper for __str__ that outputs a list of lines."""
     result = [u"{} {}".format(self.node.schema_string(), str(field_name))]
     for k, v in self._children.items():

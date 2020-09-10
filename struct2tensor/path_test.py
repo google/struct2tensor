@@ -14,10 +14,6 @@
 """Tests for prensor.path."""
 
 # pylint: disable=protected-access
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import pprint
 
 from absl.testing import absltest

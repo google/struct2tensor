@@ -15,22 +15,15 @@
 
 # pylint: disable=g-ambiguous-str-annotation
 
-from __future__ import absolute_import
-from __future__ import division
+from typing import NamedTuple, Optional, Sequence, Tuple
 
-from __future__ import print_function
-
-import collections
 from struct2tensor import path
 from struct2tensor.ops import file_descriptor_set
 from struct2tensor.ops import gen_decode_proto_map_op
 from struct2tensor.ops import gen_decode_proto_sparse
 from struct2tensor.ops import gen_equi_join_indices
 from struct2tensor.ops import gen_run_length_before
-
 import tensorflow as tf
-
-from typing import Sequence, Text, Tuple
 
 from google.protobuf import descriptor
 
@@ -59,14 +52,16 @@ def _get_dtype_from_cpp_type(cpp_type: int) -> tf.DType:
 #   field_descriptor: descriptor.FieldDescriptor (note: not used in V2).
 #   value: tf.Tensor
 #   index: tf.Tensor
-_ParsedField = collections.namedtuple(
-    "_ParsedField", ["field_name", "field_descriptor", "value", "index"])
+_ParsedField = NamedTuple(
+    "_ParsedField", [("field_name", str),
+                     ("field_descriptor", Optional[descriptor.FieldDescriptor]),
+                     ("value", tf.Tensor), ("index", tf.Tensor)])
 
 
 def parse_full_message_level(
     tensor_of_protos: tf.Tensor,
     descriptor_type: descriptor.Descriptor,
-    message_format: Text = "binary") -> Sequence[_ParsedField]:
+    message_format: str = "binary") -> Sequence[_ParsedField]:
   """Parses all of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -106,7 +101,7 @@ def parse_message_level(
     tensor_of_protos: tf.Tensor,
     descriptor_type: descriptor.Descriptor,
     field_names: Sequence[str],
-    message_format: Text = "binary") -> Sequence[_ParsedField]:
+    message_format: str = "binary") -> Sequence[_ParsedField]:
   """Parses a subset of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the

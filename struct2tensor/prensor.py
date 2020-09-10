@@ -21,11 +21,6 @@ For operations on the expression, see prensor_util.py and create_expression.py.
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 import collections
 import enum
 from typing import FrozenSet, Iterator, List, Mapping, Optional, Sequence, Tuple, Union
@@ -356,7 +351,7 @@ class Prensor(composite_tensor.CompositeTensor):
     """Returns the field names of the children."""
     return frozenset(self._children.keys())
 
-  def _string_helper(self, field_name: path.Step) -> Sequence[str]:  # pylint: disable=g-ambiguous-str-annotation
+  def _string_helper(self, field_name: path.Step) -> Sequence[str]:
     """Helper for __str__ that outputs a list of lines.
 
     Args:
@@ -371,7 +366,7 @@ class Prensor(composite_tensor.CompositeTensor):
       result.extend(["  {}".format(x) for x in recursive])
     return result
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     """Returns a string representing the schema of the Prensor."""
     return "\n".join(self._string_helper("root"))
 

@@ -46,17 +46,13 @@ TODO(martinz): Add utilities to:
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 import abc
+from typing import FrozenSet, Optional, Sequence
+
 from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import path
 from struct2tensor import prensor
-from typing import FrozenSet, Optional, Sequence
 
 from tensorflow_metadata.proto.v0 import schema_pb2
 
@@ -131,10 +127,8 @@ def _apply_feature(original_child: expression.Expression,
                            _clean_feature(feature))
 
 
-class _SchemaExpression(expression.Expression):  # pytype: disable=ignored-metaclass
+class _SchemaExpression(expression.Expression, metaclass=abc.ABCMeta):
   """An expression represents the application of a schema."""
-
-  __metaclass__ = abc.ABCMeta
 
   def __init__(self, original: expression.Expression,
                child_features: Sequence[schema_pb2.Feature],
@@ -146,7 +140,7 @@ class _SchemaExpression(expression.Expression):  # pytype: disable=ignored-metac
       child_features: the uncleaned Feature protos for its children.
       schema_feature: the optional cleaned feature for this node.
     """
-    super(_SchemaExpression, self).__init__(
+    super().__init__(
         original.is_repeated, original.type, schema_feature=schema_feature)
     self._original = original
     self._child_features = child_features

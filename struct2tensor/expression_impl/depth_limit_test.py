@@ -14,10 +14,6 @@
 
 """Tests for struct2tensor.depth_limit."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import absltest
 
 from struct2tensor import create_expression

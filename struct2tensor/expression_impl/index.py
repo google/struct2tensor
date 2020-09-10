@@ -103,10 +103,7 @@ are just references to the parent indices of other fields, and are therefore
 take little memory or CPU.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Optional, Sequence, Tuple
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -116,7 +113,6 @@ from struct2tensor import prensor
 from struct2tensor import prensor_util
 from struct2tensor.expression_impl import size
 import tensorflow as tf
-from typing import Optional, Sequence, Tuple
 
 
 def get_positional_index(expr: expression.Expression, source_path: path.Path,
@@ -184,8 +180,7 @@ class _PositionalIndexExpression(expression.Leaf):
   """
 
   def __init__(self, origin: expression.Expression):
-    super(_PositionalIndexExpression, self).__init__(origin.is_repeated,
-                                                     tf.int64)
+    super().__init__(origin.is_repeated, tf.int64)
     self._origin = origin
 
   def get_source_expressions(self) -> Sequence[expression.Expression]:

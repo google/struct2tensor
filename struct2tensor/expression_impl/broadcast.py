@@ -71,10 +71,7 @@ session: {
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Optional, Sequence, Tuple
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -83,7 +80,6 @@ from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import Optional, Sequence, Tuple
 
 
 class _BroadcastExpression(expression.Leaf):
@@ -93,7 +89,7 @@ class _BroadcastExpression(expression.Leaf):
 
   def __init__(self, origin: expression.Expression,
                sibling: expression.Expression):
-    super(_BroadcastExpression, self).__init__(origin.is_repeated, origin.type)
+    super().__init__(origin.is_repeated, origin.type)
     if origin.type is None:
       raise ValueError("Can only broadcast a field")
     self._origin = origin

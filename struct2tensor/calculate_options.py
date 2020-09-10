@@ -18,11 +18,6 @@ as an argument to calculate, get_sparse_tensor, and get_ragged_tensor.
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 
 class Options(object):
   """Options for calculate functions.

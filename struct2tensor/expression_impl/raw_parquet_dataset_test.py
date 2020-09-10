@@ -13,10 +13,6 @@
 # limitations under the License.
 """Tests for struct2tensor.parquet."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from struct2tensor.expression_impl import parquet
 import tensorflow as tf
 from absl.testing import absltest

@@ -89,10 +89,7 @@ session: {
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Callable, FrozenSet, Optional, Sequence, Tuple
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -102,7 +99,6 @@ from struct2tensor import prensor
 from struct2tensor import prensor_util
 from struct2tensor.expression_impl import project
 import tensorflow as tf
-from typing import Callable, FrozenSet, Optional, Sequence, Tuple
 
 
 def map_sparse_tensor(root: expression.Expression, root_path: path.Path,
@@ -175,7 +171,7 @@ class _MapPrensorExpression(expression.Expression):
                operation: Callable[[prensor.Prensor, calculate_options
                                     .Options], prensor.LeafNodeTensor],
                is_repeated: bool, dtype: tf.DType):
-    super(_MapPrensorExpression, self).__init__(is_repeated, dtype)
+    super().__init__(is_repeated, dtype)
     self._origin = origin
     self._operation = operation
 

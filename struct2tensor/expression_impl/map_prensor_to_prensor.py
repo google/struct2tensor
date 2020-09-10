@@ -60,10 +60,7 @@ foo   bar foo2 bar2
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Any, Callable, Dict, FrozenSet, Optional, Sequence, Union
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -71,7 +68,6 @@ from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import Any, Callable, Dict, FrozenSet, Optional, Sequence, Union
 
 from tensorflow_metadata.proto.v0 import schema_pb2
 
@@ -290,7 +286,7 @@ class _PrensorAsRootNodeTensor(prensor.RootNodeTensor):
   def __init__(self, prensor_tree: prensor.Prensor,
                root: prensor.RootNodeTensor):
     """Call _tree_as_node instead."""
-    super(_PrensorAsRootNodeTensor, self).__init__(root.size)
+    super().__init__(root.size)
     self._prensor = prensor_tree
 
   @property
@@ -304,8 +300,7 @@ class _PrensorAsChildNodeTensor(prensor.ChildNodeTensor):
   def __init__(self, prensor_tree: prensor.Prensor,
                child: prensor.ChildNodeTensor):
     """Call _tree_as_node instead."""
-    super(_PrensorAsChildNodeTensor, self).__init__(child.parent_index,
-                                                    child.is_repeated)
+    super().__init__(child.parent_index, child.is_repeated)
     self._prensor = prensor_tree
 
   @property
@@ -345,7 +340,7 @@ class _PrensorOpChildExpression(expression.Expression):
 
   def __init__(self, parent: expression.Expression, step: path.Step,
                schema: Schema):
-    super(_PrensorOpChildExpression, self).__init__(
+    super().__init__(
         schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
     self._parent = parent
     self._step = step
@@ -421,7 +416,7 @@ class _PrensorOpExpression(expression.Expression):
       schema: the schema of the result. If a path is not in the schema, it is
         not calculated.
     """
-    super(_PrensorOpExpression, self).__init__(
+    super().__init__(
         schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
 
     self._origin = origin

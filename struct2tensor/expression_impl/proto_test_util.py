@@ -13,10 +13,6 @@
 # limitations under the License.
 """Utilities for tests on proto expressions."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import tensorflow as tf
 
 from struct2tensor.test import test_pb2

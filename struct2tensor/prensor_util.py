@@ -18,17 +18,13 @@
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Mapping, Sequence, Tuple, Union
 
 from struct2tensor import calculate_options
 from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import Mapping, Sequence, Tuple, Union
 
 
 def get_positional_index(node: prensor.NodeTensor) -> tf.Tensor:
