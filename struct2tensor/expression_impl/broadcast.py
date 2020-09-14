@@ -19,6 +19,7 @@ promote_and_broadcast), or with an explicitly given name.
 
 Suppose you have an expr representing:
 
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -38,9 +39,17 @@ session: {
   event: {}
   val: 20
 }
+```
 
+Then:
+
+```
 broadcast.broadcast(expr, path.Path(["session","val"]), "event", "nv")
+```
+
 becomes:
+
+```
 +
 |
 +---session*   (stars indicate repeated)
@@ -68,6 +77,7 @@ session: {
   event: {nv: 20}
   val: 20
 }
+```
 
 """
 

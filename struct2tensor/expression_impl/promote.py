@@ -19,7 +19,7 @@ one can perform simpler operations.
 
 For example, suppose an expr represents:
 
-
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -48,8 +48,15 @@ session: {
   }
 }
 
-promote.promote(expr, path.Path(["session", "event", "val"]), nval) produces:
+```
 
+```
+promote.promote(expr, path.Path(["session", "event", "val"]), nval)
+```
+
+produces:
+
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -85,6 +92,7 @@ session: {
   nval: 7
   nval: 1
 }
+```
 
 """
 

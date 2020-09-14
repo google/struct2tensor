@@ -16,6 +16,7 @@ r"""Caps the depth of an expression.
 
 Suppose you have an expression expr modeled as:
 
+```
   *
    \
     A
@@ -23,15 +24,18 @@ Suppose you have an expression expr modeled as:
   D   B
        \
         C
+```
 
 if expr_2 = depth_limit.limit_depth(expr, 2)
 You get:
 
+```
   *
    \
     A
    / \
   D   B
+```
 
 """
 

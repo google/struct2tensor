@@ -25,6 +25,7 @@ these in addition to regular fields and extensions.
 
 Specifically, consider google.protobuf.Any and proto maps:
 
+```
 package foo.bar;
 
 message MyMessage {
@@ -35,10 +36,12 @@ message Baz {
   int32 my_int = 1;
   ...
 }
+```
 
 Then for MyMessage, the path my_any.(foo.bar.Baz).my_int is an optional path.
 Also, my_map[x].my_int is an optional path.
 
+```
   MyMessage--------------
      \  my_any?          \ my_map[x]
       *                   *
@@ -46,8 +49,11 @@ Also, my_map[x].my_int is an optional path.
         *                   *
          \  my_int?
           *
+```
 
 Thus, we can run:
+
+```
 my_message_serialized_tensor = ...
 
 my_message_parsed = parse_message_level_ex(
@@ -61,6 +67,7 @@ my_any_parsed = parse_message_level_ex(
     my_any_serialized,
     Any.DESCRIPTOR,
     {"(foo.bar.Baz)"})
+```
 
 At this point, my_message_parsed["my_map[x]"].value AND
 my_any_parsed["(foo.bar.Baz)"].value are serialized Baz tensors.

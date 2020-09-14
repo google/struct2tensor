@@ -38,6 +38,7 @@ def _get_expression_from_session_empty_user_info():
 
   In addition, the user_info is empty.
 
+  ```
                ------*-----------------
               /                        \
         ---session0----             session1
@@ -47,6 +48,8 @@ def _get_expression_from_session_empty_user_info():
   act0 act1 act2 act3 act4 act5 act6   act7 act8 act9
     |   |     |        |    |     |      |    |   |
     a   b     c        e    f     g      h    i   j
+
+  ```
 
   Returns:
     A RootPrensor with the above structure.

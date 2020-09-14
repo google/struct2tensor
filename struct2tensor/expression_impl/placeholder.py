@@ -21,11 +21,14 @@ placeholder expression), the feed_dict will need to be passed in. Then calculate
 will bind the prensor with the appropriate placeholder expression.
 
 Sample usage:
+
+```
 placeholder_exp = placeholder.create_expression_from_schema(schema)
 new_exp = expression_queries(placeholder_exp, ..)
 result = calculate.calculate_values([new_exp],
                                     feed_dict={placeholder_exp: pren})
 # placeholder_exp requires a feed_dict to be passed in when calculating
+```
 
 """
 

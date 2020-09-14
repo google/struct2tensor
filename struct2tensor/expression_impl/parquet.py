@@ -14,6 +14,8 @@
 """Apache Parquet Dataset.
 
 Example usage:
+
+```
   exp = create_expression_from_parquet_file(filenames)
   docid_project_exp = project.project(exp, [path.Path(["DocId"])])
   pqds = parquet_dataset.calculate_parquet_values([docid_project_exp], exp,
@@ -21,6 +23,7 @@ Example usage:
 
   for prensors in pqds:
     doc_id_prensor = prensors[0]
+```
 
 """
 

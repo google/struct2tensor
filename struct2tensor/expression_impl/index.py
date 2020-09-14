@@ -18,6 +18,8 @@ methods take the parent_index to determine the relationship with respect to
 other elements.
 
 Given:
+
+```
 session: {
   event: {
     val: 111
@@ -37,9 +39,15 @@ session: {
     val: 1
   }
 }
+```
 
-get_positional_index(expr, path.Path(["event","val"]), "val_index") yields:
+```
+get_positional_index(expr, path.Path(["event","val"]), "val_index")
+```
 
+yields:
+
+```
 session: {
   event: {
     val: 111
@@ -65,9 +73,14 @@ session: {
     val_index: 0
   }
 }
+```
 
-get_index_from_end(expr, path.Path(["event","val"]), "neg_val_index") yields:
+```
+get_index_from_end(expr, path.Path(["event","val"]), "neg_val_index")
+```
+yields:
 
+```
 session: {
   event: {
     val: 111
@@ -93,6 +106,7 @@ session: {
     neg_val_index: -1
   }
 }
+```
 
 These methods are useful when you want to depend upon the index of a field.
 For example, if you want to filter examples based upon their index, or

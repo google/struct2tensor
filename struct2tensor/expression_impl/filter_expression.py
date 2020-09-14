@@ -21,6 +21,7 @@ filter_by_sibling allows you to filter an expression by a boolean sibling field.
 
 Beginning with the struct:
 
+```
 root =
          -----*----------------------------------------------------
         /                       \                                  \
@@ -45,15 +46,17 @@ End with the struct (suppressing original doc):
                            new_doc0-----------
                              \           \    \
                              bar:"b" bar:"c" keep_me:True
-
+```
 
 filter_by_sibling allows you to filter an expression by a optional boolean
 child field.
 
 The following call will have the same effect as above:
 
+```
 root_2 = filter_expression.filter_by_child(
     root, path.create_path("doc"), "keep_me", "new_doc")
+```
 
 """
 

@@ -14,11 +14,18 @@
 """Functions for creating new size or has expression.
 
 Given a field "foo.bar",
+
+```
 root = size(expr, path.Path(["foo","bar"]), "bar_size")
+```
+
 creates a new expression root that has an optional field "foo.bar_size", which
 is always present, and contains the number of bar in a particular foo.
 
+```
 root_2 = has(expr, path.Path(["foo","bar"]), "bar_has")
+```
+
 creates a new expression root that has an optional field "foo.bar_has", which
 is always present, and is true if there are one or more bar in foo.
 """

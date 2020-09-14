@@ -21,6 +21,7 @@ The resulting list consists of all elements in the range.
 
 For example:
 
+```
 >>> x = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
 >>> print(x[2:5]) # all elements between index 2 inclusive and index 5 exclusive
 ['c', 'd', 'e']
@@ -34,6 +35,7 @@ For example:
 >>> print(x[-3:6]) # all elements starting three from the end
                    # until index 6 exclusive.
 ['e', 'f', 'g']
+```
 
 TODO(martinz): there is a third argument to slice, which allows one to step
 over the elements (e.g. x[2:6:2]=['c', 'e'], giving you every other element.
@@ -43,6 +45,7 @@ This is not implemented.
 A prensor can be considered to be interleaved lists and dictionaries.
 E.g.:
 
+```
 my_expression = [{
   "foo":[
     {"bar":[
@@ -57,7 +60,9 @@ my_expression = [{
     ]
     }]
 }]
+```
 
+```
 result_1 = slice_expression.slice_expression(
   my_expression, "foo.bar", "new_bar",begin=1, end=3)
 
@@ -82,7 +87,9 @@ result_1 = [{
     ]
     }]
 }]
+```
 
+```
 result_2 = slice_expression.slice_expression(
   my_expression, "foo.bar.baz", "new_baz",begin=1, end=3)
 
@@ -102,7 +109,7 @@ result_2 = [{
       ]
     }]
 }]
-
+```
 
 """
 

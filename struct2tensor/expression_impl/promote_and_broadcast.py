@@ -14,6 +14,8 @@
 r"""promote_and_broadcast a set of nodes.
 
 For example, suppose an expr represents:
+
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -51,12 +53,16 @@ session: {
     age: 20
   }
 }
+```
 
+```
 promote_and_broadcast.promote_and_broadcast(
     path.Path(["event"]),{"nage":path.Path(["user_info","age"])})
+```
 
 creates:
 
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -98,6 +104,7 @@ session: {
     age: 20
   }
 }
+```
 
 """
 
