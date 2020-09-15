@@ -6,6 +6,10 @@
 
 ## Bug Fixes and Other Changes
 
+*   Update __init__.py to import the API, instead of just the modules.
+*   Provide an __init__.py for struct2tensor.expression_impl directory. This is
+    ment for power users.
+
 ## Breaking changes
 
 ## Deprecations

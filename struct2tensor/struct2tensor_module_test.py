@@ -14,43 +14,63 @@
 """Tests for struct2tensor.__init__.py."""
 
 from absl.testing import absltest
-
 import struct2tensor as s2t
 
 
 class Struct2tensorModuleTest(absltest.TestCase):
 
-  def test_importing_modules(self):
-    """This tests that the exposed packages in __init__.py are found."""
+  def test_importing_struct2tensor_modules(self):
+    """This tests that the exposed packages in root __init__.py are found."""
     # pylint: disable=pointless-statement
-    s2t.calculate
-    s2t.calculate_options
-    s2t.calculate_with_source_paths
-    s2t.create_expression
-    s2t.expression
-    s2t.expression_add
-    s2t.expression_impl.apply_schema
-    s2t.expression_impl.broadcast
-    s2t.expression_impl.depth_limit
-    s2t.expression_impl.filter_expression
-    s2t.expression_impl.index
-    s2t.expression_impl.map_prensor
-    s2t.expression_impl.map_prensor_to_prensor
-    s2t.expression_impl.map_values
-    s2t.expression_impl.parquet
-    s2t.expression_impl.placeholder
-    s2t.expression_impl.project
-    s2t.expression_impl.promote
-    s2t.expression_impl.promote_and_broadcast
-    s2t.expression_impl.proto
-    s2t.expression_impl.reroot
-    s2t.expression_impl.size
-    s2t.expression_impl.slice_expression
-    s2t.path
-    s2t.prensor
+
+    # calculate APIs
+    s2t.calculate_prensors
+    s2t.calculate_prensors_with_graph
+    s2t.get_default_options
+    s2t.get_options_with_minimal_checks
+    s2t.calculate_prensors_with_source_paths
+
+    # expression APIs
+    s2t.create_expression_from_prensor
+    s2t.create_expression_from_file_descriptor_set
+    s2t.create_expression_from_proto
+    s2t.Expression
+
+    # path API
+    s2t.create_path
+    s2t.Path
+    s2t.Step
+
+    # prensor APIs
+    s2t.ChildNodeTensor
+    s2t.LeafNodeTensor
+    s2t.NodeTensor
+    s2t.Prensor
+    s2t.RootNodeTensor
+    s2t.create_prensor_from_descendant_nodes
+    s2t.create_prensor_from_root_and_children
     s2t.prensor_util
+    s2t.get_ragged_tensor
+    s2t.get_ragged_tensors
+    s2t.get_sparse_tensor
+    s2t.get_sparse_tensors
     s2t.prensor_value
     # pylint: enable=pointless-statement
+
+  def test_importing_expression_impl_modules(self):
+    """This tests that the expression_impl/__init__.py imports are found."""
+
+    from struct2tensor import expression_impl  # pylint: disable=g-import-not-at-top
+
+    modules = [
+        'apply_schema', 'broadcast', 'depth_limit', 'filter_expression',
+        'index', 'map_prensor', 'map_prensor_to_prensor', 'map_values',
+        'parquet', 'placeholder', 'project', 'promote', 'promote_and_broadcast',
+        'proto', 'reroot', 'size', 'slice_expression'
+    ]
+
+    for module in modules:
+      getattr(expression_impl, module)
 
 
 if __name__ == '__main__':

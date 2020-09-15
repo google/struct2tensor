@@ -40,6 +40,26 @@ s2t_pytype_library(
         ":parquet",
         ":path",
         ":prensor",
+        ":prensor_to_structured_tensor",
+        ":struct2tensor_expression_impl",
+        ":structured_tensor_to_prensor",
+    ],
+)
+
+s2t_pytype_library(
+    name = "struct2tensor_expression_impl",
+    srcs = [
+        "expression_impl/__init__.py",
+    ],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":calculate_options",
+        ":expression",
+        ":parquet",
+        ":path",
+        ":prensor",
+        ":prensor_to_structured_tensor",
+        ":structured_tensor_to_prensor",
     ],
 )
 

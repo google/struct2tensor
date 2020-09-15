@@ -11,36 +11,43 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# pylint: disable=wildcard-import
 """Import core names for struct2tensor."""
 
-import struct2tensor.calculate
-import struct2tensor.calculate_options
-import struct2tensor.calculate_with_source_paths
-import struct2tensor.create_expression
-import struct2tensor.expression
-import struct2tensor.expression_add
+# Import calculate API.
+from struct2tensor.calculate import calculate_prensors
+from struct2tensor.calculate import calculate_prensors_with_graph
+from struct2tensor.calculate_options import get_default_options
+from struct2tensor.calculate_options import get_options_with_minimal_checks
+from struct2tensor.calculate_with_source_paths import calculate_prensors_with_source_paths
 
-# struct2tensor/expression_impl modules
-import struct2tensor.expression_impl.apply_schema
-import struct2tensor.expression_impl.broadcast
-import struct2tensor.expression_impl.depth_limit
-import struct2tensor.expression_impl.filter_expression
-import struct2tensor.expression_impl.index
-import struct2tensor.expression_impl.map_prensor
-import struct2tensor.expression_impl.map_prensor_to_prensor
-import struct2tensor.expression_impl.map_values
-import struct2tensor.expression_impl.parquet
-import struct2tensor.expression_impl.placeholder
-import struct2tensor.expression_impl.project
-import struct2tensor.expression_impl.promote
-import struct2tensor.expression_impl.promote_and_broadcast
-import struct2tensor.expression_impl.proto
-import struct2tensor.expression_impl.reroot
-import struct2tensor.expression_impl.size
-import struct2tensor.expression_impl.slice_expression
+# Import expressions API.
+from struct2tensor.create_expression import create_expression_from_prensor
+from struct2tensor.expression import Expression
 
-import struct2tensor.path
-import struct2tensor.prensor
-import struct2tensor.prensor_util
+# Import expression queries API
+from struct2tensor.expression_impl.proto import create_expression_from_file_descriptor_set
+from struct2tensor.expression_impl.proto import create_expression_from_proto
+
+# Import path API
+from struct2tensor.path import create_path
+from struct2tensor.path import Path
+from struct2tensor.path import Step
+
+# Import prensor API
+from struct2tensor.prensor import ChildNodeTensor
+from struct2tensor.prensor import create_prensor_from_descendant_nodes
+from struct2tensor.prensor import create_prensor_from_root_and_children
+from struct2tensor.prensor import LeafNodeTensor
+from struct2tensor.prensor import NodeTensor
+from struct2tensor.prensor import Prensor
+from struct2tensor.prensor import RootNodeTensor
+# TODO(b/163167832): consider removing these, and only import prensor.Prensor
+from struct2tensor.prensor_util import get_ragged_tensor
+from struct2tensor.prensor_util import get_ragged_tensors
+from struct2tensor.prensor_util import get_sparse_tensor
+from struct2tensor.prensor_util import get_sparse_tensors
+
+# Importing this will register the session handler for PrensorValue, and
+# tf.compat.v1.Session.run() will be able to take a Prensor and return a
+# PrensorValue.
 import struct2tensor.prensor_value
