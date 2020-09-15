@@ -24,8 +24,9 @@ py_binary(
         "//third_party/py/absl:app",
         "@absl_py//absl/flags",
         "//struct2tensor",
-        "//third_party/py/tensorflow_docs/api_generator:doc_controls",
+        "//struct2tensor:struct2tensor_expression_impl",
         "//third_party/py/tensorflow_docs/api_generator:generate_lib",
         "//third_party/py/tensorflow_docs/api_generator:public_api",
+        "//third_party/py/yaml",
     ],
 )
