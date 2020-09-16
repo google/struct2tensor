@@ -1,0 +1,51 @@
+toc:
+- title: s2t
+  section:
+  - title: Overview
+    path: /api_docs/python/s2t
+  - title: calculate_prensors
+    path: /api_docs/python/s2t/calculate_prensors
+  - title: calculate_prensors_with_graph
+    path: /api_docs/python/s2t/calculate_prensors_with_graph
+  - title: calculate_prensors_with_source_paths
+    path: /api_docs/python/s2t/calculate_prensors_with_source_paths
+  - title: ChildNodeTensor
+    path: /api_docs/python/s2t/ChildNodeTensor
+  - title: create_expression_from_file_descriptor_set
+    path: /api_docs/python/s2t/create_expression_from_file_descriptor_set
+  - title: create_expression_from_prensor
+    path: /api_docs/python/s2t/create_expression_from_prensor
+  - title: create_expression_from_proto
+    path: /api_docs/python/s2t/create_expression_from_proto
+  - title: create_path
+    path: /api_docs/python/s2t/create_path
+  - title: create_prensor_from_descendant_nodes
+    path: /api_docs/python/s2t/create_prensor_from_descendant_nodes
+  - title: create_prensor_from_root_and_children
+    path: /api_docs/python/s2t/create_prensor_from_root_and_children
+  - title: Expression
+    path: /api_docs/python/s2t/Expression
+  - title: get_default_options
+    path: /api_docs/python/s2t/get_default_options
+  - title: get_options_with_minimal_checks
+    path: /api_docs/python/s2t/get_options_with_minimal_checks
+  - title: get_ragged_tensor
+    path: /api_docs/python/s2t/get_ragged_tensor
+  - title: get_ragged_tensors
+    path: /api_docs/python/s2t/get_ragged_tensors
+  - title: get_sparse_tensor
+    path: /api_docs/python/s2t/get_sparse_tensor
+  - title: get_sparse_tensors
+    path: /api_docs/python/s2t/get_sparse_tensors
+  - title: LeafNodeTensor
+    path: /api_docs/python/s2t/LeafNodeTensor
+  - title: NodeTensor
+    path: /api_docs/python/s2t/NodeTensor
+  - title: Path
+    path: /api_docs/python/s2t/Path
+  - title: Prensor
+    path: /api_docs/python/s2t/Prensor
+  - title: RootNodeTensor
+    path: /api_docs/python/s2t/RootNodeTensor
+  - title: Step
+    path: /api_docs/python/s2t/Step

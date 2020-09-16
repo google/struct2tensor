@@ -4,6 +4,8 @@
 
 ## Major Features and Improvements
 
+*   Added api documentation in g3doc.
+
 ## Bug Fixes and Other Changes
 
 *   Update __init__.py to import the API, instead of just the modules.

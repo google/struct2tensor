@@ -1,0 +1,161 @@
+toc:
+- title: expression_impl
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl
+- title: expression_impl.apply_schema
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/apply_schema
+  - title: apply_schema
+    path: /api_docs/python/expression_impl/apply_schema/apply_schema
+- title: expression_impl.broadcast
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/broadcast
+  - title: broadcast
+    path: /api_docs/python/expression_impl/broadcast/broadcast
+  - title: broadcast_anonymous
+    path: /api_docs/python/expression_impl/broadcast/broadcast_anonymous
+- title: expression_impl.depth_limit
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/depth_limit
+  - title: limit_depth
+    path: /api_docs/python/expression_impl/depth_limit/limit_depth
+- title: expression_impl.filter_expression
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/filter_expression
+  - title: filter_by_child
+    path: /api_docs/python/expression_impl/filter_expression/filter_by_child
+  - title: filter_by_sibling
+    path: /api_docs/python/expression_impl/filter_expression/filter_by_sibling
+- title: expression_impl.index
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/index
+  - title: get_index_from_end
+    path: /api_docs/python/expression_impl/index/get_index_from_end
+  - title: get_positional_index
+    path: /api_docs/python/expression_impl/index/get_positional_index
+- title: expression_impl.map_prensor
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/map_prensor
+  - title: map_ragged_tensor
+    path: /api_docs/python/expression_impl/map_prensor/map_ragged_tensor
+  - title: map_sparse_tensor
+    path: /api_docs/python/expression_impl/map_prensor/map_sparse_tensor
+- title: expression_impl.map_prensor_to_prensor
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/map_prensor_to_prensor
+  - title: create_schema
+    path: /api_docs/python/expression_impl/map_prensor_to_prensor/create_schema
+  - title: map_prensor_to_prensor
+    path: /api_docs/python/expression_impl/map_prensor_to_prensor/map_prensor_to_prensor
+  - title: Schema
+    path: /api_docs/python/expression_impl/map_prensor_to_prensor/Schema
+- title: expression_impl.map_values
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/map_values
+  - title: map_many_values
+    path: /api_docs/python/expression_impl/map_values/map_many_values
+  - title: map_values
+    path: /api_docs/python/expression_impl/map_values/map_values
+  - title: map_values_anonymous
+    path: /api_docs/python/expression_impl/map_values/map_values_anonymous
+- title: expression_impl.parquet
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/parquet
+  - title: calculate_parquet_values
+    path: /api_docs/python/expression_impl/parquet/calculate_parquet_values
+  - title: create_expression_from_parquet_file
+    path: /api_docs/python/expression_impl/parquet/create_expression_from_parquet_file
+  - title: ParquetDataset
+    path: /api_docs/python/expression_impl/parquet/ParquetDataset
+- title: expression_impl.placeholder
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/placeholder
+  - title: create_expression_from_schema
+    path: /api_docs/python/expression_impl/placeholder/create_expression_from_schema
+  - title: get_placeholder_paths_from_graph
+    path: /api_docs/python/expression_impl/placeholder/get_placeholder_paths_from_graph
+- title: expression_impl.project
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/project
+  - title: project
+    path: /api_docs/python/expression_impl/project/project
+- title: expression_impl.promote
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/promote
+  - title: promote
+    path: /api_docs/python/expression_impl/promote/promote
+  - title: PromoteChildExpression
+    path: /api_docs/python/expression_impl/promote/PromoteChildExpression
+  - title: PromoteExpression
+    path: /api_docs/python/expression_impl/promote/PromoteExpression
+  - title: promote_anonymous
+    path: /api_docs/python/expression_impl/promote/promote_anonymous
+- title: expression_impl.promote_and_broadcast
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/promote_and_broadcast
+  - title: promote_and_broadcast
+    path: /api_docs/python/expression_impl/promote_and_broadcast/promote_and_broadcast
+  - title: promote_and_broadcast_anonymous
+    path: /api_docs/python/expression_impl/promote_and_broadcast/promote_and_broadcast_anonymous
+- title: expression_impl.proto
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/proto
+  - title: create_expression_from_file_descriptor_set
+    path: /api_docs/python/expression_impl/proto/create_expression_from_file_descriptor_set
+  - title: create_expression_from_proto
+    path: /api_docs/python/expression_impl/proto/create_expression_from_proto
+  - title: create_transformed_field
+    path: /api_docs/python/expression_impl/proto/create_transformed_field
+  - title: DescriptorPool
+    path: /api_docs/python/expression_impl/proto/DescriptorPool
+  - title: FileDescriptorSet
+    path: /api_docs/python/expression_impl/proto/FileDescriptorSet
+  - title: is_proto_expression
+    path: /api_docs/python/expression_impl/proto/is_proto_expression
+  - title: ProtoExpression
+    path: /api_docs/python/expression_impl/proto/ProtoExpression
+  - title: TransformFn
+    path: /api_docs/python/expression_impl/proto/TransformFn
+- title: expression_impl.reroot
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/reroot
+  - title: create_proto_index_field
+    path: /api_docs/python/expression_impl/reroot/create_proto_index_field
+  - title: reroot
+    path: /api_docs/python/expression_impl/reroot/reroot
+- title: expression_impl.size
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/size
+  - title: has
+    path: /api_docs/python/expression_impl/size/has
+  - title: size
+    path: /api_docs/python/expression_impl/size/size
+  - title: SizeExpression
+    path: /api_docs/python/expression_impl/size/SizeExpression
+  - title: size_anonymous
+    path: /api_docs/python/expression_impl/size/size_anonymous
+- title: expression_impl.slice_expression
+  section:
+  - title: Overview
+    path: /api_docs/python/expression_impl/slice_expression
+  - title: IndexValue
+    path: /api_docs/python/expression_impl/slice_expression/IndexValue
+  - title: slice_expression
+    path: /api_docs/python/expression_impl/slice_expression/slice_expression
