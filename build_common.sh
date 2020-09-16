@@ -77,6 +77,24 @@ set -x
 install_tensorflow ${TF_VERSION} ${PIP_BIN_PATH} ${PYTHON_BIN_PATH}
 ./configure.sh --python_bin_path "${PYTHON_BIN_PATH}"
 
+if [[ ("${TF_VERSION}" == "NIGHTLY_TF") || ("${TF_VERSION}" == "NIGHTLY_TF_2") ]]; then
+  # Get the github commit sha for tf-nightly
+  GIT_VERSION=$(${PYTHON_BIN_PATH} -c "import tensorflow as tf; print(tf.__git_version__)") \
+    || (echo "failed to get tf-nightly git version" && exit 1)
+
+  TF_NIGHTLY_COMMIT=$(curl -X GET "https://api.github.com/repos/tensorflow/tensorflow/commits?sha="${GIT_VERSION}"" | "${PYTHON_BIN_PATH}" -c "import sys, json; print(json.load(sys.stdin)[0]['sha'])") \
+    || (echo "failed to get git commit sha" && exit 1)
+
+  # Replaces _TENSORFLOW_GIT_COMMIT with TF_NIGHTLY_COMMIT
+  sed -i 's/^_TENSORFLOW_GIT_COMMIT = ".*/_TENSORFLOW_GIT_COMMIT = '\""${TF_NIGHTLY_COMMIT}"\"'/g' WORKSPACE \
+    || (echo "failed to replace tf commit in tf_version.bzl" && exit 1)
+
+  # Replaces _TENSORFLOW_SHA256 with empty string
+  sed -i 's/^_TENSORFLOW_ARCHIVE_SHA256 = ".*/_TENSORFLOW_ARCHIVE_SHA256 = '\"\"'/g' WORKSPACE \
+    || (echo "failed to replace tf sha256 in tf_version.bzl" && exit 1)
+
+fi
+
 # :build_pip_package builds and links struct2tensor ops against a TF
 # installation and packages the result dynamic libraries.
 bazel run -c opt \

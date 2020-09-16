@@ -82,14 +82,15 @@ git_repository(
 
 #####################################################################################
 
-_TENSORFLOW_GIT_COMMIT = "b36436b087bd8e8701ef51718179037cccdfc26e" # 2.3.0
+_TENSORFLOW_GIT_COMMIT = "b36436b087bd8e8701ef51718179037cccdfc26e"  # 2.3.0
+_TENSORFLOW_ARCHIVE_SHA256 = "a474d4328524de1951655cd6afb4888d256c37a0b4a47e6c623b353ab382b39f"
 
 http_archive(
     name = "org_tensorflow",
-    sha256 = "a474d4328524de1951655cd6afb4888d256c37a0b4a47e6c623b353ab382b39f",
+    sha256 = _TENSORFLOW_ARCHIVE_SHA256,
     urls = [
-      "https://mirror.bazel.build/github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
-      "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
+        "https://mirror.bazel.build/github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
+        "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
     ],
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
 )
