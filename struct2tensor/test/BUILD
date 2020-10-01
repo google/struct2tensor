@@ -7,7 +7,6 @@ package(
 licenses(["notice"])  # Apache 2.0
 
 exports_files([
-    "LICENSE",
     "__init__.py",
     "expression_test_util.py",
     "prensor_test_util.py",

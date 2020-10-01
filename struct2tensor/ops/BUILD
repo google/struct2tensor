@@ -6,10 +6,7 @@ package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 
-exports_files([
-    "LICENSE",
-    "__init__.py",
-])
+exports_files(["__init__.py"])
 
 # NOTE: s2t_dynamic_binary is a NOOP internally (does not generate a target).
 s2t_dynamic_binary(
