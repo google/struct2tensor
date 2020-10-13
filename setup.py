@@ -14,6 +14,8 @@
 # ==============================================================================
 """Setup for pip package."""
 
+import os
+
 from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.install import install
@@ -39,6 +41,20 @@ class BinaryDistribution(Distribution):
   def has_ext_modules(self):
     return True
 
+
+def select_constraint(default, nightly=None, git_master=None):
+  """Select dependency constraint based on TFX_DEPENDENCY_SELECTOR env var."""
+  selector = os.environ.get('TFX_DEPENDENCY_SELECTOR')
+  if selector == 'UNCONSTRAINED':
+    return ''
+  elif selector == 'NIGHTLY' and nightly is not None:
+    return nightly
+  elif selector == 'GIT_MASTER' and git_master is not None:
+    return git_master
+  else:
+    return default
+
+
 # Get the long description from the README file.
 with open('README.md') as fp:
   _LONG_DESCRIPTION = fp.read()
@@ -60,7 +76,10 @@ setup(
     install_requires=[
         'protobuf>=3.8.0,<4',
         'tensorflow>=2.3.0,<2.4',
-        'tensorflow_metadata>=0.24,<0.25',
+        'tensorflow-metadata' + select_constraint(
+            default='>=0.24,<0.25',
+            nightly='>=0.25.0.dev',
+            git_master='@git+https://github.com/tensorflow/metadata@master'),
         'pyarrow>=0.15,<1',
     ],
     # Add in any packaged data.
