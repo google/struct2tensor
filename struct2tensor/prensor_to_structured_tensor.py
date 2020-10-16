@@ -96,7 +96,7 @@ def _child_node_to_structured_tensor(
     nrows: tf.Tensor) -> structured_tensor.StructuredTensor:
   """Convert a map of prensors to map of structured tensors."""
   st = structured_tensor.StructuredTensor.from_fields(
-      fields=fields, shape=tf.TensorShape([None]))
+      fields=fields, shape=tf.TensorShape([None]), nrows=nrows)
   row_partition = RowPartition.from_value_rowids(
       value_rowids=node.parent_index, nrows=nrows)
   return st.partition_outer_dimension(row_partition)

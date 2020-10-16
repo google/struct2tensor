@@ -12,6 +12,7 @@
 *   Provide an __init__.py for struct2tensor.expression_impl directory. This is
     ment for power users.
 *   Update python notebook to use import style.
+*   Fix bug in prensor_to_structured_tensor.
 
 ## Breaking changes
 
