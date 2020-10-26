@@ -22,7 +22,7 @@ limitations under the License.
 namespace struct2tensor {
 namespace parquet_dataset {
 
-class Dataset : public tensorflow::DatasetBase {
+class Dataset : public tensorflow::data::DatasetBase {
  public:
   explicit Dataset(tensorflow::OpKernelContext* ctx,
                    const std::vector<std::string>& filenames,
@@ -31,7 +31,7 @@ class Dataset : public tensorflow::DatasetBase {
                    const std::vector<std::vector<int>>& segregated_path_indices,
                    const tensorflow::int64 batch_size,
                    const tensorflow::DataTypeVector& output_dtypes)
-      : DatasetBase(tensorflow::DatasetContext(ctx)),
+      : DatasetBase(tensorflow::data::DatasetContext(ctx)),
         filenames_(filenames),
         value_paths_(value_paths),
         value_dtypes_(value_dtypes),
@@ -49,7 +49,7 @@ class Dataset : public tensorflow::DatasetBase {
           return shapes;
         }()) {}
 
-  std::unique_ptr<tensorflow::IteratorBase> MakeIteratorInternal(
+  std::unique_ptr<tensorflow::data::IteratorBase> MakeIteratorInternal(
       const std::string& prefix) const override {
     return absl::WrapUnique(new Iterator(
         {this, tensorflow::strings::StrCat(prefix, "::Parquet")}, filenames_,
@@ -76,14 +76,14 @@ class Dataset : public tensorflow::DatasetBase {
  protected:
   // TODO(andylou): Implement saving dataset state.
   tensorflow::Status AsGraphDefInternal(
-      tensorflow::SerializationContext* ctx, DatasetGraphDefBuilder* b,
+      tensorflow::data::SerializationContext* ctx, DatasetGraphDefBuilder* b,
       tensorflow::Node** output) const override {
     return tensorflow::errors::Unimplemented(
         DebugString(), " does not support serialization.");
   }
 
  private:
-  class Iterator : public tensorflow::DatasetIterator<Dataset> {
+  class Iterator : public tensorflow::data::DatasetIterator<Dataset> {
    public:
     explicit Iterator(
         const Params& params, const std::vector<std::string>& filenames,
@@ -102,7 +102,7 @@ class Dataset : public tensorflow::DatasetBase {
     // For a deeper understanding of what tensors are returned in out_tensors,
     // see parquet_dataset_op.cc.
     tensorflow::Status GetNextInternal(
-        tensorflow::IteratorContext* ctx,
+        tensorflow::data::IteratorContext* ctx,
         std::vector<tensorflow::Tensor>* out_tensors,
         bool* end_of_sequence) override {
       tensorflow::mutex_lock l(mu_);
@@ -171,15 +171,17 @@ class Dataset : public tensorflow::DatasetBase {
 
    protected:
     // TODO(b/139440495): Implement saving and restoring iterator state.
-    tensorflow::Status SaveInternal(tensorflow::SerializationContext* ctx,
-                                    tensorflow::IteratorStateWriter* writer)
+    tensorflow::Status SaveInternal(
+        tensorflow::data::SerializationContext* ctx,
+        tensorflow::data::IteratorStateWriter* writer)
     {
       return tensorflow::errors::Unimplemented(
           "Parquet Dataset Iterator does not support checkpointing.");
     }
 
-    tensorflow::Status RestoreInternal(tensorflow::IteratorContext* ctx,
-                                       tensorflow::IteratorStateReader* reader)
+    tensorflow::Status RestoreInternal(
+        tensorflow::data::IteratorContext* ctx,
+        tensorflow::data::IteratorStateReader* reader)
     {
       return tensorflow::errors::Unimplemented(
           "Parquet Dataset Iterator does not support checkpointing.");
@@ -260,7 +262,7 @@ class Dataset : public tensorflow::DatasetBase {
   const std::vector<tensorflow::PartialTensorShape> output_shapes_;
 };
 
-class ParquetDatasetOp : public tensorflow::DatasetOpKernel {
+class ParquetDatasetOp : public tensorflow::data::DatasetOpKernel {
  public:
   ParquetDatasetOp(tensorflow::OpKernelConstruction* ctx)
       : DatasetOpKernel(ctx) {
@@ -273,7 +275,7 @@ class ParquetDatasetOp : public tensorflow::DatasetOpKernel {
   }
 
   void MakeDataset(tensorflow::OpKernelContext* ctx,
-                   tensorflow::DatasetBase** output) override {
+                   tensorflow::data::DatasetBase** output) override {
     const tensorflow::Tensor* filenames_tensor;
     OP_REQUIRES_OK(ctx, ctx->input("filenames", &filenames_tensor));
 

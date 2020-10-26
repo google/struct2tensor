@@ -39,15 +39,11 @@ This conversion handles a variety of differences in the implementation.
    repeated field.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Mapping, Union
 
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow.compat.v2 as tf
-from typing import Mapping, Union
 
 from tensorflow.python.ops.ragged.row_partition import RowPartition  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import

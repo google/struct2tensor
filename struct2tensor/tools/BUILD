@@ -11,12 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Wrapper for _parquet_dataset_op.so."""
+licenses(["notice"])
 
-from tensorflow.python.framework import load_library
-from tensorflow.python.platform import resource_loader
+package(default_visibility = ["//struct2tensor:__subpackages__"])
 
-parquet_dataset_module = load_library.load_op_library(
-    resource_loader.get_path_to_datafile('_parquet_dataset_op.so'))
-
-parquet_dataset = parquet_dataset_module.parquet_dataset
+py_binary(
+    name = "build_docs",
+    srcs = ["build_docs.py"],
+    python_version = "PY3",
+    srcs_version = "PY3",
+    deps = [
+        "//third_party/py/absl:app",
+        "@absl_py//absl/flags",
+        "//struct2tensor",
+        "//third_party/py/tensorflow_docs/api_generator:doc_controls",
+        "//third_party/py/tensorflow_docs/api_generator:generate_lib",
+        "//third_party/py/tensorflow_docs/api_generator:public_api",
+    ],
+)

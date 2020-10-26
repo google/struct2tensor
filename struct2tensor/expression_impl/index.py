@@ -18,6 +18,8 @@ methods take the parent_index to determine the relationship with respect to
 other elements.
 
 Given:
+
+```
 session: {
   event: {
     val: 111
@@ -37,9 +39,15 @@ session: {
     val: 1
   }
 }
+```
 
-get_positional_index(expr, path.Path(["event","val"]), "val_index") yields:
+```
+get_positional_index(expr, path.Path(["event","val"]), "val_index")
+```
 
+yields:
+
+```
 session: {
   event: {
     val: 111
@@ -65,9 +73,14 @@ session: {
     val_index: 0
   }
 }
+```
 
-get_index_from_end(expr, path.Path(["event","val"]), "neg_val_index") yields:
+```
+get_index_from_end(expr, path.Path(["event","val"]), "neg_val_index")
+```
+yields:
 
+```
 session: {
   event: {
     val: 111
@@ -93,6 +106,7 @@ session: {
     neg_val_index: -1
   }
 }
+```
 
 These methods are useful when you want to depend upon the index of a field.
 For example, if you want to filter examples based upon their index, or
@@ -103,10 +117,7 @@ are just references to the parent indices of other fields, and are therefore
 take little memory or CPU.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Optional, Sequence, Tuple
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -116,7 +127,6 @@ from struct2tensor import prensor
 from struct2tensor import prensor_util
 from struct2tensor.expression_impl import size
 import tensorflow as tf
-from typing import Optional, Sequence, Tuple
 
 
 def get_positional_index(expr: expression.Expression, source_path: path.Path,
@@ -184,8 +194,7 @@ class _PositionalIndexExpression(expression.Leaf):
   """
 
   def __init__(self, origin: expression.Expression):
-    super(_PositionalIndexExpression, self).__init__(origin.is_repeated,
-                                                     tf.int64)
+    super().__init__(origin.is_repeated, tf.int64)
     self._origin = origin
 
   def get_source_expressions(self) -> Sequence[expression.Expression]:

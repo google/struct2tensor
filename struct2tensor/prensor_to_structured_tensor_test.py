@@ -14,17 +14,12 @@
 # limitations under the License.
 """Tests for StructuredTensor."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from struct2tensor import prensor
 from struct2tensor import prensor_to_structured_tensor
 from struct2tensor.test import prensor_test_util
+import tensorflow as tf
 
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
-from tensorflow.python.platform import absltest  # pylint: disable=g-direct-tensorflow-import
 
 
 def _make_structured_tensor(shape, fields):
@@ -32,9 +27,8 @@ def _make_structured_tensor(shape, fields):
       fields=fields, shape=shape)
 
 
-# pylint: disable=g-long-lambda
 # @test_util.run_all_in_graph_and_eager_modes
-class PrensorToStructuredTensorTest(test_util.TensorFlowTestCase):
+class PrensorToStructuredTensorTest(tf.test.TestCase):
 
   def test_simple_prensor(self):
     pren = prensor_test_util.create_simple_prensor()
@@ -105,4 +99,4 @@ class PrensorToStructuredTensorTest(test_util.TensorFlowTestCase):
 
 
 if __name__ == "__main__":
-  absltest.main()
+  tf.test.main()

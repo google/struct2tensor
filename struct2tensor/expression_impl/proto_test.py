@@ -13,10 +13,6 @@
 # limitations under the License.
 """Tests for struct2tensor.proto."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import absltest
 from struct2tensor import path
 from struct2tensor.expression_impl import proto

@@ -17,17 +17,13 @@ create_expression_from_prensor(...) creates an Expression from a Prensor.
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import FrozenSet, Mapping, Optional, Sequence
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import FrozenSet, Mapping, Optional, Sequence
 
 
 class _DirectExpression(expression.Expression):
@@ -47,7 +43,7 @@ class _DirectExpression(expression.Expression):
       value: the return value of calculate(...)
       children: the subexpressions.
     """
-    super(_DirectExpression, self).__init__(is_repeated, my_type)
+    super().__init__(is_repeated, my_type)
     self._value = value
     self._children = children
 
@@ -75,7 +71,7 @@ class _DirectExpression(expression.Expression):
   def known_field_names(self) -> FrozenSet[path.Step]:
     return frozenset(self._children.keys())
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return "_DirectExpression: {}".format(str(id(self)))
 
 

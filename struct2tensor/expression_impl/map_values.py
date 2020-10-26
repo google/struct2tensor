@@ -21,10 +21,7 @@ Note that the operations are on 1-D tensors (as opposed to scalars).
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Callable, FrozenSet, Optional, Sequence, Tuple
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -32,7 +29,6 @@ from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import Callable, FrozenSet, Optional, Sequence, Tuple
 
 
 def map_many_values(
@@ -130,7 +126,7 @@ class _MapValuesExpression(expression.Expression):
 
   def __init__(self, origin: Sequence[expression.Expression],
                operation: Callable[..., tf.Tensor], dtype: tf.DType):
-    super(_MapValuesExpression, self).__init__(origin[0].is_repeated, dtype)
+    super().__init__(origin[0].is_repeated, dtype)
     assert all([self.is_repeated == x.is_repeated for x in origin])
     self._origin = origin
     self._operation = operation

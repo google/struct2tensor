@@ -13,11 +13,6 @@
 # limitations under the License.
 """Tests for struct2tensor.promote."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-
 from struct2tensor import create_expression
 from struct2tensor import path
 from struct2tensor.expression_impl import index

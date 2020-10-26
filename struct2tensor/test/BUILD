@@ -1,8 +1,8 @@
+load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc", "s2t_proto_library_py", "s2t_pytype_library")
+
 package(
     default_visibility = ["@//:__subpackages__"],
 )
-
-load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc", "s2t_proto_library_py", "s2t_pytype_library")
 
 licenses(["notice"])  # Apache 2.0
 
@@ -101,7 +101,7 @@ s2t_pytype_library(
     srcs = [
         "expression_test_util.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         "//struct2tensor:expression",
         "//struct2tensor:path",
@@ -114,7 +114,7 @@ s2t_pytype_library(
     srcs = [
         "prensor_test_util.py",
     ],
-    srcs_version = "PY2AND3",
+    srcs_version = "PY3ONLY",
     deps = [
         "//struct2tensor:expression",
         "//struct2tensor:path",

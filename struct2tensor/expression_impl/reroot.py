@@ -18,11 +18,7 @@ you to call create_proto_index(...) later on, that gives you a reference to the
 original proto.
 
 """
-
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import FrozenSet, Optional, Sequence
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -30,7 +26,6 @@ from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import FrozenSet, Optional, Sequence
 
 
 def reroot(root: expression.Expression,
@@ -68,7 +63,7 @@ class _RerootRootNodeTensor(prensor.RootNodeTensor):
   """
 
   def __init__(self, size: tf.Tensor, input_proto_index: tf.Tensor):
-    super(_RerootRootNodeTensor, self).__init__(size)
+    super().__init__(size)
     self._input_proto_index = input_proto_index
 
   @property
@@ -91,7 +86,7 @@ class _RerootExpression(expression.Expression):
 
   def __init__(self, original_root: expression.Expression,
                field_name: path.Step):
-    super(_RerootExpression, self).__init__(True, None)
+    super().__init__(True, None)
     self._field_name = field_name
     self._original_root = original_root
     self._new_root = original_root.get_child_or_error(field_name)
@@ -149,8 +144,7 @@ class _InputProtoIndexExpression(expression.Leaf):
     Args:
       root: an expression that must return a RootNodeTensor.
     """
-    super(_InputProtoIndexExpression, self).__init__(
-        is_repeated=False, my_type=tf.int64)
+    super().__init__(is_repeated=False, my_type=tf.int64)
     self._root = root
 
   def get_source_expressions(self) -> Sequence[expression.Expression]:

@@ -14,6 +14,8 @@
 """Apache Parquet Dataset.
 
 Example usage:
+
+```
   exp = create_expression_from_parquet_file(filenames)
   docid_project_exp = project.project(exp, [path.Path(["DocId"])])
   pqds = parquet_dataset.calculate_parquet_values([docid_project_exp], exp,
@@ -21,14 +23,12 @@ Example usage:
 
   for prensors in pqds:
     doc_id_prensor = prensors[0]
+```
 
 """
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
 
 import collections
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -41,11 +41,10 @@ from struct2tensor.expression_impl import map_prensor_to_prensor as mpp
 from struct2tensor.expression_impl import placeholder
 from struct2tensor.ops import gen_parquet_dataset
 import tensorflow as tf
-from typing import Any, Dict, List, Optional, Text, Tuple, Union
 
 
 def create_expression_from_parquet_file(
-    filenames: List[Text]) -> placeholder._PlaceholderRootExpression:
+    filenames: List[str]) -> placeholder._PlaceholderRootExpression:  # pylint: disable=protected-access
   """Creates a placeholder expression from a parquet file.
 
   Args:
@@ -71,8 +70,8 @@ def create_expression_from_parquet_file(
 
 def calculate_parquet_values(
     expressions: List[expression.Expression],
-    root_exp: placeholder._PlaceholderRootExpression,
-    filenames: List[Text],
+    root_exp: placeholder._PlaceholderRootExpression,  # pylint: disable=protected-access
+    filenames: List[str],
     batch_size: int,
     options: Optional[calculate_options.Options] = None):
   """Calculates expressions and returns a parquet dataset.
@@ -83,6 +82,9 @@ def calculate_parquet_values(
     filenames: A list of parquet files.
     batch_size: The number of messages to batch.
     options: calculate options.
+
+  Returns:
+    A parquet dataset.
   """
   pqds = _ParquetDatasetWithExpression(expressions, root_exp, filenames,
                                        batch_size, options)
@@ -103,8 +105,8 @@ class _RawParquetDataset(tf.compat.v1.data.Dataset):
   for a better understanding of what format the vector of tensors is in.
   """
 
-  def __init__(self, filenames: List[Text], value_paths: List[Text],
-               value_dtypes: List[tf.DType], parent_index_paths: List[Text],
+  def __init__(self, filenames: List[str], value_paths: List[str],
+               value_dtypes: List[tf.DType], parent_index_paths: List[str],
                path_index: List[int], batch_size: int):
     """Creates a ParquetDataset.
 
@@ -133,9 +135,9 @@ class _RawParquetDataset(tf.compat.v1.data.Dataset):
     self._path_index = path_index
     self._batch_size = batch_size
 
-    super(_RawParquetDataset, self).__init__()
+    super().__init__()
 
-  def _get_column_path_to_index_mapping(self, metadata_file) -> Dict[Text, int]:
+  def _get_column_path_to_index_mapping(self, metadata_file) -> Dict[str, int]:
     """Gets the column index of every column.
 
     Args:
@@ -154,7 +156,7 @@ class _RawParquetDataset(tf.compat.v1.data.Dataset):
 
     return path_to_column_index
 
-  def _parquet_to_tf_type(self, parquet_type: Text) -> Union[tf.DType, None]:
+  def _parquet_to_tf_type(self, parquet_type: str) -> Union[tf.DType, None]:
     """Maps tensorflow datatype to a parquet datatype.
 
     Args:
@@ -228,7 +230,7 @@ class ParquetDataset(_RawParquetDataset):
     session.run(prensor)
   """
 
-  def __init__(self, filenames: List[Text], value_paths: List[Text],
+  def __init__(self, filenames: List[str], value_paths: List[str],
                batch_size: int):
     """Creates a ParquetDataset.
 
@@ -264,8 +266,8 @@ class ParquetDataset(_RawParquetDataset):
                          self._parent_index_paths, self._path_index, batch_size)
 
   def _get_column_dtypes(
-      self, metadata_file: Text,
-      value_paths: List[Text]) -> List[Union[tf.DType, None]]:
+      self, metadata_file: str,
+      value_paths: List[str]) -> List[Union[tf.DType, None]]:
     """Returns a list of tensorflow datatypes for each column.
 
     Args:
@@ -287,7 +289,7 @@ class ParquetDataset(_RawParquetDataset):
       value_dtypes.append(self._parquet_to_tf_type(parquet_type))
     return value_dtypes
 
-  def _validate_file(self, filename: Text, value_paths: List[Text]):
+  def _validate_file(self, filename: str, value_paths: List[str]):
     """Checks if each requested path exists in the parquet file.
 
     Args:
@@ -362,7 +364,7 @@ class ParquetDataset(_RawParquetDataset):
     return (field.name,
             prensor._PrensorTypeSpec(is_repeated, node_type, dtype, children))
 
-  def _create_prensor_spec(self) -> prensor._PrensorTypeSpec:
+  def _create_prensor_spec(self) -> prensor._PrensorTypeSpec:  # pylint: disable=protected-access
     """Creates the prensor type spec based on value_paths.
 
     Returns:
@@ -432,7 +434,7 @@ class ParquetDataset(_RawParquetDataset):
 
 
 def _create_children_from_arrow_fields(
-    fields: pa.lib.Field) -> Dict[Text, Dict[Any, Any]]:
+    fields: pa.lib.Field) -> Dict[str, Dict[Any, Any]]:
   """Creates a dictionary of children schema for a pyarrow field.
 
   Args:
@@ -490,7 +492,7 @@ class _ParquetDatasetWithExpression(ParquetDataset):
 
   def __init__(self, exprs: List[expression.Expression],
                root_expr: placeholder._PlaceholderRootExpression,
-               filenames: List[Text], batch_size: int,
+               filenames: List[str], batch_size: int,
                options: Optional[calculate_options.Options]):
     self._exprs = exprs
     self._root_expr = root_expr

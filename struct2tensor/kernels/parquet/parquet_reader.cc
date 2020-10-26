@@ -329,7 +329,7 @@ ParquetReader::ParquetReader(
       }()) {}
 
 tensorflow::Status ParquetReader::ReadMessages(
-    tensorflow::IteratorContext* ctx,
+    tensorflow::data::IteratorContext* ctx,
     std::vector<ParentIndicesAndValues>* parent_indices_and_values,
     bool* end_of_file) {
   int prev_column_messages_read = 0;
@@ -360,7 +360,7 @@ tensorflow::Status ParquetReader::ReadMessages(
 }
 
 tensorflow::Status ParquetReader::ReadOneColumn(
-    tensorflow::IteratorContext* ctx, const int column_index,
+    tensorflow::data::IteratorContext* ctx, const int column_index,
     std::vector<ParentIndicesAndValues>* parent_indices_and_values,
     int* messages_read) {
   parent_indices_builders_[column_index]->ResetParentIndices();
@@ -430,7 +430,7 @@ tensorflow::Status ParquetReader::ReadOneColumn(
 
 template <typename ParquetDataType, typename T>
 tensorflow::Status ParquetReader::ReadOneColumnTemplated(
-    tensorflow::IteratorContext* ctx, int column_index,
+    tensorflow::data::IteratorContext* ctx, int column_index,
     std::vector<int16_t>* def_levels, std::vector<int16_t>* rep_levels,
     std::vector<tensorflow::Tensor>* value_tensor, int* messages_read) {
   std::vector<T> cumulative_values;

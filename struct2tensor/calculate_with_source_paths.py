@@ -12,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Given an expression, calculate the prensor and source paths."""
-from __future__ import absolute_import
-from __future__ import division
 
-from __future__ import print_function
+from typing import List, NamedTuple, Optional, Sequence, Set, Tuple
 
-import collections
 from struct2tensor import calculate
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -25,15 +22,19 @@ from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.expression_impl import proto
 from struct2tensor.proto import query_metadata_pb2
-from typing import List, Optional, Sequence, Set, Tuple
+import tensorflow as tf
+
+from google.protobuf import descriptor
 
 # A proto summary represents the tensor of protos and descriptor, along with
 # all the paths associated with it.
 # tensor is tf.Tensor
 # descriptor is descriptor.Descriptor
 # paths is List[path.Path]
-ProtoRequirements = collections.namedtuple("ProtoRequirements",
-                                           ["tensor", "descriptor", "paths"])  # pylint: disable=invalid-name
+ProtoRequirements = NamedTuple("ProtoRequirements",
+                               [("tensor", tf.Tensor),
+                                ("descriptor", descriptor.Descriptor),
+                                ("paths", List[path.Path])])
 
 
 def calculate_prensors_with_source_paths(

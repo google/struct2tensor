@@ -13,10 +13,6 @@
 # limitations under the License.
 """Utilities for tests on proto expressions."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import tensorflow as tf
 
 from struct2tensor.test import test_pb2
@@ -42,6 +38,7 @@ def _get_expression_from_session_empty_user_info():
 
   In addition, the user_info is empty.
 
+  ```
                ------*-----------------
               /                        \
         ---session0----             session1
@@ -51,6 +48,8 @@ def _get_expression_from_session_empty_user_info():
   act0 act1 act2 act3 act4 act5 act6   act7 act8 act9
     |   |     |        |    |     |      |    |   |
     a   b     c        e    f     g      h    i   j
+
+  ```
 
   Returns:
     A RootPrensor with the above structure.

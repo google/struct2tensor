@@ -27,20 +27,15 @@ get_known_descendants() return the "known" children. In general, it is best
 to call project.project() to get the desired fields before calling
 get_known_children().
 
-
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 import abc
+from typing import Callable, FrozenSet, List, Mapping, Optional, Sequence, Union
+
 from struct2tensor import calculate_options
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import Callable, FrozenSet, List, Mapping, Optional, Sequence, Union
 
 from tensorflow.python.util.lazy_loader import LazyLoader  # pylint: disable=g-direct-tensorflow-import
 from tensorflow_metadata.proto.v0 import schema_pb2
@@ -87,10 +82,8 @@ slice_expression = LazyLoader("slice_expression", globals(),
 IndexValue = Union[int, tf.Tensor, tf.Variable]  # pylint: disable=invalid-name
 
 
-class Expression(object):  # pytype: disable=ignored-metaclass
+class Expression(object, metaclass=abc.ABCMeta):
   """An expression represents the calculation of a prensor object."""
-
-  __metaclass__ = abc.ABCMeta
 
   def __init__(self,
                is_repeated: bool,
@@ -309,7 +302,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     return result
 
   def _schema_string_helper(self, field_name: path.Step,
-                            limit: Optional[int]) -> List[str]:  # pylint: disable=g-ambiguous-str-annotation
+                            limit: Optional[int]) -> List[str]:
     """Helper for schema_string."""
     repeated_as_string = "repeated" if self.is_repeated else "optional"
     if self.type is None:
@@ -566,7 +559,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     self._populate_schema_feature_children(result.feature)
     return result
 
-  def schema_string(self, limit: Optional[int] = None) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def schema_string(self, limit: Optional[int] = None) -> str:
     """Returns a schema for the expression.
 
     E.g.
@@ -606,7 +599,7 @@ class Expression(object):  # pytype: disable=ignored-metaclass
     """
     return id(self) == id(expr)
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     """If not overridden, returns the schema string."""
     return self.schema_string(limit=20)
 
@@ -628,8 +621,7 @@ class Leaf(Expression):
       my_type: the DType of the field.
       schema_feature: schema information about the field.
     """
-    super(Leaf, self).__init__(
-        is_repeated, my_type, schema_feature=schema_feature)
+    super().__init__(is_repeated, my_type, schema_feature=schema_feature)
 
   def _get_child_impl(self, field_name: path.Step) -> Optional["Expression"]:
     return None

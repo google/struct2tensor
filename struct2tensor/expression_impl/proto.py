@@ -18,13 +18,9 @@ Specifically, each node calculates additional tensors that are used as inputs
 for its children.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
-
 import abc
+from typing import Callable, FrozenSet, Mapping, Optional, Sequence, Set, Tuple, Union, cast
+
 from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import expression_add
@@ -33,8 +29,6 @@ from struct2tensor import prensor
 from struct2tensor.expression_impl import parse_message_level_ex
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import cast, Callable, FrozenSet, Mapping, Optional, Sequence, Set, Text, Tuple, Union
-
 
 from google.protobuf.descriptor_pb2 import FileDescriptorSet
 from google.protobuf import descriptor
@@ -42,11 +36,11 @@ from google.protobuf.descriptor_pool import DescriptorPool
 
 # To the best of my knowledge, ProtoFieldNames ARE strings.
 # Also includes extensions, encoded in a parentheses like (foo.bar.Baz).
-ProtoFieldName = str  # pylint: disable=g-ambiguous-str-annotation
-ProtoFullName = str  # pylint: disable=g-ambiguous-str-annotation
+ProtoFieldName = str
+ProtoFullName = str
 
 # A string representing a step in a path.
-StrStep = str  # pylint: disable=g-ambiguous-str-annotation
+StrStep = str
 
 
 def is_proto_expression(expr: expression.Expression) -> bool:
@@ -59,7 +53,7 @@ def create_expression_from_file_descriptor_set(
     tensor_of_protos: tf.Tensor,
     proto_name: ProtoFullName,
     file_descriptor_set: FileDescriptorSet,
-    message_format: Text = "binary") -> expression.Expression:
+    message_format: str = "binary") -> expression.Expression:
   """Create an expression from a 1D tensor of serialized protos.
 
   Args:
@@ -91,7 +85,7 @@ def create_expression_from_file_descriptor_set(
 def create_expression_from_proto(
     tensor_of_protos: tf.Tensor,
     desc: descriptor.Descriptor,
-    message_format: Text = "binary") -> expression.Expression:
+    message_format: str = "binary") -> expression.Expression:
   """Create an expression from a 1D tensor of serialized protos.
 
   Args:
@@ -204,7 +198,7 @@ class _ProtoRootNodeTensor(prensor.RootNodeTensor):
 
   def __init__(self, size: tf.Tensor,
                fields: Mapping[StrStep, struct2tensor_ops._ParsedField]):
-    super(_ProtoRootNodeTensor, self).__init__(size)
+    super().__init__(size)
     self.fields = fields
 
 
@@ -223,7 +217,7 @@ class _ProtoChildNodeTensor(prensor.ChildNodeTensor):
 
   def __init__(self, parent_index: tf.Tensor, is_repeated: bool,
                fields: Mapping[StrStep, struct2tensor_ops._ParsedField]):
-    super(_ProtoChildNodeTensor, self).__init__(parent_index, is_repeated)
+    super().__init__(parent_index, is_repeated)
     self.fields = fields
 
 
@@ -235,7 +229,7 @@ class _AbstractProtoChildExpression(expression.Expression):
 
   def __init__(self, parent: "_ParentProtoExpression", name_as_field: StrStep,
                is_repeated: bool, my_type: Optional[tf.DType]):
-    super(_AbstractProtoChildExpression, self).__init__(is_repeated, my_type)
+    super().__init__(is_repeated, my_type)
     self._parent = parent
     self._name_as_field = name_as_field
 
@@ -305,10 +299,9 @@ class _ProtoLeafExpression(_AbstractProtoChildExpression):
       desc: the field descriptor of the expression name_as_field.
       name_as_field: the name of the field.
     """
-    super(_ProtoLeafExpression, self).__init__(
-        parent, name_as_field,
-        desc.label == descriptor.FieldDescriptor.LABEL_REPEATED,
-        struct2tensor_ops._get_dtype_from_cpp_type(desc.cpp_type))  # pylint: disable=protected-access
+    super().__init__(parent, name_as_field,
+                     desc.label == descriptor.FieldDescriptor.LABEL_REPEATED,
+                     struct2tensor_ops._get_dtype_from_cpp_type(desc.cpp_type))  # pylint: disable=protected-access
     # TODO(martinz): make _get_dtype_from_cpp_type public.
     self._field_descriptor = desc
 
@@ -332,7 +325,7 @@ class _ProtoLeafExpression(_AbstractProtoChildExpression):
   def known_field_names(self) -> FrozenSet[path.Step]:
     return frozenset()
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return "_ProtoLeafExpression: {} from {}".format(self.name_as_field,
                                                      self._parent)
 
@@ -362,8 +355,7 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
       is_repeated: whether the field is repeated.
       name_as_field: the name of the field.
     """
-    super(_ProtoChildExpression, self).__init__(parent, name_as_field,
-                                                is_repeated, None)
+    super().__init__(parent, name_as_field, is_repeated, None)
     self._desc = desc
 
   def calculate_from_parsed_field(self,
@@ -391,7 +383,7 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
   def known_field_names(self) -> FrozenSet[path.Step]:
     return _known_field_names_from_descriptor(self._desc)
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return "_ProtoChildExpression: name_as_field: {} desc: {} from {}".format(
         str(self.name_as_field), str(self._desc.full_name), self._parent)
 
@@ -427,7 +419,7 @@ class _TransformProtoChildExpression(_ProtoChildExpression):
             self.name_as_field == expr.name_as_field
             and self.transform_fn is expr.transform_fn)
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return ("_TransformProtoChildExpression: name_as_field: {} desc: {} from {}"
             .format(
                 str(self.name_as_field), str(self._desc.full_name),
@@ -444,7 +436,7 @@ class _ProtoRootExpression(expression.Expression):
   def __init__(self,
                desc: descriptor.Descriptor,
                tensor_of_protos: tf.Tensor,
-               message_format: Text = "binary"):
+               message_format: str = "binary"):
     """Initialize a proto expression.
 
     Args:
@@ -453,7 +445,7 @@ class _ProtoRootExpression(expression.Expression):
       message_format: Indicates the format of the protocol buffer: is one of
        'text' or 'binary'.
     """
-    super(_ProtoRootExpression, self).__init__(True, None)
+    super().__init__(True, None)
     self._descriptor = desc
     self._tensor_of_protos = tensor_of_protos
     self._message_format = message_format
@@ -501,7 +493,7 @@ class _ProtoRootExpression(expression.Expression):
   def known_field_names(self) -> FrozenSet[path.Step]:
     return _known_field_names_from_descriptor(self._descriptor)
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return "_ProtoRootExpression: {}".format(str(self._descriptor.full_name))
 
 

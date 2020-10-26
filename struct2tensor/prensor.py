@@ -21,17 +21,13 @@ For operations on the expression, see prensor_util.py and create_expression.py.
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 import collections
 import enum
-import six
+from typing import FrozenSet, Iterator, List, Mapping, Optional, Sequence, Tuple, Union
+
 from struct2tensor import path
 import tensorflow as tf
-from typing import FrozenSet, Iterator, List, Mapping, Optional, Sequence, Tuple, Union
+
 from tensorflow.python.framework import composite_tensor  # pylint: disable=g-direct-tensorflow-import
 
 
@@ -186,8 +182,8 @@ class _PrensorTypeSpec(tf.TypeSpec):
       components.append(node.parent_index)
       components.append(node.values)
 
-    for (_, child_spec), child in six.moves.zip(
-        self._children_specs, six.itervalues(value.get_children())):
+    for (_, child_spec), child in zip(
+        self._children_specs, value.get_children().values()):
       child_spec._append_to_components(  # pylint: disable=protected-access
           child, components)
 
@@ -355,7 +351,7 @@ class Prensor(composite_tensor.CompositeTensor):
     """Returns the field names of the children."""
     return frozenset(self._children.keys())
 
-  def _string_helper(self, field_name: path.Step) -> Sequence[str]:  # pylint: disable=g-ambiguous-str-annotation
+  def _string_helper(self, field_name: path.Step) -> Sequence[str]:
     """Helper for __str__ that outputs a list of lines.
 
     Args:
@@ -370,7 +366,7 @@ class Prensor(composite_tensor.CompositeTensor):
       result.extend(["  {}".format(x) for x in recursive])
     return result
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     """Returns a string representing the schema of the Prensor."""
     return "\n".join(self._string_helper("root"))
 
@@ -393,7 +389,7 @@ class Prensor(composite_tensor.CompositeTensor):
         node_type,
         value_dtype,
         [(step, child._type_spec)
-         for step, child in six.iteritems(self.get_children())])
+         for step, child in self.get_children().items()])
     # pylint: enable=protected-access
 
 

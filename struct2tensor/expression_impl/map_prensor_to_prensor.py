@@ -20,23 +20,30 @@ is required.
 
 For example, suppose you have an op my_op, that takes a prensor of the form:
 
+```
   event
    / \
  foo   bar
+```
 
 and produces a prensor of the form my_result_schema:
 
+```
    event
     / \
  foo2 bar2
+```
 
+```
 my_result_schema = create_schema(
     is_repeated=True,
     children={"foo2":{is_repeated:True, dtype:tf.int64},
               "bar2":{is_repeated:False, dtype:tf.int64}})
+```
 
 If you give it an expression original with the schema:
 
+```
  session
     |
   event
@@ -48,22 +55,21 @@ result = map_prensor_to_prensor(
   path.Path(["session","event"]),
   my_op,
   my_result_schema)
+```
 
 Result will have the schema:
 
+```
  session
     |
   event--------
   /  \    \    \
 foo   bar foo2 bar2
-
+```
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Any, Callable, Dict, FrozenSet, Optional, Sequence, Union
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -71,7 +77,6 @@ from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import Any, Callable, Dict, FrozenSet, Optional, Sequence, Union
 
 from tensorflow_metadata.proto.v0 import schema_pb2
 
@@ -290,7 +295,7 @@ class _PrensorAsRootNodeTensor(prensor.RootNodeTensor):
   def __init__(self, prensor_tree: prensor.Prensor,
                root: prensor.RootNodeTensor):
     """Call _tree_as_node instead."""
-    super(_PrensorAsRootNodeTensor, self).__init__(root.size)
+    super().__init__(root.size)
     self._prensor = prensor_tree
 
   @property
@@ -304,8 +309,7 @@ class _PrensorAsChildNodeTensor(prensor.ChildNodeTensor):
   def __init__(self, prensor_tree: prensor.Prensor,
                child: prensor.ChildNodeTensor):
     """Call _tree_as_node instead."""
-    super(_PrensorAsChildNodeTensor, self).__init__(child.parent_index,
-                                                    child.is_repeated)
+    super().__init__(child.parent_index, child.is_repeated)
     self._prensor = prensor_tree
 
   @property
@@ -345,7 +349,7 @@ class _PrensorOpChildExpression(expression.Expression):
 
   def __init__(self, parent: expression.Expression, step: path.Step,
                schema: Schema):
-    super(_PrensorOpChildExpression, self).__init__(
+    super().__init__(
         schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
     self._parent = parent
     self._step = step
@@ -421,7 +425,7 @@ class _PrensorOpExpression(expression.Expression):
       schema: the schema of the result. If a path is not in the schema, it is
         not calculated.
     """
-    super(_PrensorOpExpression, self).__init__(
+    super().__init__(
         schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
 
     self._origin = origin

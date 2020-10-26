@@ -16,6 +16,7 @@ r"""Caps the depth of an expression.
 
 Suppose you have an expression expr modeled as:
 
+```
   *
    \
     A
@@ -23,28 +24,27 @@ Suppose you have an expression expr modeled as:
   D   B
        \
         C
+```
 
 if expr_2 = depth_limit.limit_depth(expr, 2)
 You get:
 
+```
   *
    \
     A
    / \
   D   B
+```
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import FrozenSet, Optional, Sequence
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import path
 from struct2tensor import prensor
-from typing import FrozenSet, Optional, Sequence
 
 
 def limit_depth(expr: expression.Expression,
@@ -57,7 +57,7 @@ class _DepthLimitExpression(expression.Expression):
   """Project all subfields of an expression."""
 
   def __init__(self, origin: expression.Expression, depth_limit: int):
-    super(_DepthLimitExpression, self).__init__(origin.is_repeated, origin.type)
+    super().__init__(origin.is_repeated, origin.type)
     self._origin = origin
     self._depth_limit = depth_limit
 

@@ -42,17 +42,14 @@ All of this code does a variety of optimizations:
    calculation.
 
 """
-from __future__ import absolute_import
-from __future__ import division
 
-from __future__ import print_function
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
 # type(id(...)), disambiguated for clarity
 IDExpression = int
@@ -252,7 +249,7 @@ class _ExpressionNode(object):
     # as opposed to semantic equality.
     return all([a is b for a, b in zip(self.sources, node.sources)])
 
-  def __str__(self) -> str:  # pylint: disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return ("expression: {expression} sources: {sources} destinations: "
             "{destinations} value: {value}").format(
                 expression=str(self.expression),
@@ -378,7 +375,7 @@ class OriginalExpressionGraph(ExpressionGraph):
   """
 
   def __init__(self, expressions: Sequence[expression.Expression]):
-    super(OriginalExpressionGraph, self).__init__()
+    super().__init__()
     self._add_expressions(expressions)
     original_nodes = list(self._node.values())
     self._find_destinations(original_nodes)
@@ -431,7 +428,7 @@ class CanonicalExpressionGraph(ExpressionGraph):
   """
 
   def __init__(self, original: ExpressionGraph):
-    super(CanonicalExpressionGraph, self).__init__()
+    super().__init__()
     # Nodes indexed by _ExpressionNode.
     self._node_map = {}  # type: Dict[_ExpressionNode, _ExpressionNode]
     self._add_expressions([x.expression for x in original.ordered_node_list])

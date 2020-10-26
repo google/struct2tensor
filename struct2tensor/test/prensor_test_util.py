@@ -17,17 +17,11 @@ See create_simple_prensor() and create_nested_prensor().
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
+from typing import Any, Sequence
 
 from struct2tensor import path
 from struct2tensor import prensor
 import tensorflow as tf
-from typing import Any, Sequence
-
 
 from google.protobuf import text_format
 from tensorflow_metadata.proto.v0 import schema_pb2

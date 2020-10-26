@@ -14,6 +14,8 @@
 r"""promote_and_broadcast a set of nodes.
 
 For example, suppose an expr represents:
+
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -51,12 +53,16 @@ session: {
     age: 20
   }
 }
+```
 
+```
 promote_and_broadcast.promote_and_broadcast(
     path.Path(["event"]),{"nage":path.Path(["user_info","age"])})
+```
 
 creates:
 
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -98,21 +104,17 @@ session: {
     age: 20
   }
 }
+```
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
+from typing import Mapping, Tuple
 
 from struct2tensor import expression
 from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor.expression_impl import broadcast
 from struct2tensor.expression_impl import promote
-from typing import Mapping, Tuple
 
 
 def promote_and_broadcast_anonymous(

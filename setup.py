@@ -13,9 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 """Setup for pip package."""
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 from setuptools import find_packages
 from setuptools import setup
@@ -63,7 +60,7 @@ setup(
     install_requires=[
         'protobuf>=3.8.0,<4',
         'tensorflow>=2.3.0,<2.4',
-        'tensorflow_metadata>=0.23,<0.24',
+        'tensorflow_metadata>=0.24,<0.25',
         'pyarrow>=0.15,<1',
     ],
     # Add in any packaged data.
@@ -81,9 +78,9 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',

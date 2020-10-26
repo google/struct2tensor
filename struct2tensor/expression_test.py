@@ -20,10 +20,6 @@ others evaluated the resulting expression object's structure.
 For further tests on expressions, see v1_compat_test.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from absl.testing import absltest
 
 from struct2tensor import create_expression

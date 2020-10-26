@@ -17,26 +17,24 @@ project is often used right before calculating the value.
 
 Example:
 
+```
 expr = ...
 new_expr = project.project(expr, [path.Path(["foo","bar"]),
                                   path.Path(["x", "y"])])
 [prensor_result] = calculate.calculate_prensors([new_expr])
+```
 
 prensor_result now has two paths, "foo.bar" and "x.y".
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 import collections
+from typing import FrozenSet, List, Mapping, Optional, Sequence
+
 from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import path
 from struct2tensor import prensor
-from typing import FrozenSet, List, Mapping, Optional, Sequence
 
 
 def project(expr: expression.Expression,
@@ -75,8 +73,7 @@ class _ProjectExpression(expression.Expression):
   """Project all subfields of an expression."""
 
   def __init__(self, origin: expression.Expression, paths: Sequence[path.Path]):
-    super(_ProjectExpression, self).__init__(origin.is_repeated, origin.type,
-                                             origin.schema_feature)
+    super().__init__(origin.is_repeated, origin.type, origin.schema_feature)
     self._paths_map = _group_paths_by_first_step(paths)
     self._origin = origin
 

@@ -21,6 +21,7 @@ filter_by_sibling allows you to filter an expression by a boolean sibling field.
 
 Beginning with the struct:
 
+```
 root =
          -----*----------------------------------------------------
         /                       \                                  \
@@ -45,22 +46,21 @@ End with the struct (suppressing original doc):
                            new_doc0-----------
                              \           \    \
                              bar:"b" bar:"c" keep_me:True
-
+```
 
 filter_by_sibling allows you to filter an expression by a optional boolean
 child field.
 
 The following call will have the same effect as above:
 
+```
 root_2 = filter_expression.filter_by_child(
     root, path.create_path("doc"), "keep_me", "new_doc")
+```
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import FrozenSet, Optional, Sequence, Union
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -69,7 +69,6 @@ from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
-from typing import FrozenSet, Optional, Sequence, Union
 
 
 def filter_by_sibling(expr: expression.Expression, p: path.Path,
@@ -138,7 +137,7 @@ class _FilterRootNodeTensor(prensor.RootNodeTensor):
       size: an int64 scalar tensor
       indices_to_keep: a 1D int64 tensor (int64 vector)
     """
-    super(_FilterRootNodeTensor, self).__init__(size)
+    super().__init__(size)
     self._indices_to_keep = indices_to_keep
 
   @property
@@ -161,7 +160,7 @@ class _FilterChildNodeTensor(prensor.ChildNodeTensor):
       is_repeated: true if there can be more than one element per parent
       indices_to_keep: an int64 1D tensor (an int64 vector)
     """
-    super(_FilterChildNodeTensor, self).__init__(parent_index, is_repeated)
+    super().__init__(parent_index, is_repeated)
     self._indices_to_keep = indices_to_keep
 
   def __str__(self):
@@ -277,8 +276,7 @@ class _FilterBySiblingExpression(expression.Expression):
 
   def __init__(self, origin: expression.Expression,
                sibling: expression.Expression):
-    super(_FilterBySiblingExpression, self).__init__(origin.is_repeated,
-                                                     origin.type)
+    super().__init__(origin.is_repeated, origin.type)
     self._origin = origin
     self._sibling = sibling
     if sibling.type != tf.bool:
@@ -326,8 +324,7 @@ class _FilterByChildExpression(expression.Expression):
 
   def __init__(self, origin: expression.Expression,
                child: expression.Expression):
-    super(_FilterByChildExpression, self).__init__(origin.is_repeated,
-                                                   origin.type)
+    super().__init__(origin.is_repeated, origin.type)
     self._origin = origin
     self._child = child
     if child.type != tf.bool:

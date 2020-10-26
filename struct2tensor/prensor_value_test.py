@@ -13,10 +13,6 @@
 # limitations under the License.
 """Tests for struct2tensor.create_expression."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor import prensor_value  # pylint: disable=unused-import

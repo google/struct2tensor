@@ -89,7 +89,7 @@ class ParquetReader {
   // Returns an Unimplemented error if the tensorflow data type is not handled.
   // Returns an Internal error if there was a problem reading the levels.
   tensorflow::Status ReadMessages(
-      tensorflow::IteratorContext* ctx,
+      tensorflow::data::IteratorContext* ctx,
       std::vector<ParentIndicesAndValues>* parent_indices_and_values,
       bool* end_of_file);
 
@@ -117,7 +117,7 @@ class ParquetReader {
   // Returns an Unimplemented error if the tensorflow data type is not handled.
   // Returns an Internal error if there was a problem reading the levels.
   tensorflow::Status ReadOneColumn(
-      tensorflow::IteratorContext* ctx, const int column_index,
+      tensorflow::data::IteratorContext* ctx, const int column_index,
       std::vector<ParentIndicesAndValues>* parent_indices_and_values,
       int* messages_read);
 
@@ -125,7 +125,7 @@ class ParquetReader {
   // Writes the levels and values to def_levels, rep_levels, and value_tensor.
   template <typename ParquetDataType, typename T>
   tensorflow::Status ReadOneColumnTemplated(
-      tensorflow::IteratorContext* ctx, int column_index,
+      tensorflow::data::IteratorContext* ctx, int column_index,
       std::vector<int16_t>* def_levels, std::vector<int16_t>* rep_levels,
       std::vector<tensorflow::Tensor>* value_tensor, int* messages_read);
 

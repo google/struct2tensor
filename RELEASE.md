@@ -1,5 +1,24 @@
 # `struct2tensor` release notes
 
+## Release 0.24.0
+
+## Major Features and Improvements
+
+*   Add support for converting prensor to `StructuredTensor`.
+
+## Bug Fixes and Other Changes
+
+*   Depends on `tensorflow>=2.3.0,<2.4`
+*   Depends on `tensorflow-metadata>=0.24,<0.25`
+
+## Breaking changes
+
+*   N/A
+
+## Deprecations
+
+*   Deprecated py3.5 support
+
 ## Release 0.23.0
 
 ### Major Features and Improvements

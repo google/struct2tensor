@@ -19,7 +19,7 @@ one can perform simpler operations.
 
 For example, suppose an expr represents:
 
-
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -48,8 +48,15 @@ session: {
   }
 }
 
-promote.promote(expr, path.Path(["session", "event", "val"]), nval) produces:
+```
 
+```
+promote.promote(expr, path.Path(["session", "event", "val"]), nval)
+```
+
+produces:
+
+```
 +
 |
 +-session*   (stars indicate repeated)
@@ -85,15 +92,12 @@ session: {
   nval: 7
   nval: 1
 }
+```
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
-
 from typing import FrozenSet, Optional, Sequence, Tuple
+
 from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import expression_add
@@ -110,7 +114,7 @@ class PromoteExpression(expression.Leaf):
   def __init__(self, origin: expression.Expression,
                origin_parent: expression.Expression):
 
-    super(PromoteExpression, self).__init__(
+    super().__init__(
         origin.is_repeated or origin_parent.is_repeated,
         origin.type,
         schema_feature=_get_promote_schema_feature(
@@ -154,7 +158,7 @@ class PromoteChildExpression(expression.Expression):
   def __init__(self, origin: expression.Expression,
                origin_parent: expression.Expression):
 
-    super(PromoteChildExpression, self).__init__(
+    super().__init__(
         origin.is_repeated or origin_parent.is_repeated,
         origin.type,
         schema_feature=_get_promote_schema_feature(

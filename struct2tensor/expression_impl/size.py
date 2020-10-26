@@ -14,19 +14,22 @@
 """Functions for creating new size or has expression.
 
 Given a field "foo.bar",
+
+```
 root = size(expr, path.Path(["foo","bar"]), "bar_size")
+```
+
 creates a new expression root that has an optional field "foo.bar_size", which
 is always present, and contains the number of bar in a particular foo.
 
+```
 root_2 = has(expr, path.Path(["foo","bar"]), "bar_has")
+```
+
 creates a new expression root that has an optional field "foo.bar_has", which
 is always present, and is true if there are one or more bar in foo.
 """
-
-from __future__ import absolute_import
-from __future__ import division
-
-from __future__ import print_function
+from typing import Optional, Sequence, Tuple
 
 from struct2tensor import calculate_options
 from struct2tensor import expression
@@ -35,7 +38,6 @@ from struct2tensor import path
 from struct2tensor import prensor
 from struct2tensor.expression_impl import map_values
 import tensorflow as tf
-from typing import Optional, Sequence, Tuple
 
 
 def size_anonymous(root: expression.Expression, source_path: path.Path
@@ -97,7 +99,7 @@ class SizeExpression(expression.Leaf):
 
   def __init__(self, origin: expression.Expression,
                origin_parent: expression.Expression):
-    super(SizeExpression, self).__init__(False, tf.int64)
+    super().__init__(False, tf.int64)
     self._origin = origin
     self._origin_parent = origin_parent
 
