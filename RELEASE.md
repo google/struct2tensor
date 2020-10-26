@@ -9,7 +9,7 @@
 ## Bug Fixes and Other Changes
 
 *   Depends on `tensorflow>=2.3.0,<2.4`
-*   Depends on `tensorflow-metadata>=0.24,<0.25`
+*   Depends on `tensorflow-metadata>=0.24,<0.25`ghfcch
 
 ## Breaking changes
 
