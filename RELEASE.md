@@ -4,7 +4,19 @@
 
 ## Major Features and Improvements
 
-*   Added api documentation in g3doc.
+*   From this release Struct2Tensor will also be hosting nightly packages on
+    https://pypi-nightly.tensorflow.org. To install the nightly package use the
+    following command:
+
+    ```
+    pip install -i https://pypi-nightly.tensorflow.org/simple struct2tensor
+    ```
+
+    Note: These nightly packages are unstable and breakages are likely to
+    happen. The fix could often take a week or more depending on the complexity
+    involved for the wheels to be available on the PyPI cloud service. You can
+    always use the stable version of struct2tensor available on PyPI by running
+    the command `pip install struct2tensor` .
 
 ## Bug Fixes and Other Changes
 

@@ -37,6 +37,18 @@ From a virtual environment, run:
 ```bash
 pip install struct2tensor
 ```
+### Nightly Packages
+
+Struct2Tensor also hosts nightly packages at https://pypi-nightly.tensorflow.org
+on Google Cloud. To install the latest nightly package, please use the following
+command:
+
+```bash
+pip install -i https://pypi-nightly.tensorflow.org/simple struct2tensor
+```
+
+This will install the nightly packages for the major dependencies of Fairness
+Indicators such as TensorFlow Metadata (TFMD).
 
 ## Creating a PIP package.
 
