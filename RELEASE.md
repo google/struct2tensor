@@ -4,6 +4,16 @@
 
 ## Major Features and Improvements
 
+## Bug Fixes and Other Changes
+
+## Breaking changes
+
+## Deprecations
+
+## Release 0.25.0
+
+## Major Features and Improvements
+
 *   From this release Struct2Tensor will also be hosting nightly packages on
     https://pypi-nightly.tensorflow.org. To install the nightly package use the
     following command:
@@ -22,13 +32,19 @@
 
 *   Update __init__.py to import the API, instead of just the modules.
 *   Provide an __init__.py for struct2tensor.expression_impl directory. This is
-    ment for power users.
+    meant for power users.
 *   Update python notebook to use import style.
 *   Fix bug in prensor_to_structured_tensor.
+*   Depends on `tensorflow-metadata>=0.25,<0.26`.
+*   Depends on `pyarrow>=0.17,<1`.
 
 ## Breaking changes
 
+*   N/A
+
 ## Deprecations
+
+*   N/A
 
 ## Release 0.24.0
 

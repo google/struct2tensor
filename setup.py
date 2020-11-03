@@ -77,10 +77,10 @@ setup(
         'protobuf>=3.8.0,<4',
         'tensorflow>=2.3.0,<2.4',
         'tensorflow-metadata' + select_constraint(
-            default='>=0.24,<0.25',
-            nightly='>=0.25.0.dev',
+            default='>=0.25,<0.26',
+            nightly='>=0.26.0.dev',
             git_master='@git+https://github.com/tensorflow/metadata@master'),
-        'pyarrow>=0.15,<1',
+        'pyarrow>=0.17,<1',
     ],
     # Add in any packaged data.
     include_package_data=True,
