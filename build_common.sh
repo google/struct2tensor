@@ -40,10 +40,10 @@ function install_tensorflow() {
 
   if [[ ("$1" == PRERELEASED_TF) || ("$1" == PRERELEASED_TF_2) ]]; then
     "${PIP_COMMAND}" install --pre "${TF_PIP_PACKAGE}" \
-        || (echo "failed to install prereleased tensorflow version: ${TF_PIP_PACKAGE}" && exit 1)
+        || { echo "failed to install prereleased tensorflow version: ${TF_PIP_PACKAGE}"; exit 1; }
   else
     "${PIP_COMMAND}" install "${TF_PIP_PACKAGE}" \
-        || (echo "failed to install tensorflow version: ${TF_PIP_PACKAGE}" && exit 1)
+        || { echo "failed to install tensorflow version: ${TF_PIP_PACKAGE}"; exit 1; }
   fi
 
   "${PYTHON_BIN_PATH}" -c 'import tensorflow as tf; print(tf.version.VERSION)'
@@ -80,18 +80,18 @@ install_tensorflow ${TF_VERSION} ${PIP_BIN_PATH} ${PYTHON_BIN_PATH}
 if [[ ("${TF_VERSION}" == "NIGHTLY_TF") || ("${TF_VERSION}" == "NIGHTLY_TF_2") ]]; then
   # Get the github commit sha for tf-nightly
   GIT_VERSION=$(${PYTHON_BIN_PATH} -c "import tensorflow as tf; print(tf.__git_version__)") \
-    || (echo "failed to get tf-nightly git version" && exit 1)
+    || { echo "failed to get tf-nightly git version"; exit 1; }
 
   TF_NIGHTLY_COMMIT=$(curl -X GET "https://api.github.com/repos/tensorflow/tensorflow/commits?sha="${GIT_VERSION}"" | "${PYTHON_BIN_PATH}" -c "import sys, json; print(json.load(sys.stdin)[0]['sha'])") \
-    || (echo "failed to get git commit sha" && exit 1)
+    || { echo "failed to get git commit sha"; exit 1; }
 
   # Replaces _TENSORFLOW_GIT_COMMIT with TF_NIGHTLY_COMMIT
-  sed -i 's/^_TENSORFLOW_GIT_COMMIT = ".*/_TENSORFLOW_GIT_COMMIT = '\""${TF_NIGHTLY_COMMIT}"\"'/g' WORKSPACE \
-    || (echo "failed to replace tf commit in tf_version.bzl" && exit 1)
+  sed -i'' -e 's/^_TENSORFLOW_GIT_COMMIT = ".*/_TENSORFLOW_GIT_COMMIT = '\""${TF_NIGHTLY_COMMIT}"\"'/g' WORKSPACE \
+    || { echo "failed to replace tf commit in tf_version.bzl"; exit 1; }
 
   # Replaces _TENSORFLOW_SHA256 with empty string
-  sed -i 's/^_TENSORFLOW_ARCHIVE_SHA256 = ".*/_TENSORFLOW_ARCHIVE_SHA256 = '\"\"'/g' WORKSPACE \
-    || (echo "failed to replace tf sha256 in tf_version.bzl" && exit 1)
+  sed -i'' -e 's/^_TENSORFLOW_ARCHIVE_SHA256 = ".*/_TENSORFLOW_ARCHIVE_SHA256 = '\"\"'/g' WORKSPACE \
+    || { echo "failed to replace tf sha256 in tf_version.bzl"; exit 1; }
 
 fi
 
@@ -101,9 +101,9 @@ bazel run -c opt \
   :build_pip_package \
   -- \
   --python_bin_path "${PYTHON_BIN_PATH}" \
-  || (echo "failed to build the pip package" && exit 1)
+  || { echo "failed to build the pip package"; exit 1; }
 
 # struct2tensor/ops:op_kernel_registration_test builds and links struct2tensor
 # ops against TF source (pulled from @org_tensorflow).
 bazel test -c opt struct2tensor/ops:op_kernel_registration_test \
-  || (echo "failed to build struct2tensor ops statically" && exit 1)
+  || { echo "failed to build struct2tensor ops statically"; exit 1; }
