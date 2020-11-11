@@ -3,6 +3,8 @@
 # Current version (not yet released; still in development)
 
 ## Major Features and Improvements
+*  Created a docker image that contains a TF model server with struct2tensor
+   ops linked. see tools/tf_serving_docker/Dockerfile.
 
 ## Bug Fixes and Other Changes
 
