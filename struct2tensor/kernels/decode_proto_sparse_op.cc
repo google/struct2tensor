@@ -50,7 +50,6 @@ limitations under the License.
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/types.h"
 
-
 namespace struct2tensor {
 namespace {
 using ::absl::string_view;
@@ -76,7 +75,7 @@ using ::tensorflow::TensorShapeUtils;
 using ::tensorflow::tstring;
 using ::tensorflow::errors::DataLoss;
 using ::tensorflow::errors::InvalidArgument;
-const bool kFailOnDecodeError = true;
+constexpr bool kFailOnDecodeError = true;
 
 // Creates the output tensor of index `output_index` and populates it with
 // contents in `vec`.
