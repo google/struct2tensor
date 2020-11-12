@@ -447,7 +447,8 @@ tensorflow::Status ParquetReader::ReadOneColumnTemplated(
   }
   tensorflow::Tensor res(ctx->allocator({}), value_dtypes_[column_index],
                          {static_cast<long long>(cumulative_values.size())});
-  struct2tensor::VectorToTensor(cumulative_values, &res);
+  struct2tensor::VectorToTensor(cumulative_values, &res,
+                                /*produce_string_view=*/false);
   value_tensor->push_back(res);
   return tensorflow::Status::OK();
 }

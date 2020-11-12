@@ -19,9 +19,11 @@ limitations under the License.
 using ::tensorflow::Status;
 using ::tensorflow::shape_inference::InferenceContext;
 
-REGISTER_OP("DecodeProtoMap")
+REGISTER_OP("DecodeProtoMapV2")
     .Input("serialized_map_entries: string")
     .Input("map_entries_parent_indices: int64")
+    .Input("backing_string: num_backing_string * string")
+    .Attr("num_backing_string: int >= 0 = 0")
     .Attr("message_type: string")
     .Attr("keys: list(string) >= 0")
     .Attr("num_keys: int")
@@ -50,6 +52,16 @@ this Tensor should have the same shape as `serialized_map_entries`.
 map_entries_parent_indices[i] == j means serialized_map_entries[i] came from
 the j-th logical map.
 
+`backing_string`: a list of string tensors which back string_views in
+  `serialized_map_entries`, if any. This is an optimization to prevent
+  alloc/dealloc of subtree serialized protos tensors. This input is not
+  functionally used other than to keep the backing string alive in memory. If
+  provided, serialized sub-messages decoded by this op will be string_views
+  pointing to `serialize_map_entries` (which might also be a string_view).
+
+`num_backing_string`: The number of backing_string inputs. Default to 0 and can
+  be empty to allow backward compatility.
+
 `message_type`: fully qualified name of the map entry submessage. (e.g.
 some.package.SomeMapMapEntry).
 
@@ -76,3 +88,25 @@ see `map_entries_parent_indices`)
 The OP might raise DataLoss if any of the serialized map entries is corrupted.
 It might also raise InvalidArgumentError if the attributes are not expected.
 )doc");
+
+// See DecodeProtoMapV2. DecodeProtoMap omits `backing_string` and
+// `num_backing_string` and does not support string_views  for
+// intermediate serialized proto outputs.
+REGISTER_OP("DecodeProtoMap")
+    .Input("serialized_map_entries: string")
+    .Input("map_entries_parent_indices: int64")
+    .Attr("message_type: string")
+    .Attr("keys: list(string) >= 0")
+    .Attr("num_keys: int")
+    .Attr("output_type: type")
+    .Attr("descriptor_literal: string")
+    .Output("values: num_keys * output_type")
+    .Output("indices: num_keys * int64")
+    .SetShapeFn([](InferenceContext* c) {
+      int num_keys;
+      TF_RETURN_IF_ERROR(c->GetAttr("num_keys", &num_keys));
+      for (int i = 0; i < 2 * num_keys; ++i) {
+        c->set_output(i, c->Vector(c->UnknownDim()));
+      }
+      return Status::OK();
+    });

@@ -14,9 +14,9 @@
 
 # CPU kernels for struct2tensors.
 
-package(default_visibility = ["//visibility:public"])
-
 load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_library")
+
+package(default_visibility = ["//visibility:public"])
 
 licenses(["notice"])  # Apache 2.0
 

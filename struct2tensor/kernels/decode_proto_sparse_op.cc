@@ -46,8 +46,10 @@ limitations under the License.
 #include "struct2tensor/kernels/vector_to_tensor.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/tensor_types.h"
+#include "tensorflow/core/framework/tensor_util.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/tstring.h"
 #include "tensorflow/core/platform/types.h"
 
 namespace struct2tensor {
@@ -84,7 +86,8 @@ constexpr bool kFailOnDecodeError = true;
 template <typename T>
 ::tensorflow::Status ToOutputTensor(OpKernelContext* context,
                                     const int output_index,
-                                    const vector<T>& vec) {
+                                    const vector<T>& vec,
+                                    bool produce_string_view) {
   TensorShape output_shape;
   const tensorflow::int64 tensor_size = vec.size();
   TF_RETURN_IF_ERROR(
@@ -95,7 +98,7 @@ template <typename T>
       context->allocate_output(output_index, output_shape, &result));
 
   if (tensor_size > 0) {
-    VectorToTensor(vec, result);
+    VectorToTensor(vec, result, produce_string_view);
   }
   return tensorflow::Status::OK();
 }
@@ -216,7 +219,8 @@ class FieldBuilder {
   // Produces the tensor at the end.
   // Clears the internal state.
   // context is the context of the kernel where we are creating the output.
-  virtual tensorflow::Status Produce(OpKernelContext* context) = 0;
+  virtual tensorflow::Status Produce(OpKernelContext* context,
+                                     bool produce_string_view) = 0;
 
   int wire_number() const { return wire_number_; }
 
@@ -287,10 +291,15 @@ class FieldBuilderImpl : public FieldBuilder {
                                : CollectValue(input, message_index);
   }
 
-  tensorflow::Status Produce(OpKernelContext* context) override {
-    TF_RETURN_IF_ERROR(ToOutputTensor(context, output_index_value_, values_));
-    TF_RETURN_IF_ERROR(
-        ToOutputTensor(context, output_index_parent_index_, parent_indices_));
+  tensorflow::Status Produce(OpKernelContext* context,
+                             bool produce_string_view) override {
+    produce_string_view &=
+        (DataType == WireFormatLite::FieldType::TYPE_MESSAGE ||
+         DataType == WireFormatLite::FieldType::TYPE_GROUP);
+    TF_RETURN_IF_ERROR(ToOutputTensor(context, output_index_value_, values_,
+                                      produce_string_view));
+    TF_RETURN_IF_ERROR(ToOutputTensor(context, output_index_parent_index_,
+                                      parent_indices_, produce_string_view));
     return Status::OK();
   }
 
@@ -591,6 +600,7 @@ struct FieldBuilderAndFactory {
   FieldBuilderFactory* field_builder_factory;
 };
 
+template <int kOpVersion>
 class DecodeProtoSparseOp : public OpKernel {
  public:
   explicit DecodeProtoSparseOp(OpKernelConstruction* context)
@@ -702,8 +712,16 @@ class DecodeProtoSparseOp : public OpKernel {
   }
 
   void Compute(OpKernelContext* ctx) override {
-    const Tensor& buf_tensor = ctx->input(0);
-    const int message_count = buf_tensor.NumElements();
+    const Tensor* buf_tensor;
+    OP_REQUIRES_OK(ctx, ctx->input("bytes", &buf_tensor));
+
+    bool produce_string_view = false;
+    if (kOpVersion > 2) {
+      tensorflow::OpInputList backing_strings;
+      OP_REQUIRES_OK(ctx, ctx->input_list("backing_string", &backing_strings));
+      produce_string_view = (backing_strings.size() != 0);
+    }
+    const int message_count = buf_tensor->NumElements();
     const int field_count = field_builder_factories_.size();
 
     OP_REQUIRES(ctx, ctx->num_outputs() == field_count * 2,
@@ -723,7 +741,7 @@ class DecodeProtoSparseOp : public OpKernel {
     if (is_binary_ && !sanitize_) {
       // Fast path.
       for (int mi = 0; mi < message_count; ++mi) {
-        const tstring* buf = &buf_tensor.flat<tstring>()(mi);
+        const tstring* buf = &buf_tensor->flat<tstring>()(mi);
         bufs.push_back(buf);
       }
     } else {
@@ -732,7 +750,7 @@ class DecodeProtoSparseOp : public OpKernel {
       // binary or to sanitize a binary proto.
       for (int mi = 0; mi < message_count; ++mi) {
         tmp_binary_bufs.emplace_back();
-        ReserializeMessage(ctx, buf_tensor.flat<tstring>()(mi),
+        ReserializeMessage(ctx, buf_tensor->flat<tstring>()(mi),
                            &tmp_binary_bufs.back());
         if (!ctx->status().ok()) {
           return;
@@ -758,7 +776,7 @@ class DecodeProtoSparseOp : public OpKernel {
     // This is the wire number order. I am counting on the fact that it does
     // not matter the order in which you optimize fields.
     for (const auto& builder : builders) {
-      OP_REQUIRES_OK(ctx, builder->Produce(ctx));
+      OP_REQUIRES_OK(ctx, builder->Produce(ctx, produce_string_view));
     }
 
     // Collect maximum number of collected values from each field builder.
@@ -1070,7 +1088,9 @@ class DecodeProtoSparseOp : public OpKernel {
 };
 
 REGISTER_KERNEL_BUILDER(Name("DecodeProtoSparseV2").Device(DEVICE_CPU),
-                        DecodeProtoSparseOp);
+                        DecodeProtoSparseOp<2>);
+REGISTER_KERNEL_BUILDER(Name("DecodeProtoSparseV3").Device(DEVICE_CPU),
+                        DecodeProtoSparseOp<3>);
 
 }  // namespace
 }  // namespace struct2tensor

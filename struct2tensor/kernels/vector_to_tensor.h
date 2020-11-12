@@ -26,8 +26,8 @@ namespace struct2tensor {
 // Populate `tensor` from a vector of `T`. This assumes `tensor`'s type is also
 // `T`, with the exception of int64_t types.
 template <typename T>
-inline void VectorToTensor(const std::vector<T>& v,
-                           tensorflow::Tensor* tensor) {
+inline void VectorToTensor(const std::vector<T>& v, tensorflow::Tensor* tensor,
+                           bool produce_string_view) {
   std::copy_n(v.begin(), v.size(), tensor->flat<T>().data());
 }
 
@@ -37,7 +37,8 @@ inline void VectorToTensor(const std::vector<T>& v,
 // See https://github.com/tensorflow/tensorflow/pull/21042
 template <>
 inline void VectorToTensor(const std::vector<int64_t>& v,
-                           tensorflow::Tensor* tensor) {
+                           tensorflow::Tensor* tensor,
+                           bool produce_string_view) {
   static_assert(sizeof(int64_t) == sizeof(tensorflow::int64),
                 "int64s are not the same size.");
   std::copy_n(v.data(), v.size(), tensor->flat<tensorflow::int64>().data());
@@ -49,7 +50,8 @@ inline void VectorToTensor(const std::vector<int64_t>& v,
 // See https://github.com/tensorflow/tensorflow/pull/21042
 template <>
 inline void VectorToTensor(const std::vector<uint64_t>& v,
-                           tensorflow::Tensor* tensor) {
+                           tensorflow::Tensor* tensor,
+                           bool produce_string_view) {
   static_assert(sizeof(uint64_t) == sizeof(tensorflow::uint64),
                 "uint64s are not the same size.");
   std::copy_n(v.data(), v.size(), tensor->flat<tensorflow::uint64>().data());
@@ -59,13 +61,17 @@ inline void VectorToTensor(const std::vector<uint64_t>& v,
 // tensor.
 template <>
 inline void VectorToTensor<absl::string_view>(
-    const std::vector<absl::string_view>& v, tensorflow::Tensor* tensor) {
+    const std::vector<absl::string_view>& v, tensorflow::Tensor* tensor,
+    bool produce_string_view) {
   tensorflow::tstring* output = tensor->flat<tensorflow::tstring>().data();
   for (auto sv : v) {
-    (output++)->assign(sv.data(), sv.size());
+    if (produce_string_view) {
+      (output++)->assign_as_view(sv);
+    } else {
+      (output++)->assign(sv.data(), sv.size());
+    }
   }
 }
-
 }  // namespace struct2tensor
 
 #endif  // THIRD_PARTY_PY_STRUCT2TENSOR_KERNELS_VECTOR_TO_TENSOR_H_

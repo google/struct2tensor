@@ -18,15 +18,16 @@ limitations under the License.
 
 using tensorflow::Status;
 using tensorflow::shape_inference::InferenceContext;
-using tensorflow::shape_inference::ShapeHandle;
 
 // Represents each field as two vectors (data and index) of equal length.
 // Each element of data contains the value of an element in the field.
 // The corresponding element of index is the index of the protocol buffer
 // that the element came from. Values are found in the order that they
 // occur in the protocol buffer.
-REGISTER_OP("DecodeProtoSparseV2")
+REGISTER_OP("DecodeProtoSparseV3")
     .Input("bytes: string")
+    .Input("backing_string: num_backing_string * string")
+    .Attr("num_backing_string: int >= 0 = 0")
     .Attr("message_type: string")
     .Attr("field_names: list(string)")
     .Attr("num_fields: int")
@@ -102,6 +103,14 @@ Both binary and text proto serializations are supported, and can be
 chosen using the `format` attribute.
 
 bytes: tensor of serialized protos with shape `batch_shape`.
+backing_string: a list of string tensors which backs the input `bytes`
+  for using string_views. This is an optimization to prevent alloc/dealloc of
+  subtree serialized protos tensors. This input is not functionally used other
+  than to keep the backing string alive in memory. If set, serialized
+  sub-messages decoded by this op will be string_views pointing to
+  the input `bytes` (which might also be a string_view).
+num_backing_string: The number of backing_string inputs. Default to 0 and can be
+  empty to allow backward compatility.
 message_type: name of the proto message type to decode.
 field_names: list of strings containing proto field names.
 num_fields: len(field_names)
@@ -116,3 +125,30 @@ indices: list of tensors containing values for the corresponding field.
    `indices[i]` is an int64_t vector.
 
 )doc");
+
+// See DecodeProtoSparseV3. DecodeProtoSparseV2 omits `backing_string` and
+// `num_backing_string` and does not support string_views  for
+// intermediate serialized proto outputs.
+REGISTER_OP("DecodeProtoSparseV2")
+    .Input("bytes: string")
+    .Attr("message_type: string")
+    .Attr("field_names: list(string)")
+    .Attr("num_fields: int")
+    .Attr("output_types: list(type) >= 0")
+    .Attr("descriptor_literal: string = ''")
+    .Attr("descriptor_source: string = 'local://'")
+    .Attr("message_format: string = 'binary'")
+    .Attr("sanitize: bool = false")
+    .Output("values: output_types")
+    .Output("indices: num_fields * int64")
+    .SetShapeFn([](InferenceContext* c) {
+      std::vector<tensorflow::DataType> output_types;
+      TF_RETURN_IF_ERROR(c->GetAttr("output_types", &output_types));
+
+      // TODO(martinz): for required fields, we would know the shape.
+      for (int i = 0; i < 2 * output_types.size(); ++i) {
+        c->set_output(i, c->Vector(c->UnknownDim()));
+      }
+
+      return Status::OK();
+    });

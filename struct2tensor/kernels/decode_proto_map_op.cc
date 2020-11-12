@@ -60,6 +60,7 @@ using ::google::protobuf::DescriptorPool;
 using ::google::protobuf::FieldDescriptor;
 using ::google::protobuf::FileDescriptorSet;
 using ::tensorflow::DataType;
+using ::tensorflow::DEVICE_CPU;
 using ::tensorflow::OpKernel;
 using ::tensorflow::OpKernelConstruction;
 using ::tensorflow::OpKernelContext;
@@ -270,7 +271,8 @@ class ValueCollectorBase {
   // `parent_index` into parent_indices_[key_index]
   virtual void Commit(int key_index, int64_t parent_index) = 0;
   // Populates `t` with values_[key_index].
-  virtual void PopulateValueTensor(const int key_index, Tensor* t) const = 0;
+  virtual void PopulateValueTensor(const int key_index, Tensor* t,
+                                   bool produce_string_view) const = 0;
   // Populates `t` with parent_indices_[key_index].
   virtual void PopulateParentIndicesTensor(const int key_index,
                                              Tensor* t) const = 0;
@@ -298,13 +300,16 @@ class ValueCollector : public ValueCollectorBase {
     parent_indices_per_key_[key_index].push_back(parent_index);
   }
 
-  void PopulateValueTensor(const int key_index, Tensor* t) const override {
-    VectorToTensor(values_per_key_[key_index], t);
+  void PopulateValueTensor(const int key_index, Tensor* t,
+                           bool produce_string_view) const override {
+    VectorToTensor(values_per_key_[key_index], t,
+                   produce_string_view &&
+                       (kFieldType == google::protobuf::FieldDescriptor::TYPE_MESSAGE));
   }
 
   void PopulateParentIndicesTensor(const int key_index,
-                                     Tensor* t) const override {
-    VectorToTensor(parent_indices_per_key_[key_index], t);
+                                   Tensor* t) const override {
+    VectorToTensor(parent_indices_per_key_[key_index], t, false);
   }
 
   size_t NumCollectedValues(const int key_index) const override {
@@ -396,7 +401,7 @@ class MapEntryCollector {
   Status ConsumeAndPopulateOutputTensors(
       absl::Span<const tstring> serialized_protos,
       absl::Span<const tensorflow::int64> parent_indices,
-      OpKernelContext* op_kernel_contxt) const {
+      bool produce_string_view, OpKernelContext* op_kernel_contxt) const {
     std::unique_ptr<ValueCollectorBase> value_collector;
     TF_RETURN_IF_ERROR(MakeValueCollector(num_keys_, &value_collector));
     for (int i = 0; i < serialized_protos.size(); ++i) {
@@ -432,7 +437,8 @@ class MapEntryCollector {
         value_collector->Commit(value_index, parent_index);
       }
     }
-    return PopulateOutputTensors(*value_collector, op_kernel_contxt);
+    return PopulateOutputTensors(*value_collector, op_kernel_contxt,
+                                 produce_string_view);
   }
 
  private:
@@ -540,7 +546,8 @@ class MapEntryCollector {
   }
 
   Status PopulateOutputTensors(const ValueCollectorBase& value_collector,
-                               OpKernelContext* op_kernel_context) const {
+                               OpKernelContext* op_kernel_context,
+                               bool produce_string_view) const {
     for (int i = 0; i < num_keys_; ++i) {
       TensorShape output_shape;
       const tensorflow::int64 tensor_size =
@@ -550,7 +557,8 @@ class MapEntryCollector {
       Tensor* output_values_tensor;
       TF_RETURN_IF_ERROR(op_kernel_context->allocate_output(
           i, output_shape, &output_values_tensor));
-      value_collector.PopulateValueTensor(i, output_values_tensor);
+      value_collector.PopulateValueTensor(i, output_values_tensor,
+                                          produce_string_view);
 
       Tensor* output_parent_indices_tensor;
       TF_RETURN_IF_ERROR(op_kernel_context->allocate_output(
@@ -567,6 +575,7 @@ class MapEntryCollector {
   const FieldDescriptor::Type value_type_;
 };
 
+template <int kOpVersion>
 class DecodeProtoMapOp : public OpKernel {
  public:
   explicit DecodeProtoMapOp(OpKernelConstruction* context) : OpKernel(context) {
@@ -647,29 +656,44 @@ class DecodeProtoMapOp : public OpKernel {
   }
 
   void Compute(OpKernelContext* context) override {
-    const Tensor& serialized_protos_tensor = context->input(0);
-    const Tensor& parent_indices_tensor = context->input(1);
-    const int num_protos = serialized_protos_tensor.NumElements();
+    const Tensor* serialized_protos_tensor;
+    OP_REQUIRES_OK(context, context->input("serialized_map_entries",
+                                           &serialized_protos_tensor));
+    const Tensor* parent_indices_tensor;
+    OP_REQUIRES_OK(context, context->input("map_entries_parent_indices",
+                                           &parent_indices_tensor));
+
+    bool produce_string_view = false;
+    if (kOpVersion > 1) {
+      tensorflow::OpInputList backing_strings;
+      OP_REQUIRES_OK(context,
+                     context->input_list("backing_string", &backing_strings));
+      produce_string_view = (backing_strings.size() != 0);
+    }
+
+    const int num_protos = serialized_protos_tensor->NumElements();
     OP_REQUIRES(
-        context, num_protos == parent_indices_tensor.NumElements(),
+        context, num_protos == parent_indices_tensor->NumElements(),
         errors::InvalidArgument(
             "Num parent indices must be equal to number of input protos."));
     OP_REQUIRES_OK(
         context,
         map_entry_collector_->ConsumeAndPopulateOutputTensors(
-            absl::MakeConstSpan(serialized_protos_tensor.flat<tstring>().data(),
-                                num_protos),
             absl::MakeConstSpan(
-                parent_indices_tensor.flat<tensorflow::int64>().data(),
+                serialized_protos_tensor->flat<tstring>().data(), num_protos),
+            absl::MakeConstSpan(
+                parent_indices_tensor->flat<tensorflow::int64>().data(),
                 num_protos),
-            context));
+            produce_string_view, context));
   }
 
   std::unique_ptr<const MapEntryCollector> map_entry_collector_;
 };
 
-REGISTER_KERNEL_BUILDER(Name("DecodeProtoMap").Device(tensorflow::DEVICE_CPU),
-                        DecodeProtoMapOp);
+REGISTER_KERNEL_BUILDER(Name("DecodeProtoMap").Device(DEVICE_CPU),
+                        DecodeProtoMapOp<1>);
+REGISTER_KERNEL_BUILDER(Name("DecodeProtoMapV2").Device(DEVICE_CPU),
+                        DecodeProtoMapOp<2>);
 
 }  // namespace
 }  // namespace struct2tensor

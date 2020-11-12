@@ -159,7 +159,8 @@ class Dataset : public tensorflow::data::DatasetBase {
                                           .size())});
           struct2tensor::VectorToTensor(parent_indices_and_values[column_index]
                                             .parent_indices[path_index],
-                                        &res);
+                                        &res,
+                                        /*produce_string_view=*/false);
           out_tensors->push_back(std::move(res));
         }
         out_tensors->push_back(
