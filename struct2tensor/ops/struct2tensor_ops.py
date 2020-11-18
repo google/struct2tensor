@@ -61,7 +61,8 @@ _ParsedField = NamedTuple(
 def parse_full_message_level(
     tensor_of_protos: tf.Tensor,
     descriptor_type: descriptor.Descriptor,
-    message_format: str = "binary") -> Sequence[_ParsedField]:
+    message_format: str = "binary",
+    backing_str_tensor: Optional[tf.Tensor] = None) -> Sequence[_ParsedField]:
   """Parses all of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -73,6 +74,9 @@ def parse_full_message_level(
       https://github.com/protocolbuffers/protobuf/blob/master/python/google/protobuf/descriptor.py
     message_format: Indicates the format of the protocol buffer: is one of
       'text' or 'binary'.
+    backing_str_tensor: a string tensor representing the root serialized proto.
+      This is passed to keep string_views of the tensor valid for all children
+      of the root expression
   Returns:
     list of named tuples, one per field_name in field_names:
     field_name: the string from field_names.
@@ -84,8 +88,12 @@ def parse_full_message_level(
   """
 
   field_names = [field.name for field in descriptor_type.fields]
-  return parse_message_level(tensor_of_protos, descriptor_type, field_names,
-                             message_format)
+  return parse_message_level(
+      tensor_of_protos,
+      descriptor_type,
+      field_names,
+      message_format,
+      backing_str_tensor=backing_str_tensor)
 
 
 def _get_field_descriptor(descriptor_type: descriptor.Descriptor,
@@ -101,7 +109,8 @@ def parse_message_level(
     tensor_of_protos: tf.Tensor,
     descriptor_type: descriptor.Descriptor,
     field_names: Sequence[str],
-    message_format: str = "binary") -> Sequence[_ParsedField]:
+    message_format: str = "binary",
+    backing_str_tensor: Optional[tf.Tensor] = None) -> Sequence[_ParsedField]:
   """Parses a subset of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -114,6 +123,8 @@ def parse_message_level(
     field_names: the names of the fields to parse.
     message_format: Indicates the format of the protocol buffer: is one of
       'text' or 'binary'.
+    backing_str_tensor: a possible string tensor backing the string_view for
+      intermediate serialized protos.
   Returns:
     list of named _ParsedField, one per field_name in field_names:
     field_name: the string from field_names.
@@ -142,14 +153,31 @@ def parse_message_level(
       _get_dtype_from_cpp_type(field_descriptor.cpp_type)
       for field_descriptor in field_descriptors
   ]
-  values, indices = gen_decode_proto_sparse.decode_proto_sparse_v2(
-      tensor_of_protos,
-      descriptor_literal=descriptor_literal,
-      message_type=message_type,
-      num_fields=len(field_names),
-      field_names=list(field_names),
-      output_types=output_types,
-      message_format=message_format)
+  if tf.is_tensor(backing_str_tensor):
+    backing_str_tensor = [backing_str_tensor]
+  else:
+    backing_str_tensor = []
+  # TODO(b/172576749): Once we allow sufficient bake in time for the kernel
+  # change, switch to using V3 only.
+  if backing_str_tensor:
+    values, indices = gen_decode_proto_sparse.decode_proto_sparse_v3(
+        tensor_of_protos,
+        backing_str_tensor,
+        descriptor_literal=descriptor_literal,
+        message_type=message_type,
+        num_fields=len(field_names),
+        field_names=list(field_names),
+        output_types=output_types,
+        message_format=message_format)
+  else:
+    values, indices = gen_decode_proto_sparse.decode_proto_sparse_v2(
+        tensor_of_protos,
+        descriptor_literal=descriptor_literal,
+        message_type=message_type,
+        num_fields=len(field_names),
+        field_names=list(field_names),
+        output_types=output_types,
+        message_format=message_format)
 
   result = []
   for field_name, field_descriptor, value, index in zip(field_names,
@@ -217,10 +245,13 @@ def equi_join_indices(a: tf.Tensor, b: tf.Tensor) -> tf.Tensor:
   return gen_equi_join_indices.equi_join_indices(a, b)
 
 
-def parse_proto_map(map_entries, map_entry_parent_indices,
-                    map_entry_descriptor: descriptor.Descriptor,
-                    keys_needed: Sequence[str]
-                   ) -> Sequence[Tuple[tf.Tensor, tf.Tensor]]:
+def parse_proto_map(
+    map_entries,
+    map_entry_parent_indices,
+    map_entry_descriptor: descriptor.Descriptor,
+    keys_needed: Sequence[str],
+    backing_str_tensor: Optional[tf.Tensor] = None
+) -> Sequence[Tuple[tf.Tensor, tf.Tensor]]:
   """A custom op to parse serialized Protobuf map entries.
 
   Args:
@@ -234,6 +265,8 @@ def parse_proto_map(map_entries, map_entry_parent_indices,
       keys are integers, then these strings will be parsed as integers in
       decimal. If the map's keys are booleans, then only "0" and "1" are
       expected.
+    backing_str_tensor: a possible string tensor backing the string_view for
+      intermediate serialized protos.
 
   Returns:
     A list of tuples one for each key in `keys_needed`. In each tuple, the first
@@ -242,10 +275,27 @@ def parse_proto_map(map_entries, map_entry_parent_indices,
   """
   keys_needed_as_list = list(keys_needed)
   value_fd = map_entry_descriptor.fields_by_name["value"]
-  values, parent_indices = gen_decode_proto_map_op.decode_proto_map(
-      map_entries, map_entry_parent_indices, map_entry_descriptor.full_name,
-      keys_needed_as_list, len(keys_needed_as_list),
-      _get_dtype_from_cpp_type(value_fd.cpp_type),
-      file_descriptor_set.get_file_descriptor_set_proto(
-          map_entry_descriptor, ["key", "value"]).SerializeToString())
-  return list(zip(values, parent_indices))
+
+  if tf.is_tensor(backing_str_tensor):
+    backing_str_tensor = [backing_str_tensor]
+  else:
+    backing_str_tensor = []
+
+  # TODO(b/172576749): Once we allow sufficient bake in time for the kernel
+  # change, switch to using V2 only.
+  if backing_str_tensor:
+    values, parent_indices = gen_decode_proto_map_op.decode_proto_map_v2(
+        map_entries, map_entry_parent_indices, backing_str_tensor,
+        map_entry_descriptor.full_name, keys_needed_as_list,
+        len(keys_needed_as_list), _get_dtype_from_cpp_type(value_fd.cpp_type),
+        file_descriptor_set.get_file_descriptor_set_proto(
+            map_entry_descriptor, ["key", "value"]).SerializeToString())
+    return list(zip(values, parent_indices))
+  else:
+    values, parent_indices = gen_decode_proto_map_op.decode_proto_map(
+        map_entries, map_entry_parent_indices, map_entry_descriptor.full_name,
+        keys_needed_as_list, len(keys_needed_as_list),
+        _get_dtype_from_cpp_type(value_fd.cpp_type),
+        file_descriptor_set.get_file_descriptor_set_proto(
+            map_entry_descriptor, ["key", "value"]).SerializeToString())
+    return list(zip(values, parent_indices))

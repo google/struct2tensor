@@ -138,7 +138,11 @@ def create_transformed_field(
     dest_field: the name of the newly created field. This field will be a
       sibling of the field identified by `source_path`.
     transform_fn: a callable that accepts parent_indices and serialized proto
-      values and returns a posibly modified parent_indices and values.
+      values and returns a posibly modified parent_indices and values. Note that
+      when CalcuateOptions.use_string_view is set, transform_fn should not have
+      any stateful side effecting uses of serialized proto inputs. Doing so
+      could cause segfaults as the backing string tensor lifetime is not
+      guaranteed when the side effecting operations are run.
 
   Returns:
     An expression.
@@ -177,7 +181,8 @@ def create_transformed_field(
       desc=source_expr._desc,  # pylint: disable=protected-access
       is_repeated=source_expr.is_repeated,
       name_as_field=source_expr.name_as_field,
-      transform_fn=final_transform)
+      transform_fn=final_transform,
+      backing_str_tensor=source_expr._backing_str_tensor)  # pylint: disable=protected-access
   dest_path = source_path.get_parent().get_child(dest_field)
   return expression_add.add_paths(expr, {dest_path: transformed_expr})
 
@@ -228,10 +233,16 @@ class _AbstractProtoChildExpression(expression.Expression):
   """A child or leaf proto expression."""
 
   def __init__(self, parent: "_ParentProtoExpression", name_as_field: StrStep,
-               is_repeated: bool, my_type: Optional[tf.DType]):
+               is_repeated: bool, my_type: Optional[tf.DType],
+               backing_str_tensor: Optional[tf.Tensor]):
     super().__init__(is_repeated, my_type)
     self._parent = parent
     self._name_as_field = name_as_field
+
+    # TODO(b/172576749): Consider changing this to a list to preserve
+    # all intermediate serialized proto tensors that are ancestor to this
+    # expression.
+    self._backing_str_tensor = backing_str_tensor
 
   @property
   def name_as_field(self) -> StrStep:
@@ -265,19 +276,22 @@ class _AbstractProtoChildExpression(expression.Expression):
       if parsed_field is None:
         raise ValueError("Cannot find {} in {}".format(
             str(self), str(parent_value)))
-      return self.calculate_from_parsed_field(parsed_field, destinations)
+      return self.calculate_from_parsed_field(parsed_field, destinations,
+                                              options.use_string_view)
     raise ValueError("Not a _ParentProtoNodeTensor: " + str(type(parent_value)))
 
   @abc.abstractmethod
   def calculate_from_parsed_field(self,
                                   parsed_field: struct2tensor_ops._ParsedField,
-                                  destinations: Sequence[expression.Expression]
-                                 ) -> prensor.NodeTensor:
+                                  destinations: Sequence[expression.Expression],
+                                  use_string_view: bool) -> prensor.NodeTensor:
     """Calculate the NodeTensor given the parsed fields requested from a parent.
 
     Args:
       parsed_field: the parsed field from name_as_field.
       destinations: the destination of the expression.
+      use_string_view: if true, enables string_views to be used for intermediate
+        serialized proto outputs.
     Returns:
       A node tensor for this node.
     """
@@ -301,14 +315,15 @@ class _ProtoLeafExpression(_AbstractProtoChildExpression):
     """
     super().__init__(parent, name_as_field,
                      desc.label == descriptor.FieldDescriptor.LABEL_REPEATED,
-                     struct2tensor_ops._get_dtype_from_cpp_type(desc.cpp_type))  # pylint: disable=protected-access
+                     struct2tensor_ops._get_dtype_from_cpp_type(desc.cpp_type),
+                     None)  # pylint: disable=protected-access
     # TODO(martinz): make _get_dtype_from_cpp_type public.
     self._field_descriptor = desc
 
   def calculate_from_parsed_field(self,
                                   parsed_field: struct2tensor_ops._ParsedField,
-                                  destinations: Sequence[expression.Expression]
-                                 ) -> prensor.NodeTensor:
+                                  destinations: Sequence[expression.Expression],
+                                  use_string_view: bool) -> prensor.NodeTensor:
     return prensor.LeafNodeTensor(parsed_field.index, parsed_field.value,
                                   self.is_repeated)
 
@@ -343,7 +358,7 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
 
   def __init__(self, parent: "_ParentProtoExpression",
                desc: descriptor.Descriptor, is_repeated: bool,
-               name_as_field: StrStep):
+               name_as_field: StrStep, backing_str_tensor: Optional[tf.Tensor]):
     """Initialize a _ProtoChildExpression.
 
     This does not take a field descriptor so it can represent syntactic sugar
@@ -354,17 +369,27 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
         expression.
       is_repeated: whether the field is repeated.
       name_as_field: the name of the field.
+      backing_str_tensor: a string tensor representing the root serialized
+        proto. This is passed to keep string_views of the tensor valid for
+        all children of the root expression
     """
-    super().__init__(parent, name_as_field, is_repeated, None)
+    super().__init__(parent, name_as_field, is_repeated, None,
+                     backing_str_tensor)
     self._desc = desc
 
   def calculate_from_parsed_field(self,
                                   parsed_field: struct2tensor_ops._ParsedField,
-                                  destinations: Sequence[expression.Expression]
-                                 ) -> prensor.NodeTensor:
+                                  destinations: Sequence[expression.Expression],
+                                  use_string_view: bool) -> prensor.NodeTensor:
     needed_fields = _get_needed_fields(destinations)
+    backing_str_tensor = None
+    if use_string_view:
+      backing_str_tensor = self._backing_str_tensor
     fields = parse_message_level_ex.parse_message_level_ex(
-        parsed_field.value, self._desc, needed_fields)
+        parsed_field.value,
+        self._desc,
+        needed_fields,
+        backing_str_tensor=backing_str_tensor)
     return _ProtoChildNodeTensor(parsed_field.index, self.is_repeated, fields)
 
   def calculation_equal(self, expr: expression.Expression) -> bool:
@@ -378,7 +403,7 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
 
   def _get_child_impl(self,
                       field_name: path.Step) -> Optional[expression.Expression]:
-    return _get_child(self, self._desc, field_name)
+    return _get_child(self, self._desc, field_name, self._backing_str_tensor)
 
   def known_field_names(self) -> FrozenSet[path.Step]:
     return _known_field_names_from_descriptor(self._desc)
@@ -393,23 +418,32 @@ class _TransformProtoChildExpression(_ProtoChildExpression):
 
   def __init__(self, parent: "_ParentProtoExpression",
                desc: descriptor.Descriptor, is_repeated: bool,
-               name_as_field: StrStep, transform_fn: TransformFn):
+               name_as_field: StrStep, transform_fn: TransformFn,
+               backing_str_tensor: Optional[tf.Tensor]):
     super(_TransformProtoChildExpression,
-          self).__init__(parent, desc, is_repeated, name_as_field)
+          self).__init__(parent, desc, is_repeated, name_as_field,
+                         backing_str_tensor)
     self._transform_fn = transform_fn
 
   @property
   def transform_fn(self):
     return self._transform_fn
 
-  def calculate_from_parsed_field(
-      self, parsed_field: struct2tensor_ops._ParsedField,
-      destinations: Sequence[expression.Expression]) -> prensor.NodeTensor:
+  def calculate_from_parsed_field(self,
+                                  parsed_field: struct2tensor_ops._ParsedField,
+                                  destinations: Sequence[expression.Expression],
+                                  use_string_view: bool) -> prensor.NodeTensor:
     needed_fields = _get_needed_fields(destinations)
     transformed_parent_indices, transformed_values = self._transform_fn(
         parsed_field.index, parsed_field.value)
+    backing_str_tensor = None
+    if use_string_view:
+      backing_str_tensor = self._backing_str_tensor
     fields = parse_message_level_ex.parse_message_level_ex(
-        transformed_values, self._desc, needed_fields)
+        transformed_values,
+        self._desc,
+        needed_fields,
+        backing_str_tensor=backing_str_tensor)
     return _ProtoChildNodeTensor(transformed_parent_indices, self.is_repeated,
                                  fields)
 
@@ -471,11 +505,15 @@ class _ProtoRootExpression(expression.Expression):
       raise ValueError("_ProtoRootExpression has no sources")
     size = tf.size(self._tensor_of_protos, out_type=tf.int64)
     needed_fields = _get_needed_fields(destinations)
+    backing_str_tensor = None
+    if options.use_string_view:
+      backing_str_tensor = self._tensor_of_protos
     fields = parse_message_level_ex.parse_message_level_ex(
         self._tensor_of_protos,
         self._descriptor,
         needed_fields,
-        message_format=self._message_format)
+        message_format=self._message_format,
+        backing_str_tensor=backing_str_tensor)
     return _ProtoRootNodeTensor(size, fields)
 
   def calculation_is_identity(self) -> bool:
@@ -488,7 +526,8 @@ class _ProtoRootExpression(expression.Expression):
 
   def _get_child_impl(self,
                       field_name: path.Step) -> Optional[expression.Expression]:
-    return _get_child(self, self._descriptor, field_name)
+    return _get_child(self, self._descriptor, field_name,
+                      self._tensor_of_protos)
 
   def known_field_names(self) -> FrozenSet[path.Step]:
     return _known_field_names_from_descriptor(self._descriptor)
@@ -521,8 +560,9 @@ def _get_field_descriptor(
 
 
 def _get_any_child(
-    parent: Union[_ProtoChildExpression, _ProtoRootExpression],
-    desc: descriptor.Descriptor, field_name: ProtoFieldName
+    parent: Union[_ProtoChildExpression,
+                  _ProtoRootExpression], desc: descriptor.Descriptor,
+    field_name: ProtoFieldName, backing_str_tensor: Optional[tf.Tensor]
 ) -> Optional[Union[_ProtoLeafExpression, _ProtoChildExpression]]:
   """Gets the child of an any descriptor."""
   if path.is_extension(field_name):
@@ -531,10 +571,11 @@ def _get_any_child(
     if full_name_child is None:
       return None
     field_message = desc.file.pool.FindMessageTypeByName(full_name_child)
-    return _ProtoChildExpression(parent, field_message, False, field_name)
+    return _ProtoChildExpression(parent, field_message, False, field_name,
+                                 backing_str_tensor)
   else:
     return _get_child_helper(parent, desc.fields_by_name.get(field_name),
-                             field_name)
+                             field_name, backing_str_tensor)
 
 
 def _is_map_field_desc(field_desc: descriptor.FieldDescriptor) -> bool:
@@ -544,7 +585,9 @@ def _is_map_field_desc(field_desc: descriptor.FieldDescriptor) -> bool:
 
 def _get_map_child(
     parent: Union[_ProtoChildExpression, _ProtoRootExpression],
-    desc: descriptor.Descriptor, field_name: ProtoFieldName
+    desc: descriptor.Descriptor,
+    field_name: ProtoFieldName,
+    backing_str_tensor: Optional[tf.Tensor],
 ) -> Optional[Union[_ProtoLeafExpression, _ProtoChildExpression]]:
   """Gets the child given a map field."""
   [map_field_name, _] = path.parse_map_indexing_step(field_name)
@@ -564,13 +607,14 @@ def _get_map_child(
     # should have already returned false.
     return None
   # This relies on the fact that the value is an optional field.
-  return _get_child_helper(parent, value_field_desc, field_name)
+  return _get_child_helper(parent, value_field_desc, field_name,
+                           backing_str_tensor)
 
 
 def _get_child_helper(
     parent: Union[_ProtoChildExpression, _ProtoRootExpression],
     field_descriptor: Optional[descriptor.FieldDescriptor],
-    field_name: ProtoFieldName
+    field_name: ProtoFieldName, backing_str_tensor: Optional[tf.Tensor]
 ) -> Optional[Union[_ProtoChildExpression, _ProtoLeafExpression]]:
   """Helper function for _get_child, _get_any_child, and _get_map_child.
 
@@ -582,6 +626,9 @@ def _get_child_helper(
     field_descriptor: the field descriptor of the submessage represented by the
       returned expression, if present. If None, this will just return None.
     field_name: the field name of the _AbstractProtoChildExpression returned.
+    backing_str_tensor: a string tensor representing the root serialized proto.
+      This is passed to keep string_views of the tensor valid for all children
+      of the root expression
 
   Returns:
     An _AbstractProtoChildExpression.
@@ -594,12 +641,15 @@ def _get_child_helper(
   return _ProtoChildExpression(
       parent, field_message,
       field_descriptor.label == descriptor.FieldDescriptor.LABEL_REPEATED,
-      field_name)
+      field_name, backing_str_tensor)
 
 
-def _get_child(parent: Union[_ProtoChildExpression, _ProtoRootExpression],
-               desc: descriptor.Descriptor, field_name: path.Step
-              ) -> Optional[Union[_ProtoChildExpression, _ProtoLeafExpression]]:
+def _get_child(
+    parent: Union[_ProtoChildExpression, _ProtoRootExpression],
+    desc: descriptor.Descriptor,
+    field_name: path.Step,
+    backing_str_tensor: Optional[tf.Tensor],
+) -> Optional[Union[_ProtoChildExpression, _ProtoLeafExpression]]:
   """Get a child expression.
 
   This will get one of the following:
@@ -612,6 +662,9 @@ def _get_child(parent: Union[_ProtoChildExpression, _ProtoRootExpression],
     parent: The parent expression.
     desc: The descriptor of the parent.
     field_name: The name of the field.
+    backing_str_tensor: a string tensor representing the root serialized proto.
+      This is passed to keep string_views of the tensor valid for all children
+      of the root expression
 
   Returns:
     The child expression, either a submessage or a leaf.
@@ -619,12 +672,12 @@ def _get_child(parent: Union[_ProtoChildExpression, _ProtoRootExpression],
   if isinstance(field_name, path.AnonymousId):
     return None
   if parse_message_level_ex.is_any_descriptor(desc):
-    return _get_any_child(parent, desc, field_name)
+    return _get_any_child(parent, desc, field_name, backing_str_tensor)
   if path.is_map_indexing_step(field_name):
-    return _get_map_child(parent, desc, field_name)
+    return _get_map_child(parent, desc, field_name, backing_str_tensor)
   # Works for extensions and regular fields, but not any or map.
   return _get_child_helper(parent, _get_field_descriptor(desc, field_name),
-                           field_name)
+                           field_name, backing_str_tensor)
 
 
 def _get_needed_fields(

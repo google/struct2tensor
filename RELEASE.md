@@ -30,6 +30,11 @@
     always use the stable version of struct2tensor available on PyPI by running
     the command `pip install struct2tensor` .
 
+*   Add support for string_views for intermediate serialized protos. To use, set
+    the option "use_string_view" in CalculateOptions to true. string_views are
+    potentially more memory bandwidth efficient depending on the depth and
+    complexity of the input proto.
+
 ## Bug Fixes and Other Changes
 
 *   Update __init__.py to import the API, instead of just the modules.

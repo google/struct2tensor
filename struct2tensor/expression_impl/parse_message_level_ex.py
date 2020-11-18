@@ -95,7 +95,8 @@ def parse_message_level_ex(
     tensor_of_protos: tf.Tensor,
     desc: descriptor.Descriptor,
     field_names: Set[ProtoFieldName],
-    message_format: str = "binary"
+    message_format: str = "binary",
+    backing_str_tensor: Optional[tf.Tensor] = None
 ) -> Mapping[StrStep, struct2tensor_ops._ParsedField]:
   """Parses regular fields, extensions, any casts, and map protos."""
   raw_field_names = _get_field_names_to_parse(desc, field_names)
@@ -104,11 +105,13 @@ def parse_message_level_ex(
           tensor_of_protos,
           desc,
           raw_field_names,
-          message_format=message_format))
+          message_format=message_format,
+          backing_str_tensor=backing_str_tensor))
   regular_field_map = {x.field_name: x for x in regular_fields}
 
   any_fields = _get_any_parsed_fields(desc, regular_field_map, field_names)
-  map_fields = _get_map_parsed_fields(desc, regular_field_map, field_names)
+  map_fields = _get_map_parsed_fields(desc, regular_field_map, field_names,
+                                      backing_str_tensor)
   result = regular_field_map
   result.update(any_fields)
   result.update(map_fields)
@@ -219,7 +222,8 @@ def _get_field_names_to_parse(
 def _get_map_parsed_fields(
     desc: descriptor.Descriptor,
     regular_fields: Mapping[StrStep, struct2tensor_ops._ParsedField],
-    field_names: Set[StrStep]
+    field_names: Set[StrStep],
+    backing_str_tensor: Optional[tf.Tensor] = None
 ) -> Mapping[StrStep, struct2tensor_ops._ParsedField]:
   """Gets the map proto ParsedFields.
 
@@ -230,6 +234,9 @@ def _get_map_parsed_fields(
     desc: the descriptor of the parent proto.
     regular_fields: the fields that are parsed directly from the proto.
     field_names: all fields needed: map fields, any fields, and regular fields.
+    backing_str_tensor: a string tensor representing the root serialized proto.
+      This is passed to keep string_views of the tensor valid for all children
+      of the root expression
 
   Returns:
     A map from field names to ParsedFields, only for the field names of the form
@@ -248,7 +255,8 @@ def _get_map_parsed_fields(
     map_field_index = parsed_map_field.index
     map_field_desc = desc.fields_by_name[map_field_name].message_type
     values_and_parent_indices = struct2tensor_ops.parse_proto_map(
-        map_field_value, map_field_index, map_field_desc, keys_needed)
+        map_field_value, map_field_index, map_field_desc, keys_needed,
+        backing_str_tensor)
     for map_key, [value, parent_index] in zip(keys_needed,
                                               values_and_parent_indices):
       result_as_list.append(

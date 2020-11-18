@@ -14,6 +14,8 @@
 """Tests for struct2tensor.proto."""
 
 from absl.testing import absltest
+from absl.testing import parameterized
+from struct2tensor import calculate_options
 from struct2tensor import path
 from struct2tensor.expression_impl import proto
 from struct2tensor.expression_impl import proto_test_util
@@ -237,42 +239,78 @@ class ProtoTest(absltest.TestCase):
 
 
 @test_util.run_all_in_graph_and_eager_modes
-class ProtoValuesTest(tf.test.TestCase):
+class ProtoValuesTest(tf.test.TestCase, parameterized.TestCase):
 
-  def test_create_expression_from_proto_and_calculate_root_value(self):
+  def _get_calculate_options(self, use_string_view):
+    options = calculate_options.get_default_options()
+    options.use_string_view = use_string_view
+    return options
+
+  def _check_string_view(self):
+    for op in tf.compat.v1.get_default_graph().get_operations():
+      if op.type.startswith("DecodeProtoSparse"):
+        self.assertLen(op.inputs, 2)
+      if op.type.startswith("DecodeProtoMap"):
+        self.assertLen(op.inputs, 3)
+
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_create_expression_from_proto_and_calculate_root_value(
+      self, use_string_view):
     """Tests get_sparse_tensors on a deep tree."""
     expr = proto_test_util._get_expression_from_session_empty_user_info()
-    root_value = expression_test_util.calculate_value_slowly(expr)
+    root_value = expression_test_util.calculate_value_slowly(
+        expr, options=self._get_calculate_options(use_string_view))
     # For some reason, this fails on tf.eager. It could be because it is
     # a scalar, I don't know.
     self.assertEqual(self.evaluate(root_value.size), 2)
+    if use_string_view:
+      self._check_string_view()
 
-  def test_create_expression_from_proto_and_calculate_event_value(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_create_expression_from_proto_and_calculate_event_value(
+      self, use_string_view):
     """Tests get_sparse_tensors on a deep tree."""
     expr = proto_test_util._get_expression_from_session_empty_user_info()
     event_value = expression_test_util.calculate_value_slowly(
-        expr.get_child_or_error("event"))
+        expr.get_child_or_error("event"),
+        options=self._get_calculate_options(use_string_view))
     self.assertAllEqual(event_value.parent_index, [0, 0, 0, 1, 1])
+    if use_string_view:
+      self._check_string_view()
 
-  def test_create_expression_from_proto_and_calculate_event_id_value(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_create_expression_from_proto_and_calculate_event_id_value(
+      self, use_string_view):
     """Tests get_sparse_tensors on a deep tree."""
     expr = proto_test_util._get_expression_from_session_empty_user_info()
     event_id_value = expression_test_util.calculate_value_slowly(
-        expr.get_descendant_or_error(path.Path(["event", "event_id"])))
+        expr.get_descendant_or_error(path.Path(["event", "event_id"])),
+        options=self._get_calculate_options(use_string_view))
     self.assertAllEqual(event_id_value.parent_index, [0, 1, 2, 4])
     self.assertAllEqual(event_id_value.values, [b"A", b"B", b"C", b"D"])
+    if use_string_view:
+      self._check_string_view()
 
-  def test_create_expression_from_proto_with_any(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_create_expression_from_proto_with_any(self, use_string_view):
     """Test an any field."""
     expr = _get_expression_with_any()
     simple_expr = expr.get_descendant_or_error(
         path.Path(
             ["my_any", "(type.googleapis.com/struct2tensor.test.AllSimple)"]))
     child_node = expression_test_util.calculate_value_slowly(
-        simple_expr).parent_index
+        simple_expr,
+        options=self._get_calculate_options(use_string_view)).parent_index
     self.assertAllEqual(child_node, [0, 2])
 
-  def test_create_expression_from_proto_with_any_missing_message(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_create_expression_from_proto_with_any_missing_message(
+      self, use_string_view):
     """Test an any field with a message that is absent."""
     expr = _get_expression_with_any()
     simple_expr = expr.get_descendant_or_error(
@@ -280,10 +318,13 @@ class ProtoValuesTest(tf.test.TestCase):
             "my_any", "(type.googleapis.com/struct2tensor.test.SpecialUserInfo)"
         ]))
     child_node = expression_test_util.calculate_value_slowly(
-        simple_expr).parent_index
+        simple_expr,
+        options=self._get_calculate_options(use_string_view)).parent_index
     self.assertAllEqual(child_node, [])
 
-  def test_project_proto_map(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_project_proto_map(self, use_string_view):
     examples = [
         """
         features {
@@ -315,7 +356,9 @@ class ProtoValuesTest(tf.test.TestCase):
             "features.feature[feature1].bytes_list.value",
             "features.feature[feature2].float_list.value",
             "features.feature[feature3].int64_list.value",
-        ]), self)
+        ]),
+        self,
+        options=self._get_calculate_options(use_string_view))
 
     feature1 = result["features.feature[feature1].bytes_list.value"]
     feature2 = result["features.feature[feature2].float_list.value"]
@@ -324,8 +367,12 @@ class ProtoValuesTest(tf.test.TestCase):
                         [[[[[b"hello", b"world"]]]], [[[[b"deadbeef"]]]]])
     self.assertAllEqual(feature2, [[[[[8.0]]]], [[]]])
     self.assertAllEqual(feature3, [[[]], [[[[123, 456]]]]])
+    if use_string_view:
+      self._check_string_view()
 
-  def test_project_proto_map_leaf_value(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_project_proto_map_leaf_value(self, use_string_view):
     protos = [
         """
             int32_string_map {
@@ -341,22 +388,35 @@ class ProtoValuesTest(tf.test.TestCase):
         expr.project([
             "int32_string_map[222]",
             "int32_string_map[223]",
-        ]), self)
+        ]),
+        self,
+        options=self._get_calculate_options(use_string_view))
     self.assertLen(result, 2)
     self.assertAllEqual(result["int32_string_map[222]"], [[b"2"]])
     self.assertAllEqual(result["int32_string_map[223]"], [[]])
+    if use_string_view:
+      self._check_string_view()
 
-  def test_transformed_field_values(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_transformed_field_values(self, use_string_view):
     expr = proto_test_util._get_expression_from_session_empty_user_info()
     reversed_events_expr = proto.create_transformed_field(
         expr, path.Path(["event"]), "reversed_event", _reverse_values)
     result = expression_test_util.calculate_list_map(
-        reversed_events_expr.project(["reversed_event.action.doc_id"]), self)
+        reversed_events_expr.project(["reversed_event.action.doc_id"]),
+        self,
+        options=self._get_calculate_options(use_string_view))
     self.assertAllEqual(result["reversed_event.action.doc_id"],
                         [[[[b"h"], [b"i"], [b"j"]], [[b"g"]], [[b"e"], [b"f"]]],
                          [[[b"c"], []], [[b"a"], [b"b"]]]])
+    if use_string_view:
+      self._check_string_view()
 
-  def test_transformed_field_values_with_transformed_parent(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_transformed_field_values_with_transformed_parent(
+      self, use_string_view):
     expr = proto_test_util._get_expression_from_session_empty_user_info()
     first_reversed_expr = proto.create_transformed_field(
         expr, path.Path(["event"]), "reversed_event", _reverse_values)
@@ -365,12 +425,18 @@ class ProtoValuesTest(tf.test.TestCase):
         "reversed_action", _reverse_values)
     result = expression_test_util.calculate_list_map(
         second_reversed_expr.project(["reversed_event.reversed_action.doc_id"]),
-        self)
+        self,
+        options=self._get_calculate_options(use_string_view))
     self.assertAllEqual(result["reversed_event.reversed_action.doc_id"],
                         [[[[b"b"], [b"a"], []], [[b"c"]], [[b"f"], [b"e"]]],
                          [[[b"g"], [b"j"]], [[b"i"], [b"h"]]]])
+    if use_string_view:
+      self._check_string_view()
 
-  def test_transformed_field_values_with_multiple_transforms(self):
+  @parameterized.named_parameters(("string_view", True),
+                                  ("no_string_view", False))
+  def test_transformed_field_values_with_multiple_transforms(
+      self, use_string_view):
     expr = proto_test_util._get_expression_from_session_empty_user_info()
     reversed_events_expr = proto.create_transformed_field(
         expr, path.Path(["event"]), "reversed_event", _reverse_values)
@@ -380,10 +446,14 @@ class ProtoValuesTest(tf.test.TestCase):
 
     result = expression_test_util.calculate_list_map(
         reversed_events_again_expr.project(
-            ["reversed_reversed_event.action.doc_id"]), self)
+            ["reversed_reversed_event.action.doc_id"]),
+        self,
+        options=self._get_calculate_options(use_string_view))
     self.assertAllEqual(result["reversed_reversed_event.action.doc_id"],
                         [[[[b"a"], [b"b"]], [[b"c"], []], [[b"e"], [b"f"]]],
                          [[[b"g"]], [[b"h"], [b"i"], [b"j"]]]])
+    if use_string_view:
+      self._check_string_view()
 
 
 def _reverse_values(parent_indices, values):

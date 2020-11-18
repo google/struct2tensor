@@ -20,3 +20,4 @@ decode_proto_sparse_module = load_library.load_op_library(
     resource_loader.get_path_to_datafile('_decode_proto_sparse_op.so'))
 
 decode_proto_sparse_v2 = decode_proto_sparse_module.decode_proto_sparse_v2
+decode_proto_sparse_v3 = decode_proto_sparse_module.decode_proto_sparse_v3

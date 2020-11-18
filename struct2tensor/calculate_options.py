@@ -36,6 +36,7 @@ class Options(object):
     """Create options."""
     self.ragged_checks = ragged_checks
     self.sparse_checks = sparse_checks
+    self.use_string_view = False
 
   def __str__(self):
     return ("{ragged_checks:" + str(self.ragged_checks) + ", sparse_checks: " +

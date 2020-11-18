@@ -20,3 +20,4 @@ decode_proto_map_module = load_library.load_op_library(
     resource_loader.get_path_to_datafile('_decode_proto_map_op.so'))
 
 decode_proto_map = decode_proto_map_module.decode_proto_map
+decode_proto_map_v2 = decode_proto_map_module.decode_proto_map_v2
