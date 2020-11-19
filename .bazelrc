@@ -40,5 +40,4 @@ build:macos --host_cxxopt=-std=c++14
 # Suppress all warning messages.
 build:short_logs --output_filter=DONT_MATCH_ANYTHING
 
-
-
+build:macos --macos_minimum_os=10.9
