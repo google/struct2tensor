@@ -3,8 +3,13 @@
 # Current version (not yet released; still in development)
 
 ## Major Features and Improvements
-*  Created a docker image that contains a TF model server with struct2tensor
-   ops linked. see tools/tf_serving_docker/Dockerfile.
+
+*   Created a docker image that contains a TF model server with struct2tensor
+    ops linked. see tools/tf_serving_docker/Dockerfile.
+*   Add support for string_views for intermediate serialized protos. To use, set
+    the option "use_string_view" in CalculateOptions to true. string_views are
+    potentially more memory bandwidth efficient depending on the depth and
+    complexity of the input proto.
 
 ## Bug Fixes and Other Changes
 
@@ -29,11 +34,6 @@
     involved for the wheels to be available on the PyPI cloud service. You can
     always use the stable version of struct2tensor available on PyPI by running
     the command `pip install struct2tensor` .
-
-*   Add support for string_views for intermediate serialized protos. To use, set
-    the option "use_string_view" in CalculateOptions to true. string_views are
-    potentially more memory bandwidth efficient depending on the depth and
-    complexity of the input proto.
 
 ## Bug Fixes and Other Changes
 
