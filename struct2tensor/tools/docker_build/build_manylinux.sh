@@ -34,6 +34,13 @@ function setup_environment() {
   # RUN yum -y install rsync
   # However, if we move this this, we get
   # ./bazel-bin/build_pip_package: line 55: rsync: command not found
+  # Centos 6 is EOL and is no longer available from the usual mirrors, so switch
+  # to https://vault.centos.org
+  # TODO(b/174758400): These changes have been in the upstream manylinux2010
+  # image. Rebuild manylinux2010-bazel image to capture them.
+  sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf
+  sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/*.repo
+  sed -i 's;^#baseurl=http://mirror;baseurl=https://vault;g' /etc/yum.repos.d/*.repo
   yum -y install rsync
 
   if [[ -z "${PYTHON_VERSION}" ]]; then
