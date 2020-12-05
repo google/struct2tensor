@@ -106,6 +106,7 @@ class PromoteTest(absltest.TestCase):
   def test_lifecycle_stage(self):
     # Stages have the following priority, from lowest to highest:
     #   schema_pb2.LifecycleStage.DEPRECATED
+    #   schema_pb2.LifecycleStage.DISABLED
     #   schema_pb2.LifecycleStage.PLANNED,
     #   schema_pb2.LifecycleStage.ALPHA
     #   schema_pb2.LifecycleStage.DEBUG_ONLY,
@@ -139,7 +140,17 @@ class PromoteTest(absltest.TestCase):
     self.assertEqual(
         schema_pb2.LifecycleStage.DEPRECATED,
         _check_lifecycle_stage(schema_pb2.LifecycleStage.DEPRECATED,
-                               schema_pb2.LifecycleStage.PLANNED))
+                               schema_pb2.LifecycleStage.DISABLED))
+    self.assertEqual(
+        schema_pb2.LifecycleStage.DEPRECATED,
+        _check_lifecycle_stage(schema_pb2.LifecycleStage.DISABLED,
+                               schema_pb2.LifecycleStage.DEPRECATED))
+
+    self.assertEqual(
+        schema_pb2.LifecycleStage.DISABLED,
+        _check_lifecycle_stage(schema_pb2.LifecycleStage.PLANNED,
+                               schema_pb2.LifecycleStage.DISABLED))
+
     self.assertEqual(
         schema_pb2.LifecycleStage.DEPRECATED,
         _check_lifecycle_stage(schema_pb2.LifecycleStage.PLANNED,

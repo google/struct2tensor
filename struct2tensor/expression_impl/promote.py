@@ -213,10 +213,11 @@ def _lifecycle_stage_number(a) -> int:
     An integer that corresponds to the lifecycle stage of 'a'.
   """
   stages = [
-      schema_pb2.LifecycleStage.DEPRECATED, schema_pb2.LifecycleStage.PLANNED,
-      schema_pb2.LifecycleStage.ALPHA, schema_pb2.LifecycleStage.DEBUG_ONLY,
-      None, schema_pb2.LifecycleStage.UNKNOWN_STAGE,
-      schema_pb2.LifecycleStage.BETA, schema_pb2.LifecycleStage.PRODUCTION
+      schema_pb2.LifecycleStage.DEPRECATED, schema_pb2.LifecycleStage.DISABLED,
+      schema_pb2.LifecycleStage.PLANNED, schema_pb2.LifecycleStage.ALPHA,
+      schema_pb2.LifecycleStage.DEBUG_ONLY, None,
+      schema_pb2.LifecycleStage.UNKNOWN_STAGE, schema_pb2.LifecycleStage.BETA,
+      schema_pb2.LifecycleStage.PRODUCTION
   ]
   return stages.index(a)
 
