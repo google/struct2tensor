@@ -93,7 +93,7 @@ This will create a manylinux package in the ~/struct2tensor/dist directory.
 
 
 
-## Creating a static library.
+## Creating a static library
 
 In order to construct a static library for tensorflow-serving, we run:
 
@@ -103,10 +103,31 @@ bazel build -c opt struct2tensor:prensor_kernels_and_ops
 
 This can also be linked into another library.
 
+## [TensorFlow Serving](https://github.com/tensorflow/serving) docker image
+
+struct2tensor needs a couple of custom TensorFlow ops to function. If you train
+a model with struct2tensor and wants to serve it with TensorFlow Serving, the
+TensorFlow Serving binary needs to link with those custom ops. We have a
+pre-built docker image that contains such a binary. The `Dockerfile` is
+available at `tools/tf_serving_docker/Dockerfile`. The image is available at
+`gcr.io/tfx-oss-public/s2t_tf_serving`.
+
+Please see the `Dockerfile` for details. But in brief, the image exposes port
+8500 as the gRPC endpoint and port 8501 as the REST endpoint. You can set
+two environment variables `MODEL_BASE_PATH` and `MODEL_NAME` to point it to
+your model (either mount it to the container, or put your model on GCS).
+It will look for a saved model at
+`${MODEL_BASE_PATH}/${MODEL_NAME}/${VERSION_NUMBER}`, where `VERSION_NUMBER`
+is an integer.
+
+
 ## Compatibility
 
 struct2tensor                                                          | tensorflow
 ---------------------------------------------------------------------- | ----------
+[0.25.0](https://github.com/google/struct2tensor/releases/tag/v0.25.0) | 2.3.0
+[0.24.0](https://github.com/google/struct2tensor/releases/tag/v0.24.0) | 2.3.0
+[0.23.0](https://github.com/google/struct2tensor/releases/tag/v0.23.0) | 2.3.0
 [0.22.0](https://github.com/google/struct2tensor/releases/tag/v0.22.0) | 2.2.0
 [0.21.1](https://github.com/google/struct2tensor/releases/tag/v0.21.1) | 2.1.0
 [0.21.0](https://github.com/google/struct2tensor/releases/tag/v0.21.0) | 2.1.0

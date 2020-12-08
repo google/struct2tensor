@@ -5,7 +5,8 @@
 ## Major Features and Improvements
 
 *   Created a docker image that contains a TF model server with struct2tensor
-    ops linked. see tools/tf_serving_docker/Dockerfile.
+    ops linked. This docker image is available at
+    `gcr.io/tfx-oss-public/s2t_tf_serving` .
 *   Add support for string_views for intermediate serialized protos. To use, set
     the option "use_string_view" in CalculateOptions to true. string_views are
     potentially more memory bandwidth efficient depending on the depth and
