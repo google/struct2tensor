@@ -4,6 +4,16 @@
 
 ## Major Features and Improvements
 
+## Bug Fixes and Other Changes
+
+## Breaking changes
+
+## Deprecations
+
+## Release 0.26.0
+
+## Major Features and Improvements
+
 *   Created a docker image that contains a TF model server with struct2tensor
     ops linked. This docker image is available at
     `gcr.io/tfx-oss-public/s2t_tf_serving` .
@@ -14,9 +24,15 @@
 
 ## Bug Fixes and Other Changes
 
+*   Depends on `tensorflow-metadata>=0.26,<0.27`.
+
 ## Breaking changes
 
+*   N/A
+
 ## Deprecations
+
+*   N/A
 
 ## Release 0.25.0
 
