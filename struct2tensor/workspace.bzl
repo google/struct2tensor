@@ -17,7 +17,7 @@
 """TensorFlow struct2tensor external dependencies that can be loaded in WORKSPACE files.
 """
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
 
 def struct2tensor_workspace():
@@ -27,10 +27,12 @@ def struct2tensor_workspace():
         tf_repo_name = "org_tensorflow",
     )
 
-    # Fetch tf.Metadata repo from GitHub.
-    git_repository(
+    _TFMD_COMMIT_HASH = "1194a9de032c1eaf9d4e13efb31934f88e4fa4f5"  # 0.26.0
+    http_archive(
         name = "com_github_tensorflow_metadata",
-        commit = "8452a799153412972a4fbf00b9a019db23ef60f9",
-        remote = "https://github.com/tensorflow/metadata.git",
-        shallow_since = "1550110183 -0800",
+        sha256 = "61c854f4f0605106517bb07c6574ff27b8fcdf71485ebf009eaf9759391e3d8c",
+        strip_prefix = "metadata-%s" % _TFMD_COMMIT_HASH,
+        urls = [
+            "https://github.com/tensorflow/metadata/archive/%s.tar.gz" % _TFMD_COMMIT_HASH,
+        ],
     )

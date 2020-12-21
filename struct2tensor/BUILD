@@ -81,7 +81,7 @@ s2t_pytype_library(
         "path.py",
     ],
     srcs_version = "PY3ONLY",
-    deps = ["@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_py_pb2"],
+    deps = ["@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:py_metadata_v0_proto_py"],
 )
 
 # Note: do not separate these, as eventually we want to make sure that they

@@ -8,7 +8,7 @@ s2t_proto_library(
     name = "query_metadata_proto",
     srcs = ["query_metadata.proto"],
     cc_api_version = 2,
-    deps = ["@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_cc_pb2"],
+    deps = ["@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:cc_metadata_v0_proto_cc"],
 )
 
 s2t_proto_library_cc(
@@ -21,7 +21,7 @@ s2t_proto_library_py(
     srcs = ["query_metadata.proto"],
     api_version = 2,
     oss_deps = [
-        "@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_py_pb2",
+        "@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:py_metadata_v0_proto_py",
     ],
     proto_library = "query_metadata_proto",
 )
