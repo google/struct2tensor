@@ -24,6 +24,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 tf_configure(name = "local_config_tf")
 
+# boost is required for @thrift
 git_repository(
     name = "com_github_nelhage_rules_boost",
     commit = "9f9fb8b2f0213989247c9d5c0e814a8451d18d7f",
@@ -34,56 +35,25 @@ git_repository(
 load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
 boost_deps()
 
-http_archive(
-    name = "com_github_google_flatbuffers",
-    sha256 = "12a13686cab7ffaf8ea01711b8f55e1dbd3bf059b7c46a25fefa1250bdd9dd23",
-    strip_prefix = "flatbuffers-b99332efd732e6faf60bb7ce1ce5902ed65d5ba3",
-    urls = [
-        "https://mirror.bazel.build/github.com/google/flatbuffers/archive/b99332efd732e6faf60bb7ce1ce5902ed65d5ba3.tar.gz",
-        "https://github.com/google/flatbuffers/archive/b99332efd732e6faf60bb7ce1ce5902ed65d5ba3.tar.gz",
-    ],
-)
-
-# LINT.IfChange(thrift_archive_version)
-http_archive(
-    name = "thrift",
-    build_file = "//third_party:thrift.BUILD",
-    sha256 = "b7452d1873c6c43a580d2b4ae38cfaf8fa098ee6dc2925bae98dce0c010b1366",
-    strip_prefix = "thrift-0.12.0",
-    urls = [
-        "https://github.com/apache/thrift/archive/0.12.0.tar.gz",
-    ],
-)
-# LINT.ThenChange(third_party/thrift.BUILD:thrift_gen_version)
-
-# LINT.IfChange(arrow_archive_version)
-http_archive(
-    name = "arrow",
-    build_file = "//third_party:arrow.BUILD",
-    sha256 = "d7b3838758a365c8c47d55ab0df1006a70db951c6964440ba354f81f518b8d8d",
-    strip_prefix = "arrow-apache-arrow-0.16.0",
-    urls = [
-        "https://github.com/apache/arrow/archive/apache-arrow-0.16.0.tar.gz",
-    ],
-)
-# LINT.ThenChange(third_party/arrow.BUILD:parquet_gen_version)
-
-# https://github.com/protocolbuffers/protobuf/tree/v3.8.0
-PROTOBUF_COMMIT="09745575a923640154bcf307fba8aedff47f240a"
-
-# This is needed by the version of tensorflow metadata we depend on.
-# TODO(andylou): remove this once com_github_tensorflow_metadata is updated.
-git_repository(
-    name = "protobuf_archive",
-    commit = PROTOBUF_COMMIT,
-    remote = "https://github.com/google/protobuf.git",
-    shallow_since = "1558721209 -0700",
-)
 
 #####################################################################################
 
-_TENSORFLOW_GIT_COMMIT = "b36436b087bd8e8701ef51718179037cccdfc26e"  # 2.3.0
-_TENSORFLOW_ARCHIVE_SHA256 = "a474d4328524de1951655cd6afb4888d256c37a0b4a47e6c623b353ab382b39f"
+# ===== TensorFlow dependency =====
+#
+# TensorFlow is imported here instead of in tf_serving_workspace() because
+# existing automation scripts that bump the TF commit hash expect it here.
+#
+# To update TensorFlow to a new revision.
+# 1. Update the 'git_commit' args below to include the new git hash.
+# 2. Get the sha256 hash of the archive with a command such as...
+#    curl -L https://github.com/tensorflow/tensorflow/archive/<git hash>.tar.gz | sha256sum
+#    and update the 'sha256' arg with the result.
+# 3. Request the new archive to be mirrored on mirror.bazel.build for more
+#    reliable downloads.
+
+# TODO(b/178125783): update this commit when TF 2.5 is released.
+_TENSORFLOW_GIT_COMMIT = "d2460be38bd655520dd16a0a64096e0161d52331"  # 1/15/2021 commit
+_TENSORFLOW_ARCHIVE_SHA256 = "80aa4e312b3e98403098ee051834eb481158bdfd05d9c9de0195d6540ab63e78"
 
 http_archive(
     name = "org_tensorflow",
@@ -95,29 +65,24 @@ http_archive(
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
 )
 
-# START: Upstream TensorFlow dependencies
-# TensorFlow build depends on these dependencies.
-# Needs to be in-sync with TensorFlow sources.
-http_archive(
-    name = "io_bazel_rules_closure",
-    sha256 = "5b00383d08dd71f28503736db0500b6fb4dda47489ff5fc6bed42557c07c6ba9",
-    strip_prefix = "rules_closure-308b05b2419edb5c8ee0471b67a40403df940149",
-    urls = [
-        "https://storage.googleapis.com/mirror.tensorflow.org/github.com/bazelbuild/rules_closure/archive/308b05b2419edb5c8ee0471b67a40403df940149.tar.gz",
-        "https://github.com/bazelbuild/rules_closure/archive/308b05b2419edb5c8ee0471b67a40403df940149.tar.gz",  # 2019-06-13
-    ],
-)
-# END: Upstream TensorFlow dependencies
-
-# Please add all new TensorFlow struct2tensor dependencies in workspace.bzl.
+# Please add all new struct2tensor dependencies in workspace.bzl.
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 struct2tensor_workspace()
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-protobuf_deps()
+# Initialize TensorFlow's external dependencies.
+load("@org_tensorflow//tensorflow:workspace3.bzl", "workspace")
+workspace()
+load("@org_tensorflow//tensorflow:workspace2.bzl", "workspace") # buildozer: disable=load
+workspace()
+load("@org_tensorflow//tensorflow:workspace1.bzl", "workspace") # buildozer: disable=load
+workspace()
+load("@org_tensorflow//tensorflow:workspace0.bzl", "workspace") # buildozer: disable=load
+workspace()
+
+# Initialize bazel package rules' external dependencies.
+load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
+rules_pkg_dependencies()
 
 # Specify the minimum required bazel version.
 load("@org_tensorflow//tensorflow:version_check.bzl", "check_bazel_version_at_least")
-
 check_bazel_version_at_least("2.0.0")
-

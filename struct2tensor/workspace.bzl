@@ -14,18 +14,53 @@
 
 # CPU kernels for struct2tensors.
 
-"""TensorFlow struct2tensor external dependencies that can be loaded in WORKSPACE files.
-"""
+"""struct2tensor external dependencies that can be loaded in WORKSPACE files."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
 
 def struct2tensor_workspace():
-    """All TensorFlow struct2tensor external dependencies."""
-    tf_workspace(
-        path_prefix = "",
-        tf_repo_name = "org_tensorflow",
+    """All struct2tensor external dependencies."""
+
+    # ===== Bazel package rules dependency =====
+    http_archive(
+        name = "rules_pkg",
+        sha256 = "352c090cc3d3f9a6b4e676cf42a6047c16824959b438895a76c2989c6d7c246a",
+        url = "https://github.com/bazelbuild/rules_pkg/releases/download/0.2.5/rules_pkg-0.2.5.tar.gz",
     )
+
+    http_archive(
+        name = "com_github_google_flatbuffers",
+        sha256 = "12a13686cab7ffaf8ea01711b8f55e1dbd3bf059b7c46a25fefa1250bdd9dd23",
+        strip_prefix = "flatbuffers-b99332efd732e6faf60bb7ce1ce5902ed65d5ba3",
+        urls = [
+            "https://mirror.bazel.build/github.com/google/flatbuffers/archive/b99332efd732e6faf60bb7ce1ce5902ed65d5ba3.tar.gz",
+            "https://github.com/google/flatbuffers/archive/b99332efd732e6faf60bb7ce1ce5902ed65d5ba3.tar.gz",
+        ],
+    )
+
+    # LINT.IfChange(thrift_archive_version)
+    http_archive(
+        name = "thrift",
+        build_file = "//third_party:thrift.BUILD",
+        sha256 = "b7452d1873c6c43a580d2b4ae38cfaf8fa098ee6dc2925bae98dce0c010b1366",
+        strip_prefix = "thrift-0.12.0",
+        urls = [
+            "https://github.com/apache/thrift/archive/0.12.0.tar.gz",
+        ],
+    )
+    # LINT.ThenChange(third_party/thrift.BUILD:thrift_gen_version)
+
+    # LINT.IfChange(arrow_archive_version)
+    http_archive(
+        name = "arrow",
+        build_file = "//third_party:arrow.BUILD",
+        sha256 = "d7b3838758a365c8c47d55ab0df1006a70db951c6964440ba354f81f518b8d8d",
+        strip_prefix = "arrow-apache-arrow-0.16.0",
+        urls = [
+            "https://github.com/apache/arrow/archive/apache-arrow-0.16.0.tar.gz",
+        ],
+    )
+    # LINT.ThenChange(third_party/arrow.BUILD:parquet_gen_version)
 
     _TFMD_COMMIT_HASH = "1194a9de032c1eaf9d4e13efb31934f88e4fa4f5"  # 0.26.0
     http_archive(

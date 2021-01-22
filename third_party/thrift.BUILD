@@ -80,4 +80,4 @@ genrule(
            "-e 's/$${PACKAGE_STRING}/thrift 0.12.0/g' " +
            "$< >$@"),
 )
-# LINT.ThenChange(../WORKSPACE:thrift_archive_version)
+# LINT.ThenChange(../workspace.bzl:thrift_archive_version)

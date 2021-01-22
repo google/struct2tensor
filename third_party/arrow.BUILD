@@ -59,7 +59,7 @@ genrule(
            "-e 's/@PARQUET_VERSION_PATCH@/1/g' " +
            "$< >$@"),
 )
-# LINT.ThenChange(../WORKSPACE:arrow_archive_version)
+# LINT.ThenChange(../workspace.bzl:arrow_archive_version)
 
 cc_library(
     name = "xxhash",
