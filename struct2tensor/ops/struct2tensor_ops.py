@@ -160,6 +160,8 @@ def parse_message_level(
   # TODO(b/172576749): Once we allow sufficient bake in time for the kernel
   # change, switch to using V3 only.
   if backing_str_tensor:
+    assert message_format == "binary", (
+        "message_format must be 'binary' if a backing_str_tensor is provided")
     values, indices = gen_decode_proto_sparse.decode_proto_sparse_v3(
         tensor_of_protos,
         backing_str_tensor,

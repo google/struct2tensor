@@ -507,6 +507,10 @@ class _ProtoRootExpression(expression.Expression):
     needed_fields = _get_needed_fields(destinations)
     backing_str_tensor = None
     if options.use_string_view:
+      assert self._message_format == "binary", (
+          "`options.use_string_view` is only compatible with 'binary' message "
+          "format. Please create the root expression with "
+          "message_format='binary'.")
       backing_str_tensor = self._tensor_of_protos
     fields = parse_message_level_ex.parse_message_level_ex(
         self._tensor_of_protos,
