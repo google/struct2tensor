@@ -52,8 +52,8 @@ boost_deps()
 #    reliable downloads.
 
 # TODO(b/178125783): update this commit when TF 2.5 is released.
-_TENSORFLOW_GIT_COMMIT = "d2460be38bd655520dd16a0a64096e0161d52331"  # 1/15/2021 commit
-_TENSORFLOW_ARCHIVE_SHA256 = "80aa4e312b3e98403098ee051834eb481158bdfd05d9c9de0195d6540ab63e78"
+_TENSORFLOW_GIT_COMMIT = "c3a7f66acec96893b904ad36114d4bf109e3188a"  # 2/04/2021 commit
+_TENSORFLOW_ARCHIVE_SHA256 = "70fbfcf2e01151ca101d347513c8a9d992971d341e7af2204ee9aa25f32d0d6a"
 
 http_archive(
     name = "org_tensorflow",
@@ -63,6 +63,10 @@ http_archive(
         "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
     ],
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
+    # TODO(b/179042255): remove patch when tf nightly's dependencies is fixed.
+    patches = [
+        "//third_party:tensorflow_visibility.patch",
+    ],
 )
 
 # Please add all new struct2tensor dependencies in workspace.bzl.
