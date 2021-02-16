@@ -94,9 +94,11 @@ session: {
 
 session: {
   event: {
+    nage: 20
     val: 7
   }
   event: {
+    nage: 20
     val: 8
     val: 9
   }
