@@ -225,6 +225,17 @@ class PathTest(absltest.TestCase):
     p = create_path("foo.bar.baz")
     self.assertEqual(pprint.pformat(p), "foo.bar.baz")
 
+  def test_add(self):
+    # Test add two paths.
+    self.assertEqual(
+        create_path("foo.bar") + create_path("baz.bax"),
+        create_path("foo.bar.baz.bax"))
+
+    # Test add a path with a string.
+    self.assertEqual(
+        create_path("foo.bar") + "baz.bax",
+        create_path("foo.bar.baz.bax"))
+
 
 if __name__ == "__main__":
   absltest.main()

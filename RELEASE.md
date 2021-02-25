@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*   Allow path to concat with string.
+
 ## Breaking Changes
 
 ## Deprecations

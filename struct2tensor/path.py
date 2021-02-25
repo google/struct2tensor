@@ -226,6 +226,11 @@ class Path(object):
     """
     return ".".join([str(x) for x in self.field_list])
 
+  def __add__(self, other: Union["Path", str]) -> "Path":
+    if isinstance(other, str):
+      other = create_path(other)
+    return self.concat(other)
+
 
 def is_valid_step(step_str: str) -> bool:
   """Return true if step_str is a valid step (see create_path)."""
