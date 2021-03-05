@@ -19,7 +19,6 @@ such as getting a child or a parent, a client may find this class useful.
 
 """
 
-# pylint: disable=g-ambiguous-str-annotation
 import re
 from typing import Sequence, Tuple, Union
 

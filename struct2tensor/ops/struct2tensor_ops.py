@@ -13,7 +13,6 @@
 # limitations under the License.
 """Utilities for manipulating prensors."""
 
-# pylint: disable=g-ambiguous-str-annotation
 
 from typing import NamedTuple, Optional, Sequence, Tuple
 

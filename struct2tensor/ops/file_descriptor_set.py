@@ -103,9 +103,9 @@ def _create_file_descriptor_set_proto(
   return result
 
 
-def _get_initial_file_descriptor_set(descriptor_type: descriptor.Descriptor,
-                                     field_names: Sequence[str]
-                                    ) -> Set[descriptor.FileDescriptor]:  # pylint:disable=g-ambiguous-str-annotation
+def _get_initial_file_descriptor_set(
+    descriptor_type: descriptor.Descriptor,
+    field_names: Sequence[str]) -> Set[descriptor.FileDescriptor]:
   """Gets a set of file descriptors for a descriptor and extensions."""
   result = set()
   result.add(descriptor_type.file)

@@ -137,7 +137,7 @@ class Schema(object):
   def known_field_names(self) -> FrozenSet[path.Step]:
     return frozenset(self._children.keys())
 
-  def __str__(self) -> str:  # pylint:disable=g-ambiguous-str-annotation
+  def __str__(self) -> str:
     return ("Schema(is_repeated:{is_repeated} type:{type}"
             " "
             "schema_feature:({schema_feature})"
