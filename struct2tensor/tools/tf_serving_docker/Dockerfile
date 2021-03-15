@@ -75,7 +75,8 @@ RUN curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_V
     rm -f /bazel/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh
 
 # Download buildozer
-RUN curl -fSsL -O https://github.com/bazelbuild/buildtools/releases/download/$BAZEL_VERSION/buildozer && \
+ENV BUILDOZER_VERSION 4.0.1
+RUN curl -fSsL -O https://github.com/bazelbuild/buildtools/releases/download/$BUILDOZER_VERSION/buildozer-linux-amd64 && \
     chmod +x buildozer && \
     mv buildozer /bin
 
