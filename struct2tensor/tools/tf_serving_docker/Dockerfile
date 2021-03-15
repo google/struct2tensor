@@ -77,8 +77,8 @@ RUN curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_V
 # Download buildozer
 ENV BUILDOZER_VERSION 4.0.1
 RUN curl -fSsL -O https://github.com/bazelbuild/buildtools/releases/download/$BUILDOZER_VERSION/buildozer-linux-amd64 && \
-    chmod +x buildozer && \
-    mv buildozer /bin
+    chmod +x buildozer-linux-amd64 && \
+    mv buildozer-linux-amd64 /bin/buildozer
 
 # Download s2t sources.
 WORKDIR /struct2tensor
