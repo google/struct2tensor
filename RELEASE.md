@@ -7,6 +7,7 @@
 ## Bug Fixes and Other Changes
 
 *   Allow path to concat with string.
+*   Bumped the mininum bazel version required to build `struct2tensor` to 3.7.2.
 
 ## Breaking Changes
 

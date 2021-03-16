@@ -84,4 +84,4 @@ rules_pkg_dependencies()
 
 # Specify the minimum required bazel version.
 load("@org_tensorflow//tensorflow:version_check.bzl", "check_bazel_version_at_least")
-check_bazel_version_at_least("2.0.0")
+check_bazel_version_at_least("3.7.2")
