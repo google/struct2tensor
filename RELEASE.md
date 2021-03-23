@@ -6,12 +6,29 @@
 
 ## Bug Fixes and Other Changes
 
-*   Allow path to concat with string.
-*   Bumped the mininum bazel version required to build `struct2tensor` to 3.7.2.
-
 ## Breaking Changes
 
 ## Deprecations
+
+## Release 0.29.0
+
+## Major Features and Improvements
+
+*   N/A
+
+## Bug Fixes and Other Changes
+
+*   Allow path to concat with string.
+*   Bumped the mininum bazel version required to build `struct2tensor` to 3.7.2.
+*   Depends on `tensorflow-metadata>=0.29,<0.30`
+
+## Breaking Changes
+
+*   N/A
+
+## Deprecations
+
+*   N/A
 
 ## Release 0.28.0
 
