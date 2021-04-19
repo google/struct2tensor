@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*   Expose `get_positional_index` as a method of `NodeTensor`.
+
 ## Breaking Changes
 
 ## Deprecations

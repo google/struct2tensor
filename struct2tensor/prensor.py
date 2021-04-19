@@ -26,6 +26,7 @@ import enum
 from typing import FrozenSet, Iterator, List, Mapping, Optional, Sequence, Tuple, Union
 
 from struct2tensor import path
+from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
 
 from tensorflow.python.framework import composite_tensor  # pylint: disable=g-direct-tensorflow-import
@@ -54,6 +55,17 @@ class RootNodeTensor(object):
   @property
   def is_repeated(self):
     return True
+
+  def get_positional_index(self) -> tf.Tensor:
+    """Gets the positional index for this RootNodeTensor.
+
+    The positional index relative to the node's parent, and thus is always
+    monotonically increasing at step size 1 for a RootNodeTensor.
+
+    Returns:
+      A tensor of positional indices.
+    """
+    return tf.range(self.size)
 
   def __str__(self):
     return "RootNodeTensor"
@@ -93,6 +105,30 @@ class ChildNodeTensor(object):
   def is_repeated(self):
     return self._is_repeated
 
+  # LINT.IfChange(child_node_tensor)
+  def get_positional_index(self) -> tf.Tensor:
+    """Gets the positional index for this ChildNodeTensor.
+
+    The positional index tells us which index of the parent an element is.
+
+    For example, with the following parent indices: [0, 0, 2]
+    we would have positional index:
+    [
+      0, # The 0th element of the 0th parent.
+      1, # The 1st element of the 0th parent.
+      0  # The 0th element of the 2nd parent.
+    ].
+
+    For more information, view ops/run_length_before_op.cc
+
+    This is the same for Leaf NodeTensors.
+
+    Returns:
+      A tensor of positional indices.
+    """
+    return struct2tensor_ops.run_length_before(self.parent_index)
+  # LINT.ThenChange(:leaf_node_tensor)
+
   def __str__(self):
     cardinality = "repeated" if self.is_repeated else "optional"
     return "{} ChildNodeTensor".format(cardinality)
@@ -129,6 +165,30 @@ class LeafNodeTensor(object):
   @property
   def values(self):
     return self._values
+
+  # LINT.IfChange(leaf_node_tensor)
+  def get_positional_index(self) -> tf.Tensor:
+    """Gets the positional index for this LeafNodeTensor.
+
+    The positional index tells us which index of the parent an element is.
+
+    For example, with the following parent indices: [0, 0, 2]
+    we would have positional index:
+    [
+      0, # The 0th element of the 0th parent.
+      1, # The 1st element of the 0th parent.
+      0  # The 0th element of the 2nd parent.
+    ].
+
+    For more information, view ops/run_length_before_op.cc
+
+    This is the same for Child NodeTensors.
+
+    Returns:
+      A tensor of positional indices.
+    """
+    return struct2tensor_ops.run_length_before(self.parent_index)
+  # LINT.ThenChange(:child_node_tensor)
 
   def __str__(self):
     return "{} {}".format("repeated" if self.is_repeated else "optional",
