@@ -17,7 +17,6 @@ blaze run //struct2tensor/opensource_only/tools:build_docs -- \
   --output_dir=$(pwd)/struct2tensor/opensource_only/g3doc/api_docs/python
 """
 
-
 import inspect
 import pathlib
 import shutil
@@ -44,6 +43,75 @@ flags.DEFINE_bool("search_hints", True,
 
 
 FLAGS = flags.FLAGS
+
+
+def build_docs(output_dir: pathlib.Path) -> None:
+  """Generates the api docs for struct2tensor and expression_impl.
+
+  We need to splice the generated docs together, and create a new table of
+  contents.
+
+  Args:
+    output_dir: A pathlib Path that is the top level dir where docs are
+      generated.
+
+  Returns:
+    None
+  """
+  s2t_out = pathlib.Path(tempfile.mkdtemp())
+  doc_generator = generate_lib.DocGenerator(
+      root_title="Struct2Tensor",
+      py_modules=[("s2t", s2t)],
+      code_url_prefix=FLAGS.code_url_prefix,
+      search_hints=FLAGS.search_hints,
+      # explicit_package_contents_filter ensures that only modules imported
+      # directly from s2t/__init__.py are documented in the location that
+      # defines them, instead of every location that imports them.
+      callbacks=[
+          public_api.explicit_package_contents_filter, _filter_module_attributes
+      ])
+
+  doc_generator.build(s2t_out)
+
+  expr_impl_out = pathlib.Path(tempfile.mkdtemp())
+  doc_generator = generate_lib.DocGenerator(
+      root_title="Struct2Tensor-expression_impl",
+      py_modules=[("expression_impl", expression_impl)],
+      code_url_prefix=FLAGS.code_url_prefix + "/expression_impl",
+      search_hints=FLAGS.search_hints,
+      # explicit_package_contents_filter ensures that only modules imported
+      # directly from s2t/expression_impl/__init__.py are documented in the
+      # location that defines them, instead of every location that imports them.
+      callbacks=[
+          public_api.explicit_package_contents_filter, _filter_module_attributes
+      ])
+  doc_generator.build(expr_impl_out)
+
+  def splice(name, tmp_dir):
+    shutil.rmtree(output_dir / name, ignore_errors=True)
+    shutil.copytree(tmp_dir / name, output_dir / name)
+    shutil.copy(tmp_dir / f"{name}.md", output_dir / f"{name}.md")
+    try:
+      shutil.copy(tmp_dir / name / "_redirects.yaml",
+                  output_dir / name / "_redirects.yaml")
+    except FileNotFoundError:
+      pass
+    shutil.copy(tmp_dir / name / "_toc.yaml", output_dir / name / "_toc.yaml")
+
+  splice("s2t", s2t_out)
+  splice("expression_impl", expr_impl_out)
+
+  toc_path = output_dir / "_toc.yaml"
+  toc_text = yaml.dump({
+      "toc": [{
+          "include": "/api_docs/python/s2t/_toc.yaml"
+      }, {
+          "break": True
+      }, {
+          "include": "/api_docs/python/expression_impl/_toc.yaml"
+      }]
+  })
+  toc_path.write_text(toc_text)
 
 
 def _filter_module_attributes(path, parent, children):
@@ -79,64 +147,8 @@ def _filter_module_attributes(path, parent, children):
 
 
 def main(unused_argv):
-
-  # TODO(andylou): write simple unit test
-  s2t_out = pathlib.Path(tempfile.mkdtemp())
-  doc_generator = generate_lib.DocGenerator(
-      root_title="Struct2Tensor",
-      py_modules=[("s2t", s2t)],
-      code_url_prefix=FLAGS.code_url_prefix,
-      search_hints=FLAGS.search_hints,
-      # explicit_package_contents_filter ensures that only modules imported
-      # directly from s2t/__init__.py are documented in the location that
-      # defines them, instead of every location that imports them.
-      callbacks=[
-          public_api.explicit_package_contents_filter, _filter_module_attributes
-      ])
-
-  doc_generator.build(s2t_out)
-
-  expr_impl_out = pathlib.Path(tempfile.mkdtemp())
-  doc_generator = generate_lib.DocGenerator(
-      root_title="Struct2Tensor-expression_impl",
-      py_modules=[("expression_impl", expression_impl)],
-      code_url_prefix=FLAGS.code_url_prefix + "/expression_impl",
-      search_hints=FLAGS.search_hints,
-      # explicit_package_contents_filter ensures that only modules imported
-      # directly from s2t/expression_impl/__init__.py are documented in the
-      # location that defines them, instead of every location that imports them.
-      callbacks=[
-          public_api.explicit_package_contents_filter, _filter_module_attributes
-      ])
-  doc_generator.build(expr_impl_out)
-
-  output_dir = pathlib.Path(FLAGS.output_dir)
-
-  def splice(name, tmp_dir):
-    shutil.rmtree(output_dir / name, ignore_errors=True)
-    shutil.copytree(tmp_dir / name, output_dir / name)
-    shutil.copy(tmp_dir / f"{name}.md", output_dir / f"{name}.md")
-    try:
-      shutil.copy(tmp_dir / "_redirects.yaml",
-                  output_dir / name / "_redirects.yaml")
-    except FileNotFoundError:
-      pass
-    shutil.copy(tmp_dir / "_toc.yaml", output_dir / name / "_toc.yaml")
-
-  splice("s2t", s2t_out)
-  splice("expression_impl", expr_impl_out)
-
-  toc_path = output_dir / "_toc.yaml"
-  toc_text = yaml.dump({
-      "toc": [{
-          "include": "/api_docs/python/s2t/_toc.yaml"
-      }, {
-          "break": True
-      }, {
-          "include": "/api_docs/python/expression_impl/_toc.yaml"
-      }]
-  })
-  toc_path.write_text(toc_text)
+  del unused_argv
+  build_docs(output_dir=pathlib.Path(FLAGS.output_dir))
 
 
 if __name__ == "__main__":

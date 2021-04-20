@@ -15,18 +15,26 @@ licenses(["notice"])
 
 package(default_visibility = ["//struct2tensor:__subpackages__"])
 
+py_library(
+    name = "build_docs_lib",
+    srcs = ["build_docs.py"],
+    srcs_version = "PY3",
+    deps = [
+        "//struct2tensor",
+        "//struct2tensor:struct2tensor_expression_impl",
+        "//third_party/py/absl:app",
+        "//third_party/py/tensorflow_docs/api_generator:generate_lib",
+        "//third_party/py/tensorflow_docs/api_generator:public_api",
+        "//third_party/py/yaml",
+        "@absl_py//absl/flags",
+    ],
+)
+
 py_binary(
     name = "build_docs",
     srcs = ["build_docs.py"],
     python_version = "PY3",
-    srcs_version = "PY3",
     deps = [
-        "//third_party/py/absl:app",
-        "@absl_py//absl/flags",
-        "//struct2tensor",
-        "//struct2tensor:struct2tensor_expression_impl",
-        "//third_party/py/tensorflow_docs/api_generator:generate_lib",
-        "//third_party/py/tensorflow_docs/api_generator:public_api",
-        "//third_party/py/yaml",
+        ":build_docs_lib",
     ],
 )
