@@ -77,8 +77,8 @@ setup(
         'protobuf>=3.8.0,<4',
         'tensorflow>=2.4.0,<2.5',
         'tensorflow-metadata' + select_constraint(
-            default='>=0.29,<0.30',
-            nightly='>=0.30.0.dev',
+            default='>=0.30,<0.31',
+            nightly='>=0.31.0.dev',
             git_master='@git+https://github.com/tensorflow/metadata@master'),
         'pyarrow>=1,<3',
     ],

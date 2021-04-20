@@ -6,11 +6,28 @@
 
 ## Bug Fixes and Other Changes
 
-*   Expose `get_positional_index` as a method of `NodeTensor`.
-
 ## Breaking Changes
 
 ## Deprecations
+
+## Release 0.30.0
+
+## Major Features and Improvements
+
+*   N/A
+
+## Bug Fixes and Other Changes
+
+*   Expose `get_positional_index` as a method of `NodeTensor`.
+*   Depends on `tensorflow-metadata>=0.30,<0.31`
+
+## Breaking Changes
+
+*   N/A
+
+## Deprecations
+
+*   N/A
 
 ## Release 0.29.0
 
