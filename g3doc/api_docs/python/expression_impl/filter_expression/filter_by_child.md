@@ -11,7 +11,7 @@ description: Filter an expression by an optional boolean child field.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/filter_expression.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/filter_expression.py#L102-L124">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>

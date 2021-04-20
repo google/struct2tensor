@@ -168,6 +168,8 @@
     "expression_impl.parquet.ParquetDataset.from_sparse_tensor_slices": true,
     "expression_impl.parquet.ParquetDataset.from_tensor_slices": true,
     "expression_impl.parquet.ParquetDataset.from_tensors": true,
+    "expression_impl.parquet.ParquetDataset.get_single_element": true,
+    "expression_impl.parquet.ParquetDataset.group_by_window": true,
     "expression_impl.parquet.ParquetDataset.interleave": true,
     "expression_impl.parquet.ParquetDataset.list_files": true,
     "expression_impl.parquet.ParquetDataset.make_initializable_iterator": true,

@@ -9,7 +9,7 @@
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/apply_schema.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/apply_schema.py#L60-L66">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>

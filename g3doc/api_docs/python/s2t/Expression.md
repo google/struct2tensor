@@ -43,7 +43,7 @@ description: An expression represents the calculation of a prensor object.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L85-L604">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -143,7 +143,7 @@ dtype of the expression, or None if not a leaf expression.
 
 <h3 id="apply"><code>apply</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L504-L506">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>apply(
@@ -156,7 +156,7 @@ dtype of the expression, or None if not a leaf expression.
 
 <h3 id="apply_schema"><code>apply_schema</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L508-L509">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>apply_schema(
@@ -169,7 +169,7 @@ dtype of the expression, or None if not a leaf expression.
 
 <h3 id="broadcast"><code>broadcast</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L427-L431">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>broadcast(
@@ -184,7 +184,7 @@ Broadcasts the existing field at source_path to the sibling_field.
 
 <h3 id="calculate"><code>calculate</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L138-L173">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>@abc.abstractmethod</code>
@@ -269,7 +269,7 @@ A NodeTensor representing the output of this expression.
 
 <h3 id="calculation_equal"><code>calculation_equal</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L184-L202">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>@abc.abstractmethod</code>
@@ -310,7 +310,7 @@ The expression to compare to.
 
 <h3 id="calculation_is_identity"><code>calculation_is_identity</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L175-L182">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>@abc.abstractmethod</code>
@@ -324,7 +324,7 @@ node tensor of this source.
 
 <h3 id="cogroup_by_index"><code>cogroup_by_index</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L496-L500">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>cogroup_by_index(
@@ -340,7 +340,7 @@ Creates a cogroup of left_name and right_name at new_field_name.
 
 <h3 id="create_has_field"><code>create_has_field</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L473-L476">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>create_has_field(
@@ -354,7 +354,7 @@ Creates a field that is the presence of the source path.
 
 <h3 id="create_proto_index"><code>create_proto_index</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L478-L494">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>create_proto_index(
@@ -403,7 +403,7 @@ An Expression object representing the result of the operation.
 
 <h3 id="create_size_field"><code>create_size_field</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L468-L471">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>create_size_field(
@@ -417,7 +417,7 @@ Creates a field that is the size of the source path.
 
 <h3 id="get_child"><code>get_child</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L240-L246">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_child(
@@ -430,7 +430,7 @@ Gets a named child.
 
 <h3 id="get_child_or_error"><code>get_child_or_error</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L248-L253">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_child_or_error(
@@ -443,7 +443,7 @@ Gets a named child.
 
 <h3 id="get_descendant"><code>get_descendant</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L255-L262">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_descendant(
@@ -456,7 +456,7 @@ Finds the descendant at the path.
 
 <h3 id="get_descendant_or_error"><code>get_descendant_or_error</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L264-L270">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_descendant_or_error(
@@ -469,10 +469,10 @@ Finds the descendant at the path.
 
 <h3 id="get_known_children"><code>get_known_children</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L272-L277">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
-<code>get_known_children() -> Mapping[<a href="../s2t/Step.md"><code>s2t.Step</code></a>, 'Expression']
+<code>get_known_children() -> Mapping[path.Step, 'Expression']
 </code></pre>
 
 
@@ -480,10 +480,10 @@ Finds the descendant at the path.
 
 <h3 id="get_known_descendants"><code>get_known_descendants</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L279-L302">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
-<code>get_known_descendants() -> Mapping[<a href="../s2t/Path.md"><code>s2t.Path</code></a>, 'Expression']
+<code>get_known_descendants() -> Mapping[path.Path, 'Expression']
 </code></pre>
 
 Gets a mapping from known paths to subexpressions.
@@ -510,7 +510,7 @@ expressions.
 
 <h3 id="get_paths_with_schema"><code>get_paths_with_schema</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L511-L523">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_paths_with_schema() -> List[<a href="../s2t/Path.md"><code>s2t.Path</code></a>]
@@ -521,7 +521,7 @@ Extract only paths that contain schema information.
 
 <h3 id="get_schema"><code>get_schema</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L547-L560">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_schema(
@@ -554,7 +554,7 @@ schema_feature on the child.
 
 <h3 id="get_source_expressions"><code>get_source_expressions</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L125-L136">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>@abc.abstractmethod</code>
@@ -583,7 +583,7 @@ The sources of this expression.
 
 <h3 id="known_field_names"><code>known_field_names</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L218-L238">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>@abc.abstractmethod</code>
@@ -622,7 +622,7 @@ An immutable set of field names.
 
 <h3 id="map_field_values"><code>map_field_values</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L444-L462">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>map_field_values(
@@ -691,7 +691,7 @@ the resulting root expression.
 
 <h3 id="map_ragged_tensors"><code>map_ragged_tensors</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L361-L392">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>map_ragged_tensors(
@@ -784,7 +784,7 @@ A new query.
 
 <h3 id="map_sparse_tensors"><code>map_sparse_tensors</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L328-L359">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>map_sparse_tensors(
@@ -877,11 +877,11 @@ A new query.
 
 <h3 id="project"><code>project</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L433-L435">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>project(
-    path_list: Sequence[<a href="../s2t/Path.md"><code>s2t.Path</code></a>]
+    path_list: Sequence[CoercableToPath]
 ) -> "Expression"
 </code></pre>
 
@@ -890,7 +890,7 @@ Constrains the paths to those listed.
 
 <h3 id="promote"><code>promote</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L423-L425">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>promote(
@@ -904,11 +904,11 @@ Promotes source_path to be a field new_field_name in its grandparent.
 
 <h3 id="promote_and_broadcast"><code>promote_and_broadcast</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L437-L442">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>promote_and_broadcast(
-    path_dictionary: Mapping[<a href="../s2t/Step.md"><code>s2t.Step</code></a>, <a href="../s2t/Path.md"><code>s2t.Path</code></a>],
+    path_dictionary: Mapping[path.Step, CoercableToPath],
     dest_path_parent: <a href="../s2t/Path.md"><code>s2t.Path</code></a>
 ) -> "Expression"
 </code></pre>
@@ -918,7 +918,7 @@ Promotes source_path to be a field new_field_name in its grandparent.
 
 <h3 id="reroot"><code>reroot</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L464-L466">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>reroot(
@@ -931,7 +931,7 @@ Returns a new list of protocol buffers available at new_root.
 
 <h3 id="schema_string"><code>schema_string</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L562-L581">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>schema_string(
@@ -984,7 +984,7 @@ A string, describing (a part of) the schema.
 
 <h3 id="slice"><code>slice</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L399-L421">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>slice(
@@ -1055,7 +1055,7 @@ An Expression object representing the result of the operation.
 
 <h3 id="truncate"><code>truncate</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L394-L397">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>truncate(
@@ -1070,7 +1070,7 @@ Creates a truncated copy of source_path at new_field_path.
 
 <h3 id="__eq__"><code>__eq__</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression.py#L590-L600">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>__eq__(

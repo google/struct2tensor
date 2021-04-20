@@ -11,7 +11,7 @@ description: Create an expression that transforms serialized proto tensors.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/proto.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/proto.py#L116-L187">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -84,7 +84,11 @@ sibling of the field identified by `source_path`.
 </td>
 <td>
 a callable that accepts parent_indices and serialized proto
-values and returns a posibly modified parent_indices and values.
+values and returns a posibly modified parent_indices and values. Note that
+when CalcuateOptions.use_string_view is set, transform_fn should not have
+any stateful side effecting uses of serialized proto inputs. Doing so
+could cause segfaults as the backing string tensor lifetime is not
+guaranteed when the side effecting operations are run.
 </td>
 </tr>
 </table>

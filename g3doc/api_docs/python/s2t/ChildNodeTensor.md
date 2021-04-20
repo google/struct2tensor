@@ -4,6 +4,7 @@ description: The value of an intermediate node.
 <meta itemprop="name" content="s2t.ChildNodeTensor" />
 <meta itemprop="path" content="Stable" />
 <meta itemprop="property" content="__init__"/>
+<meta itemprop="property" content="get_positional_index"/>
 </div>
 
 # s2t.ChildNodeTensor
@@ -12,7 +13,7 @@ description: The value of an intermediate node.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L74-L134">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -91,6 +92,48 @@ Returns the size, as if this was the root prensor.
 </td>
 </tr>
 </table>
+
+
+
+## Methods
+
+<h3 id="get_positional_index"><code>get_positional_index</code></h3>
+
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L109-L129">View source</a>
+
+<pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
+<code>get_positional_index() -> tf.Tensor
+</code></pre>
+
+Gets the positional index for this ChildNodeTensor.
+
+The positional index tells us which index of the parent an element is.
+
+For example, with the following parent indices: [0, 0, 2]
+we would have positional index:
+[
+  0, # The 0th element of the 0th parent.
+  1, # The 1st element of the 0th parent.
+  0  # The 0th element of the 2nd parent.
+].
+
+For more information, view ops/run_length_before_op.cc
+
+This is the same for Leaf NodeTensors.
+
+<!-- Tabular view -->
+ <table class="responsive fixed orange">
+<colgroup><col width="214px"><col></colgroup>
+<tr><th colspan="2">Returns</th></tr>
+<tr class="alt">
+<td colspan="2">
+A tensor of positional indices.
+</td>
+</tr>
+
+</table>
+
+
 
 
 

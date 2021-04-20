@@ -51,12 +51,12 @@ toc:
   section:
   - title: Overview
     path: /api_docs/python/expression_impl/map_prensor_to_prensor
+  - title: Schema
+    path: /api_docs/python/expression_impl/map_prensor_to_prensor/Schema
   - title: create_schema
     path: /api_docs/python/expression_impl/map_prensor_to_prensor/create_schema
   - title: map_prensor_to_prensor
     path: /api_docs/python/expression_impl/map_prensor_to_prensor/map_prensor_to_prensor
-  - title: Schema
-    path: /api_docs/python/expression_impl/map_prensor_to_prensor/Schema
 - title: expression_impl.map_values
   section:
   - title: Overview
@@ -71,12 +71,12 @@ toc:
   section:
   - title: Overview
     path: /api_docs/python/expression_impl/parquet
+  - title: ParquetDataset
+    path: /api_docs/python/expression_impl/parquet/ParquetDataset
   - title: calculate_parquet_values
     path: /api_docs/python/expression_impl/parquet/calculate_parquet_values
   - title: create_expression_from_parquet_file
     path: /api_docs/python/expression_impl/parquet/create_expression_from_parquet_file
-  - title: ParquetDataset
-    path: /api_docs/python/expression_impl/parquet/ParquetDataset
 - title: expression_impl.placeholder
   section:
   - title: Overview
@@ -95,12 +95,12 @@ toc:
   section:
   - title: Overview
     path: /api_docs/python/expression_impl/promote
-  - title: promote
-    path: /api_docs/python/expression_impl/promote/promote
   - title: PromoteChildExpression
     path: /api_docs/python/expression_impl/promote/PromoteChildExpression
   - title: PromoteExpression
     path: /api_docs/python/expression_impl/promote/PromoteExpression
+  - title: promote
+    path: /api_docs/python/expression_impl/promote/promote
   - title: promote_anonymous
     path: /api_docs/python/expression_impl/promote/promote_anonymous
 - title: expression_impl.promote_and_broadcast
@@ -115,22 +115,22 @@ toc:
   section:
   - title: Overview
     path: /api_docs/python/expression_impl/proto
+  - title: DescriptorPool
+    path: /api_docs/python/expression_impl/proto/DescriptorPool
+  - title: FileDescriptorSet
+    path: /api_docs/python/expression_impl/proto/FileDescriptorSet
+  - title: ProtoExpression
+    path: /api_docs/python/expression_impl/proto/ProtoExpression
+  - title: TransformFn
+    path: /api_docs/python/expression_impl/proto/TransformFn
   - title: create_expression_from_file_descriptor_set
     path: /api_docs/python/expression_impl/proto/create_expression_from_file_descriptor_set
   - title: create_expression_from_proto
     path: /api_docs/python/expression_impl/proto/create_expression_from_proto
   - title: create_transformed_field
     path: /api_docs/python/expression_impl/proto/create_transformed_field
-  - title: DescriptorPool
-    path: /api_docs/python/expression_impl/proto/DescriptorPool
-  - title: FileDescriptorSet
-    path: /api_docs/python/expression_impl/proto/FileDescriptorSet
   - title: is_proto_expression
     path: /api_docs/python/expression_impl/proto/is_proto_expression
-  - title: ProtoExpression
-    path: /api_docs/python/expression_impl/proto/ProtoExpression
-  - title: TransformFn
-    path: /api_docs/python/expression_impl/proto/TransformFn
 - title: expression_impl.reroot
   section:
   - title: Overview
@@ -143,12 +143,12 @@ toc:
   section:
   - title: Overview
     path: /api_docs/python/expression_impl/size
+  - title: SizeExpression
+    path: /api_docs/python/expression_impl/size/SizeExpression
   - title: has
     path: /api_docs/python/expression_impl/size/has
   - title: size
     path: /api_docs/python/expression_impl/size/size
-  - title: SizeExpression
-    path: /api_docs/python/expression_impl/size/SizeExpression
   - title: size_anonymous
     path: /api_docs/python/expression_impl/size/size_anonymous
 - title: expression_impl.slice_expression

@@ -43,7 +43,7 @@ description: A promoted leaf.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py#L111-L152">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -176,7 +176,7 @@ Broadcasts the existing field at source_path to the sibling_field.
 
 <h3 id="calculate"><code>calculate</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py#L132-L146">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>calculate(
@@ -260,7 +260,7 @@ A NodeTensor representing the output of this expression.
 
 <h3 id="calculation_equal"><code>calculation_equal</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py#L151-L152">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>calculation_equal(
@@ -300,7 +300,7 @@ The expression to compare to.
 
 <h3 id="calculation_is_identity"><code>calculation_is_identity</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py#L148-L149">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>calculation_is_identity() -> bool
@@ -519,7 +519,7 @@ schema_feature on the child.
 
 <h3 id="get_source_expressions"><code>get_source_expressions</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/promote.py#L129-L130">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_source_expressions() -> Sequence[expression.Expression]

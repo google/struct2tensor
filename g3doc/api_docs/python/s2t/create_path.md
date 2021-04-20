@@ -11,7 +11,7 @@ description: Create a path from an object.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L285-L326">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>

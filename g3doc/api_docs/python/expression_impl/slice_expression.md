@@ -34,6 +34,7 @@ The resulting list consists of all elements in the range.
 
 
 ```
+```
 >>> x = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
 >>> print(x[2:5]) # all elements between index 2 inclusive and index 5 exclusive
 ['c', 'd', 'e']
@@ -47,6 +48,7 @@ The resulting list consists of all elements in the range.
 >>> print(x[-3:6]) # all elements starting three from the end
                    # until index 6 exclusive.
 ['e', 'f', 'g']
+```
 ```
 
 

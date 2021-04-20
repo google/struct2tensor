@@ -3,6 +3,7 @@ description: A representation of a path in the expression.
 <div itemscope itemtype="http://developers.google.com/ReferenceObject">
 <meta itemprop="name" content="s2t.Path" />
 <meta itemprop="path" content="Stable" />
+<meta itemprop="property" content="__add__"/>
 <meta itemprop="property" content="__eq__"/>
 <meta itemprop="property" content="__ge__"/>
 <meta itemprop="property" content="__gt__"/>
@@ -27,7 +28,7 @@ description: A representation of a path in the expression.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L78-L231">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -89,7 +90,7 @@ if any field is not a valid step (see is_valid_step).
 
 <h3 id="as_proto"><code>as_proto</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L195-L211">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>as_proto()
@@ -115,7 +116,7 @@ a Path proto.
 
 <h3 id="concat"><code>concat</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L165-L166">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>concat(
@@ -128,7 +129,7 @@ a Path proto.
 
 <h3 id="get_child"><code>get_child</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L159-L163">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_child(
@@ -141,7 +142,7 @@ Get the child path.
 
 <h3 id="get_least_common_ancestor"><code>get_least_common_ancestor</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L185-L188">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_least_common_ancestor(
@@ -154,7 +155,7 @@ Get the least common ancestor, the longest shared prefix.
 
 <h3 id="get_parent"><code>get_parent</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L146-L157">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_parent() -> "Path"
@@ -196,7 +197,7 @@ If this is the root path.
 
 <h3 id="is_ancestor"><code>is_ancestor</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L190-L193">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>is_ancestor(
@@ -209,7 +210,7 @@ True if self is ancestor of other (i.e. a prefix).
 
 <h3 id="prefix"><code>prefix</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L168-L169">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>prefix(
@@ -222,7 +223,7 @@ True if self is ancestor of other (i.e. a prefix).
 
 <h3 id="suffix"><code>suffix</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L171-L172">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>suffix(
@@ -233,9 +234,22 @@ True if self is ancestor of other (i.e. a prefix).
 
 
 
+<h3 id="__add__"><code>__add__</code></h3>
+
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L228-L231">View source</a>
+
+<pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
+<code>__add__(
+    other: Union['Path', str]
+) -> "Path"
+</code></pre>
+
+
+
+
 <h3 id="__eq__"><code>__eq__</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L125-L126">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>__eq__(
@@ -248,7 +262,7 @@ Return self==value.
 
 <h3 id="__ge__"><code>__ge__</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L137-L138">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>__ge__(
@@ -261,7 +275,7 @@ Return self>=value.
 
 <h3 id="__gt__"><code>__gt__</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L140-L141">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>__gt__(
@@ -274,7 +288,7 @@ Return self>value.
 
 <h3 id="__le__"><code>__le__</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L131-L132">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>__le__(
@@ -287,7 +301,7 @@ Return self<=value.
 
 <h3 id="__len__"><code>__len__</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L174-L175">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>__len__() -> int
@@ -298,7 +312,7 @@ Return self<=value.
 
 <h3 id="__lt__"><code>__lt__</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L134-L135">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>__lt__(
@@ -311,7 +325,7 @@ Return self<value.
 
 <h3 id="__ne__"><code>__ne__</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/path.py#L128-L129">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>__ne__(

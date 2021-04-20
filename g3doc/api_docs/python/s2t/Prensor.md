@@ -19,7 +19,7 @@ description: A expression of NodeTensor objects.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L339-L452">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -96,7 +96,7 @@ The node of the root of the subtree.
 
 <h3 id="field_names"><code>field_names</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L410-L412">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>field_names() -> FrozenSet[<a href="../s2t/Step.md"><code>s2t.Step</code></a>]
@@ -107,7 +107,7 @@ Returns the field names of the children.
 
 <h3 id="get_child"><code>get_child</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L364-L366">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_child(
@@ -120,7 +120,7 @@ Gets the child at field_name.
 
 <h3 id="get_child_or_error"><code>get_child_or_error</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L373-L379">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_child_or_error(
@@ -133,7 +133,7 @@ Gets the child at field_name.
 
 <h3 id="get_children"><code>get_children</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L397-L399">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_children() -> "collections.OrderedDict[path.Step, Prensor]"
@@ -144,7 +144,7 @@ A map from field name to subexpression.
 
 <h3 id="get_descendant"><code>get_descendant</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L381-L388">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_descendant(
@@ -157,7 +157,7 @@ Finds the descendant at the path.
 
 <h3 id="get_descendant_or_error"><code>get_descendant_or_error</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L390-L395">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>get_descendant_or_error(
@@ -170,10 +170,10 @@ Finds the descendant at the path.
 
 <h3 id="get_descendants"><code>get_descendants</code></h3>
 
-<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py">View source</a>
+<a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor.py#L401-L408">View source</a>
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
-<code>get_descendants() -> Mapping[<a href="../s2t/Path.md"><code>s2t.Path</code></a>, 'Prensor']
+<code>get_descendants() -> Mapping[path.Path, 'Prensor']
 </code></pre>
 
 A map from paths to all subexpressions.

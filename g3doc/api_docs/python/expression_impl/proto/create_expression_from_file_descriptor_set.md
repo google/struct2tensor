@@ -11,7 +11,7 @@ description: Create an expression from a 1D tensor of serialized protos.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/proto.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/proto.py#L52-L82">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -27,7 +27,7 @@ Create an expression from a 1D tensor of serialized protos.
     tensor_of_protos: tf.Tensor,
     proto_name: ProtoFullName,
     file_descriptor_set: <a href="../../expression_impl/proto/FileDescriptorSet.md"><code>expression_impl.proto.FileDescriptorSet</code></a>,
-    message_format: str = 'binary'
+    message_format: str = &#x27;binary&#x27;
 ) -> expression.Expression
 </code></pre>
 

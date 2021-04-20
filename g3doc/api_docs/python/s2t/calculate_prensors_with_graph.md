@@ -11,7 +11,7 @@ description: Gets the prensor value of the expressions and the graph used.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/calculate.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/calculate.py#L106-L136">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -26,8 +26,8 @@ Gets the prensor value of the expressions and the graph used.
 <code>s2t.calculate_prensors_with_graph(
     expressions: Sequence[<a href="../s2t/Expression.md"><code>s2t.Expression</code></a>],
     options: Optional[calculate_options.Options] = None,
-    feed_dict: Optional[Dict[<a href="../s2t/Expression.md"><code>s2t.Expression</code></a>, <a href="../s2t/Prensor.md"><code>s2t.Prensor</code></a>]] = None
-) -> Tuple[Sequence[<a href="../s2t/Prensor.md"><code>s2t.Prensor</code></a>], 'ExpressionGraph']
+    feed_dict: Optional[Dict[expression.Expression, prensor.Prensor]] = None
+) -> Tuple[Sequence[prensor.Prensor], 'ExpressionGraph']
 </code></pre>
 
 
