@@ -23,7 +23,6 @@ from struct2tensor import calculate_options
 from struct2tensor import expression
 from struct2tensor import path
 from struct2tensor import prensor
-from struct2tensor import prensor_util
 import tensorflow as tf
 
 from tensorflow_metadata.proto.v0 import schema_pb2
@@ -64,7 +63,7 @@ def calculate_list_map(expr: expression.Expression,
   [my_prensor] = calculate.calculate_prensors([expr], options=options)
   if not options:
     options = calculate_options.get_default_options()
-  ragged_tensor_map = prensor_util.get_ragged_tensors(my_prensor, options)
+  ragged_tensor_map = my_prensor.get_ragged_tensors(options)
   string_tensor_map = {str(k): v for k, v in ragged_tensor_map.items()}
   string_np_map = evaluator.evaluate(string_tensor_map)
   return {k: v.to_list() for k, v in string_np_map.items()}

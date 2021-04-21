@@ -15,10 +15,8 @@
 
 from absl.testing import absltest
 from struct2tensor import calculate
-from struct2tensor import calculate_options
 from struct2tensor import create_expression
 from struct2tensor import path
-from struct2tensor import prensor_util
 from struct2tensor.expression_impl import proto_test_util
 from struct2tensor.expression_impl import reroot
 from struct2tensor.test import expression_test_util
@@ -151,8 +149,7 @@ class RerootTest(tf.test.TestCase):
     proto_index_node = prensor_tree.get_child_or_error(
         "proto_index_directly_reroot_at_action").node
     self.assertFalse(proto_index_node.is_repeated)
-    sparse_tensors = prensor_util.get_sparse_tensors(
-        prensor_tree, calculate_options.get_default_options())
+    sparse_tensors = prensor_tree.get_sparse_tensors()
     proto_index_directly_reroot_at_action = sparse_tensors[path.Path(
         ["proto_index_directly_reroot_at_action"])]
     dense_value = tf.sparse.to_dense(

@@ -49,11 +49,6 @@ class Struct2tensorModuleTest(absltest.TestCase):
     s2t.RootNodeTensor
     s2t.create_prensor_from_descendant_nodes
     s2t.create_prensor_from_root_and_children
-    s2t.prensor_util
-    s2t.get_ragged_tensor
-    s2t.get_ragged_tensors
-    s2t.get_sparse_tensor
-    s2t.get_sparse_tensors
     s2t.prensor_value
     # pylint: enable=pointless-statement
 

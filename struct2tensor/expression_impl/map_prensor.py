@@ -106,7 +106,6 @@ from struct2tensor import expression
 from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor import prensor
-from struct2tensor import prensor_util
 from struct2tensor.expression_impl import project
 import tensorflow as tf
 
@@ -288,7 +287,7 @@ def _map_sparse_tensor_impl(root: expression.Expression, root_path: path.Path,
   def new_op(pren: prensor.Prensor,
              options: calculate_options.Options) -> prensor.LeafNodeTensor:
     """Op for mapping prensor using the operation."""
-    sparse_tensor_map = prensor_util.get_sparse_tensors(pren, options)
+    sparse_tensor_map = pren.get_sparse_tensors(options)
     sparse_tensors = [sparse_tensor_map[p] for p in paths]
     result_as_tensor = operation(*sparse_tensors)
     result = _as_leaf_node(result_as_tensor, is_repeated,
@@ -361,7 +360,7 @@ def _map_ragged_tensor_impl(root: expression.Expression, root_path: path.Path,
   def new_op(tree: prensor.Prensor,
              options: calculate_options.Options) -> prensor.LeafNodeTensor:
     """Apply operation to tree."""
-    ragged_tensor_map = prensor_util.get_ragged_tensors(tree, options)
+    ragged_tensor_map = tree.get_ragged_tensors(options)
     ragged_tensors = [ragged_tensor_map[p] for p in paths]
     result_as_tensor = operation(*ragged_tensors)
     result = _ragged_as_leaf_node(result_as_tensor, is_repeated,
