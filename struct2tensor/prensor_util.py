@@ -13,195 +13,28 @@
 # limitations under the License.
 """Utility methods for using Prensors.
 
-2. get_sparse_tensors(...) gets sparse tensors from a Prensor.
+1. get_sparse_tensors(...) gets sparse tensors from a Prensor.
 2. get_ragged_tensors(...) gets ragged tensors from a Prensor.
 
 """
 
-from typing import Mapping, Sequence, Tuple, Union
+from typing import Mapping
 
 from struct2tensor import calculate_options
 from struct2tensor import path
 from struct2tensor import prensor
-from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
 
-
-def get_positional_index(node: prensor.NodeTensor) -> tf.Tensor:
-  if isinstance(node, (prensor.LeafNodeTensor, prensor.ChildNodeTensor)):
-    return struct2tensor_ops.run_length_before(node.parent_index)
-  # RootNodeTensor
-  return tf.range(node.size)
+from tensorflow.python.util import deprecation  # pylint: disable=g-direct-tensorflow-import
 
 
-class _LeafNodePath(object):
-  """A path ending in a leaf.
-
-  In order to avoid type checks and casting in the heart of different methods
-  using the Prensor object to get a ragged or sparse tensor, we first create a
-  typed "list" of nodes. A _LeafNodePath always begins with the root and ends
-  with a leaf. Notice that we can get a suffix by casting a child node to a
-  root node.
-  """
-
-  def __init__(self, head: prensor.RootNodeTensor,
-               middle: Sequence[prensor.ChildNodeTensor],
-               tail: prensor.LeafNodeTensor):
-    self._head = head
-    self._middle = middle
-    self._tail = tail
-
-  @property
-  def head(self) -> prensor.RootNodeTensor:
-    return self._head
-
-  @property
-  def middle(self) -> Sequence[prensor.ChildNodeTensor]:
-    return self._middle
-
-  @property
-  def tail(self) -> prensor.LeafNodeTensor:
-    return self._tail
-
-
-class _ChildNodePath(object):
-  """A _ChildNodePath is a path that ends with a child node.
-
-  It keeps same triple structure as _LeafNodePath.
-  We use these in _get_dewey_encoding.
-  """
-
-  def __init__(self, head: prensor.RootNodeTensor,
-               middle: Sequence[prensor.ChildNodeTensor],
-               tail: prensor.ChildNodeTensor):
-    self._head = head
-    self._middle = middle
-    self._tail = tail
-
-  @property
-  def head(self) -> prensor.RootNodeTensor:
-    return self._head
-
-  @property
-  def middle(self) -> Sequence[prensor.ChildNodeTensor]:
-    return self._middle
-
-  @property
-  def tail(self) -> prensor.ChildNodeTensor:
-    return self._tail
-
-
-def _as_root_node_tensor(node_tensor: prensor.NodeTensor
-                        ) -> prensor.RootNodeTensor:
-  if isinstance(node_tensor, prensor.RootNodeTensor):
-    return node_tensor
-  if isinstance(node_tensor, prensor.ChildNodeTensor):
-    return prensor.RootNodeTensor(node_tensor.size)
-  raise ValueError("Must be child or root node tensor (found {})".format(
-      type(node_tensor)))
-
-
-def _get_leaf_node_path(p: path.Path, t: prensor.Prensor) -> _LeafNodePath:
-  """Creates a _LeafNodePath to p."""
-  leaf_node = t.get_descendant_or_error(p).node
-  if not isinstance(leaf_node, prensor.LeafNodeTensor):
-    raise ValueError("Expected Leaf Node at {} in {}".format(str(p), str(t)))
-  if not p:
-    raise ValueError("Leaf should not be at the root")
-  # If there is a leaf at the root, this will return a ValueError.
-  root_node = _as_root_node_tensor(t.node)
-
-  # Not the root, not p.
-  strict_ancestor_paths = [p.prefix(i) for i in range(1, len(p))]
-
-  child_node_pairs = [(t.get_descendant_or_error(ancestor).node, ancestor)
-                      for ancestor in strict_ancestor_paths]
-  bad_struct_paths = [
-      ancestor for node, ancestor in child_node_pairs
-      if not isinstance(node, prensor.ChildNodeTensor)
-  ]
-  if bad_struct_paths:
-    raise ValueError("Expected ChildNodeTensor at {} in {}".format(
-        " ".join([str(x) for x in bad_struct_paths]), str(t)))
-  # This should select all elements: the isinstance is for type-checking.
-  child_nodes = [
-      node for node, ancestor in child_node_pairs
-      if isinstance(node, prensor.ChildNodeTensor)
-  ]
-  assert len(child_nodes) == len(child_node_pairs)
-  return _LeafNodePath(root_node, child_nodes, leaf_node)
-
-
-def _get_leaf_node_path_suffix(p: _LeafNodePath) -> _LeafNodePath:
-  """Get the suffix of a LeafNodePath."""
-  return _LeafNodePath(_as_root_node_tensor(p.middle[0]), p.middle[1:], p.tail)
-
-
-def _get_node_path_parent(p: Union[_LeafNodePath, _ChildNodePath]
-                         ) -> _ChildNodePath:
-  return _ChildNodePath(p.head, p.middle[:-1], p.middle[-1])
-
-
-def _get_leaf_node_paths(t: prensor.Prensor
-                        ) -> Mapping[path.Path, _LeafNodePath]:
-  """Gets a map of paths to leaf nodes in the expression."""
-  return {
-      k: _get_leaf_node_path(k, t)
-      for k, v in t.get_descendants().items()
-      if isinstance(v.node, prensor.LeafNodeTensor)
-  }
-
-
-#################### Code for get_sparse_tensors(...) ##########################
-
-
-def _get_dewey_encoding(p: Union[_LeafNodePath, _ChildNodePath]
-                       ) -> Tuple[tf.Tensor, tf.Tensor]:
-  """Gets a pair of the indices and shape of these protos.
-
-  See http://db.ucsd.edu/static/cse232B-s05/papers/tatarinov02.pdf
-
-  Args:
-    p: the path to encode.
-
-  Returns:
-    A pair of an indices matrix and a dense_shape
-  """
-  parent = p.middle[-1] if p.middle else p.head
-  parent_size = tf.reshape(parent.size, [1])
-  positional_index = get_positional_index(p.tail)
-  # tf.reduce_max([]) == -kmaxint64 but we need it to be 0.
-  current_size = tf.maximum(
-      tf.reshape(tf.reduce_max(positional_index) + 1, [1]), [0])
-  if not p.middle:
-    if p.tail.is_repeated:
-      return (tf.stack([p.tail.parent_index, positional_index],
-                       axis=1), tf.concat([parent_size, current_size], 0))
-    else:
-      return tf.expand_dims(p.tail.parent_index, -1), parent_size
-  else:
-    parent_dewey_encoding, parent_size = _get_dewey_encoding(
-        _get_node_path_parent(p))
-    if p.tail.is_repeated:
-      positional_index_as_matrix = tf.expand_dims(
-          get_positional_index(p.tail), -1)
-      indices = tf.concat([
-          tf.gather(parent_dewey_encoding, p.tail.parent_index),
-          positional_index_as_matrix
-      ], 1)
-      size = tf.concat([parent_size, current_size], 0)
-      return (indices, size)
-    else:
-      return tf.gather(parent_dewey_encoding, p.tail.parent_index), parent_size
-
-
-def _get_sparse_tensor_from_leaf_node_path(p: _LeafNodePath) -> tf.SparseTensor:
-  indices, dense_shape = _get_dewey_encoding(p)
-  return tf.SparseTensor(
-      indices=indices, values=p.tail.values, dense_shape=dense_shape)
-
-
-def get_sparse_tensor(t: prensor.Prensor, p: path.Path) -> tf.SparseTensor:
+@deprecation.deprecated(None, "Use the Prensor class method instead.")
+def get_sparse_tensor(
+    t: prensor.Prensor,
+    p: path.Path,
+    options: calculate_options.Options = calculate_options.get_default_options(
+    )
+) -> tf.SparseTensor:
   """Gets a sparse tensor for path p.
 
   Note that any optional fields are not registered as dimensions, as they can't
@@ -209,16 +42,17 @@ def get_sparse_tensor(t: prensor.Prensor, p: path.Path) -> tf.SparseTensor:
 
   Args:
     t: The Prensor to extract tensors from.
-    p: the path to a leaf node in `t`.
+    p: The path to a leaf node in `t`.
+    options: Currently unused.
 
   Returns:
     A sparse tensor containing values of the leaf node, preserving the
     structure along the path. Raises an error if the path is not found.
   """
-  leaf_node_path = _get_leaf_node_path(p, t)
-  return _get_sparse_tensor_from_leaf_node_path(leaf_node_path)
+  return t.get_sparse_tensor(p, options)
 
 
+@deprecation.deprecated(None, "Use the Prensor class method instead.")
 def get_sparse_tensors(
     t: prensor.Prensor,
     options: calculate_options.Options = calculate_options.get_default_options(
@@ -233,48 +67,10 @@ def get_sparse_tensors(
   Returns:
     A map from paths to sparse tensors.
   """
-
-  del options
-  return {
-      p: _get_sparse_tensor_from_leaf_node_path(v)
-      for p, v in _get_leaf_node_paths(t).items()
-  }
+  return t.get_sparse_tensors(options)
 
 
-#################### Code for get_ragged_tensors(...) ##########################
-
-
-def from_value_rowids_bridge(values,
-                             value_rowids=None,
-                             nrows=None,
-                             validate=True):
-  """validate option is only available internally for tf 0.13.1."""
-  return tf.RaggedTensor.from_value_rowids(
-      values, value_rowids=value_rowids, nrows=nrows, validate=validate)
-
-
-def _get_ragged_tensor_from_leaf_node_path(
-    nodes: _LeafNodePath,
-    options: calculate_options.Options = calculate_options.get_default_options(
-    )
-) -> tf.RaggedTensor:
-  """Gets a ragged tensor from a leaf node path."""
-  if not nodes.middle:
-    return from_value_rowids_bridge(
-        nodes.tail.values,
-        value_rowids=nodes.tail.parent_index,
-        nrows=nodes.head.size,
-        validate=options.ragged_checks)
-  deeper_ragged = _get_ragged_tensor_from_leaf_node_path(
-      _get_leaf_node_path_suffix(nodes), options)
-  first_child_node = nodes.middle[0]
-  return from_value_rowids_bridge(
-      deeper_ragged,
-      value_rowids=first_child_node.parent_index,
-      nrows=nodes.head.size,
-      validate=options.ragged_checks)
-
-
+@deprecation.deprecated(None, "Use the Prensor class method instead.")
 def get_ragged_tensor(
     t: prensor.Prensor,
     p: path.Path,
@@ -294,10 +90,10 @@ def get_ragged_tensor(
     A ragged tensor containing values of the leaf node, preserving the
     structure along the path. Raises an error if the path is not found.
   """
-  leaf_node_path = _get_leaf_node_path(p, t)
-  return _get_ragged_tensor_from_leaf_node_path(leaf_node_path, options)
+  return t.get_ragged_tensor(p, options)
 
 
+@deprecation.deprecated(None, "Use the Prensor class method instead.")
 def get_ragged_tensors(
     t: prensor.Prensor,
     options: calculate_options.Options = calculate_options.get_default_options(
@@ -312,7 +108,4 @@ def get_ragged_tensors(
   Returns:
     A map from paths to ragged tensors.
   """
-  return {
-      p: _get_ragged_tensor_from_leaf_node_path(v, options)
-      for p, v in _get_leaf_node_paths(t).items()
-  }
+  return t.get_ragged_tensors(options)

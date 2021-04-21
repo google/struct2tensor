@@ -41,7 +41,8 @@ from struct2tensor.prensor import LeafNodeTensor
 from struct2tensor.prensor import NodeTensor
 from struct2tensor.prensor import Prensor
 from struct2tensor.prensor import RootNodeTensor
-# TODO(b/163167832): consider removing these, and only import prensor.Prensor
+
+# TODO(b/163167832): Remove these after 0.32.0 is released.
 from struct2tensor.prensor_util import get_ragged_tensor
 from struct2tensor.prensor_util import get_ragged_tensors
 from struct2tensor.prensor_util import get_sparse_tensor

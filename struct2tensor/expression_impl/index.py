@@ -124,7 +124,6 @@ from struct2tensor import expression
 from struct2tensor import expression_add
 from struct2tensor import path
 from struct2tensor import prensor
-from struct2tensor import prensor_util
 from struct2tensor.expression_impl import size
 import tensorflow as tf
 
@@ -208,9 +207,10 @@ class _PositionalIndexExpression(expression.Leaf):
       side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [origin] = sources
     if isinstance(origin, (prensor.LeafNodeTensor, prensor.ChildNodeTensor)):
-      return prensor.LeafNodeTensor(origin.parent_index,
-                                    prensor_util.get_positional_index(origin),
-                                    self.is_repeated)
+      return prensor.LeafNodeTensor(
+          origin.parent_index,
+          origin.get_positional_index(),
+          self.is_repeated)
     raise ValueError("Cannot calculate the positional index of the root")
 
   def calculation_is_identity(self) -> bool:

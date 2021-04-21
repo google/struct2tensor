@@ -18,6 +18,9 @@
 
 ## Bug Fixes and Other Changes
 
+*   Deprecate `get_ragged_tensors()` and `get_sparse_tensors()` in prensor_util.
+*   Expose `get_ragged_tensors()` and `get_sparse_tensors()` as `Prensor`
+    methods.
 *   Expose `get_positional_index` as a method of `NodeTensor`.
 *   Depends on `tensorflow-metadata>=0.30,<0.31`
 
