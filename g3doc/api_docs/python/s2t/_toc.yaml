@@ -42,10 +42,14 @@ toc:
   - title: get_options_with_minimal_checks
     path: /api_docs/python/s2t/get_options_with_minimal_checks
   - title: get_ragged_tensor
+    status: deprecated
     path: /api_docs/python/s2t/get_ragged_tensor
   - title: get_ragged_tensors
+    status: deprecated
     path: /api_docs/python/s2t/get_ragged_tensors
   - title: get_sparse_tensor
+    status: deprecated
     path: /api_docs/python/s2t/get_sparse_tensor
   - title: get_sparse_tensors
+    status: deprecated
     path: /api_docs/python/s2t/get_sparse_tensors

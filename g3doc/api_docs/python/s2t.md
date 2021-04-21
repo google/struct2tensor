@@ -62,13 +62,13 @@ Import core names for struct2tensor.
 
 [`get_options_with_minimal_checks(...)`](./s2t/get_options_with_minimal_checks.md): Options for calculation with minimal runtime checks.
 
-[`get_ragged_tensor(...)`](./s2t/get_ragged_tensor.md): Get a ragged tensor for a path.
+[`get_ragged_tensor(...)`](./s2t/get_ragged_tensor.md): Get a ragged tensor for a path. (deprecated)
 
-[`get_ragged_tensors(...)`](./s2t/get_ragged_tensors.md): Gets ragged tensors for all the leaves of the prensor expression.
+[`get_ragged_tensors(...)`](./s2t/get_ragged_tensors.md): Gets ragged tensors for all the leaves of the prensor expression. (deprecated)
 
-[`get_sparse_tensor(...)`](./s2t/get_sparse_tensor.md): Gets a sparse tensor for path p.
+[`get_sparse_tensor(...)`](./s2t/get_sparse_tensor.md): Gets a sparse tensor for path p. (deprecated)
 
-[`get_sparse_tensors(...)`](./s2t/get_sparse_tensors.md): Gets sparse tensors for all the leaves of the prensor expression.
+[`get_sparse_tensors(...)`](./s2t/get_sparse_tensors.md): Gets sparse tensors for all the leaves of the prensor expression. (deprecated)
 
 ## Type Aliases
 

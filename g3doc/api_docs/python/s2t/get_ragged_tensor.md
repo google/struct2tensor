@@ -1,4 +1,4 @@
-description: Get a ragged tensor for a path.
+description: Get a ragged tensor for a path. (deprecated)
 
 <div itemscope itemtype="http://developers.google.com/ReferenceObject">
 <meta itemprop="name" content="s2t.get_ragged_tensor" />
@@ -11,7 +11,7 @@ description: Get a ragged tensor for a path.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor_util.py#L278-L298">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor_util.py#L73-L93">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -20,7 +20,7 @@ description: Get a ragged tensor for a path.
 
 
 
-Get a ragged tensor for a path.
+Get a ragged tensor for a path. (deprecated)
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>s2t.get_ragged_tensor(
@@ -33,6 +33,10 @@ Get a ragged tensor for a path.
 
 
 <!-- Placeholder for "Used in" -->
+
+Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use the Prensor class method instead.
 
 All steps are represented in the ragged tensor.
 

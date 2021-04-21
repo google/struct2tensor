@@ -1,4 +1,4 @@
-description: Gets a sparse tensor for path p.
+description: Gets a sparse tensor for path p. (deprecated)
 
 <div itemscope itemtype="http://developers.google.com/ReferenceObject">
 <meta itemprop="name" content="s2t.get_sparse_tensor" />
@@ -11,7 +11,7 @@ description: Gets a sparse tensor for path p.
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor_util.py#L204-L219">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/prensor_util.py#L31-L52">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -20,18 +20,23 @@ description: Gets a sparse tensor for path p.
 
 
 
-Gets a sparse tensor for path p.
+Gets a sparse tensor for path p. (deprecated)
 
 <pre class="devsite-click-to-copy prettyprint lang-py tfo-signature-link">
 <code>s2t.get_sparse_tensor(
     t: <a href="../s2t/Prensor.md"><code>s2t.Prensor</code></a>,
-    p: <a href="../s2t/Path.md"><code>s2t.Path</code></a>
+    p: <a href="../s2t/Path.md"><code>s2t.Path</code></a>,
+    options: calculate_options.Options = calculate_options.get_default_options()
 ) -> tf.SparseTensor
 </code></pre>
 
 
 
 <!-- Placeholder for "Used in" -->
+
+Warning: THIS FUNCTION IS DEPRECATED. It will be removed in a future version.
+Instructions for updating:
+Use the Prensor class method instead.
 
 Note that any optional fields are not registered as dimensions, as they can't
 be represented in a sparse tensor.
@@ -53,7 +58,14 @@ The Prensor to extract tensors from.
 `p`
 </td>
 <td>
-the path to a leaf node in `t`.
+The path to a leaf node in `t`.
+</td>
+</tr><tr>
+<td>
+`options`
+</td>
+<td>
+Currently unused.
 </td>
 </tr>
 </table>
