@@ -185,6 +185,38 @@ bool ReadFieldValue<string_view, WireFormatLite::TYPE_GROUP>(
   return true;
 }
 
+template <typename T, bool kIsEnum = false>
+absl::optional<T> GetDefaultValue(const FieldDescriptor& fd) {
+  return absl::nullopt;
+}
+template <>
+absl::optional<absl::string_view> GetDefaultValue<absl::string_view, false>(
+    const FieldDescriptor& fd) {
+  DCHECK(fd.type() != FieldDescriptor::TYPE_MESSAGE &&
+         fd.type() != FieldDescriptor::TYPE_GROUP);
+  return fd.default_value_string();
+}
+template <>
+absl::optional<int32_t> GetDefaultValue<int32_t, true>(
+    const FieldDescriptor& fd) {
+  return fd.default_value_enum()->number();
+}
+#define DEFINE_GET_DEFAULT_VALUE_FOR(__type, __field_accessor) \
+  template <>                                                  \
+  absl::optional<__type> GetDefaultValue<__type, false>(       \
+      const FieldDescriptor& fd) {                             \
+    DCHECK(fd.type() != FieldDescriptor::TYPE_MESSAGE &&       \
+           fd.type() != FieldDescriptor::TYPE_GROUP);          \
+    return fd.default_value_##__field_accessor();              \
+  }
+DEFINE_GET_DEFAULT_VALUE_FOR(bool, bool);
+DEFINE_GET_DEFAULT_VALUE_FOR(int32_t, int32);
+DEFINE_GET_DEFAULT_VALUE_FOR(int64_t, int64);
+DEFINE_GET_DEFAULT_VALUE_FOR(uint32_t, uint32);
+DEFINE_GET_DEFAULT_VALUE_FOR(uint64_t, uint64);
+DEFINE_GET_DEFAULT_VALUE_FOR(float, float);
+DEFINE_GET_DEFAULT_VALUE_FOR(double, double);
+
 // Returns true iff the field is an extension and its wire format is proto1
 // message set wire format (see WireFormatLite::kMessageSetItemNumber).
 bool IsMessageSetWireFormatExtension(const FieldDescriptor& field_descriptor) {
@@ -220,7 +252,8 @@ class FieldBuilder {
   // Clears the internal state.
   // context is the context of the kernel where we are creating the output.
   virtual tensorflow::Status Produce(OpKernelContext* context,
-                                     bool produce_string_view) = 0;
+                                     bool produce_string_view,
+                                     int64_t num_messages) = 0;
 
   int wire_number() const { return wire_number_; }
 
@@ -246,9 +279,11 @@ class FieldBuilderImpl : public FieldBuilder {
  public:
   FieldBuilderImpl(const int wire_number, const int output_index_parent_index,
                    const int output_index_value, const bool is_repeated,
+                   absl::optional<T> default_value,
                    const size_t hint_max_num_values)
       : FieldBuilder(wire_number, output_index_parent_index, output_index_value,
-                     is_repeated, hint_max_num_values) {
+                     is_repeated, hint_max_num_values),
+        default_value_(std::move(default_value)) {
     values_.reserve(hint_max_num_values);
   }
 
@@ -271,6 +306,7 @@ class FieldBuilderImpl : public FieldBuilder {
                              int64_t message_index) override {
     const WireFormatLite::WireType schema_wire_type =
         WireFormatLite::WireTypeForFieldType(DataType);
+    MaybePadDefaultValue(message_index);
     bool is_packed_primitive = false;
     if (wire_type != schema_wire_type) {
       // We encounter a packed field here.
@@ -291,8 +327,9 @@ class FieldBuilderImpl : public FieldBuilder {
                                : CollectValue(input, message_index);
   }
 
-  tensorflow::Status Produce(OpKernelContext* context,
-                             bool produce_string_view) override {
+  tensorflow::Status Produce(OpKernelContext* context, bool produce_string_view,
+                             int64_t num_messages) override {
+    MaybePadDefaultValue(num_messages);
     produce_string_view &=
         (DataType == WireFormatLite::FieldType::TYPE_MESSAGE ||
          DataType == WireFormatLite::FieldType::TYPE_GROUP);
@@ -301,6 +338,21 @@ class FieldBuilderImpl : public FieldBuilder {
     TF_RETURN_IF_ERROR(ToOutputTensor(context, output_index_parent_index_,
                                       parent_indices_, produce_string_view));
     return Status::OK();
+  }
+
+  void MaybePadDefaultValue(int64_t current_message_index) {
+    if (!default_value_) return;
+    // Default padding is only supported for optional leaf fields.
+    DCHECK(!is_repeated_);
+    DCHECK(DataType != WireFormatLite::FieldType::TYPE_MESSAGE &&
+           DataType != WireFormatLite::FieldType::TYPE_GROUP);
+    int64_t last_seen_message_index =
+        parent_indices_.empty() ? -1 : parent_indices_.back();
+    for (int parent_index = last_seen_message_index + 1;
+         parent_index < current_message_index; ++parent_index) {
+      parent_indices_.push_back(parent_index);
+      values_.push_back(*default_value_);
+    }
   }
 
  private:
@@ -340,6 +392,7 @@ class FieldBuilderImpl : public FieldBuilder {
 
   // Collected field values.
   vector<T> values_;
+  absl::optional<T> default_value_;
 };
 
 // Abstract class for creating FieldBuilder objects.
@@ -381,21 +434,44 @@ class FieldBuilderFactory {
   const int wire_number_;
 };
 
-template <typename T, enum WireFormatLite::FieldType DataType>
+template <typename T, enum WireFormatLite::FieldType kDataType>
 class FieldBuilderFactoryImpl : public FieldBuilderFactory {
  public:
   FieldBuilderFactoryImpl(const FieldDescriptor* field_desc,
-                          int output_index_parent_index, int output_index_value)
+                          int output_index_parent_index, int output_index_value,
+                          bool honor_proto3_optional_semantics)
       : FieldBuilderFactory(field_desc->number()),
         output_index_parent_index_(output_index_parent_index),
         output_index_value_(output_index_value),
-        is_repeated_(field_desc->is_repeated()) {}
+        is_repeated_(field_desc->is_repeated()),
+        default_value_([field_desc, honor_proto3_optional_semantics]()
+                           -> absl::optional<T> {
+          // message fields don't have default values.
+          if (kDataType == WireFormatLite::TYPE_GROUP ||
+              kDataType == WireFormatLite::TYPE_MESSAGE) {
+            return absl::nullopt;
+          }
+          if (!honor_proto3_optional_semantics || !field_desc->is_optional()) {
+            return absl::nullopt;
+          }
+          // For older proto libraries, has_optional_keyword() is not available,
+          // and we always assume an explicit optional keyword (proto2
+          // behavior).
+          // TODO(b/185908025): once struct2tensor builds with a newer proto
+          // library, use field_desc->has_optional_keyword() instead.
+          bool has_optional_keyword = true;
+          if (has_optional_keyword) {
+            return absl::nullopt;
+          }
+          return GetDefaultValue<T, kDataType == WireFormatLite::TYPE_ENUM>(
+              *field_desc);
+        }()) {}
   ~FieldBuilderFactoryImpl() override {}
 
   std::unique_ptr<FieldBuilder> Create() override {
-    return absl::make_unique<FieldBuilderImpl<T, DataType>>(
+    return absl::make_unique<FieldBuilderImpl<T, kDataType>>(
         wire_number(), output_index_parent_index_, output_index_value_,
-        is_repeated_, max_num_values());
+        is_repeated_, default_value_, max_num_values());
   }
 
  protected:
@@ -405,6 +481,9 @@ class FieldBuilderFactoryImpl : public FieldBuilderFactory {
   const int output_index_value_;
   // Whether or not the field is repeated.
   const bool is_repeated_;
+  // holds the default values of the field. Only valid if the field is
+  // an optional primitive field.
+  const absl::optional<T> default_value_;
 };
 
 // Creates a field builder factory for the descriptor.
@@ -416,7 +495,8 @@ class FieldBuilderFactoryImpl : public FieldBuilderFactory {
 // If the input and output type do not match, return null.
 std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
     const FieldDescriptor* descriptor, int output_index_parent_index,
-    int output_index_value, DataType dtype) {
+    int output_index_value, DataType dtype,
+    bool honor_proto3_optional_semantics) {
   // Being very careful here to only create FieldBuilderFactories that are
   // actually valid.
   // Also, note that signed and unsigned ints cannot be cast here.
@@ -425,7 +505,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_BOOL) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<bool, WireFormatLite::TYPE_BOOL>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -433,7 +514,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_INT32) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<int32_t, WireFormatLite::TYPE_INT32>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -441,7 +523,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_INT32) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<int32_t, WireFormatLite::TYPE_SFIXED32>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -449,7 +532,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_INT32) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<int32_t, WireFormatLite::TYPE_SINT32>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -457,7 +541,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_UINT32) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<uint32_t, WireFormatLite::TYPE_UINT32>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -465,7 +550,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_UINT32) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<uint32_t, WireFormatLite::TYPE_FIXED32>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -473,7 +559,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_INT64) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<int64_t, WireFormatLite::TYPE_SFIXED64>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -481,7 +568,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_INT64) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<int64_t, WireFormatLite::TYPE_SINT64>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -490,7 +578,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_INT64) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<int64_t, WireFormatLite::TYPE_INT64>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -498,7 +587,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_UINT64) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<uint64_t, WireFormatLite::TYPE_UINT64>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -506,7 +596,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_UINT64) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<uint64_t, WireFormatLite::TYPE_FIXED64>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -514,7 +605,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_FLOAT) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<float, WireFormatLite::TYPE_FLOAT>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -522,7 +614,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_DOUBLE) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<double, WireFormatLite::TYPE_DOUBLE>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -532,7 +625,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
         return std::unique_ptr<FieldBuilderFactory>(
             new FieldBuilderFactoryImpl<string_view,
                                         WireFormatLite::TYPE_STRING>(
-                descriptor, output_index_parent_index, output_index_value));
+                descriptor, output_index_parent_index, output_index_value,
+                honor_proto3_optional_semantics));
       } else {
         return nullptr;
       }
@@ -542,7 +636,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
         return std::unique_ptr<FieldBuilderFactory>(
             new FieldBuilderFactoryImpl<string_view,
                                         WireFormatLite::TYPE_GROUP>(
-                descriptor, output_index_parent_index, output_index_value));
+                descriptor, output_index_parent_index, output_index_value,
+                honor_proto3_optional_semantics));
       } else {
         return nullptr;
       }
@@ -552,7 +647,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
         return std::unique_ptr<FieldBuilderFactory>(
             new FieldBuilderFactoryImpl<string_view,
                                         WireFormatLite::TYPE_MESSAGE>(
-                descriptor, output_index_parent_index, output_index_value));
+                descriptor, output_index_parent_index, output_index_value,
+                honor_proto3_optional_semantics));
       } else {
         return nullptr;
       }
@@ -562,7 +658,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
         return std::unique_ptr<FieldBuilderFactory>(
             new FieldBuilderFactoryImpl<string_view,
                                         WireFormatLite::TYPE_BYTES>(
-                descriptor, output_index_parent_index, output_index_value));
+                descriptor, output_index_parent_index, output_index_value,
+                honor_proto3_optional_semantics));
       } else {
         return nullptr;
       }
@@ -570,7 +667,8 @@ std::unique_ptr<FieldBuilderFactory> CreateFieldBuilderFactory(
       if (dtype == DataType::DT_INT32) {
         return absl::make_unique<
             FieldBuilderFactoryImpl<int, WireFormatLite::TYPE_ENUM>>(
-            descriptor, output_index_parent_index, output_index_value);
+            descriptor, output_index_parent_index, output_index_value,
+            honor_proto3_optional_semantics);
       } else {
         return nullptr;
       }
@@ -658,6 +756,12 @@ class DecodeProtoSparseOp : public OpKernel {
                 InvalidArgument("field_names and output_types attributes must "
                                 "have the same length"));
 
+    bool honor_proto3_optional_semantics = false;
+    if (kOpVersion > 3) {
+      OP_REQUIRES_OK(context,
+                     context->GetAttr("honor_proto3_optional_semantics",
+                                      &honor_proto3_optional_semantics));
+    }
     // Gather the field descriptors and check that requested output types
     // match.
 
@@ -672,9 +776,9 @@ class DecodeProtoSparseOp : public OpKernel {
                   InvalidArgument("Unknown field: ", name, " in message type ",
                                   message_type));
 
-      std::unique_ptr<FieldBuilderFactory> factory =
-          CreateFieldBuilderFactory(fd, field_index + field_count, field_index,
-                                    output_types[field_index]);
+      std::unique_ptr<FieldBuilderFactory> factory = CreateFieldBuilderFactory(
+          fd, field_index + field_count, field_index, output_types[field_index],
+          honor_proto3_optional_semantics);
       OP_REQUIRES(
           context, factory,
           InvalidArgument("Unexpected output type for ", fd->full_name(), ": ",
@@ -776,7 +880,8 @@ class DecodeProtoSparseOp : public OpKernel {
     // This is the wire number order. I am counting on the fact that it does
     // not matter the order in which you optimize fields.
     for (const auto& builder : builders) {
-      OP_REQUIRES_OK(ctx, builder->Produce(ctx, produce_string_view));
+      OP_REQUIRES_OK(ctx,
+                     builder->Produce(ctx, produce_string_view, bufs.size()));
     }
 
     // Collect maximum number of collected values from each field builder.
@@ -874,7 +979,7 @@ class DecodeProtoSparseOp : public OpKernel {
     // The following logic attempts to parse a proto group as follows:
     // group MessageSetItem {
     //   // extension field number.
-    //   required int32_t type_id = 1;
+    //   required int32 type_id = 1;
     //   // serialized extension message.
     //   required string message = 2;
     // }
@@ -1091,6 +1196,8 @@ REGISTER_KERNEL_BUILDER(Name("DecodeProtoSparseV2").Device(DEVICE_CPU),
                         DecodeProtoSparseOp<2>);
 REGISTER_KERNEL_BUILDER(Name("DecodeProtoSparseV3").Device(DEVICE_CPU),
                         DecodeProtoSparseOp<3>);
+REGISTER_KERNEL_BUILDER(Name("DecodeProtoSparseV4").Device(DEVICE_CPU),
+                        DecodeProtoSparseOp<4>);
 
 }  // namespace
 }  // namespace struct2tensor

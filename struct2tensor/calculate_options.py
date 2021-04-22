@@ -30,6 +30,18 @@ class Options(object):
   When a method takes an optional Options object but none is provided, it will
   replace it with get_default_options() .
 
+  Available options:
+    ragged_checks: if True, add assertion ops when converting a Prensor object
+      to RaggedTensors.
+    sparse_checks: if True, add assertion ops when converting a Prensor object
+      to SparseTensors.
+    use_string_view: if True, decode sub-messages into string views to avoid
+      copying.
+    experimental_honor_proto3_optional_semantics: if True, if a proto3 primitive
+      optional field without the presence semantic (i.e. the field is without
+      the "optional" or "repeated" label) is requested to be parsed, it will
+      always have a value for each input parent message. If a value is not
+      present on wire, the default value (0 or "") will be used.
   """
 
   def __init__(self, ragged_checks: bool, sparse_checks: bool):
@@ -37,6 +49,7 @@ class Options(object):
     self.ragged_checks = ragged_checks
     self.sparse_checks = sparse_checks
     self.use_string_view = False
+    self.experimental_honor_proto3_optional_semantics = False
 
   def __str__(self):
     return ("{ragged_checks:" + str(self.ragged_checks) + ", sparse_checks: " +

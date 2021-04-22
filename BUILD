@@ -30,6 +30,7 @@ sh_binary(
         "//struct2tensor/test:test_any_py_pb2",
         "//struct2tensor/test:test_extension_py_pb2",
         "//struct2tensor/test:test_map_py_pb2",
+        "//struct2tensor/test:test_proto3_py_pb2",
         "//struct2tensor/test:test_py_pb2",
     ],
 )

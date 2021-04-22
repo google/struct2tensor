@@ -1,0 +1,32 @@
+/* Copyright 2021 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+syntax = "proto3";
+
+package struct2tensor.test;
+
+message Proto3Message {
+  string optional_string = 1;
+  int32 optional_int32 = 2;
+  uint32 optional_uint32 = 3;
+  int64 optional_int64 = 4;
+  uint64 optional_uint64 = 5;
+  float optional_float = 6;
+  double optional_double = 7;
+  bytes optional_bytes = 8;
+  repeated string repeated_string = 101;
+
+  Proto3Message nested = 1001;
+  repeated Proto3Message repeated_nested = 1002;
+}

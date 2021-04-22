@@ -30,8 +30,8 @@ REGISTER_OP("EquiJoinIndices")
       return tensorflow::Status::OK();
     })
     .Doc(R"doc(
-An op on two 1-D int64_t tensors a,b that
-returns two 1-D int64_t tensors [index_a, index_b] where:
+An op on two 1-D int64 tensors a,b that
+returns two 1-D int64 tensors [index_a, index_b] where:
 1. For every k, a[index_a[k]] = b[index_b[k]]
 2. For every i,j, iff a[i]==b[j], then there exists a k where
      index_a[k]=i and index_b[k]=j.
@@ -41,7 +41,7 @@ returns two 1-D int64_t tensors [index_a, index_b] where:
 
 Imagine if you had two tables, A with fields "a_key" and "a_value", and
 B with fields "b_key" and "b_value", where a_key is monotonically increasing
-int64_t, and b_key is monotonically increasing int64_t.
+int64, and b_key is monotonically increasing int64.
 
 C = SELECT * FROM A, B WHERE A.a_key = B.b_key;
 

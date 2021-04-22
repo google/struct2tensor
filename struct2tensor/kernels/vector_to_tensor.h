@@ -24,37 +24,11 @@ limitations under the License.
 namespace struct2tensor {
 
 // Populate `tensor` from a vector of `T`. This assumes `tensor`'s type is also
-// `T`, with the exception of int64_t types.
+// `T`, with the exception of int64 types.
 template <typename T>
 inline void VectorToTensor(const std::vector<T>& v, tensorflow::Tensor* tensor,
                            bool produce_string_view) {
   std::copy_n(v.begin(), v.size(), tensor->flat<T>().data());
-}
-
-// Because tensorflow::int64 != int64_t, we are implicitly casting the
-// elements here.
-// TODO(martinz): if this is resolved, remove this implementation.
-// See https://github.com/tensorflow/tensorflow/pull/21042
-template <>
-inline void VectorToTensor(const std::vector<int64_t>& v,
-                           tensorflow::Tensor* tensor,
-                           bool produce_string_view) {
-  static_assert(sizeof(int64_t) == sizeof(tensorflow::int64),
-                "int64s are not the same size.");
-  std::copy_n(v.data(), v.size(), tensor->flat<tensorflow::int64>().data());
-}
-
-// Because tensorflow::uint64 != uint64_t, we are implicitly casting the
-// elements here.
-// TODO(martinz): if this is resolved, remove this implementation.
-// See https://github.com/tensorflow/tensorflow/pull/21042
-template <>
-inline void VectorToTensor(const std::vector<uint64_t>& v,
-                           tensorflow::Tensor* tensor,
-                           bool produce_string_view) {
-  static_assert(sizeof(uint64_t) == sizeof(tensorflow::uint64),
-                "uint64s are not the same size.");
-  std::copy_n(v.data(), v.size(), tensor->flat<tensorflow::uint64>().data());
 }
 
 // Specialization for vector<string_view> - copies the strings into a string

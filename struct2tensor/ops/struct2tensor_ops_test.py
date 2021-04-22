@@ -22,6 +22,7 @@ from struct2tensor.ops import struct2tensor_ops
 from struct2tensor.test import test_extension_pb2
 from struct2tensor.test import test_map_pb2
 from struct2tensor.test import test_pb2
+from struct2tensor.test import test_proto3_pb2
 import tensorflow as tf
 
 
@@ -58,7 +59,7 @@ def _get_full_message_level_runnable(proto_list):
 
 # TODO(martinz): test empty tensors for decode_proto_sparse more thoroughly.
 @test_util.run_all_in_graph_and_eager_modes
-class PrensorOpsTest(tf.test.TestCase):
+class PrensorOpsTest(parameterized.TestCase, tf.test.TestCase):
 
   def test_out_of_order_fields(self):
     fragments = [
@@ -303,10 +304,10 @@ class PrensorOpsTest(tf.test.TestCase):
     all_simple.repeated_float.append(1.0)
     all_simple.repeated_double.append(1.5)
     runnable = _get_full_message_level_runnable([all_simple])
-    self.assertEqual(len(runnable["optional_string"][INDEX].shape.dims), 1)
-    self.assertEqual(len(runnable["optional_string"][VALUE].shape.dims), 1)
-    self.assertEqual(len(runnable["repeated_string"][INDEX].shape.dims), 1)
-    self.assertEqual(len(runnable["repeated_string"][VALUE].shape.dims), 1)
+    self.assertLen(runnable["optional_string"][INDEX].shape.dims, 1)
+    self.assertLen(runnable["optional_string"][VALUE].shape.dims, 1)
+    self.assertLen(runnable["repeated_string"][INDEX].shape.dims, 1)
+    self.assertLen(runnable["repeated_string"][VALUE].shape.dims, 1)
 
     result = runnable
     self.assertAllEqual(result["optional_string"][INDEX], [0])
@@ -414,6 +415,7 @@ class PrensorOpsTest(tf.test.TestCase):
       self.assertAllEqual(
           value,
           list(getattr(message_with_packed_fields, field_name)) * 2)
+
 
   def test_make_repeated_basic(self):
     parent_index = tf.constant([0, 0, 4, 4, 4, 7, 8, 9], dtype=tf.int64)

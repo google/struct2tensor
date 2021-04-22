@@ -96,7 +96,8 @@ def parse_message_level_ex(
     desc: descriptor.Descriptor,
     field_names: Set[ProtoFieldName],
     message_format: str = "binary",
-    backing_str_tensor: Optional[tf.Tensor] = None
+    backing_str_tensor: Optional[tf.Tensor] = None,
+    honor_proto3_optional_semantics: bool = False
 ) -> Mapping[StrStep, struct2tensor_ops._ParsedField]:
   """Parses regular fields, extensions, any casts, and map protos."""
   raw_field_names = _get_field_names_to_parse(desc, field_names)
@@ -106,7 +107,8 @@ def parse_message_level_ex(
           desc,
           raw_field_names,
           message_format=message_format,
-          backing_str_tensor=backing_str_tensor))
+          backing_str_tensor=backing_str_tensor,
+          honor_proto3_optional_semantics=honor_proto3_optional_semantics))
   regular_field_map = {x.field_name: x for x in regular_fields}
 
   any_fields = _get_any_parsed_fields(desc, regular_field_map, field_names)

@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*  Introduced DecodeProtoSparseV4. It is same as V3 and will replace V3 soon.
+
 ## Breaking Changes
 
 ## Deprecations

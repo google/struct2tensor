@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-// Given two ascending int64_t vectors a,b this
+// Given two ascending int64 vectors a,b this
 // returns two vectors c (index_a),d (index_b) of equal length, where:
 // 1. for all i,j, if a[i]=b[j], then there exists a unique k where c[k]=i and
 //    d[k]=j.
@@ -39,7 +39,7 @@ using tensorflow::Tensor;
 using tensorflow::TensorShape;
 using tensorflow::TensorShapeUtils;
 
-// Creates an output vector tensor of dtype int64_t from a vector<int64_t>.
+// Creates an output vector tensor of dtype int64 from a vector<int64>.
 ::tensorflow::Status ToOutputVector(OpKernelContext* context, int index,
                                     const std::vector<tensorflow::int64>& vec) {
   tensorflow::int64 tensor_size = vec.size();
@@ -109,7 +109,7 @@ class EquiJoinIndicesOp : public OpKernel {
   }
 };
 
-// Given two ascending int64_t vectors a,b returns two vectors c,d of equal
+// Given two ascending int64 vectors a,b returns two vectors c,d of equal
 // length, where:
 // 1. for all i,j, if a[i]=b[j], then there exists a unique k where c[k]=i and
 //    d[k]=j.

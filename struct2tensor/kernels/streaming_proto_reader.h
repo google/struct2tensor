@@ -130,7 +130,7 @@ class PackedValuesReader {
 // Utility function to parse message_set items. MessageSet item's wire format
 // is equivalent to:
 //   repeated group Item {
-//     required int32_t id = 2;
+//     required int32 id = 2;
 //     required bytes value = 3;
 //   }
 bool ParseMessageSetItem(absl::string_view msgset_item, int* id,
@@ -208,16 +208,18 @@ const char* SkipField(const char* ptr, const char* limit,
 const char* SkipGroup(const char* ptr, const char* limit);
 
 // Functions for decoding values from "raw" values. Raw data types are
-// the following: uint32_t, uint64_t, StringPiece.
-// Target value types are primitive values such as: int32_t, uint32_t, int64_t,
-// uint64_t, bool, float, double, string, StringPiece and PackedValue.
+// the following: uint32, uint64, StringPiece.
+// Target value types are primitive values such as: int32, uint32, int64,
+// uint64, bool, float, double, string, StringPiece and PackedValue.
 
-inline void DecodeRawValue(uint32_t raw_value, google::protobuf::FieldDescriptor::Type type,
+inline void DecodeRawValue(uint32_t raw_value,
+                           google::protobuf::FieldDescriptor::Type type,
                            uint32_t* value) {
   *value = raw_value;
 }
 
-inline void DecodeRawValue(uint64_t raw_value, google::protobuf::FieldDescriptor::Type type,
+inline void DecodeRawValue(uint64_t raw_value,
+                           google::protobuf::FieldDescriptor::Type type,
                            uint64_t* value) {
   *value = raw_value;
 }
@@ -240,30 +242,30 @@ inline void DecodeRawValue(absl::string_view raw_value,
   *value = PackedValues(type, raw_value);
 }
 
-inline void DecodeRawValue(uint32_t raw_value, google::protobuf::FieldDescriptor::Type type,
-                           float* value) {
+inline void DecodeRawValue(uint32_t raw_value,
+                           google::protobuf::FieldDescriptor::Type type, float* value) {
   *value = google::protobuf::internal::WireFormatLite::DecodeFloat(raw_value);
 }
 
-inline void DecodeRawValue(uint64_t raw_value, google::protobuf::FieldDescriptor::Type type,
-                           double* value) {
+inline void DecodeRawValue(uint64_t raw_value,
+                           google::protobuf::FieldDescriptor::Type type, double* value) {
   *value = google::protobuf::internal::WireFormatLite::DecodeDouble(raw_value);
 }
 
-inline void DecodeRawValue(uint32_t raw_value, google::protobuf::FieldDescriptor::Type type,
-                           bool* value) {
+inline void DecodeRawValue(uint32_t raw_value,
+                           google::protobuf::FieldDescriptor::Type type, bool* value) {
   *value = (raw_value != 0);
 }
 
-inline void DecodeRawValue(uint32_t raw_value, google::protobuf::FieldDescriptor::Type type,
-                           int32_t* value) {
+inline void DecodeRawValue(uint32_t raw_value,
+                           google::protobuf::FieldDescriptor::Type type, int32_t* value) {
   *value = (type == google::protobuf::FieldDescriptor::TYPE_SINT32)
                ? google::protobuf::internal::WireFormatLite::ZigZagDecode32(raw_value)
                : static_cast<int32_t>(raw_value);
 }
 
-inline void DecodeRawValue(uint64_t raw_value, google::protobuf::FieldDescriptor::Type type,
-                           int64_t* value) {
+inline void DecodeRawValue(uint64_t raw_value,
+                           google::protobuf::FieldDescriptor::Type type, int64_t* value) {
   *value = (type == google::protobuf::FieldDescriptor::TYPE_SINT64)
                ? google::protobuf::internal::WireFormatLite::ZigZagDecode64(raw_value)
                : static_cast<int64_t>(raw_value);
@@ -343,7 +345,7 @@ inline const char*
 ReadRawValue<google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT, uint32_t>(
     const char* ptr, const char* limit, uint32_t* value) {
   // Special case where negative values in this encoding are actually
-  // uint64_t encoded as varint. So, decode uint64_t and take first 4 bytes.
+  // uint64 encoded as varint. So, decode uint64 and take first 4 bytes.
   uint64_t v;
   const char* a = GetVarint64Ptr(ptr, limit, &v);
   *value = static_cast<int32_t>(v);

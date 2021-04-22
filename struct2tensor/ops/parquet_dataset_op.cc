@@ -94,7 +94,7 @@ message Document
     repeated string Forward
   repeated group Name
     repeated group Language
-      required int64_t Code
+      required int64 Code
       optional string Country
 If we want the parent indices of "Links", "Backward", "Name", "Language",
 and "Code", then value_paths would be:
@@ -104,7 +104,7 @@ and parent_index_paths would be:
 "Name.Language.Code", "Name.Language.Code", "Name.Language.Code"],
 and path_index would be [0, 1, 0, 1, 2].
 and value_dtypes would be [int64, string], which would be transformed into:
-[int64, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, string],
+[int64, int64, int64, int64, int64, int64, int64, string],
 for the dtypes of the output vector.
 
 The iterator would then read values of the columns and yield a vector of tensors

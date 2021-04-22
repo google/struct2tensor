@@ -61,7 +61,8 @@ def parse_full_message_level(
     tensor_of_protos: tf.Tensor,
     descriptor_type: descriptor.Descriptor,
     message_format: str = "binary",
-    backing_str_tensor: Optional[tf.Tensor] = None) -> Sequence[_ParsedField]:
+    backing_str_tensor: Optional[tf.Tensor] = None,
+    honor_proto3_optional_semantics: bool = False) -> Sequence[_ParsedField]:
   """Parses all of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -76,6 +77,11 @@ def parse_full_message_level(
     backing_str_tensor: a string tensor representing the root serialized proto.
       This is passed to keep string_views of the tensor valid for all children
       of the root expression
+    honor_proto3_optional_semantics: if True, and if a proto3 primitive optional
+      field without the presence semantic (i.e. the field is without the
+      "optional" or "repeated" label) is requested to be parsed, it will always
+      have a value for each input parent message. If a value is not present on
+      wire, the default value (0 or "") will be used.
   Returns:
     list of named tuples, one per field_name in field_names:
     field_name: the string from field_names.
@@ -92,7 +98,8 @@ def parse_full_message_level(
       descriptor_type,
       field_names,
       message_format,
-      backing_str_tensor=backing_str_tensor)
+      backing_str_tensor=backing_str_tensor,
+      honor_proto3_optional_semantics=honor_proto3_optional_semantics)
 
 
 def _get_field_descriptor(descriptor_type: descriptor.Descriptor,
@@ -109,7 +116,8 @@ def parse_message_level(
     descriptor_type: descriptor.Descriptor,
     field_names: Sequence[str],
     message_format: str = "binary",
-    backing_str_tensor: Optional[tf.Tensor] = None) -> Sequence[_ParsedField]:
+    backing_str_tensor: Optional[tf.Tensor] = None,
+    honor_proto3_optional_semantics: bool = False) -> Sequence[_ParsedField]:
   """Parses a subset of the fields at a level of a message.
 
   If there is a field with a message type, it is parsed as a string. Then, the
@@ -124,6 +132,11 @@ def parse_message_level(
       'text' or 'binary'.
     backing_str_tensor: a possible string tensor backing the string_view for
       intermediate serialized protos.
+    honor_proto3_optional_semantics: if True, and if a proto3 primitive optional
+      field without the presence semantic (i.e. the field is without the
+      "optional" or "repeated" label) is requested to be parsed, it will always
+      have a value for each input parent message. If a value is not present on
+      wire, the default value (0 or "") will be used.
   Returns:
     list of named _ParsedField, one per field_name in field_names:
     field_name: the string from field_names.
@@ -153,14 +166,25 @@ def parse_message_level(
       for field_descriptor in field_descriptors
   ]
   if tf.is_tensor(backing_str_tensor):
+    assert message_format == "binary", (
+        "message_format must be 'binary' if a backing_str_tensor is provided")
     backing_str_tensor = [backing_str_tensor]
   else:
     backing_str_tensor = []
-  # TODO(b/172576749): Once we allow sufficient bake in time for the kernel
-  # change, switch to using V3 only.
-  if backing_str_tensor:
-    assert message_format == "binary", (
-        "message_format must be 'binary' if a backing_str_tensor is provided")
+  # TODO(b/185908025): Once we allow sufficient bake in time for v4, switch to
+  # v4 only. v4 supports both proto3 optional semantics and string view.
+  if honor_proto3_optional_semantics:
+    values, indices = gen_decode_proto_sparse.decode_proto_sparse_v4(
+        tensor_of_protos,
+        backing_str_tensor,
+        descriptor_literal=descriptor_literal,
+        message_type=message_type,
+        num_fields=len(field_names),
+        field_names=list(field_names),
+        output_types=output_types,
+        message_format=message_format,
+        honor_proto3_optional_semantics=honor_proto3_optional_semantics)
+  elif backing_str_tensor:
     values, indices = gen_decode_proto_sparse.decode_proto_sparse_v3(
         tensor_of_protos,
         backing_str_tensor,
@@ -170,6 +194,8 @@ def parse_message_level(
         field_names=list(field_names),
         output_types=output_types,
         message_format=message_format)
+  # TODO(b/172576749): Once we allow sufficient bake in time for the kernel
+  # change, switch to using V3 only.
   else:
     values, indices = gen_decode_proto_sparse.decode_proto_sparse_v2(
         tensor_of_protos,

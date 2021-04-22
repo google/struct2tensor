@@ -35,7 +35,7 @@ For example:
   input:  [0, 0, 7, 7, 8, 9, 9]
   output: [0, 1, 0, 1, 0, 0, 1]
 
-ordered_indices: a int64_t vector where for all i, a[i] <= a[i+1]
+ordered_indices: a int64 vector where for all i, a[i] <= a[i+1]
 run_length_before: for all n:
    run_length_before[n] := \sum_{i=0}^{n-1} I(a_i=a_n)
 

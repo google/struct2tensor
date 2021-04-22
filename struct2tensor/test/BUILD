@@ -69,6 +69,19 @@ s2t_proto_library_py(
 )
 
 s2t_proto_library(
+    name = "test_proto3_proto",
+    srcs = ["test_proto3.proto"],
+    cc_api_version = 2,
+)
+
+s2t_proto_library_py(
+    name = "test_proto3_py_pb2",
+    srcs = ["test_proto3.proto"],
+    api_version = 2,
+    proto_library = "test_proto3_proto",
+)
+
+s2t_proto_library(
     name = "test_extension_proto",
     srcs = ["test_extension.proto"],
     deps = [":test_proto"],

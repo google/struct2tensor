@@ -134,10 +134,9 @@ class ParquetReader {
   // repetition level becomes 0 again. This will peek levels until
   // one entire message is read.
   template <typename ParquetDataType, typename T>
-  tensorflow::Status ReadOneMessageFromOneColumn(const int column_index,
-                                                 std::vector<int16_t>* def_levels,
-                                                 std::vector<int16_t>* rep_levels,
-                                                 std::vector<T>* values);
+  tensorflow::Status ReadOneMessageFromOneColumn(
+      const int column_index, std::vector<int16_t>* def_levels,
+      std::vector<int16_t>* rep_levels, std::vector<T>* values);
 
   const std::vector<std::string> value_paths_;
   const tensorflow::DataTypeVector value_dtypes_;

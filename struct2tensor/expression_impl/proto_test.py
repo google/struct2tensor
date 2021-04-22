@@ -24,6 +24,7 @@ from struct2tensor.test import test_any_pb2
 from struct2tensor.test import test_extension_pb2
 from struct2tensor.test import test_map_pb2
 from struct2tensor.test import test_pb2
+from struct2tensor.test import test_proto3_pb2
 import tensorflow as tf
 
 from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
@@ -454,6 +455,7 @@ class ProtoValuesTest(tf.test.TestCase, parameterized.TestCase):
                          [[[b"g"]], [[b"h"], [b"i"], [b"j"]]]])
     if use_string_view:
       self._check_string_view()
+
 
 
 def _reverse_values(parent_indices, values):

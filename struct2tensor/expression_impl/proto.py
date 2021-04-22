@@ -30,7 +30,7 @@ from struct2tensor.expression_impl import parse_message_level_ex
 from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
 
-from google.protobuf.descriptor_pb2 import FileDescriptorSet
+from google.protobuf import descriptor_pb2
 from google.protobuf import descriptor
 from google.protobuf.descriptor_pool import DescriptorPool
 
@@ -52,7 +52,7 @@ def is_proto_expression(expr: expression.Expression) -> bool:
 def create_expression_from_file_descriptor_set(
     tensor_of_protos: tf.Tensor,
     proto_name: ProtoFullName,
-    file_descriptor_set: FileDescriptorSet,
+    file_descriptor_set: descriptor_pb2.FileDescriptorSet,
     message_format: str = "binary") -> expression.Expression:
   """Create an expression from a 1D tensor of serialized protos.
 
@@ -277,21 +277,21 @@ class _AbstractProtoChildExpression(expression.Expression):
         raise ValueError("Cannot find {} in {}".format(
             str(self), str(parent_value)))
       return self.calculate_from_parsed_field(parsed_field, destinations,
-                                              options.use_string_view)
+                                              options)
     raise ValueError("Not a _ParentProtoNodeTensor: " + str(type(parent_value)))
 
   @abc.abstractmethod
-  def calculate_from_parsed_field(self,
-                                  parsed_field: struct2tensor_ops._ParsedField,
-                                  destinations: Sequence[expression.Expression],
-                                  use_string_view: bool) -> prensor.NodeTensor:
+  def calculate_from_parsed_field(
+      self, parsed_field: struct2tensor_ops._ParsedField,  # pylint: disable=protected-access
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options) -> prensor.NodeTensor:
     """Calculate the NodeTensor given the parsed fields requested from a parent.
 
     Args:
       parsed_field: the parsed field from name_as_field.
       destinations: the destination of the expression.
-      use_string_view: if true, enables string_views to be used for intermediate
-        serialized proto outputs.
+      options: calculate options.
+
     Returns:
       A node tensor for this node.
     """
@@ -320,10 +320,10 @@ class _ProtoLeafExpression(_AbstractProtoChildExpression):
     # TODO(martinz): make _get_dtype_from_cpp_type public.
     self._field_descriptor = desc
 
-  def calculate_from_parsed_field(self,
-                                  parsed_field: struct2tensor_ops._ParsedField,
-                                  destinations: Sequence[expression.Expression],
-                                  use_string_view: bool) -> prensor.NodeTensor:
+  def calculate_from_parsed_field(
+      self, parsed_field: struct2tensor_ops._ParsedField,  # pylint: disable=protected-access
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options) -> prensor.NodeTensor:
     return prensor.LeafNodeTensor(parsed_field.index, parsed_field.value,
                                   self.is_repeated)
 
@@ -377,19 +377,21 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
                      backing_str_tensor)
     self._desc = desc
 
-  def calculate_from_parsed_field(self,
-                                  parsed_field: struct2tensor_ops._ParsedField,
-                                  destinations: Sequence[expression.Expression],
-                                  use_string_view: bool) -> prensor.NodeTensor:
+  def calculate_from_parsed_field(
+      self, parsed_field: struct2tensor_ops._ParsedField,  # pylint:disable=protected-access
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options) -> prensor.NodeTensor:
     needed_fields = _get_needed_fields(destinations)
     backing_str_tensor = None
-    if use_string_view:
+    if options.use_string_view:
       backing_str_tensor = self._backing_str_tensor
     fields = parse_message_level_ex.parse_message_level_ex(
         parsed_field.value,
         self._desc,
         needed_fields,
-        backing_str_tensor=backing_str_tensor)
+        backing_str_tensor=backing_str_tensor,
+        honor_proto3_optional_semantics=options
+        .experimental_honor_proto3_optional_semantics)
     return _ProtoChildNodeTensor(parsed_field.index, self.is_repeated, fields)
 
   def calculation_equal(self, expr: expression.Expression) -> bool:
@@ -429,21 +431,24 @@ class _TransformProtoChildExpression(_ProtoChildExpression):
   def transform_fn(self):
     return self._transform_fn
 
-  def calculate_from_parsed_field(self,
-                                  parsed_field: struct2tensor_ops._ParsedField,
-                                  destinations: Sequence[expression.Expression],
-                                  use_string_view: bool) -> prensor.NodeTensor:
+  def calculate_from_parsed_field(
+      self,
+      parsed_field: struct2tensor_ops._ParsedField,  # pylint:disable=protected-access
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options) -> prensor.NodeTensor:
     needed_fields = _get_needed_fields(destinations)
     transformed_parent_indices, transformed_values = self._transform_fn(
         parsed_field.index, parsed_field.value)
     backing_str_tensor = None
-    if use_string_view:
+    if options.use_string_view:
       backing_str_tensor = self._backing_str_tensor
     fields = parse_message_level_ex.parse_message_level_ex(
         transformed_values,
         self._desc,
         needed_fields,
-        backing_str_tensor=backing_str_tensor)
+        backing_str_tensor=backing_str_tensor,
+        honor_proto3_optional_semantics=options
+        .experimental_honor_proto3_optional_semantics)
     return _ProtoChildNodeTensor(transformed_parent_indices, self.is_repeated,
                                  fields)
 
@@ -517,7 +522,9 @@ class _ProtoRootExpression(expression.Expression):
         self._descriptor,
         needed_fields,
         message_format=self._message_format,
-        backing_str_tensor=backing_str_tensor)
+        backing_str_tensor=backing_str_tensor,
+        honor_proto3_optional_semantics=options
+        .experimental_honor_proto3_optional_semantics)
     return _ProtoRootNodeTensor(size, fields)
 
   def calculation_is_identity(self) -> bool:

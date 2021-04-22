@@ -24,7 +24,7 @@ using tensorflow::shape_inference::InferenceContext;
 // The corresponding element of index is the index of the protocol buffer
 // that the element came from. Values are found in the order that they
 // occur in the protocol buffer.
-REGISTER_OP("DecodeProtoSparseV3")
+REGISTER_OP("DecodeProtoSparseV4")
     .Input("bytes: string")
     .Input("backing_string: num_backing_string * string")
     .Attr("num_backing_string: int >= 0 = 0")
@@ -36,6 +36,7 @@ REGISTER_OP("DecodeProtoSparseV3")
     .Attr("descriptor_source: string = 'local://'")
     .Attr("message_format: string = 'binary'")
     .Attr("sanitize: bool = false")
+    .Attr("honor_proto3_optional_semantics: bool = false")
     .Output("values: output_types")
     .Output("indices: num_fields * int64")
     .SetShapeFn([](InferenceContext* c) {
@@ -79,9 +80,9 @@ to `DT_STRING` (the serialized submessage). This is to reduce the
 complexity of the API. The resulting string can be used as input
 to another instance of the decode_proto op.
 
-- TensorFlow lacks support for unsigned integers. The ops represent uint64_t
+- TensorFlow lacks support for unsigned integers. The ops represent uint64
 types as a `DT_INT64` with the same twos-complement bit pattern
-(the obvious way). Unsigned int32_t values can be represented exactly by
+(the obvious way). Unsigned int32 values can be represented exactly by
 specifying type `DT_INT64`, or using twos-complement if the caller
 specifies `DT_INT32` in the `output_types` attribute.
 
@@ -101,6 +102,12 @@ by creating a cc_library target with alwayslink=1.
 
 Both binary and text proto serializations are supported, and can be
 chosen using the `format` attribute.
+
+If `honor_proto3_optional_semantics` is true, if a proto3 primitive optional
+field without the presence semantic (i.e. the field is without the "optional" or
+"repeated" label) is requested to be parsed, it will always have a value for
+each input parent message. If a value is not present on wire, the default value
+(0 or "") will be used.
 
 bytes: tensor of serialized protos with shape `batch_shape`.
 backing_string: a list of string tensors which backs the input `bytes`
@@ -122,9 +129,37 @@ message_format: either `binary` or `text`.
 values: list of tensors containing values for the corresponding field.
    `values[i]` has datatype `output_types[i]` and a vector shape.
 indices: list of tensors containing values for the corresponding field.
-   `indices[i]` is an int64_t vector.
+   `indices[i]` is an int64 vector.
 
 )doc");
+
+// See DecodeProtoSparseV4. DecodeProtoSparseV3 does not have attr
+// `honor_proto3_optional_semantics`.
+REGISTER_OP("DecodeProtoSparseV3")
+    .Input("bytes: string")
+    .Input("backing_string: num_backing_string * string")
+    .Attr("num_backing_string: int >= 0 = 0")
+    .Attr("message_type: string")
+    .Attr("field_names: list(string)")
+    .Attr("num_fields: int")
+    .Attr("output_types: list(type) >= 0")
+    .Attr("descriptor_literal: string = ''")
+    .Attr("descriptor_source: string = 'local://'")
+    .Attr("message_format: string = 'binary'")
+    .Attr("sanitize: bool = false")
+    .Output("values: output_types")
+    .Output("indices: num_fields * int64")
+    .SetShapeFn([](InferenceContext* c) {
+      std::vector<tensorflow::DataType> output_types;
+      TF_RETURN_IF_ERROR(c->GetAttr("output_types", &output_types));
+
+      // TODO(martinz): for required fields, we would know the shape.
+      for (int i = 0; i < 2 * output_types.size(); ++i) {
+        c->set_output(i, c->Vector(c->UnknownDim()));
+      }
+
+      return Status::OK();
+    });
 
 // See DecodeProtoSparseV3. DecodeProtoSparseV2 omits `backing_string` and
 // `num_backing_string` and does not support string_views  for
