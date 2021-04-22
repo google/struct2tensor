@@ -21,3 +21,4 @@ decode_proto_sparse_module = load_library.load_op_library(
 
 decode_proto_sparse_v2 = decode_proto_sparse_module.decode_proto_sparse_v2
 decode_proto_sparse_v3 = decode_proto_sparse_module.decode_proto_sparse_v3
+decode_proto_sparse_v4 = decode_proto_sparse_module.decode_proto_sparse_v4

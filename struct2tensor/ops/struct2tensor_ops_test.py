@@ -417,6 +417,30 @@ class PrensorOpsTest(parameterized.TestCase, tf.test.TestCase):
           list(getattr(message_with_packed_fields, field_name)) * 2)
 
 
+  def test_proto2_optional_field_with_honor_proto3_optional_semantic(self):
+    proto2_message1 = test_pb2.AllSimple()
+    proto2_message2 = test_pb2.AllSimple(optional_string="a")
+    tensor_of_protos = tf.constant([proto2_message1.SerializeToString(),
+                                    proto2_message2.SerializeToString(),
+                                    proto2_message1.SerializeToString()])
+    parsed_tuples = struct2tensor_ops.parse_message_level(
+        tensor_of_protos, test_pb2.AllSimple.DESCRIPTOR, [
+            "optional_string",
+        ], honor_proto3_optional_semantics=True)
+    indices = {
+        parsed_tuple.field_name: parsed_tuple.index
+        for parsed_tuple in parsed_tuples
+    }
+    values = {
+        parsed_tuple.field_name: parsed_tuple.value
+        for parsed_tuple in parsed_tuples
+    }
+    # Only the second proto has value. No default value should be inserted.
+    for idx in indices.values():
+      self.assertAllEqual([1], idx)
+    for value in values.values():
+      self.assertAllEqual([b"a"], value)
+
   def test_make_repeated_basic(self):
     parent_index = tf.constant([0, 0, 4, 4, 4, 7, 8, 9], dtype=tf.int64)
     values = tf.constant(["a", "b", "c", "d", "e", "f", "g", "h"])
