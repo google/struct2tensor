@@ -132,6 +132,25 @@ def create_transformed_field(
   the same proto message as the passed in `values`.  These two vectors must
   have the same size, but it need not be the same as the input arguments.
 
+  Note:
+    If CalculateOptions.use_string_view (set at calculate time, thus this
+    Expression cannot know beforehand) is True, `values` passed to
+    `transform_fn` are string views pointing all the way back to the original
+    input tensor (of serialized root protos). And `transform_fn` must maintain
+    such views and avoid creating new values that are either not string views
+    into the root protos or self-owned strings. This is because downstream
+    decoding ops will still produce string views referring into its input
+    (which are string views into the root proto) and they will only hold a
+    reference to the original, root proto tensor, keeping it alive. So the input
+    tensor may get destroyed after the decoding op.
+
+    In short, you can do element-wise transforms to `values`, but can't mutate
+    the contents of elements in `values` or create new elements.
+
+    To lift this restriction, a decoding op must be told to hold a reference
+    of the input tensors of all its upstream decoding ops.
+
+
   Args:
     expr: a source expression containing `source_path`.
     source_path: the path to the field to reverse.
@@ -239,9 +258,6 @@ class _AbstractProtoChildExpression(expression.Expression):
     self._parent = parent
     self._name_as_field = name_as_field
 
-    # TODO(b/172576749): Consider changing this to a list to preserve
-    # all intermediate serialized proto tensors that are ancestor to this
-    # expression.
     self._backing_str_tensor = backing_str_tensor
 
   @property

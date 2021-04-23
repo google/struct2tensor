@@ -184,21 +184,10 @@ def parse_message_level(
         output_types=output_types,
         message_format=message_format,
         honor_proto3_optional_semantics=honor_proto3_optional_semantics)
-  elif backing_str_tensor:
+  else:
     values, indices = gen_decode_proto_sparse.decode_proto_sparse_v3(
         tensor_of_protos,
         backing_str_tensor,
-        descriptor_literal=descriptor_literal,
-        message_type=message_type,
-        num_fields=len(field_names),
-        field_names=list(field_names),
-        output_types=output_types,
-        message_format=message_format)
-  # TODO(b/172576749): Once we allow sufficient bake in time for the kernel
-  # change, switch to using V3 only.
-  else:
-    values, indices = gen_decode_proto_sparse.decode_proto_sparse_v2(
-        tensor_of_protos,
         descriptor_literal=descriptor_literal,
         message_type=message_type,
         num_fields=len(field_names),
@@ -308,21 +297,10 @@ def parse_proto_map(
   else:
     backing_str_tensor = []
 
-  # TODO(b/172576749): Once we allow sufficient bake in time for the kernel
-  # change, switch to using V2 only.
-  if backing_str_tensor:
-    values, parent_indices = gen_decode_proto_map_op.decode_proto_map_v2(
-        map_entries, map_entry_parent_indices, backing_str_tensor,
-        map_entry_descriptor.full_name, keys_needed_as_list,
-        len(keys_needed_as_list), _get_dtype_from_cpp_type(value_fd.cpp_type),
-        file_descriptor_set.get_file_descriptor_set_proto(
-            map_entry_descriptor, ["key", "value"]).SerializeToString())
-    return list(zip(values, parent_indices))
-  else:
-    values, parent_indices = gen_decode_proto_map_op.decode_proto_map(
-        map_entries, map_entry_parent_indices, map_entry_descriptor.full_name,
-        keys_needed_as_list, len(keys_needed_as_list),
-        _get_dtype_from_cpp_type(value_fd.cpp_type),
-        file_descriptor_set.get_file_descriptor_set_proto(
-            map_entry_descriptor, ["key", "value"]).SerializeToString())
-    return list(zip(values, parent_indices))
+  values, parent_indices = gen_decode_proto_map_op.decode_proto_map_v2(
+      map_entries, map_entry_parent_indices, backing_str_tensor,
+      map_entry_descriptor.full_name, keys_needed_as_list,
+      len(keys_needed_as_list), _get_dtype_from_cpp_type(value_fd.cpp_type),
+      file_descriptor_set.get_file_descriptor_set_proto(
+          map_entry_descriptor, ["key", "value"]).SerializeToString())
+  return list(zip(values, parent_indices))
