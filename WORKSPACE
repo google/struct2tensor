@@ -39,9 +39,8 @@ tf_configure(name = "local_config_tf")
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-# TODO(b/178125783): update this commit when TF 2.5 is released.
-_TENSORFLOW_GIT_COMMIT = "c3a7f66acec96893b904ad36114d4bf109e3188a"  # 2/04/2021 commit
-_TENSORFLOW_ARCHIVE_SHA256 = "70fbfcf2e01151ca101d347513c8a9d992971d341e7af2204ee9aa25f32d0d6a"
+_TENSORFLOW_GIT_COMMIT = "a4dfb8d1a71385bd6d122e4f27f86dcebb96712d"  # tf 2.5.0
+_TENSORFLOW_ARCHIVE_SHA256 = "cb99f136dc5c89143669888a44bfdd134c086e1e2d9e36278c1eb0f03fe62d76"
 
 http_archive(
     name = "org_tensorflow",
