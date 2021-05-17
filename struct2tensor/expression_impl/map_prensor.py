@@ -253,11 +253,9 @@ def _as_leaf_node(sparse_tensor: tf.SparseTensor, is_repeated: bool,
                   required_batch_size: tf.Tensor,
                   options: calculate_options.Options) -> prensor.LeafNodeTensor:
   if options.sparse_checks:
-    print("Using sparse_checks")
     return _as_leaf_node_with_checks(sparse_tensor, is_repeated,
                                      required_batch_size)
   else:
-    print("NOT Using sparse_checks")
     return _as_leaf_node_no_checks(sparse_tensor, is_repeated)
 
 
