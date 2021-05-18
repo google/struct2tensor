@@ -6,9 +6,10 @@
 
 ## Bug Fixes and Other Changes
 
-*  Introduced DecodeProtoSparseV4. It is same as V3 and will replace V3 soon.
-*  DecodeProtoSparseV3 is now the default (instead of V2).
+*   Introduced DecodeProtoSparseV4. It is same as V3 and will replace V3 soon.
+*   DecodeProtoSparseV3 is now the default (instead of V2).
 *   Bumped tf version for statically linked libraries to TF 2.5.0
+*   Depends on `tensorflow>=2.5.0,<2.6`
 
 ## Breaking Changes
 
