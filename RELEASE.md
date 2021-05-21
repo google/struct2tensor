@@ -1,19 +1,36 @@
 # `struct2tensor` release notes
 
-# Current version (not yet released; still in development)
+# Current Version (not yet released; still in development)
 
 ## Major Features and Improvements
 
 ## Bug Fixes and Other Changes
 
-*   Introduced DecodeProtoSparseV4. It is same as V3 and will replace V3 soon.
-*   DecodeProtoSparseV3 is now the default (instead of V2).
-*   Bumped tf version for statically linked libraries to TF 2.5.0
-*   Depends on `tensorflow>=2.5.0,<2.6`
-
 ## Breaking Changes
 
 ## Deprecations
+
+## Version 0.31.0
+
+## Major Features and Improvements
+
+*   N/A
+
+## Bug Fixes and Other Changes
+
+*   Introduced DecodeProtoSparseV4. It is same as V3 and will replace V3 soon.
+*   DecodeProtoSparseV3 is now the default (instead of V2).
+*   Bumped tf version for statically linked libraries to TF 2.5.0.
+*   Depends on `tensorflow>=2.5.0,<2.6`.
+*   Depends on `tensorflow-metadata>=1.0.0,<1.1.0`.
+
+## Breaking Changes
+
+*   N/A
+
+## Deprecations
+
+*   N/A
 
 ## Release 0.30.0
 
