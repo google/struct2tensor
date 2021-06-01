@@ -125,6 +125,12 @@ is an integer.
 
 struct2tensor                                                          | tensorflow
 ---------------------------------------------------------------------- | ----------
+[0.31.0](https://github.com/google/struct2tensor/releases/tag/v0.31.0) | 2.5.0
+[0.30.0](https://github.com/google/struct2tensor/releases/tag/v0.30.0) | 2.4.0
+[0.29.0](https://github.com/google/struct2tensor/releases/tag/v0.29.0) | 2.4.0
+[0.28.0](https://github.com/google/struct2tensor/releases/tag/v0.28.0) | 2.4.0
+[0.27.0](https://github.com/google/struct2tensor/releases/tag/v0.27.0) | 2.4.0
+[0.26.0](https://github.com/google/struct2tensor/releases/tag/v0.26.0) | 2.3.0
 [0.25.0](https://github.com/google/struct2tensor/releases/tag/v0.25.0) | 2.3.0
 [0.24.0](https://github.com/google/struct2tensor/releases/tag/v0.24.0) | 2.3.0
 [0.23.0](https://github.com/google/struct2tensor/releases/tag/v0.23.0) | 2.3.0
