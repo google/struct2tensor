@@ -171,29 +171,16 @@ def parse_message_level(
     backing_str_tensor = [backing_str_tensor]
   else:
     backing_str_tensor = []
-  # TODO(b/185908025): Once we allow sufficient bake in time for v4, switch to
-  # v4 only. v4 supports both proto3 optional semantics and string view.
-  if honor_proto3_optional_semantics:
-    values, indices = gen_decode_proto_sparse.decode_proto_sparse_v4(
-        tensor_of_protos,
-        backing_str_tensor,
-        descriptor_literal=descriptor_literal,
-        message_type=message_type,
-        num_fields=len(field_names),
-        field_names=list(field_names),
-        output_types=output_types,
-        message_format=message_format,
-        honor_proto3_optional_semantics=honor_proto3_optional_semantics)
-  else:
-    values, indices = gen_decode_proto_sparse.decode_proto_sparse_v3(
-        tensor_of_protos,
-        backing_str_tensor,
-        descriptor_literal=descriptor_literal,
-        message_type=message_type,
-        num_fields=len(field_names),
-        field_names=list(field_names),
-        output_types=output_types,
-        message_format=message_format)
+  values, indices = gen_decode_proto_sparse.decode_proto_sparse_v4(
+      tensor_of_protos,
+      backing_str_tensor,
+      descriptor_literal=descriptor_literal,
+      message_type=message_type,
+      num_fields=len(field_names),
+      field_names=list(field_names),
+      output_types=output_types,
+      message_format=message_format,
+      honor_proto3_optional_semantics=honor_proto3_optional_semantics)
 
   result = []
   for field_name, field_descriptor, value, index in zip(field_names,
