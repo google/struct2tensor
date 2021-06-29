@@ -6,6 +6,9 @@
 
 ## Bug Fixes and Other Changes
 
+*   Added doc with benchmark numbers. Also added the benchmark code and test
+    data.
+
 ## Breaking Changes
 
 ## Deprecations

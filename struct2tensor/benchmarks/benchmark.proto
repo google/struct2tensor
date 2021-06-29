@@ -1,0 +1,171 @@
+// Copyright 2020 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Test data for benchmarks to ensure proper schema-based generation of protos.
+syntax = "proto3";
+
+package struct2tensor.benchmark;
+
+message FlatProto {
+  repeated int64 int_values_1 = 1;
+  repeated int64 int_values_2 = 2;
+  repeated int64 int_values_3 = 3;
+  repeated int64 int_values_4 = 4;
+  repeated int64 int_values_5 = 5;
+
+  repeated float float_values_1 = 6;
+  repeated float float_values_2 = 7;
+  repeated float float_values_3 = 8;
+  repeated float float_values_4 = 9;
+  repeated float float_values_5 = 10;
+
+  repeated bytes bytes_values_1 = 11;
+  repeated bytes bytes_values_2 = 12;
+  repeated bytes bytes_values_3 = 13;
+  repeated bytes bytes_values_4 = 14;
+  repeated bytes bytes_values_5 = 15;
+}
+
+message DeepProto {
+  message Child1 {
+    message Child2 {
+      message Child3 {
+        message Child4 {
+          repeated int64 int_values_5 = 1;
+          repeated float float_values_5 = 2;
+          repeated bytes bytes_values_5 = 3;
+        }
+        Child4 child_4 = 1;
+        repeated int64 int_values_4 = 2;
+        repeated float float_values_4 = 3;
+        repeated bytes bytes_values_4 = 4;
+      }
+      Child3 child_3 = 1;
+      repeated int64 int_values_3 = 2;
+      repeated float float_values_3 = 3;
+      repeated bytes bytes_values_3 = 4;
+    }
+    Child2 child_2 = 1;
+    repeated int64 int_values_2 = 2;
+    repeated float float_values_2 = 3;
+    repeated bytes bytes_values_2 = 4;
+  }
+  Child1 child_1 = 1;
+  repeated int64 int_values_1 = 2;
+  repeated float float_values_1 = 3;
+  repeated bytes bytes_values_1 = 4;
+}
+
+message FlatProto100 {
+  repeated int64 int_values_1 = 1;
+  repeated int64 int_values_2 = 2;
+  repeated int64 int_values_3 = 3;
+  repeated int64 int_values_4 = 4;
+  repeated int64 int_values_5 = 5;
+  repeated int64 int_values_6 = 6;
+  repeated int64 int_values_7 = 7;
+  repeated int64 int_values_8 = 8;
+  repeated int64 int_values_9 = 9;
+  repeated int64 int_values_10 = 10;
+  repeated int64 int_values_11 = 11;
+  repeated int64 int_values_12 = 12;
+  repeated int64 int_values_13 = 13;
+  repeated int64 int_values_14 = 14;
+  repeated int64 int_values_15 = 15;
+  repeated int64 int_values_16 = 16;
+  repeated int64 int_values_17 = 17;
+  repeated int64 int_values_18 = 18;
+  repeated int64 int_values_19 = 19;
+  repeated int64 int_values_20 = 20;
+  repeated int64 int_values_21 = 21;
+  repeated int64 int_values_22 = 22;
+  repeated int64 int_values_23 = 23;
+  repeated int64 int_values_24 = 24;
+  repeated int64 int_values_25 = 25;
+  repeated int64 int_values_26 = 26;
+  repeated int64 int_values_27 = 27;
+  repeated int64 int_values_28 = 28;
+  repeated int64 int_values_29 = 29;
+  repeated int64 int_values_30 = 30;
+  repeated int64 int_values_31 = 31;
+  repeated int64 int_values_32 = 32;
+  repeated int64 int_values_33 = 33;
+  repeated int64 int_values_34 = 34;
+  repeated int64 int_values_35 = 35;
+  repeated int64 int_values_36 = 36;
+  repeated int64 int_values_37 = 37;
+  repeated int64 int_values_38 = 38;
+  repeated int64 int_values_39 = 39;
+  repeated int64 int_values_40 = 40;
+  repeated int64 int_values_41 = 41;
+  repeated int64 int_values_42 = 42;
+  repeated int64 int_values_43 = 43;
+  repeated int64 int_values_44 = 44;
+  repeated int64 int_values_45 = 45;
+  repeated int64 int_values_46 = 46;
+  repeated int64 int_values_47 = 47;
+  repeated int64 int_values_48 = 48;
+  repeated int64 int_values_49 = 49;
+  repeated int64 int_values_50 = 50;
+  repeated int64 int_values_51 = 51;
+  repeated int64 int_values_52 = 52;
+  repeated int64 int_values_53 = 53;
+  repeated int64 int_values_54 = 54;
+  repeated int64 int_values_55 = 55;
+  repeated int64 int_values_56 = 56;
+  repeated int64 int_values_57 = 57;
+  repeated int64 int_values_58 = 58;
+  repeated int64 int_values_59 = 59;
+  repeated int64 int_values_60 = 60;
+  repeated int64 int_values_61 = 61;
+  repeated int64 int_values_62 = 62;
+  repeated int64 int_values_63 = 63;
+  repeated int64 int_values_64 = 64;
+  repeated int64 int_values_65 = 65;
+  repeated int64 int_values_66 = 66;
+  repeated int64 int_values_67 = 67;
+  repeated int64 int_values_68 = 68;
+  repeated int64 int_values_69 = 69;
+  repeated int64 int_values_70 = 70;
+  repeated int64 int_values_71 = 71;
+  repeated int64 int_values_72 = 72;
+  repeated int64 int_values_73 = 73;
+  repeated int64 int_values_74 = 74;
+  repeated int64 int_values_75 = 75;
+  repeated int64 int_values_76 = 76;
+  repeated int64 int_values_77 = 77;
+  repeated int64 int_values_78 = 78;
+  repeated int64 int_values_79 = 79;
+  repeated int64 int_values_80 = 80;
+  repeated int64 int_values_81 = 81;
+  repeated int64 int_values_82 = 82;
+  repeated int64 int_values_83 = 83;
+  repeated int64 int_values_84 = 84;
+  repeated int64 int_values_85 = 85;
+  repeated int64 int_values_86 = 86;
+  repeated int64 int_values_87 = 87;
+  repeated int64 int_values_88 = 88;
+  repeated int64 int_values_89 = 89;
+  repeated int64 int_values_90 = 90;
+  repeated int64 int_values_91 = 91;
+  repeated int64 int_values_92 = 92;
+  repeated int64 int_values_93 = 93;
+  repeated int64 int_values_94 = 94;
+  repeated int64 int_values_95 = 95;
+  repeated int64 int_values_96 = 96;
+  repeated int64 int_values_97 = 97;
+  repeated int64 int_values_98 = 98;
+  repeated int64 int_values_99 = 99;
+  repeated int64 int_values_100 = 100;
+}
