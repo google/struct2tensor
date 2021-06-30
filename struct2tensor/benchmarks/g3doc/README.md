@@ -37,7 +37,7 @@ Project 1 int field from a flat proto:
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.322     | 0.119     | 0.340    | 4.761
 2          | 0.318     | 0.147     | 0.300    | 4.606
 4          | 0.310     | 0.037     | 0.320    | 4.688
@@ -57,7 +57,7 @@ Project 5 int field from a flat proto:
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.315     | 0.143     | 0.330    | 4.726
 2          | 0.311     | 0.043     | 0.320    | 4.688
 4          | 0.313     | 0.047     | 0.320    | 4.688
@@ -80,7 +80,7 @@ internal nodes represent nested submessages.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.322     | 0.141     | 0.340    | 4.761
 2          | 0.323     | 0.090     | 0.350    | 4.794
 4          | 0.320     | 0.131     | 0.320    | 4.688
@@ -100,7 +100,7 @@ Project 5 int field from a deep proto:
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.317     | 0.123     | 0.330    | 4.726
 2          | 0.317     | 0.036     | 0.320    | 4.688
 4          | 0.317     | 0.024     | 0.340    | 4.761
@@ -125,7 +125,7 @@ Promote an int field to depth 1 and project it:
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
 ---------- | ------------ | ------------- | -------- | -----------
-           | avg (ms)     | (stdev)       | avg (ms) | (stdev)
+units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 1          | 0.3518498302 | 0.1188202848  | 0.35     | 4.793724854
 2          | 0.3557216492 | 0.1009445213  | 0.35     | 4.793724854
 4          | 0.3582275826 | 0.1145162095  | 0.36     | 4.824181513
@@ -145,7 +145,7 @@ Promote an int field to depth 4 and project it:
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
 ---------- | ------------ | ------------- | -------- | -----------
-           | avg (ms)     | (stdev)       | avg (ms) | (stdev)
+units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 1          | 0.3421712951 | 0.1137565235  | 0.36     | 4.824181513
 2          | 0.3411100265 | 0.03153159862 | 0.35     | 4.793724854
 4          | 0.3419795991 | 0.03430791486 | 0.35     | 4.793724854
@@ -172,7 +172,7 @@ Broadcast an int field to depth 2 and project it:
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
 ---------- | ------------ | ------------- | -------- | -----------
-           | avg (ms)     | (stdev)       | avg (ms) | (stdev)
+units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 1          | 0.3518526028 | 0.2037769998  | 0.35     | 4.793724854
 2          | 0.3390258034 | 0.05497714734 | 0.33     | 4.725815626
 4          | 0.3404623303 | 0.07700435376 | 0.34     | 4.760952286
@@ -192,7 +192,7 @@ Broadcast an int field to depth 5 and project it:
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
 ---------- | ------------ | ------------- | -------- | -----------
-           | avg (ms)     | (stdev)       | avg (ms) | (stdev)
+units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 1          | 0.3408611538 | 0.1291159851  | 0.41     | 4.943110704
 2          | 0.337811471  | 0.02195394713 | 0.34     | 4.760952286
 4          | 0.3397090239 | 0.02617322913 | 0.35     | 4.793724854
@@ -218,7 +218,7 @@ Reroot a parent field at depth 1 and project a direct child:
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
 ---------- | ------------ | ------------- | -------- | -----------
-           | avg (ms)     | (stdev)       | avg (ms) | (stdev)
+units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 1          | 0.3404013091 | 0.1135904393  | 0.35     | 4.793724854
 2          | 0.3387726699 | 0.03198595332 | 0.35     | 4.793724854
 4          | 0.3393262327 | 0.0264454256  | 0.36     | 4.824181513
@@ -238,7 +238,7 @@ Reroot a parent field at depth 4 and project a direct child:
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
 ---------- | ------------ | ------------- | -------- | -----------
-           | avg (ms)     | (stdev)       | avg (ms) | (stdev)
+units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 1          | 0.3386712591 | 0.1110942369  | 0.35     | 4.793724854
 2          | 0.3376768269 | 0.03301939684 | 0.34     | 4.760952286
 4          | 0.3393654749 | 0.02863048876 | 0.35     | 4.793724854
@@ -272,7 +272,7 @@ strictly worse than the ragged tensor case.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.334     | 0.172     | 0.360    | 4.824
 2          | 0.331     | 0.052     | 0.350    | 4.794
 4          | 0.332     | 0.043     | 0.350    | 4.794
@@ -289,7 +289,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.338     | 0.169     | 0.340    | 4.761
 2          | 0.337     | 0.068     | 0.350    | 4.794
 4          | 0.345     | 0.093     | 0.360    | 4.824
@@ -306,7 +306,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 1.954     | 7.248     | 3.330    | 46.646
 2          | 1.774     | 0.111     | 1.840    | 5.265
 4          | 1.803     | 0.094     | 1.860    | 3.766
@@ -323,7 +323,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 2.312     | 6.974     | 3.830    | 48.598
 2          | 2.311     | 0.451     | 2.500    | 6.113
 4          | 2.922     | 0.561     | 3.640    | 5.777
@@ -345,7 +345,7 @@ coo indexes are created.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.314     | 0.098     | 0.320    | 4.688
 2          | 0.313     | 0.057     | 0.330    | 4.726
 4          | 0.314     | 0.022     | 0.320    | 4.688
@@ -362,7 +362,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.325     | 0.167     | 0.320    | 4.688
 2          | 0.318     | 0.024     | 0.360    | 4.824
 4          | 0.324     | 0.020     | 0.330    | 4.726
@@ -379,7 +379,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.444     | 0.298     | 0.460    | 5.207
 2          | 0.437     | 0.028     | 0.410    | 4.943
 4          | 0.448     | 0.040     | 0.430    | 4.976
@@ -396,7 +396,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.691     | 0.157     | 0.760    | 5.148
 2          | 0.954     | 0.047     | 1.040    | 4.000
 4          | 1.396     | 0.629     | 2.010    | 4.819
@@ -421,7 +421,7 @@ here, compared to sparse and dense tensors.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.328     | 0.195     | 0.340    | 4.761
 2          | 0.313     | 0.087     | 0.310    | 4.648
 4          | 0.327     | 0.112     | 0.320    | 4.688
@@ -438,7 +438,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.313     | 0.108     | 0.320    | 4.688
 2          | 0.313     | 0.020     | 0.320    | 4.688
 4          | 0.319     | 0.023     | 0.330    | 4.726
@@ -455,7 +455,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.350     | 0.141     | 0.340    | 4.761
 2          | 0.353     | 0.028     | 0.370    | 4.852
 4          | 0.352     | 0.096     | 0.340    | 4.761
@@ -472,7 +472,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.518     | 0.140     | 0.480    | 5.021
 2          | 0.691     | 0.062     | 0.720    | 4.513
 4          | 1.037     | 0.059     | 1.060    | 3.712
@@ -495,7 +495,7 @@ the project deep benchmarks illustrates the cost in constructing dense tensors.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.334     | 0.148     | 0.340    | 4.761
 2          | 0.333     | 0.041     | 0.340    | 4.761
 4          | 0.333     | 0.030     | 0.350    | 4.794
@@ -512,7 +512,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.354     | 0.258     | 0.400    | 4.924
 2          | 0.349     | 0.088     | 0.320    | 4.688
 4          | 0.348     | 0.030     | 0.350    | 4.794
@@ -529,7 +529,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.366     | 0.339     | 0.370    | 4.852
 2          | 0.366     | 0.079     | 0.360    | 4.824
 4          | 0.367     | 0.028     | 0.380    | 4.878
@@ -546,7 +546,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.389     | 0.347     | 0.420    | 5.352
 2          | 0.378     | 0.033     | 0.390    | 4.902
 4          | 0.382     | 0.034     | 0.380    | 4.878
@@ -563,7 +563,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.405     | 0.401     | 0.450    | 5.752
 2          | 0.395     | 0.110     | 0.390    | 4.902
 4          | 0.400     | 0.033     | 0.420    | 4.960
@@ -586,7 +586,7 @@ the project deep benchmarks illustrates the cost in constructing sparse tensors.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.313     | 0.076     | 0.320    | 4.688
 2          | 0.312     | 0.024     | 0.310    | 4.648
 4          | 0.313     | 0.033     | 0.320    | 4.688
@@ -603,7 +603,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.320     | 0.120     | 0.330    | 4.726
 2          | 0.316     | 0.024     | 0.320    | 4.688
 4          | 0.319     | 0.077     | 0.330    | 4.726
@@ -620,7 +620,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.324     | 0.203     | 0.330    | 4.726
 2          | 0.317     | 0.038     | 0.330    | 4.726
 4          | 0.318     | 0.025     | 0.330    | 4.726
@@ -637,7 +637,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.323     | 0.195     | 0.340    | 4.761
 2          | 0.319     | 0.044     | 0.340    | 4.761
 4          | 0.322     | 0.077     | 0.370    | 5.056
@@ -654,7 +654,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.323     | 0.191     | 0.330    | 4.726
 2          | 0.321     | 0.085     | 0.310    | 4.648
 4          | 0.324     | 0.109     | 0.330    | 4.726
@@ -682,7 +682,7 @@ since the components of the ragged tensor are already created.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.320     | 0.120     | 0.320    | 4.688
 2          | 0.323     | 0.078     | 0.320    | 4.688
 4          | 0.320     | 0.078     | 0.310    | 4.648
@@ -699,7 +699,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.326     | 0.135     | 0.330    | 4.726
 2          | 0.332     | 0.122     | 0.340    | 4.761
 4          | 0.330     | 0.127     | 0.330    | 4.726
@@ -716,7 +716,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.307     | 0.154     | 0.300    | 4.606
 2          | 0.311     | 0.034     | 0.320    | 4.688
 4          | 0.311     | 0.023     | 0.310    | 4.648
@@ -733,7 +733,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.316     | 0.175     | 0.320    | 4.688
 2          | 0.310     | 0.025     | 0.310    | 4.648
 4          | 0.313     | 0.032     | 0.320    | 4.688
@@ -750,7 +750,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.312     | 0.129     | 0.310    | 4.648
 2          | 0.310     | 0.022     | 0.310    | 4.648
 4          | 0.315     | 0.108     | 0.310    | 4.648
@@ -779,7 +779,7 @@ that extra ragged -> dense conversion step.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.317     | 0.123     | 0.340    | 4.761
 2          | 0.331     | 0.056     | 0.350    | 4.794
 4          | 0.336     | 0.108     | 0.360    | 4.824
@@ -796,7 +796,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.299     | 0.065     | 0.320    | 4.688
 2          | 0.325     | 0.098     | 0.340    | 4.761
 4          | 0.333     | 0.051     | 0.370    | 4.852
@@ -813,7 +813,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.355     | 0.133     | 0.370    | 4.852
 2          | 0.377     | 0.110     | 0.380    | 4.878
 4          | 0.390     | 0.063     | 0.450    | 5.000
@@ -830,7 +830,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.466     | 0.136     | 0.470    | 5.016
 2          | 0.491     | 0.107     | 0.590    | 4.943
 4          | 0.520     | 0.108     | 0.910    | 4.286
@@ -853,7 +853,7 @@ conversion.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.313     | 0.053     | 0.300    | 4.606
 2          | 0.325     | 0.071     | 0.350    | 4.794
 4          | 0.337     | 0.126     | 0.350    | 4.794
@@ -870,7 +870,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.317     | 0.163     | 0.340    | 4.761
 2          | 0.326     | 0.156     | 0.350    | 4.794
 4          | 0.334     | 0.065     | 0.380    | 4.878
@@ -887,7 +887,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.377     | 0.186     | 0.370    | 4.852
 2          | 0.396     | 0.036     | 0.420    | 4.960
 4          | 0.425     | 0.061     | 0.500    | 5.025
@@ -904,7 +904,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.522     | 0.112     | 0.500    | 5.025
 2          | 0.565     | 0.078     | 0.740    | 4.408
 4          | 0.646     | 0.213     | 1.100    | 3.892
@@ -934,7 +934,7 @@ excited to see where prensors can grow to outperform it.
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.312     | 0.039     | 0.320    | 4.688
 2          | 0.327     | 0.095     | 0.360    | 4.824
 4          | 0.334     | 0.027     | 0.370    | 4.852
@@ -951,7 +951,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.318     | 0.170     | 0.320    | 4.688
 2          | 0.327     | 0.088     | 0.350    | 4.794
 4          | 0.336     | 0.032     | 0.350    | 4.794
@@ -968,7 +968,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.365     | 0.144     | 0.350    | 4.794
 2          | 0.387     | 0.072     | 0.410    | 4.943
 4          | 0.408     | 0.095     | 0.480    | 5.021
@@ -985,7 +985,7 @@ Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
 ---------- | --------- | --------- | -------- | --------
-           | avg (ms)  | (stdev)   | avg (ms) | (stdev)
+units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 1          | 0.493     | 0.120     | 0.430    | 4.976
 2          | 0.536     | 0.125     | 0.680    | 4.899
 4          | 0.584     | 0.152     | 1.010    | 3.332
