@@ -32,7 +32,7 @@ to the actual decoding of the proto.
 
 Project 1 int field from a flat proto:
 
-![image](images/project_flat_1.png, "This tree represents a protobuf. The leaf nodes are repeated fields.")
+![image](images/project_flat_1.png)
 <!-- source: https://docs.google.com/drawings/d/1AJn-Rr5Q39l_Sw-7uSqhtq6KOC_JCMEiFosfG8A5zws/edit -->
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
@@ -52,7 +52,7 @@ units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 
 Project 5 int field from a flat proto:
 
-![image](images/project_flat_5.png, "Project all fields.")
+![image](images/project_flat_5.png)
 <!-- source: https://docs.google.com/drawings/d/1OqFr-1mQLrwBsS__TwT6Esv_uoi1bjzg9GKXZYuZr98/edit -->
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
@@ -75,7 +75,7 @@ Project 1 int field from a deep proto:
 This graph represents a protobuf. The leaf nodes are repeated fields, and the
 internal nodes represent nested submessages.
 
-![image](images/project_deep_1.png, "This tree represents a nested protobuf. Each leaf node is a proto field, and each internal node is a nested submessage.")
+![image](images/project_deep_1.png)
 <!-- source: https://docs.google.com/drawings/d/19CXMEepBJRCICg1eCYUCDEyAb5A4tkclpbkIHd4UV4A/edit -->
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
@@ -95,7 +95,7 @@ units      | avg (ms)  | (stdev)   | avg (ms) | (stdev)
 
 Project 5 int field from a deep proto:
 
-![image](images/project_deep_5.png, "Project a field of depth 5.")
+![image](images/project_deep_5.png)
 <!-- source: https://docs.google.com/drawings/d/1W7O6YZ2svXQ25BpdaUUDA0nLwfTTk8CgFFCPXvU1Po8/edit -->
 
 Batch Size | Wall Time | Wall Time | CPU Time | CPU Time
@@ -120,7 +120,7 @@ much cpu cost.
 
 Promote an int field to depth 1 and project it:
 
-![image](images/promote_depth_1.png, "Promote a field to depth 1 and project it.")
+![image](images/promote_depth_1.png)
 <!-- source: https://docs.google.com/drawings/d/13mB5j0PV8Bb4ALeXBVCaXAlMvqJtOhBh16r366-rqQY/edit -->
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
@@ -140,7 +140,7 @@ units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 
 Promote an int field to depth 4 and project it:
 
-![image](images/promote_depth_4.png, "Promote a field to depth 4 and project it.")
+![image](images/promote_depth_4.png)
 <!-- source: https://docs.google.com/drawings/d/1RMP7RScrZyFU61XjztmMol7ROsjh-qQ-0_WchcfJY-A/edit -->
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
@@ -167,7 +167,7 @@ expensive, but was not measured in these benchmarks.
 
 Broadcast an int field to depth 2 and project it:
 
-![image](images/broadcast_depth_2.png, "Broadcast a field to depth 2 and project it.")
+![image](images/broadcast_depth_2.png)
 <!-- source: https://docs.google.com/drawings/d/1JTBoKG7EKhzCbOK1r-rynug78zvVlRZLX5BXhSoIGHs/edit -->
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
@@ -187,7 +187,7 @@ units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 
 Broadcast an int field to depth 5 and project it:
 
-![image](images/broadcast_depth_5.png, "Broadcast a field to depth 5 and project it.")
+![image](images/broadcast_depth_5.png)
 <!-- source: https://docs.google.com/drawings/d/1eV_ECW2hdER_9nbdORc4aMld_HHNwXs_rjKjE1oi0E0/edit -->
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
@@ -213,7 +213,7 @@ projecting.
 
 Reroot a parent field at depth 1 and project a direct child:
 
-![image](images/reroot_depth_1.png, "Reroot the tree to a field at depth 1 and project a direct field.")
+![image](images/reroot_depth_1.png)
 <!-- source: https://docs.google.com/drawings/d/1zTlOFC4IpPPkpdgGdDUJtTxka6dFthR0c2L4wxX-yyA/edit -->
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
@@ -233,7 +233,7 @@ units      | avg (ms)     | (stdev)       | avg (ms) | (stdev)
 
 Reroot a parent field at depth 4 and project a direct child:
 
-![image](images/reroot_depth_4.png, "Reroot the tree to a field at depth 4 and project a direct field.")
+![image](images/reroot_depth_4.png)
 <!-- source: https://docs.google.com/drawings/d/1zmUPBimDdP74zhb46P3RqV33K22McdGLouHEbC1lWCY/edit -->
 
 Batch Size | Wall Time    | Wall Time     | CPU Time | CPU Time
