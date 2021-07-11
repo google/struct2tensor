@@ -4,7 +4,7 @@
 [![PyPI](https://badge.fury.io/py/struct2tensor.svg)](https://badge.fury.io/py/struct2tensor)
 
 <!--*
-freshness: { owner: 'zhuo' reviewed: '2021-01-05' }
+freshness: { owner: 'andylou' reviewed: '2021-07-09' }
 *-->
 
 ## Introduction
