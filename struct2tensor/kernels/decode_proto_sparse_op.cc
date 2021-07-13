@@ -378,7 +378,7 @@ class FieldBuilderImpl : public FieldBuilder {
   Status CollectValue(CodedInputStream* input, int64_t message_index) {
     T value;
     if (!ReadFieldValue<T, DataType>(input, &value)) {
-      return DataLoss("Failed to parse field.");
+      return DataLoss("Failed to parse field: ", value);
     }
     if (is_repeated_ || parent_indices_.empty() ||
         parent_indices_.back() != message_index) {
