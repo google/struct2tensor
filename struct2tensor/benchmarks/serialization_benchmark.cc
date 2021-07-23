@@ -166,6 +166,6 @@ BENCHMARK(BM_SerializeFlatProto)
 
 int main(int argc, char** argv) {
   absl::ParseCommandLine(argc, argv);
-  absl::SetFlag(&FLAGS_benchmarks, "all");
+  absl::SetFlag(&FLAGS_benchmark_filter, "all");
   RunSpecifiedBenchmarks();
 }
