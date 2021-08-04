@@ -59,7 +59,14 @@ function setup_environment() {
 
 function bazel_build() {
   set -x
-  ./build_common.sh --python_bin_path=${PYTHON_BIN_PATH} --pip_bin_path=${PIP_BIN} --tf_version=${TF_VERSION}
+  local build_args=()
+  build_args+=("--python_bin_path=${PYTHON_BIN_PATH}")
+  build_args+=("--pip_bin_path=${PIP_BIN}")
+  build_args+=("--tf_version=${TF_VERSION}")
+  if [[ -n ${SKIP_STATIC_LINK_TEST} ]]; then
+    build_args+=("--skip_static_link_test")
+  fi
+  ./build_common.sh "${build_args[@]}"
 }
 
 libraries=(

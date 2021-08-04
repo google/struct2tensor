@@ -14,7 +14,7 @@
 # limitations under the License.
 # ==============================================================================
 #
-# Usage: build_common.sh [--python_bin_path=PYTHON_BIN_PATH] [--pip_bin_path=PIP_BIN_PATH] [--tf_version=TF_VERSION]
+# Usage: build_common.sh [--python_bin_path=PYTHON_BIN_PATH] [--pip_bin_path=PIP_BIN_PATH] [--tf_version=TF_VERSION] [--skip_static_link_test]
 
 function install_tensorflow() {
   # Install tensorflow from pip.
@@ -65,6 +65,10 @@ for i in "$@"; do
       shift # past argument=value
       TF_VERSION=${i#*=}
       ;;
+    --skip_static_link_test)
+      shift # past argument=value
+      SKIP_STATIC_LINK_TEST=1
+      ;;
     *)
       printf "Unrecognized argument $1"
       exit 1
@@ -103,7 +107,9 @@ bazel run -c opt \
   --python_bin_path "${PYTHON_BIN_PATH}" \
   || { echo "failed to build the pip package"; exit 1; }
 
-# struct2tensor/ops:op_kernel_registration_test builds and links struct2tensor
-# ops against TF source (pulled from @org_tensorflow).
-bazel test -c opt struct2tensor/ops:op_kernel_registration_test \
-  || { echo "failed to build struct2tensor ops statically"; exit 1; }
+if [[ -z "${SKIP_STATIC_LINK_TEST}" ]]; then
+  # struct2tensor/ops:op_kernel_registration_test builds and links struct2tensor
+  # ops against TF source (pulled from @org_tensorflow).
+  bazel test -c opt struct2tensor/ops:op_kernel_registration_test \
+    || { echo "failed to build struct2tensor ops statically"; exit 1; }
+fi
