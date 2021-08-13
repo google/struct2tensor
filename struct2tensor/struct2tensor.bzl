@@ -71,7 +71,7 @@ def s2t_proto_library(
 
 DYNAMIC_COPTS = [
     "-pthread",
-    "-std=c++11",
+    "-std=c++14",
     "-D_GLIBCXX_USE_CXX11_ABI=0",
 ]
 
