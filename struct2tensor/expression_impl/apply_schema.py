@@ -61,9 +61,9 @@ def apply_schema(expr: expression.Expression,
                  schema: schema_pb2.Schema) -> expression.Expression:
   schema_copy = schema_pb2.Schema()
   schema_copy.CopyFrom(schema)
-  for x in schema.feature:
-    _normalize_feature(x, schema)
-  return _SchemaExpression(expr, schema.feature, None)
+  for x in schema_copy.feature:
+    _normalize_feature(x, schema_copy)
+  return _SchemaExpression(expr, schema_copy.feature, None)
 
 
 def _normalize_feature(feature: schema_pb2.Feature,

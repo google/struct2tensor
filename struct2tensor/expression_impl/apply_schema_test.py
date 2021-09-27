@@ -13,6 +13,7 @@
 # limitations under the License.
 """Tests for struct2tensor.expression_impl.apply_schema."""
 
+import copy
 from absl.testing import absltest
 
 from struct2tensor import create_expression
@@ -31,7 +32,9 @@ class SchemaUtilTest(absltest.TestCase):
   def test_apply_schema(self):
     expr = create_expression.create_expression_from_prensor(
         prensor_test_util.create_big_prensor())
-    expr2 = expr.apply_schema(prensor_test_util.create_big_prensor_schema())
+    input_schema = prensor_test_util.create_big_prensor_schema()
+    expected_input_schema = copy.deepcopy(input_schema)
+    expr2 = expr.apply_schema(input_schema)
     foo_expr = expr2.get_descendant(path.Path(["foo"]))
     self.assertIsNotNone(foo_expr)
     foorepeated_expr = expr2.get_descendant(path.Path(["foorepeated"]))
@@ -50,6 +53,9 @@ class SchemaUtilTest(absltest.TestCase):
     self.assertEqual(doc_bar_expr.schema_feature.string_domain.value[0], "a")
     self.assertIsNotNone(expr2.get_descendant(path.Path(["user", "friends"])))
     self.assertIsNotNone(expr2.get_descendant(path.Path(["doc", "keep_me"])))
+
+    # Ensure the input schema wasn't mutated.
+    self.assertEqual(input_schema, expected_input_schema)
 
   def test_apply_empty_schema(self):
     """Test that applying an empty schema does not filter out paths."""

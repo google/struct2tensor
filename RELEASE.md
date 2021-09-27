@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*   Fix bug in which expression.apply_schema mutated its input schema
+
 ## Breaking Changes
 
 ## Deprecations
