@@ -22,7 +22,8 @@
 
 ## Bug Fixes and Other Changes
 
-*   Depends on `tensorflow>=2.6.0,<2.7`
+*   Depends on `tensorflow>=2.6.0,<2.7`.
+*   Depends on `pyarrow>=1,<6`.
 
 ## Breaking Changes
 

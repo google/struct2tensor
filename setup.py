@@ -80,7 +80,7 @@ setup(
             default='>=1.2,<1.3',
             nightly='>=1.3.0.dev',
             git_master='@git+https://github.com/tensorflow/metadata@master'),
-        'pyarrow>=1,<3',
+        'pyarrow>=1,<6',
     ],
     # Add in any packaged data.
     include_package_data=True,
