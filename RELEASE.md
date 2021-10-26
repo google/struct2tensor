@@ -6,9 +6,23 @@
 
 ## Bug Fixes and Other Changes
 
+## Breaking Changes
+
+## Deprecations
+
+# Version 0.34.0
+
+## Major Features and Improvements
+
+*   N/A
+
+## Bug Fixes and Other Changes
+
 *   Fix bug in which expression.apply_schema mutated its input schema
 
 ## Breaking Changes
+
+*   N/A
 
 ## Deprecations
 
