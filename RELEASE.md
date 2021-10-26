@@ -10,7 +10,7 @@
 
 ## Deprecations
 
-# Version 0.34.0
+# Version 0.35.0
 
 ## Major Features and Improvements
 
