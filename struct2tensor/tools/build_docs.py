@@ -117,8 +117,8 @@ def build_docs(output_dir: pathlib.Path) -> None:
 def _filter_module_attributes(path, parent, children):
   """Filter out module attirubtes.
 
-  This removes attributes that are google_type_annotation or a gen rule
-  attribute. The custom ops that need gen rules will have their docs exposed
+  This removes attributes that are a gen rule attribute.
+  The custom ops that need gen rules will have their docs exposed
   from the python source file. No need to also get api docs from the generated
   files.
 
@@ -132,7 +132,6 @@ def _filter_module_attributes(path, parent, children):
   """
   del path
   skip_module_attributes = {
-      "google_type_annotations",
       "gen_decode_proto_sparse",
       "gen_decode_proto_map_op",
       "gen_equi_join_indices",
