@@ -59,14 +59,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 0 && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.6 0
 
-RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
+RUN curl -fSsL -O https://bootstrap.pypa.io/pip/3.6/get-pip.py && \
     python3 get-pip.py && \
     rm get-pip.py
 
 RUN pip3 --no-cache-dir install --upgrade numpy
 
 # Set up Bazel
-ENV BAZEL_VERSION 3.7.2
+ENV BAZEL_VERSION 5.0.0
 WORKDIR /bazel
 RUN curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
     chmod +x bazel-*.sh && \
