@@ -14,6 +14,7 @@
 """Struct2tensor benchmarks util."""
 
 import os
+import random
 import statistics
 import timeit
 
@@ -36,151 +37,28 @@ flags.DEFINE_bool(
 _BASE_DIR = "struct2tensor/benchmarks/testdata"
 
 
-class Struct2tensorBenchmarks(parameterized.TestCase):
+class Struct2tensorBenchmarksBase(parameterized.TestCase):
   """Base Class for Struct2tensor benchmarks.
 
+  These are tensorflow based benchmarks, and ensures that tensors are always
+  evaluated.
+
   The derived class should call
-  self.run_benchmarks(fn_name, get_benchmark_fn, fn_args, proto_list_key).
+  self.run_benchmarks(fn_name, get_benchmark_fn, fn_args, data_key).
   """
 
-  @classmethod
-  def setUpClass(cls):
-    super(Struct2tensorBenchmarks, cls).setUpClass()
-    print(f"cpuinfo: {cpuinfo.get_cpu_info()}")
+  def _discard_runs(self, benchmark_fn, inputs):
+    benchmark_fn(*inputs)
 
-    shuffle_size = 2048
-
-    # Batch sizes are powers of two. i.e. 1, 2, 4, 8, .. up to 2048.
-    batch_sizes = [2**i for i in range(11)]
-
-    if FLAGS.test_mode:
-      print("WARNING: --test_mode is True. Setting batch_size to 1.")
-      shuffle_size = 1
-      batch_sizes = [1]
-
-    # load tensor of serialized DeepProtos into memory.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR, "deep_all_types_4096_positive.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._deep_protos = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    # load tensor of serialized FlatProtos into memory.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR, "flat_all_types_4096_positive.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._flat_protos = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    # load tensor of serialized FlatProtos into memory. These protos each have
-    # 1 feature, each with 100 values.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR,
-                     "flat_all_types_100_int_values_4096.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._flat_protos_1_feature_100_values = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    # load tensor of serialized FlatProtos100 into memory. These protos each
-    # have 100 int features, where each feature has 1 value.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR, "flat_100_int_features_4096.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._flat_protos_100_features = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    # load tensor of serialized FlatProtos100 into memory. These protos each
-    # have 100 int features, where each feature has 100 values.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR,
-                     "flat_100_int_features_100_values_4096.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._flat_protos_100_features_100_values = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    # load tf example into memory. Each example has 1 feature of list length 1.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR, "tf_example_all_types_4096.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._tf_examples = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    # load tf example into memory. Each example has 1 feature of 100 values.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR,
-                     "tf_example_1_int_feature_100_values_4096.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._tf_examples_1_feature_100_values = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    # load tf example into memory. Each example has 100 features, where each
-    # feature has list length of 1.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR, "tf_example_100_int_features_4096.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._tf_examples_100_features = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    # load tf example into memory. Each example has 100 features, where each
-    # feature has list length of 100.
-    ds = tf.data.TFRecordDataset(
-        os.path.join(_BASE_DIR,
-                     "tf_example_100_int_features_100_values_4096.tfrecord.gz"),
-        "GZIP").shuffle(shuffle_size)
-    cls._tf_examples_100_features_100_values = [
-        list(ds.take(batch_size).as_numpy_iterator())
-        for batch_size in batch_sizes
-    ]
-
-    cls._protos_list = {
-        "deep_protos":
-            cls._deep_protos,
-        "flat_protos":
-            cls._flat_protos,
-        "flat_protos_1_feature_100_values":
-            cls._flat_protos_1_feature_100_values,
-        "flat_protos_100_features":
-            cls._flat_protos_100_features,
-        "flat_protos_100_features_100_values":
-            cls._flat_protos_100_features_100_values,
-        "tf_examples":
-            cls._tf_examples,
-        "tf_examples_1_feature_100_values":
-            cls._tf_examples_1_feature_100_values,
-        "tf_examples_100_features":
-            cls._tf_examples_100_features,
-        "tf_examples_100_features_100_values":
-            cls._tf_examples_100_features_100_values,
-    }
-
-  def _discard_runs(self, benchmark_fn, protos):
-    benchmark_fn(protos)
-
-  def run_benchmarks(self, fn_name, get_benchmark_fn, fn_args, proto_list_key):
+  def run_benchmarks(self, fn_name, get_benchmark_fn, fn_args, data_key):
     """This benchmarks the function specified by `get_benchmark_fn`.
 
     Args:
       fn_name: A string of the name of the function to benchmark.
       get_benchmark_fn: A function that returns a tf.session callable.
       fn_args: A list of arguments for get_benchmark_fn.
-      proto_list_key: A string of the following: 'deep_protos', 'flat_protos',
-        or 'tf_examples'. This determines which data file to use for benchmarks.
+      data_key: A string that determines what data to use for benchmarks. See
+        child class for possible defined data_keys.
 
     """
     print(f"BEGIN {fn_name}:\tNum Iterations\tTotal (wall) Time (s)\t"
@@ -210,17 +88,17 @@ class Struct2tensorBenchmarks(parameterized.TestCase):
                       .OFF)))) as sess:
         benchmark_fn = get_benchmark_fn(sess, *fn_args)
 
-        for protos in self._protos_list[proto_list_key]:
-          self._discard_runs(benchmark_fn, protos)
+        for input_data in self._data[data_key]:
+          self._discard_runs(benchmark_fn, input_data)
 
           # Collect timings and run the benchmark function
-          name = f"{fn_name}_{len(protos)}"
+          name = f"{fn_name}_{len(input_data[0])}"
           wall_times, user_cpu_times, system_cpu_times = [], [], []
           for _ in range(int(iterations / sample_size)):
             start_cpu = psutil.cpu_times()
             start_time = timeit.default_timer()
             for _ in range(sample_size):
-              _ = benchmark_fn(protos)
+              _ = benchmark_fn(*input_data)
             end_cpu = psutil.cpu_times()
             duration = timeit.default_timer() - start_time
             cpu_user_duration = end_cpu.user - start_cpu.user
@@ -244,3 +122,153 @@ class Struct2tensorBenchmarks(parameterized.TestCase):
               f"{cpu_system_duration / iterations}\t"
               f"{statistics.stdev(system_cpu_times)}"
           )
+
+
+class ProtoDataBenchmarks(Struct2tensorBenchmarksBase):
+  """Base class for benchmarks that take proto data as input."""
+
+  @classmethod
+  def setUpClass(cls):
+    super().setUpClass()
+    print(f"cpuinfo: {cpuinfo.get_cpu_info()}")
+
+    shuffle_size = 2048
+
+    # Batch sizes are powers of two. i.e. 1, 2, 4, 8, .. up to 2048.
+    batch_sizes = [2**i for i in range(11)]
+
+    if FLAGS.test_mode:
+      print("WARNING: --test_mode is True. Setting batch_size to 1.")
+      shuffle_size = 1
+      batch_sizes = [1]
+
+    # load tensor of serialized DeepProtos into memory.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR, "deep_all_types_4096_positive.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._deep_protos = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    # load tensor of serialized FlatProtos into memory.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR, "flat_all_types_4096_positive.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._flat_protos = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    # load tensor of serialized FlatProtos into memory. These protos each have
+    # 1 feature, each with 100 values.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR,
+                     "flat_all_types_100_int_values_4096.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._flat_protos_1_feature_100_values = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    # load tensor of serialized FlatProtos100 into memory. These protos each
+    # have 100 int features, where each feature has 1 value.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR, "flat_100_int_features_4096.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._flat_protos_100_features = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    # load tensor of serialized FlatProtos100 into memory. These protos each
+    # have 100 int features, where each feature has 100 values.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR,
+                     "flat_100_int_features_100_values_4096.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._flat_protos_100_features_100_values = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    # load tf example into memory. Each example has 1 feature of list length 1.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR, "tf_example_all_types_4096.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._tf_examples = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    # load tf example into memory. Each example has 1 feature of 100 values.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR,
+                     "tf_example_1_int_feature_100_values_4096.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._tf_examples_1_feature_100_values = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    # load tf example into memory. Each example has 100 features, where each
+    # feature has list length of 1.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR, "tf_example_100_int_features_4096.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._tf_examples_100_features = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    # load tf example into memory. Each example has 100 features, where each
+    # feature has list length of 100.
+    ds = tf.data.TFRecordDataset(
+        os.path.join(_BASE_DIR,
+                     "tf_example_100_int_features_100_values_4096.tfrecord.gz"),
+        "GZIP").shuffle(shuffle_size)
+    cls._tf_examples_100_features_100_values = [
+        [list(ds.take(batch_size).as_numpy_iterator())]
+        for batch_size in batch_sizes
+    ]
+
+    cls._data = {
+        "deep_protos":
+            cls._deep_protos,
+        "flat_protos":
+            cls._flat_protos,
+        "flat_protos_1_feature_100_values":
+            cls._flat_protos_1_feature_100_values,
+        "flat_protos_100_features":
+            cls._flat_protos_100_features,
+        "flat_protos_100_features_100_values":
+            cls._flat_protos_100_features_100_values,
+        "tf_examples":
+            cls._tf_examples,
+        "tf_examples_1_feature_100_values":
+            cls._tf_examples_1_feature_100_values,
+        "tf_examples_100_features":
+            cls._tf_examples_100_features,
+        "tf_examples_100_features_100_values":
+            cls._tf_examples_100_features_100_values,
+    }
+
+
+class OpsBenchmarks(Struct2tensorBenchmarksBase):
+  """Base class for benchmarks that take tensor data as input."""
+
+  @classmethod
+  def setUpClass(cls):
+    super().setUpClass()
+
+    print(f"cpuinfo: {cpuinfo.get_cpu_info()}")
+    a = list(range(1000))
+    b = list(range(1000))
+
+    rand_a = list(range(1000))
+    rand_b = list(range(1000))
+    random.shuffle(rand_a)
+    random.shuffle(rand_b)
+
+    cls._data = {"monotonic_increasing": [[a, b]],
+                 "random": [[rand_a, rand_b]]}

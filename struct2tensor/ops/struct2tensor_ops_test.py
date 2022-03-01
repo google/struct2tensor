@@ -31,6 +31,50 @@ from tensorflow.python.framework import test_util  # pylint: disable=g-direct-te
 INDEX = "index"
 VALUE = "value"
 
+_EQUIJOIN_TEST_CASES = [{
+    "testcase_name": "simple",
+    "a": [0, 0, 1, 1, 2, 3, 4],
+    "b": [0, 0, 2, 2, 3],
+    "expected_index_a": [0, 0, 1, 1, 4, 4, 5],
+    "expected_index_b": [0, 1, 0, 1, 2, 3, 4]
+}, {
+    "testcase_name": "simple_2",
+    "a": [0, 1, 1, 2],
+    "b": [0, 1, 2],
+    "expected_index_a": [0, 1, 2, 3],
+    "expected_index_b": [0, 1, 1, 2]
+}, {
+    "testcase_name": "empty",
+    "a": [],
+    "b": [0, 1, 2],
+    "expected_index_a": [],
+    "expected_index_b": []
+}, {
+    "testcase_name": "empty_2",
+    "a": [0, 1, 1, 2],
+    "b": [],
+    "expected_index_a": [],
+    "expected_index_b": []
+}, {
+    "testcase_name": "both_empty",
+    "a": [],
+    "b": [],
+    "expected_index_a": [],
+    "expected_index_b": []
+}, {
+    "testcase_name": "no_overlap",
+    "a": [0, 1, 1, 2],
+    "b": [3, 4, 5],
+    "expected_index_a": [],
+    "expected_index_b": []
+}, {
+    "testcase_name": "broadcast",
+    "a": [0, 1, 1],
+    "b": [0, 1, 2],
+    "expected_index_a": [0, 1, 2],
+    "expected_index_b": [0, 1, 1]
+}]
+
 
 def _parse_full_message_level_as_dict(proto_list):
   serialized = [proto.SerializeToString() for proto in proto_list]
@@ -457,55 +501,27 @@ class PrensorOpsTest(parameterized.TestCase, tf.test.TestCase):
         parent_index, values, tf.constant([0, 0], dtype=tf.int64))
     self.assertAllEqual(sparse_tensor.indices.shape, [0, 2])
 
-  def test_equi_join_indices(self):
-    a = tf.constant([0, 0, 1, 1, 2, 3, 4], dtype=tf.int64)
-    b = tf.constant([0, 0, 2, 2, 3], dtype=tf.int64)
-    [index_a, index_b] = struct2tensor_ops.equi_join_indices(a, b)
-    self.assertAllEqual(index_a, [0, 0, 1, 1, 4, 4, 5])
-    self.assertAllEqual(index_b, [0, 1, 0, 1, 2, 3, 4])
+  @parameterized.named_parameters(*_EQUIJOIN_TEST_CASES)
+  def test_equi_join_indices(self, a, b, expected_index_a, expected_index_b):
+    a = tf.constant(a, dtype=tf.int64)
+    b = tf.constant(b, dtype=tf.int64)
 
-  def test_equi_join_indices_2(self):
-    a = tf.constant([0, 1, 1, 2], dtype=tf.int64)
-    b = tf.constant([0, 1, 2], dtype=tf.int64)
+    # Test equi_join_indices
     [index_a, index_b] = struct2tensor_ops.equi_join_indices(a, b)
-    self.assertAllEqual(index_a, [0, 1, 2, 3])
-    self.assertAllEqual(index_b, [0, 1, 1, 2])
+    self.assertAllEqual(index_a, expected_index_a)
+    self.assertAllEqual(index_b, expected_index_b)
 
-  def test_equi_join_indices_empty_a(self):
-    a = tf.constant([], dtype=tf.int64)
-    b = tf.constant([0, 1, 2], dtype=tf.int64)
-    [index_a, index_b] = struct2tensor_ops.equi_join_indices(a, b)
-    self.assertAllEqual(index_a, [])
-    self.assertAllEqual(index_b, [])
+    # Test equi_join_any_indices
+    [index_a, index_b] = struct2tensor_ops.equi_join_any_indices(a, b)
+    self.assertAllEqual(index_a, expected_index_a)
+    self.assertAllEqual(index_b, expected_index_b)
 
-  def test_equi_join_indices_empty_b(self):
-    a = tf.constant([0, 1, 1, 2], dtype=tf.int64)
-    b = tf.constant([], dtype=tf.int64)
-    [index_a, index_b] = struct2tensor_ops.equi_join_indices(a, b)
-    self.assertAllEqual(index_a, [])
-    self.assertAllEqual(index_b, [])
-
-  def test_equi_join_indices_both_empty(self):
-    a = tf.constant([], dtype=tf.int64)
-    b = tf.constant([], dtype=tf.int64)
-    [index_a, index_b] = struct2tensor_ops.equi_join_indices(a, b)
-    self.assertAllEqual(index_a, [])
-    self.assertAllEqual(index_b, [])
-
-  def test_equi_join_indices_no_overlap(self):
-    a = tf.constant([0, 1, 1, 2], dtype=tf.int64)
-    b = tf.constant([3, 4, 5], dtype=tf.int64)
-    [index_a, index_b] = struct2tensor_ops.equi_join_indices(a, b)
-    self.assertAllEqual(index_a, [])
-    self.assertAllEqual(index_b, [])
-
-  def test_equi_join_indices_for_broadcast(self):
-    """Breaking down the broadcast."""
-    a = tf.constant([0, 1, 1], dtype=tf.int64)
-    b = tf.constant([0, 1, 2], dtype=tf.int64)
-    [index_a, index_b] = struct2tensor_ops.equi_join_indices(a, b)
-    self.assertAllEqual(index_a, [0, 1, 2])
-    self.assertAllEqual(index_b, [0, 1, 1])
+  def test_equi_join_any_indices_non_monotonic(self):
+    a = tf.constant([0, 1, 2, 1, 2], dtype=tf.int64)
+    b = tf.constant([0, 1, 1, 2, 3], dtype=tf.int64)
+    [index_a, index_b] = struct2tensor_ops.equi_join_any_indices(a, b)
+    self.assertAllEqual(index_a, [0, 1, 1, 2, 3, 3, 4])
+    self.assertAllEqual(index_b, [0, 1, 2, 3, 1, 2, 3])
 
   def test_run_length_before(self):
     """Breaking down the broadcast."""

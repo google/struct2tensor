@@ -4,6 +4,8 @@
 
 ## Major Features and Improvements
 
+*   Added equi_join_any_indices_op.
+
 ## Bug Fixes and Other Changes
 
 *   Depends on `tensorflow>=2.8.0,<2.9`.

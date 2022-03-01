@@ -139,12 +139,27 @@ s2t_dynamic_library(
     srcs = ["equi_join_indices_op.cc"],
 )
 
+cc_library(
+    name = "equi_join_any_indices_kernel",
+    srcs = ["equi_join_any_indices_op.cc"],
+    deps = [
+        "@org_tensorflow//tensorflow/core:framework",
+    ],
+    alwayslink = 1,
+)
+
+s2t_dynamic_library(
+    name = "equi_join_any_indices_op_dynamic",
+    srcs = ["equi_join_any_indices_op.cc"],
+)
+
 # Prensor ops are TF canonical ops.
 cc_library(
     name = "struct2tensor_kernels",
     deps = [
         ":decode_proto_map_kernel",
         ":decode_proto_sparse_kernel",
+        ":equi_join_any_indices_kernel",
         ":equi_join_indices_kernel",
         ":run_length_before_kernel",
     ],

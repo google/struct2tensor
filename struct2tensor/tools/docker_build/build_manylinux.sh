@@ -71,6 +71,7 @@ libraries=(
 "_decode_proto_map_op.so"
 "_decode_proto_sparse_op.so"
 "_run_length_before_op.so"
+"_equi_join_any_indices_op.so"
 "_equi_join_indices_op.so"
 "_parquet_dataset_op.so"
 )

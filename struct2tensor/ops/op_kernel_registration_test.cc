@@ -24,7 +24,8 @@ TEST(OpAndKernelRegistrationTest, Struct2TensorOpsAndKernelsAreRegistered) {
   static constexpr char const* kStruct2TensorOps[] = {
     "DecodeProtoMap",
     "EquiJoinIndices",
-    "DecodeProtoSparseV2",
+    "EquiJoinAnyIndices",
+    "DecodeProtoSparseV3",
     "RunLengthBefore",
     "ParquetDataset",
   };

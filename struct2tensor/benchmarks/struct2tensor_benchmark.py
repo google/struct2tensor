@@ -31,7 +31,7 @@ from struct2tensor.benchmarks import struct2tensor_benchmark_util
 import tensorflow as tf
 
 
-class ProjectBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
+class ProjectBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
   """Benchmarks for projecting fields."""
 
   # pylint: disable=g-complex-comprehension
@@ -389,7 +389,7 @@ class ProjectBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
     self.run_benchmarks(fn_name, _get_project_fn, fn_args, proto_list_key)
 
 
-class PromoteBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
+class PromoteBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
   """Benchmarks for promoting fields."""
 
   @parameterized.named_parameters(*[
@@ -431,7 +431,7 @@ class PromoteBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
     self.run_benchmarks(fn_name, _get_promote_fn, fn_args, proto_list_key)
 
 
-class BroadcastBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
+class BroadcastBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
   """Benchmarks for broadcasting fields."""
 
   @parameterized.named_parameters(*[
@@ -473,7 +473,7 @@ class BroadcastBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
     self.run_benchmarks(fn_name, _get_broadcast_fn, fn_args, proto_list_key)
 
 
-class RerootBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
+class RerootBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
   """Benchmarks for rerooting fields."""
 
   @parameterized.named_parameters(*[
@@ -518,7 +518,7 @@ class RerootBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
 
 
 class PrensorToTensorBenchmarks(
-    struct2tensor_benchmark_util.Struct2tensorBenchmarks):
+    struct2tensor_benchmark_util.ProtoDataBenchmarks):
   """Benchmarks for converting prensor to tensors."""
 
   # pylint: disable=g-complex-comprehension
@@ -825,7 +825,7 @@ class PrensorToTensorBenchmarks(
                         proto_list_key)
 
 
-class TfExampleBenchmarks(struct2tensor_benchmark_util.Struct2tensorBenchmarks):
+class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
   """Benchmarks for converting tf.example to tensors."""
 
   # pylint: disable=g-complex-comprehension

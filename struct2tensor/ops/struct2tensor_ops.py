@@ -20,6 +20,7 @@ from struct2tensor import path
 from struct2tensor.ops import file_descriptor_set
 from struct2tensor.ops import gen_decode_proto_map_op
 from struct2tensor.ops import gen_decode_proto_sparse
+from struct2tensor.ops import gen_equi_join_any_indices
 from struct2tensor.ops import gen_equi_join_indices
 from struct2tensor.ops import gen_run_length_before
 import tensorflow as tf
@@ -246,6 +247,28 @@ def equi_join_indices(a: tf.Tensor, b: tf.Tensor) -> tf.Tensor:
        index_b[k] <= index_b[k'].
   """
   return gen_equi_join_indices.equi_join_indices(a, b)
+
+
+def equi_join_any_indices(a: tf.Tensor, b: tf.Tensor) -> tf.Tensor:
+  """A custom op such that a broadcast subtree operation can be done.
+
+  Similar to `equi_join_indices`, except this does not assume `a` and `b` are
+  monotonically increasing. Prefer to use equi_join_indices if possible.
+
+  Args:
+    a: a tensor that is an int64 vector
+    b: a tensor that is an int64 vector
+
+  Returns:
+    [index_a, index_b] where:
+    1. For every k, a[index_a[k]] = b[index_b[k]]
+    2. for every i,j, iff a[i]==b[j], then there exists a k where
+       index_a[k]=i and index_b[k]=j.
+    3. Moreover, for any k, k' where k < k',
+       index_a[k] <= index_a[k'], and if index_a[k] == index_a[k'], then
+       index_b[k] <= index_b[k'].
+  """
+  return gen_equi_join_any_indices.equi_join_any_indices(a, b)
 
 
 def parse_proto_map(
