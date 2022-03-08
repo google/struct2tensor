@@ -51,9 +51,9 @@ using tensorflow::TensorShapeUtils;
 
 }  // namespace
 
-class EquiJoinIndicesOp : public OpKernel {
+class EquiJoinAnyIndicesOp : public OpKernel {
  public:
-  explicit EquiJoinIndicesOp(OpKernelConstruction* context)
+  explicit EquiJoinAnyIndicesOp(OpKernelConstruction* context)
       : OpKernel(context) {}
 
   // Returns true iff shape is a real vector or a row vector (N x 1 matrix).
@@ -102,6 +102,6 @@ class EquiJoinIndicesOp : public OpKernel {
 };
 
 REGISTER_KERNEL_BUILDER(Name("EquiJoinAnyIndices").Device(DEVICE_CPU),
-                        EquiJoinIndicesOp);
+                        EquiJoinAnyIndicesOp);
 
 }  // namespace struct2tensor

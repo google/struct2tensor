@@ -15,6 +15,7 @@
 ## Major Features and Improvements
 
 *   Added equi_join_any_indices_op.
+*   Added broadcast for subtrees.
 
 ## Bug Fixes and Other Changes
 

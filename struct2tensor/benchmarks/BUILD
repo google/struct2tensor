@@ -88,27 +88,17 @@ py_binary(
     ],
 )
 
-# py_test(
-#     name = "ops_benchmark_test",
-#     srcs = ["ops_benchmark.py"],
-#     # Reduce the run time to fit on TAP.
-#     # Follow the instructions in the file to properly run the benchmark.
-#     args = ["--test_mode"],
-#     main = "ops_benchmark.py",
-#     python_version = "PY3",
-#     # shard_count = 4,
-#     deps = [
-#         ":struct2tensor_benchmark_lib",
-#     ],
-# )
 py_test(
     name = "ops_benchmark_test",
     srcs = ["ops_benchmark.py"],
+    # Reduce the run time to fit on TAP.
+    # Follow the instructions in the file to properly run the benchmark.
+    args = ["--test_mode"],
     main = "ops_benchmark.py",
+    python_version = "PY3",
+    # shard_count = 4,
     deps = [
-        ":struct2tensor_benchmark_util",
-        "//struct2tensor/ops:struct2tensor_ops",
-        "@absl_py//absl/testing:parameterized",
+        ":struct2tensor_benchmark_lib",
     ],
 )
 

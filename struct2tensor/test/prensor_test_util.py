@@ -183,12 +183,23 @@ def create_big_prensor():
 
   Returns:
     a prensor expression representing:
-    {foo:9, foorepeated:[9], doc:[{bar:["a"], keep_me:False}],
-    user:[{friends:["a"]}]}
-    {foo:8, foorepeated:[8,7],
-    doc:[{bar:["b","c"],keep_me:True},{bar:["d"]}],
-    user:[{friends:["b", "c"]},{friends:["d"]}],}
-    {foo:7, foorepeated:[6], user:[friends:["e"]]}
+    {
+      foo: 9,
+      foorepeated: [9],
+      doc: [{bar:["a"], keep_me:False}],
+      user: [{friends:["a"]}]
+    },
+    {
+      foo: 8,
+      foorepeated: [8, 7],
+      doc: [{bar:["b","c"],keep_me:True},{bar:["d"]}],
+      user: [{friends:["b", "c"]},{friends:["d"]}],
+    },
+    {
+      foo: 7,
+      foorepeated: [6],
+      user: [{friends:["e"]}]
+    }
   """
   return prensor.create_prensor_from_descendant_nodes({
       path.Path([]):
@@ -270,12 +281,24 @@ def create_deep_prensor():
 
   Returns:
     a prensor expression representing:
-    {foo:9, foorepeated:[9], user:[{friends:["a"]}],
-     event:{doc:[{bar:["a"], keep_me:False}]}}
-    {foo:8, foorepeated:[8,7],
-     event:{doc:[{bar:["b","c"], keep_me:True},{bar:["d"]}]},
-     user:[{friends:["b", "c"]}, {friends:["d"]}]}
-    {foo:7, foorepeated:[6], user:[friends:["e"]], event:{}}
+    {
+      foo: 9,
+      foorepeated: [9],
+      user: [{friends:["a"]}],
+      event: [{doc:[{bar:["a"], keep_me:False}]}]
+    },
+    {
+      foo: 8,
+      foorepeated: [8,7],
+      user: [{friends:["b", "c"]}, {friends:["d"]}],
+      event: [{doc:[{bar:["b","c"], keep_me:True},{bar:["d"]}]}]
+    },
+    {
+      foo:7,
+      foorepeated: [6],
+      user: [{friends:["e"]}],
+      event: [{}]
+    }
   """
   return prensor.create_prensor_from_descendant_nodes({
       path.Path([]):

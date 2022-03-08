@@ -75,9 +75,12 @@ class RootNodeTensor(object):
 class ChildNodeTensor(object):
   """The value of an intermediate node."""
 
-  __slots__ = ["_parent_index", "_is_repeated"]
+  __slots__ = ["_parent_index", "_is_repeated", "_index_to_value"]
 
-  def __init__(self, parent_index: tf.Tensor, is_repeated: bool):
+  def __init__(self,
+               parent_index: tf.Tensor,
+               is_repeated: bool,
+               index_to_value: Optional[tf.Tensor] = None):
     """Creates a child node.
 
     Args:
@@ -85,9 +88,12 @@ class ChildNodeTensor(object):
         parent index of the ith child.
       is_repeated: a bool indicating if there can be more than one child per
         parent.
+      index_to_value: a 1-D int64 tensor where index_to_value[i] represents the
+        `value` of the ith child. Where `value` is a subtree.
     """
     self._parent_index = parent_index
     self._is_repeated = is_repeated
+    self._index_to_value = index_to_value
 
   @property
   def size(self):
@@ -105,6 +111,10 @@ class ChildNodeTensor(object):
   @property
   def is_repeated(self):
     return self._is_repeated
+
+  @property
+  def index_to_value(self):
+    return self._index_to_value
 
   # LINT.IfChange(child_node_tensor)
   def get_positional_index(self) -> tf.Tensor:
