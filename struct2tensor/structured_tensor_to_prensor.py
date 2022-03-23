@@ -170,7 +170,7 @@ def _structured_tensor_field_to_prensor(
 def _row_partition_to_child_node_tensor(row_partition: RowPartition):
   """Creates a ChildNodeTensor from a RowPartition."""
   return prensor.ChildNodeTensor(
-      row_partition.with_row_splits_dtype(tf.int64).value_rowids(),
+      tf.cast(row_partition.value_rowids(), tf.int64),
       is_repeated=True)
 
 
