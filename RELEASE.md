@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*   Bumped tf version for statically linked libraries to TF 2.9.0
+
 ## Breaking Changes
 
 ## Deprecations

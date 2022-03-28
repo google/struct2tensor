@@ -32,15 +32,17 @@ tf_configure(name = "local_config_tf")
 # existing automation scripts that bump the TF commit hash expect it here.
 #
 # To update TensorFlow to a new revision.
-# 1. Update the 'git_commit' args below to include the new git hash.
+# 1. Update the _TENSORFLOW_GIT_COMMIT value below to include the new git hash.
+#    To find it look for the commit which updated the version number:
+#    https://github.com/tensorflow/tensorflow/blob/2719182f888c16b44dba504c2f2d2240ddc9396d/tensorflow/core/public/version.h#L24
 # 2. Get the sha256 hash of the archive with a command such as...
-#    curl -L https://github.com/tensorflow/tensorflow/archive/<git hash>.tar.gz | sha256sum
+#    curl -L https://github.com/tensorflow/tensorflow/archive/<_TENSORFLOW_GIT_COMMIT>.tar.gz | sha256sum
 #    and update the 'sha256' arg with the result.
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "3f878cff5b698b82eea85db2b60d65a2e320850e"  # tf 2.8.0
-_TENSORFLOW_ARCHIVE_SHA256 = "21d919ad6d96fcc0477c8d4f7b1f7e4295aaec2986e035551ed263c2b1cd52ee"
+_TENSORFLOW_GIT_COMMIT = "2719182f888c16b44dba504c2f2d2240ddc9396d"  # tf 2.9.0
+_TENSORFLOW_ARCHIVE_SHA256 = "033a77feb9d14c36cac6da1fa27be13811cb3f66084edcd4e4c74876f2e744a2"
 
 http_archive(
     name = "org_tensorflow",
