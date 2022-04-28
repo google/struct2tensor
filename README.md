@@ -4,7 +4,7 @@
 [![PyPI](https://badge.fury.io/py/struct2tensor.svg)](https://badge.fury.io/py/struct2tensor)
 
 <!--*
-freshness: { owner: 'andylou' reviewed: '2021-07-09' }
+freshness: { owner: 'iindyk' reviewed: '2022-04-27' }
 *-->
 
 ## Introduction
@@ -98,7 +98,7 @@ This will create a manylinux package in the ~/struct2tensor/dist directory.
 In order to construct a static library for tensorflow-serving, we run:
 
 ```bash
-bazel build -c opt struct2tensor:prensor_kernels_and_ops
+bazel build -c opt struct2tensor:struct2tensor_kernels_and_ops
 ```
 
 This can also be linked into another library.
