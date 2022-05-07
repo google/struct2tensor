@@ -4,6 +4,8 @@
 
 ## Major Features and Improvements
 
+*   From this version we will be releasing python 3.9 wheels.
+
 ## Bug Fixes and Other Changes
 
 *   Bumped tf version for statically linked libraries to TF 2.9.0
