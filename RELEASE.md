@@ -296,7 +296,7 @@
     following command:
 
     ```
-    pip install -i https://pypi-nightly.tensorflow.org/simple struct2tensor
+    pip install --extra-index-url https://pypi-nightly.tensorflow.org/simple struct2tensor
     ```
 
     Note: These nightly packages are unstable and breakages are likely to
