@@ -71,8 +71,6 @@ def s2t_proto_library(
 
 DYNAMIC_COPTS = [
     "-pthread",
-    "-std=c++14",
-    "-D_GLIBCXX_USE_CXX11_ABI=0",
 ]
 
 DYNAMIC_DEPS = ["@local_config_tf//:libtensorflow_framework", "@local_config_tf//:tf_header_lib"]

@@ -47,8 +47,8 @@ command:
 pip install --extra-index-url https://pypi-nightly.tensorflow.org/simple struct2tensor
 ```
 
-This will install the nightly packages for the major dependencies of Fairness
-Indicators such as TensorFlow Metadata (TFMD).
+This will install the nightly packages for the major dependencies of
+struct2tensor such as TensorFlow Metadata (TFMD).
 
 ## Creating a PIP package.
 
@@ -73,24 +73,14 @@ cd ~/struct2tensor
 ### Use docker-compose
 Install [docker-compose](https://docs.docker.com/compose/).
 
-Use it to build a pip wheel for Python 3.6 with tensorflow version 2:
+Use it to build a pip wheel for Python 3.7 with tensorflow version 2:
 
 ```bash
-docker-compose build manylinux2010
-docker-compose run -e PYTHON_VERSION=36 -e TF_VERSION=RELEASED_TF_2 manylinux2010
-```
-
-Or build a pip wheel for Python 3.7 with tensorflow version 2 (note that if you
-run one of these docker-compose commands after the other, the second will erase
-the result from the first):
-
-```bash
-docker-compose build manylinux2010
-docker-compose run -e PYTHON_VERSION=37 -e TF_VERSION=RELEASED_TF_2 manylinux2010
+docker-compose build --build-arg PYTHON_VERSION=3.7 manylinux2014
+docker-compose run -e TF_VERSION=RELEASED_TF_2 manylinux2014
 ```
 
 This will create a manylinux package in the ~/struct2tensor/dist directory.
-
 
 
 ## Creating a static library

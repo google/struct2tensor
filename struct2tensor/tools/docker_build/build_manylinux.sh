@@ -14,52 +14,34 @@
 # limitations under the License.
 
 # This script is expected to run in the docker container defined in
-# Dockerfile.manylinux2010
+# Dockerfile.manylinux2014
 # Assumptions:
-# - CentOS environment.
-# - devtoolset-8 is installed.
+# - Based on TF SIG Build Dockerfile.
+# - Will use manylinux2014 compatible devtoolset under /dt9
 # - $PWD is struct2tensor's project root.
-# - Python of different versions are installed at /opt/python/.
-# - patchelf, zip, bazel, rsync are installed and are in $PATH.
+# - Python/pip/wheel/auditwheel are available in $PATH.
+# - patchelf, zip, bazelisk, rsync are installed and are in $PATH.
 
 WORKING_DIR=$PWD
 
 function setup_environment() {
   set -x
-  source scl_source enable rh-python36
+
   # Since someone may run this twice from the same directory,
   # it is important to delete the dist directory.
   rm -rf dist
 
-  if [[ -z "${PYTHON_VERSION}" ]]; then
-    echo "Must set PYTHON_VERSION env to 37|38|39"; exit 1;
-  fi
-  # Bazel will use PYTHON_BIN_PATH to determine the right python library.
-  if [[ "${PYTHON_VERSION}" == 37 ]]; then
-    PYTHON_DIR=/opt/python/cp37-cp37m
-  elif [[ "${PYTHON_VERSION}" == 38 ]]; then
-    PYTHON_DIR=/opt/python/cp38-cp38
-  elif [[ "${PYTHON_VERSION}" == 39 ]]; then
-    PYTHON_DIR=/opt/python/cp39-cp39
-  else
-    echo "Must set PYTHON_VERSION env to 37|38|39"; exit 1;
-  fi
-
-  export PIP_BIN="${PYTHON_DIR}"/bin/pip || exit 1;
-  export PYTHON_BIN_PATH="${PYTHON_DIR}"/bin/python || exit 1;
-  echo "PYTHON_BIN_PATH=${PYTHON_BIN_PATH}" || exit 1;
-  export WHEEL_BIN="${PYTHON_DIR}"/bin/wheel || exit 1;
-  ${PIP_BIN} install --upgrade pip || exit 1;
-  ${PIP_BIN} install wheel --upgrade || exit 1;
-  # Auditwheel does not have a python2 version and auditwheel is just a binary.
-  pip3 install auditwheel || exit 1;
+  export PIP_BIN_PATH=$(which pip) || exit 1;
+  export PYTHON_BIN_PATH=$(which python) || exit 1;
+  ${PIP_BIN_PATH} install --upgrade pip || exit 1;
+  ${PIP_BIN_PATH} install wheel --upgrade || exit 1;
 }
 
 function bazel_build() {
   set -x
   local build_args=()
   build_args+=("--python_bin_path=${PYTHON_BIN_PATH}")
-  build_args+=("--pip_bin_path=${PIP_BIN}")
+  build_args+=("--pip_bin_path=${PIP_BIN_PATH}")
   build_args+=("--tf_version=${TF_VERSION}")
   if [[ -n ${SKIP_STATIC_LINK_TEST} ]]; then
     build_args+=("--skip_static_link_test")
@@ -83,7 +65,7 @@ LIBRARY_DIR="struct2tensor/ops/"
 # that struct2tensor depends on are treated incorrectly by auditwheel.
 # We have to do this trick to make auditwheel happily stamp on our wheel.
 # Note that even though auditwheel would reject the wheel produced in the end,
-# it's still manylinux2010 compliant according to the standard, because it only
+# it's still manylinux2014 compliant according to the standard, because it only
 # depends on the specified shared libraries, assuming pyarrow is installed.
 function stamp_wheel() {
   set -x
@@ -107,11 +89,10 @@ function stamp_wheel() {
     zip "${WHEEL_PATH}" "${SO_FILE_PATH}" || exit 1;
   done
   popd
-
-  auditwheel repair --plat manylinux2010_x86_64 -w "${WHEEL_DIR}" "${WHEEL_PATH}"  || exit 1;
+  auditwheel repair --plat manylinux2014_x86_64 -w "${WHEEL_DIR}" "${WHEEL_PATH}"  || exit 1;
   rm "${WHEEL_PATH}" || exit 1;
   MANY_LINUX_WHEEL_PATH=$(ls "${WHEEL_DIR}"/*manylinux*.whl)
-  # Unzip the manylinux2010 wheel and pack it again with the original .so file.
+  # Unzip the wheel and pack it again with the original .so file.
   # We need to use "wheel pack" in order to compute the file hashes again.
   TMP_DIR="$(mktemp -d)"
   unzip "${MANY_LINUX_WHEEL_PATH}" -d "${TMP_DIR}" || exit 1;
@@ -121,8 +102,8 @@ function stamp_wheel() {
   done
 
   rm "${MANY_LINUX_WHEEL_PATH}" || exit 1;
-  ${WHEEL_BIN} version || exit 1;
-  ${WHEEL_BIN} pack "${TMP_DIR}" --dest-dir "${WHEEL_DIR}" || exit 1;
+  wheel version || exit 1;
+  wheel pack "${TMP_DIR}" --dest-dir "${WHEEL_DIR}" || exit 1;
 }
 
 set -x

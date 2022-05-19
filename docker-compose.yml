@@ -19,18 +19,19 @@ version: '3.1'
 # We mount the struct2tensor project root at /struct2tensor (which is the WORKDIR of the image)
 # in the container.
 #
-# The expected environment variables to be set are PYTHON_VERSION and TF_VERSION
-# Valid PYTHON_VERSION are 35|36|37|27
+# We need to set PYTHON_VERSION in `build` command which is used to pick the
+# base TF SIG Build image.
+# The TF_VERSION environment variables is expected when run the pipeline
 # Valid TF_VERSION are NIGHTLY_TF|NIGHTLY_TF_2|RELEASED_TF|PRERELEASED_TF|RELEASED_TF_2|PRERELEASED_TF_2
 # Sample usage:
-# docker-compose build manylinux2010
-# docker-compose run -e PYTHON_VERSION=36 -e TF_VERSION=NIGHTLY_TF manylinux2010
+# docker-compose build --build-arg PYTHON_VERSION=3.7 manylinux2014
+# docker-compose run -e TF_VERSION=NIGHTLY_TF manylinux2014
 
 services:
-  manylinux2010:
-    image: struct2tensor-build:manylinux2010
+  manylinux2014:
+    image: struct2tensor-build:manylinux2014
     build:
       context: .
-      dockerfile: struct2tensor/tools/docker_build/Dockerfile.manylinux2010
+      dockerfile: struct2tensor/tools/docker_build/Dockerfile.manylinux2014
     volumes:
       - .:/struct2tensor:delegated

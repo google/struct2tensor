@@ -28,16 +28,6 @@ def struct2tensor_workspace():
         url = "https://github.com/bazelbuild/rules_pkg/releases/download/0.2.5/rules_pkg-0.2.5.tar.gz",
     )
 
-    http_archive(
-        name = "com_github_google_flatbuffers",
-        sha256 = "12a13686cab7ffaf8ea01711b8f55e1dbd3bf059b7c46a25fefa1250bdd9dd23",
-        strip_prefix = "flatbuffers-b99332efd732e6faf60bb7ce1ce5902ed65d5ba3",
-        urls = [
-            "https://mirror.bazel.build/github.com/google/flatbuffers/archive/b99332efd732e6faf60bb7ce1ce5902ed65d5ba3.tar.gz",
-            "https://github.com/google/flatbuffers/archive/b99332efd732e6faf60bb7ce1ce5902ed65d5ba3.tar.gz",
-        ],
-    )
-
     # LINT.IfChange(thrift_archive_version)
     http_archive(
         name = "thrift",

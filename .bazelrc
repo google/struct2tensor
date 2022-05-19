@@ -24,6 +24,9 @@ build --apple_platform_type=macos
 # Enable using platform specific build settings
 build --enable_platform_specific_config
 
+# Enable using 'cc_shared_library' rule.
+build --experimental_cc_shared_library
+
 # Flag to enable remote config
 common --experimental_repo_remote_exec
 
@@ -33,8 +36,10 @@ build:macos --copt=-w
 
 # By default, build TF in C++ 14 mode.
 build:linux --cxxopt=-std=c++14
+build:linux --cxxopt=-D_GLIBCXX_USE_CXX11_ABI=1
 build:linux --host_cxxopt=-std=c++14
 build:macos --cxxopt=-std=c++14
+build:macos --cxxopt=-D_GLIBCXX_USE_CXX11_ABI=1
 build:macos --host_cxxopt=-std=c++14
 
 # Suppress all warning messages.
