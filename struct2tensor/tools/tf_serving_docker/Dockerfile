@@ -66,7 +66,7 @@ RUN curl -fSsL -O https://bootstrap.pypa.io/pip/3.6/get-pip.py && \
 RUN pip3 --no-cache-dir install --upgrade numpy
 
 # Set up Bazel
-ENV BAZEL_VERSION 5.0.0
+ENV BAZEL_VERSION 5.1.1
 WORKDIR /bazel
 RUN curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
     chmod +x bazel-*.sh && \
