@@ -85,10 +85,13 @@ def _prensor_to_field_map(
     p_fields: Mapping[path.Step, prensor.Prensor],
     nrows: tf.Tensor) -> Mapping[path.Step, structured_tensor.StructuredTensor]:
   """Convert a map of prensors to map of structured tensors."""
-  return {
-      step: _prensor_to_structured_tensor_helper(child, nrows)
-      for step, child in p_fields.items()
-  }
+  result = {}
+  for step, child in p_fields.items():
+    try:
+      result[step] = _prensor_to_structured_tensor_helper(child, nrows)
+    except ValueError as err:
+      raise ValueError(f"Error in field: {step}") from err
+  return result
 
 
 def _child_node_to_structured_tensor(
@@ -96,7 +99,7 @@ def _child_node_to_structured_tensor(
     nrows: tf.Tensor) -> structured_tensor.StructuredTensor:
   """Convert a map of prensors to map of structured tensors."""
   st = structured_tensor.StructuredTensor.from_fields(
-      fields=fields, shape=tf.TensorShape([None]), nrows=nrows)
+      fields=fields, shape=tf.TensorShape([None]), nrows=node.size)
   row_partition = RowPartition.from_value_rowids(
       value_rowids=node.parent_index, nrows=nrows)
   return st.partition_outer_dimension(row_partition)

@@ -13,16 +13,14 @@
 # limitations under the License.
 """Tests for StructuredTensor."""
 
+from google.protobuf import text_format
 from struct2tensor import calculate
 from struct2tensor import prensor
 from struct2tensor import prensor_to_structured_tensor
 from struct2tensor.expression_impl import proto
 from struct2tensor.test import prensor_test_util
 from struct2tensor.test import test_pb2
-
 import tensorflow as tf
-
-from google.protobuf import text_format
 
 
 # @test_util.run_all_in_graph_and_eager_modes
