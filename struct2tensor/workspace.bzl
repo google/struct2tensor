@@ -52,10 +52,10 @@ def struct2tensor_workspace():
     )
     # LINT.ThenChange(third_party/arrow.BUILD:parquet_gen_version)
 
-    _TFMD_COMMIT_HASH = "3fb0d94ed474cbc6269b594239a95b0367029e34"  # 1.9.0
+    _TFMD_COMMIT_HASH = "6703ba1095f8a2fe3567f1a2209c819b530c64de"  # 1.10.0
     http_archive(
         name = "com_github_tensorflow_metadata",
-        sha256 = "41fe892acd713851d617a69b82ff56557e5affe026e3c4804278bf7ddd144e51",
+        sha256 = "50232c18e8d6aee46a90e6aa81978d82f55d7d2f0c3c10409e12b18e562ee085",
         strip_prefix = "metadata-%s" % _TFMD_COMMIT_HASH,
         urls = [
             "https://github.com/tensorflow/metadata/archive/%s.tar.gz" % _TFMD_COMMIT_HASH,
