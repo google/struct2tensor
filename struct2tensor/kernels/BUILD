@@ -18,7 +18,7 @@ load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_library")
 
 package(default_visibility = ["//visibility:public"])
 
-licenses(["notice"])  # Apache 2.0
+licenses(["notice"])
 
 s2t_dynamic_library(
     name = "run_length_before_op_dynamic",

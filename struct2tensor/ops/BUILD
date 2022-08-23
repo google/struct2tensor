@@ -4,7 +4,7 @@ load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_binary", "s2t_dynamic_lib
 
 package(default_visibility = ["//visibility:public"])
 
-licenses(["notice"])  # Apache 2.0
+licenses(["notice"])
 
 exports_files(["__init__.py"])
 

@@ -18,7 +18,7 @@ load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_library")
 
 package(default_visibility = ["//struct2tensor:__subpackages__"])
 
-licenses(["notice"])  # Apache 2.0
+licenses(["notice"])
 
 s2t_dynamic_library(
     name = "parquet_dataset_kernel_dynamic",

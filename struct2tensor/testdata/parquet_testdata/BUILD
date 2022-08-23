@@ -15,7 +15,7 @@
 # Sample parquet files for testing. The parquet file schemas are described in
 # raw_parquet_dataset_test.py.
 
-licenses(["notice"])  # Apache 2.0
+licenses(["notice"])
 
 filegroup(
     name = "parquet_testdata",
