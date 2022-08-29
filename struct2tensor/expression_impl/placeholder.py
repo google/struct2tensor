@@ -112,11 +112,12 @@ class _PlaceholderChildExpression(expression.Expression):
   def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._parent]
 
-  def calculate(self,
-                source_tensors: Sequence[mpp._TreeAsNode],
-                destinations: Sequence[expression.Expression],
-                options: calculate_options.Options,
-                side_info: Optional[prensor.Prensor] = None) -> mpp._TreeAsNode:
+  def calculate(  # pytype: disable=signature-mismatch  # overriding-parameter-type-checks
+      self,
+      source_tensors: Sequence[mpp._TreeAsNode],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: Optional[prensor.Prensor] = None) -> mpp._TreeAsNode:
     if side_info:
       return mpp._tree_as_node(side_info)
     [parent] = source_tensors
@@ -174,10 +175,11 @@ class _PlaceholderRootExpression(expression.Expression):
   def get_source_expressions(self) -> Sequence[expression.Expression]:
     return []
 
-  def calculate(self, source_tensors: Sequence[prensor.NodeTensor],
-                destinations: Sequence[expression.Expression],
-                options: calculate_options.Options,
-                side_info: prensor.Prensor) -> mpp._TreeAsNode:
+  def calculate(  # pytype: disable=signature-mismatch  # overriding-parameter-type-checks
+      self, source_tensors: Sequence[prensor.NodeTensor],
+      destinations: Sequence[expression.Expression],
+      options: calculate_options.Options,
+      side_info: prensor.Prensor) -> mpp._TreeAsNode:
     if source_tensors:
       raise ValueError("_PlaceholderRootExpression has no sources")
     if side_info:
