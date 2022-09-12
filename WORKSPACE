@@ -41,8 +41,8 @@ tf_configure(name = "local_config_tf")
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "8a20d54a3c1bfa38c03ea99a2ad3c1b0a45dfa95"  # tf 2.9.0
-_TENSORFLOW_ARCHIVE_SHA256 = "5b3cde72888d680e4b6162351d614d6ac2d3ef44032e91b5838a9647ecc387a6"
+_TENSORFLOW_GIT_COMMIT = "359c3cdfc5fabac82b3c70b3b6de2b0a8c16874f"  # tf 2.10.0
+_TENSORFLOW_ARCHIVE_SHA256 = "bc4e9bbeb0136163f283ab8b695bec747cad738963e153ce3b7e414ebffe408f"
 
 http_archive(
     name = "org_tensorflow",
@@ -84,4 +84,4 @@ rules_pkg_dependencies()
 
 # Specify the minimum required bazel version.
 load("@org_tensorflow//tensorflow:version_check.bzl", "check_bazel_version_at_least")
-check_bazel_version_at_least("3.7.2")
+check_bazel_version_at_least("5.1.1")
