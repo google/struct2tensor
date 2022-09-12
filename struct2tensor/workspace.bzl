@@ -40,17 +40,18 @@ def struct2tensor_workspace():
     )
     # LINT.ThenChange(third_party/thrift.BUILD:thrift_gen_version)
 
+    # Use the last commit on the relevant release branch to update.
     # LINT.IfChange(arrow_archive_version)
+    ARROW_COMMIT = "347a88ff9d20e2a4061eec0b455b8ea1aa8335dc"  # 6.0.1
+    # LINT.ThenChange(third_party/arrow.BUILD:arrow_gen_version)
+
     http_archive(
         name = "arrow",
         build_file = "//third_party:arrow.BUILD",
-        sha256 = "d7b3838758a365c8c47d55ab0df1006a70db951c6964440ba354f81f518b8d8d",
-        strip_prefix = "arrow-apache-arrow-0.16.0",
-        urls = [
-            "https://github.com/apache/arrow/archive/apache-arrow-0.16.0.tar.gz",
-        ],
+        sha256 = "55fc466d0043c4cce0756bc18e1e62b3233be74c9afe8dc0d18420b9a5fd9714",
+        strip_prefix = "arrow-%s" % ARROW_COMMIT,
+        urls = ["https://github.com/apache/arrow/archive/%s.zip" % ARROW_COMMIT],
     )
-    # LINT.ThenChange(third_party/arrow.BUILD:parquet_gen_version)
 
     _TFMD_COMMIT_HASH = "6703ba1095f8a2fe3567f1a2209c819b530c64de"  # 1.10.0
     http_archive(
