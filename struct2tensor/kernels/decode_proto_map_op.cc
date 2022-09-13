@@ -84,7 +84,7 @@ Status ParseStringAs(const std::string& str, T* val) {
     return errors::InvalidArgument(
         absl::StrCat("Failed to parse string: ", str, " as integer."));
   }
-  return Status::OK();
+  return tensorflow::OkStatus();
 }
 
 // Specialization for parsing into a string_view.
@@ -92,7 +92,7 @@ template <>
 Status ParseStringAs<absl::string_view>(const std::string& str,
                                         absl::string_view* val) {
   *val = str;
-  return Status::OK();
+  return tensorflow::OkStatus();
 }
 
 // Specialization for parsing into a boolean.
@@ -100,11 +100,11 @@ template <>
 Status ParseStringAs<bool>(const std::string& str, bool* val) {
   if (str == "0") {
     *val = false;
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
   if (str == "1") {
     *val = true;
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
   return errors::InvalidArgument(
       absl::StrCat("Failed to parse string: ", str, " as bool."));
@@ -225,7 +225,7 @@ class KeyDecoder : public KeyDecoderBase {
     }
 
     *key_decoder = absl::WrapUnique(new KeyDecoder(keys_as_strings));
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
   Status Decode(StreamingProtoReader* reader, int* value_index) const override {
@@ -239,7 +239,7 @@ class KeyDecoder : public KeyDecoderBase {
     } else {
       *value_index = it->second;
     }
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
  private:
@@ -293,7 +293,7 @@ class ValueCollector : public ValueCollectorBase {
     if (!reader->ReadValue(kFieldType, &current_value_)) {
       return errors::DataLoss("Corrupted value field.");
     }
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
   void Commit(const int key_index, const int64_t parent_index) override {
     values_per_key_[key_index].push_back(current_value_);
@@ -393,7 +393,7 @@ class MapEntryCollector {
     }
     *map_entry_collector = absl::WrapUnique(new MapEntryCollector(
         keys_as_strings.size(), std::move(key_decoder), value_type));
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
   ~MapEntryCollector() {}
@@ -542,7 +542,7 @@ class MapEntryCollector {
         return errors::InvalidArgument(
             absl::StrCat("Unexpected map value type: ", value_type_));
     }
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
   Status PopulateOutputTensors(const ValueCollectorBase& value_collector,
@@ -567,7 +567,7 @@ class MapEntryCollector {
           i, output_parent_indices_tensor);
     }
 
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
   const int num_keys_;

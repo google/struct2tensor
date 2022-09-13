@@ -100,7 +100,7 @@ template <typename T>
   if (tensor_size > 0) {
     VectorToTensor(vec, result, produce_string_view);
   }
-  return tensorflow::Status::OK();
+  return tensorflow::OkStatus();
 }
 
 // Makes `value` refer to bytes for a length-delimited field in the buffer
@@ -318,7 +318,7 @@ class FieldBuilderImpl : public FieldBuilder {
         is_packed_primitive = true;
       } else if (WireFormatLite::SkipField(
                      input, WireFormatLite::MakeTag(wire_number_, wire_type))) {
-        return Status::OK();
+        return tensorflow::OkStatus();
       } else {
         return DataLoss("Failed skipping malformed field");
       }
@@ -337,7 +337,7 @@ class FieldBuilderImpl : public FieldBuilder {
                                       produce_string_view));
     TF_RETURN_IF_ERROR(ToOutputTensor(context, output_index_parent_index_,
                                       parent_indices_, produce_string_view));
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
   void MaybePadDefaultValue(int64_t current_message_index) {
@@ -369,7 +369,7 @@ class FieldBuilderImpl : public FieldBuilder {
       TF_RETURN_IF_ERROR(CollectValue(input, message_index));
     }
     input->PopLimit(limit);
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
   // Parses one value from `input`, then updates `values_` and
@@ -387,7 +387,7 @@ class FieldBuilderImpl : public FieldBuilder {
     } else {
       values_.back() = value;
     }
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
   // Collected field values.
@@ -1160,7 +1160,7 @@ class DecodeProtoSparseOp : public OpKernel {
           "it.");
     }
 
-    return Status::OK();
+    return tensorflow::OkStatus();
   }
 
   std::string message_type_;

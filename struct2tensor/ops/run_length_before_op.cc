@@ -21,7 +21,7 @@ REGISTER_OP("RunLengthBefore")
     .Output("run_length_before: int64")
     .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* context) {
       context->set_output(0, context->input(0));
-      return tensorflow::Status::OK();
+      return tensorflow::OkStatus();
     })
     .Doc(R"doc(
 The `run_length_before` op, given [a_0,...,a_n], returns [b_0,...,b_n] where:

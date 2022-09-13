@@ -38,7 +38,7 @@ tensorflow::Status ParentIndicesBuilder::Create(
 
   *parent_indices_builder =
       absl::WrapUnique(new ParentIndicesBuilder(repetition_pattern));
-  return tensorflow::Status::OK();
+  return tensorflow::OkStatus();
 }
 
 const std::vector<std::vector<tensorflow::int64>>&
