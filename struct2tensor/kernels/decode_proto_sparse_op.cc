@@ -378,7 +378,8 @@ class FieldBuilderImpl : public FieldBuilder {
   Status CollectValue(CodedInputStream* input, int64_t message_index) {
     T value;
     if (!ReadFieldValue<T, DataType>(input, &value)) {
-      return DataLoss("Failed to parse field: ", value);
+      return DataLoss("Failed to parse field: ", value, ", message index ",
+                      message_index);
     }
     if (is_repeated_ || parent_indices_.empty() ||
         parent_indices_.back() != message_index) {
@@ -937,6 +938,10 @@ class DecodeProtoSparseOp : public OpKernel {
         st = DataLoss("Failed to consume entire buffer");
       }
       if (kFailOnDecodeError) {
+        if (!st.ok()) {
+          LOG(ERROR) << "Error consuming " << message_type_
+                     << ". Error: " << st;
+        }
         OP_REQUIRES_OK(ctx, st);  // NOLINT
       }
       if (!st.ok()) {
