@@ -27,7 +27,7 @@ function install_tensorflow() {
   elif [[ "$1" == PRERELEASED_TF ]]; then
     TF_PIP_PACKAGE="tensorflow<2"
   elif [[ "$1" == RELEASED_TF_2 ]]; then
-    TF_PIP_PACKAGE="tensorflow>=2"
+    TF_PIP_PACKAGE="tensorflow>=2,<2.10"
   elif [[ "$1" == PRERELEASED_TF_2 ]]; then
     TF_PIP_PACKAGE="tensorflow>=2"
   else
