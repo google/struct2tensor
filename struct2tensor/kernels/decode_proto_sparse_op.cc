@@ -376,7 +376,7 @@ class FieldBuilderImpl : public FieldBuilder {
   // `parent_indices_`. The collected value might override the last collected
   // value if the field is not repeated but appears multiple times on the wire.
   Status CollectValue(CodedInputStream* input, int64_t message_index) {
-    T value;
+    T value{};
     if (!ReadFieldValue<T, DataType>(input, &value)) {
       return DataLoss("Failed to parse field: ", value, ", message index ",
                       message_index);
