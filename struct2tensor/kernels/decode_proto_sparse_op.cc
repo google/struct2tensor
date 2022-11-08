@@ -34,15 +34,15 @@ limitations under the License.
 #include <utility>
 #include <vector>
 
-#include "google/protobuf/io/coded_stream.h"
-#include "google/protobuf/descriptor.pb.h"
+#include "absl/memory/memory.h"
+#include "google/protobuf/compiler/parser.h"
 #include "google/protobuf/descriptor.h"
 #include "google/protobuf/descriptor_database.h"
 #include "google/protobuf/dynamic_message.h"
+#include "google/protobuf/io/coded_stream.h"
 #include "google/protobuf/message.h"
 #include "google/protobuf/text_format.h"
 #include "google/protobuf/wire_format.h"
-#include "absl/memory/memory.h"
 #include "struct2tensor/kernels/vector_to_tensor.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/tensor_types.h"

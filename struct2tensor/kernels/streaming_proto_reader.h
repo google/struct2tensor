@@ -20,12 +20,12 @@ limitations under the License.
 //
 // LOG and CHECK free.
 
-#include "google/protobuf/descriptor.h"
-#include "google/protobuf/message.h"
-#include "google/protobuf/wire_format_lite.h"
 
 #include "absl/base/internal/endian.h"
 #include "absl/strings/string_view.h"
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/message.h"
+#include "google/protobuf/wire_format_lite.h"
 #include "tensorflow/core/lib/core/coding.h"
 #include "tensorflow/core/platform/types.h"
 

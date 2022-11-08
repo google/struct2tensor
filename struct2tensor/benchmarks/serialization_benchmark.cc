@@ -43,13 +43,13 @@ BM_SerializeFlatProto/100/100      53926          53725           1000 860.641MB
 
 #include <iostream>
 
-#include "google/protobuf/descriptor.h"
-#include "google/protobuf/message.h"
 #include "testing/base/public/benchmark.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/random/distributions.h"
 #include "absl/random/random.h"
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/message.h"
 #include "struct2tensor/benchmarks/benchmark.pb.h"
 #include "tensorflow/core/example/example.pb.h"
 #include "tensorflow/core/example/feature_util.h"

@@ -39,12 +39,12 @@ limitations under the License.
 #include <memory>
 #include <vector>
 
-#include "google/protobuf/descriptor.pb.h"
-#include "google/protobuf/descriptor.h"
 #include "absl/container/flat_hash_map.h"
 #include "absl/strings/numbers.h"
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
+#include "google/protobuf/compiler/parser.h"
+#include "google/protobuf/descriptor.h"
 #include "struct2tensor/kernels/streaming_proto_reader.h"
 #include "struct2tensor/kernels/vector_to_tensor.h"
 #include "tensorflow/core/framework/op_kernel.h"
