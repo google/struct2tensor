@@ -75,7 +75,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'protobuf>=3.13,<4',
-        'tensorflow>=2.10.0,<2.11',
+        'tensorflow>=2.11.0,<2.12',
         'tensorflow-metadata' + select_constraint(
             default='>=1.11.0,<1.12.0',
             nightly='>=1.12.0.dev',

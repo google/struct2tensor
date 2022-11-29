@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*   Depends on `tensorflow>=2.11.0,<2.12`.
+
 ## Deprecations
 
 ## Breaking Changes
