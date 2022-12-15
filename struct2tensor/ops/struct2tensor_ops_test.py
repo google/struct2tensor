@@ -131,7 +131,7 @@ class PrensorOpsTest(parameterized.TestCase, tf.test.TestCase):
           "action_mask": [False, True],
           "query_token": expected_query_tokens,
           "event_id": [b"abc"],
-          "query": np.array([], dtype=np.object),
+          "query": np.array([], dtype=object),
       }
 
       for num_fields_to_parse in range(len(all_fields_to_parse)):
