@@ -97,7 +97,7 @@ class Path(object):
         raise ValueError('Field "' + field + '" is invalid.')
     self.field_list = tuple(field_list)
 
-  def __cmp__(self, other: "Path") -> int:
+  def __cmp__(self, other: "Path") -> int:  # pytype: disable=signature-mismatch  # overriding-return-type-checks
     """Lexicographical ordering of paths.
 
     If one path is a strict prefix of the other, the prefix is less.
