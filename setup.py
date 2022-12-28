@@ -74,6 +74,9 @@ setup(
     # Contained modules and scripts.
     packages=find_packages(),
     install_requires=[
+        # TODO(b/263060885): Remove the explicit numpy dependency once TF works
+        # with numpy>=1.24.
+        'numpy<1.24',
         'protobuf>=3.13,<4',
         'tensorflow>=2.11.0,<2.12',
         'tensorflow-metadata' + select_constraint(
