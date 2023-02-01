@@ -15,11 +15,12 @@
 # Defines an image that contains a tensorflow-serving model server binary
 # that has struct2tensor ops linked in.
 
-FROM ubuntu:18.04 as base_build
+FROM ubuntu:20.04 as base_build
 ARG TF_SERVING_VERSION_GIT_BRANCH=master
 ARG TF_SERVING_VERSION_GIT_COMMIT=head
 ARG S2T_VERSION_GIT_BRANCH=master
 ARG S2T_VERSION_GIT_COMMIT=head
+ARG DEBIAN_FRONTEND=noninteractive
 
 LABEL s2t_github_commit=${S2T_VERSION_GIT_COMMIT}
 LABEL s2t_github_branchtag=${S2T_VERSION_GIT_BRANCH}
@@ -55,18 +56,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Make python3.6 default.
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 0 && \
-    update-alternatives --install /usr/bin/python python /usr/bin/python3.6 0
+# Install python 3.7.
+RUN add-apt-repository ppa:deadsnakes/ppa && \
+    apt-get update && apt-get install -y \
+    python3.7 python3.7-dev python3-pip python3.7-venv && \
+    rm -rf /var/lib/apt/lists/* && \
+    python3.7 -m pip install pip --upgrade && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 0
 
-RUN curl -fSsL -O https://bootstrap.pypa.io/pip/3.6/get-pip.py && \
+# Make python3.7 the default python version
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.7 0
+
+RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
     python3 get-pip.py && \
     rm get-pip.py
 
 RUN pip3 --no-cache-dir install --upgrade numpy
 
 # Set up Bazel
-ENV BAZEL_VERSION 5.1.1
+ENV BAZEL_VERSION 5.3.0
 WORKDIR /bazel
 RUN curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
     chmod +x bazel-*.sh && \
@@ -118,7 +126,7 @@ RUN bazel build --color=yes --curses=yes \
 
 
 # The following defines the serving container.
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
