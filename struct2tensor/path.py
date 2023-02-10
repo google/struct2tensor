@@ -83,19 +83,29 @@ class Path(object):
 
   """
 
-  def __init__(self, field_list: Sequence[Step]):
+  def __init__(self, field_list: Sequence[Step], validate_step_format=True):
     """Create a path object.
 
     Args:
       field_list: a list or tuple of fields leading from one node to another.
+      validate_step_format: If True, validates that steps do not have any
+        characters that could be ambiguously understood as structure delimiters
+        (e.g. "."). If False, such characters are allowed and the client is
+        responsible to ensure do not rely on any auto-coercion of strings to
+        paths.
 
     Raises:
       ValueError: if any field is not a valid step (see is_valid_step).
     """
     for field in field_list:
-      if isinstance(field, str) and not is_valid_step(field):
+      if (
+          isinstance(field, str)
+          and validate_step_format
+          and not is_valid_step(field)
+      ):
         raise ValueError('Field "' + field + '" is invalid.')
     self.field_list = tuple(field_list)
+    self._validate_step_format = validate_step_format
 
   def __cmp__(self, other: "Path") -> int:  # pytype: disable=signature-mismatch  # overriding-return-type-checks
     """Lexicographical ordering of paths.
@@ -158,18 +168,34 @@ class Path(object):
 
   def get_child(self, field_name: Step) -> "Path":
     """Get the child path."""
-    if isinstance(field_name, str) and not is_valid_step(field_name):
+    if (
+        isinstance(field_name, str)
+        and self._validate_step_format
+        and not is_valid_step(field_name)
+    ):
       raise ValueError("field_name is not valid: " + field_name)
-    return Path(self.field_list + (field_name,))
+    return Path(
+        self.field_list + (field_name,),
+        validate_step_format=self._validate_step_format,
+    )
 
   def concat(self, other_path: "Path") -> "Path":
-    return Path(self.field_list + other_path.field_list)
+    return Path(
+        self.field_list + other_path.field_list,
+        validate_step_format=self._validate_step_format,
+    )
 
   def prefix(self, ending_index: int) -> "Path":
-    return Path(self.field_list[:ending_index])
+    return Path(
+        self.field_list[:ending_index],
+        validate_step_format=self._validate_step_format,
+    )
 
   def suffix(self, starting_index: int) -> "Path":
-    return Path(self.field_list[starting_index:])
+    return Path(
+        self.field_list[starting_index:],
+        validate_step_format=self._validate_step_format,
+    )
 
   def __len__(self) -> int:
     return len(self.field_list)
@@ -185,7 +211,10 @@ class Path(object):
   def get_least_common_ancestor(self, other: "Path") -> "Path":
     """Get the least common ancestor, the longest shared prefix."""
     lca_len = self._get_least_common_ancestor_len(other)
-    return Path(self.field_list[:lca_len])
+    return Path(
+        self.field_list[:lca_len],
+        validate_step_format=self._validate_step_format,
+    )
 
   def is_ancestor(self, other: "Path") -> bool:
     """True if self is ancestor of other (i.e. a prefix)."""

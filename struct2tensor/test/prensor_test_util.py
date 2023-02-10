@@ -128,6 +128,39 @@ def create_nested_prensor() -> prensor.Prensor:
   })
 
 
+def create_nested_prensor_with_lenient_field_names() -> prensor.Prensor:
+  """Creates a prensor representing a data structure with proto-invalid names.
+
+  Returns:
+    a prensor expression representing:
+    {doc:[{bar.baz:[1], keep_me/x:False}], user:[{friends!:):[1]}]}
+    {doc:[{bar:[2, 3], keep_me/x:True}, {bar:[4]}],
+     user:[{friends!:):[2, 3]}, {friends!:):[4]}]}
+    {user:[friends!:):[5]]}
+  """
+  return prensor.create_prensor_from_descendant_nodes({
+      path.Path([], validate_step_format=False): create_root_node(3),
+      path.Path(["doc"], validate_step_format=False): create_child_node(
+          [0, 1, 1], True
+      ),
+      path.Path(
+          ["doc", "bar.baz"], validate_step_format=False
+      ): create_repeated_leaf_node([0, 1, 1, 2], [1, 2, 3, 4]),
+      path.Path(
+          ["doc", "keep_me/x"], validate_step_format=False
+      ): create_optional_leaf_node(
+          [0, 1],
+          [False, True],
+      ),
+      path.Path(["user"], validate_step_format=False): create_child_node(
+          [0, 1, 1, 2], True
+      ),
+      path.Path(
+          ["user", "friends!:)"], validate_step_format=False
+      ): create_repeated_leaf_node([0, 1, 1, 2, 3], [1, 2, 3, 4, 5]),
+  })
+
+
 def create_big_prensor_schema():
   """Create a schema that is aligned with create_big_prensor."""
   return text_format.Parse(

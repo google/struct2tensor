@@ -88,6 +88,70 @@ class ExpressionTest(absltest.TestCase):
     self.assertIn(path.Path(["user"]), expr_map)
     self.assertIn(path.Path(["user", "friends"]), expr_map)
 
+  def test_lenient_formatting_get_known_descendants(self):
+    expression = (
+        prensor_test_util.create_nested_prensor_with_lenient_field_names()
+    )
+    expr = create_expression.create_expression_from_prensor(
+        expression, validate_step_format=False
+    )
+    expr_map = expr.get_known_descendants()
+    self.assertIn(path.Path(["doc"], validate_step_format=False), expr_map)
+    self.assertIn(
+        path.Path(["doc", "bar.baz"], validate_step_format=False), expr_map
+    )
+    self.assertIn(
+        path.Path(["doc", "keep_me/x"], validate_step_format=False), expr_map
+    )
+    self.assertIn(path.Path(["user"], validate_step_format=False), expr_map)
+    self.assertIn(
+        path.Path(["user", "friends!:)"], validate_step_format=False), expr_map
+    )
+
+  def test_lenient_formatting_map_sparse_tensors(self):
+    expression = (
+        prensor_test_util.create_nested_prensor_with_lenient_field_names()
+    )
+    expr = create_expression.create_expression_from_prensor(
+        expression, validate_step_format=False
+    )
+    expr_map = expr.map_sparse_tensors(
+        "doc",
+        ["bar.baz", "keep_me/x"],
+        tf.compat.v1.sparse_add,
+        False,
+        tf.int64,
+        "total",
+    )
+    self.assertIsNotNone(expr_map)
+
+  def test_lenient_formatting_map_ragged_tensors(self):
+    expression = (
+        prensor_test_util.create_nested_prensor_with_lenient_field_names()
+    )
+    expr = create_expression.create_expression_from_prensor(
+        expression, validate_step_format=False
+    )
+    expr_map = expr.map_ragged_tensors(
+        "doc",
+        ["bar.baz", "keep_me/x"],
+        lambda x: x,
+        False,
+        tf.int64,
+        "total",
+    )
+    self.assertIsNotNone(expr_map)
+
+  def test_lenient_formatting_get_paths_with_schema(self):
+    expression = (
+        prensor_test_util.create_nested_prensor_with_lenient_field_names()
+    )
+    expr = create_expression.create_expression_from_prensor(
+        expression, validate_step_format=False
+    )
+    paths = expr.get_paths_with_schema()
+    self.assertLen(paths, 1)
+
 
 if __name__ == "__main__":
   absltest.main()

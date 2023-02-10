@@ -32,9 +32,14 @@ class _DirectExpression(expression.Expression):
   This expression has no sources, and a NodeTensor is set at construction time.
   """
 
-  def __init__(self, is_repeated: bool, my_type: Optional[tf.DType],
-               value: prensor.NodeTensor,
-               children: Mapping[path.Step, expression.Expression]):
+  def __init__(
+      self,
+      is_repeated: bool,
+      my_type: Optional[tf.DType],
+      value: prensor.NodeTensor,
+      children: Mapping[path.Step, expression.Expression],
+      validate_step_format: bool,
+  ):
     """Initializes an expression.
 
     Args:
@@ -42,8 +47,15 @@ class _DirectExpression(expression.Expression):
       my_type: the DType of a field, or None for an internal node.
       value: the return value of calculate(...)
       children: the subexpressions.
+      validate_step_format: If True, validates that steps do not have any
+        characters that could be ambiguously understood as structure delimiters
+        (e.g. "."). If False, such characters are allowed and the client is
+        responsible to ensure to not rely on any auto-coercion of strings to
+        paths.
     """
-    super().__init__(is_repeated, my_type)
+    super().__init__(
+        is_repeated, my_type, validate_step_format=validate_step_format
+    )
     self._value = value
     self._children = children
 
@@ -75,25 +87,47 @@ class _DirectExpression(expression.Expression):
     return "_DirectExpression: {}".format(str(id(self)))
 
 
-def create_expression_from_prensor(t: prensor.Prensor) -> expression.Expression:
+def create_expression_from_prensor(
+    t: prensor.Prensor, validate_step_format: bool = True
+) -> expression.Expression:
   """Gets an expression representing the prensor.
 
   Args:
     t: The prensor to represent.
+    validate_step_format: If True, validates that steps do not have any
+      characters that could be ambiguously understood as structure delimiters
+      (e.g. "."). If False, such characters are allowed and the client is
+      responsible to ensure to not rely on any auto-coercion of strings to
+      paths.
 
   Returns:
     An expression representing the prensor.
   """
   node_tensor = t.node
   children = {
-      k: create_expression_from_prensor(v) for k, v in t.get_children().items()
+      k: create_expression_from_prensor(
+          v, validate_step_format=validate_step_format
+      )
+      for k, v in t.get_children().items()
   }
   if isinstance(node_tensor, prensor.RootNodeTensor):
-    return _DirectExpression(True, None, node_tensor, children)
+    return _DirectExpression(
+        True, None, node_tensor, children, validate_step_format
+    )
   elif isinstance(node_tensor, prensor.ChildNodeTensor):
-    return _DirectExpression(node_tensor.is_repeated, None, node_tensor,
-                             children)
+    return _DirectExpression(
+        node_tensor.is_repeated,
+        None,
+        node_tensor,
+        children,
+        validate_step_format,
+    )
   else:
     # isinstance(node_tensor, LeafNodeTensor)
-    return _DirectExpression(node_tensor.is_repeated, node_tensor.values.dtype,
-                             node_tensor, children)
+    return _DirectExpression(
+        node_tensor.is_repeated,
+        node_tensor.values.dtype,
+        node_tensor,
+        children,
+        validate_step_format,
+    )

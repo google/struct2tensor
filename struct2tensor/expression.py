@@ -85,10 +85,13 @@ IndexValue = Union[int, tf.Tensor, tf.Variable]  # pylint: disable=invalid-name
 class Expression(object, metaclass=abc.ABCMeta):
   """An expression represents the calculation of a prensor object."""
 
-  def __init__(self,
-               is_repeated: bool,
-               my_type: Optional[tf.DType],
-               schema_feature: Optional[schema_pb2.Feature] = None):
+  def __init__(
+      self,
+      is_repeated: bool,
+      my_type: Optional[tf.DType],
+      schema_feature: Optional[schema_pb2.Feature] = None,
+      validate_step_format: bool = True,
+  ):
     """Initialize an expression.
 
     Args:
@@ -96,11 +99,17 @@ class Expression(object, metaclass=abc.ABCMeta):
       my_type: the DType of a field, or None for an internal node.
       schema_feature: the local schema (StructDomain information should not be
         present).
+      validate_step_format: If True, validates that steps do not have any
+        characters that could be ambiguously understood as structure delimiters
+        (e.g. "."). If False, such characters are allowed and the client is
+        responsible to ensure to not rely on any auto-coercion of strings to
+        paths.
     """
     self._is_repeated = is_repeated
     self._type = my_type
     self._child_cache = {}
     self._schema_feature = schema_feature
+    self._validate_step_format = validate_step_format
 
   @property
   def is_repeated(self) -> bool:
@@ -295,10 +304,14 @@ class Expression(object, metaclass=abc.ABCMeta):
     }
     result = {}
     for field_name, subexpression in known_subexpressions.items():
-      subexpression_path = path.Path([field_name])
+      subexpression_path = path.Path(
+          [field_name], validate_step_format=self._validate_step_format
+      )
       for p, expr in subexpression.items():
         result[subexpression_path.concat(p)] = expr
-    result[path.Path([])] = self
+    result[path.Path([], validate_step_format=self._validate_step_format)] = (
+        self
+    )
     return result
 
   def _schema_string_helper(self, field_name: path.Step,
@@ -354,9 +367,17 @@ class Expression(object, metaclass=abc.ABCMeta):
       A new query.
     """
     return map_prensor.map_sparse_tensor(
-        self, path.create_path(parent_path),
-        [path.Path([f]) for f in source_fields], operator, is_repeated, dtype,
-        new_field_name)
+        self,
+        path.create_path(parent_path),
+        [
+            path.Path([f], validate_step_format=self._validate_step_format)
+            for f in source_fields
+        ],
+        operator,
+        is_repeated,
+        dtype,
+        new_field_name,
+    )
 
   def map_ragged_tensors(self, parent_path: CoercableToPath,
                          source_fields: Sequence[path.Step],
@@ -387,9 +408,17 @@ class Expression(object, metaclass=abc.ABCMeta):
       A new query.
     """
     return map_prensor.map_ragged_tensor(
-        self, path.create_path(parent_path),
-        [path.Path([f]) for f in source_fields], operator, is_repeated, dtype,
-        new_field_name)
+        self,
+        path.create_path(parent_path),
+        [
+            path.Path([f], validate_step_format=self._validate_step_format)
+            for f in source_fields
+        ],
+        operator,
+        is_repeated,
+        dtype,
+        new_field_name,
+    )
 
   def truncate(self, source_path: CoercableToPath, limit: Union[int, tf.Tensor],
                new_field_name: path.Step) -> "Expression":
@@ -515,11 +544,19 @@ class Expression(object, metaclass=abc.ABCMeta):
       if child.schema_feature is None:
         continue
       result.extend(
-          [path.Path([name]).concat(x) for x in child.get_paths_with_schema()])
+          [
+              path.Path(
+                  [name], validate_step_format=self._validate_step_format
+              ).concat(x)
+              for x in child.get_paths_with_schema()
+          ]
+      )
     # Note: We always take the root path and so will return an empty schema
     # if there is no schema information on any nodes, including the root.
     if not result:
-      result.append(path.Path([]))
+      result.append(
+          path.Path([], validate_step_format=self._validate_step_format)
+      )
     return result
 
   def _populate_schema_feature_children(self, feature_list) -> None:

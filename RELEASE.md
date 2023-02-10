@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*   Introduced an argument to disable path step validation.
+
 ## Breaking Changes
 
 ## Deprecations
@@ -293,7 +295,7 @@
 ## Bug Fixes and Other Changes
 
 *   Allow path to concat with string.
-*   Bumped the mininum bazel version required to build `struct2tensor` to 3.7.2.
+*   Bumped the minimum bazel version required to build `struct2tensor` to 3.7.2.
 *   Depends on `tensorflow-metadata>=0.29,<0.30`
 
 ## Breaking Changes

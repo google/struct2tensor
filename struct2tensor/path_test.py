@@ -30,6 +30,35 @@ class PathTest(absltest.TestCase):
     child_path = original_path.get_child("baz")
     self.assertEqual(str(child_path), "foo.bar.baz")
 
+  def test_get_child_path_with_complex_steps(self):
+    # When provided as a string, "foo.bar.bat" is coerced into a path where
+    # the dots are interpreted as structure delimiters.
+    original_path = create_path("foo.bar.bat")
+    child_path = original_path.get_child("baz")
+    prefix = original_path.prefix(1)
+    suffix = original_path.suffix(1)
+    self.assertCountEqual(
+        child_path.concat(prefix).concat(suffix).field_list,
+        ["foo", "bar", "bat", "baz", "foo", "bar", "bat"],
+    )
+    self.assertCountEqual(child_path.field_list, ["foo", "bar", "bat", "baz"])
+
+    # A path can be created where such a string is a single step, by disabling
+    # the default validation.
+    original_path = Path(["foo.bar.bat"], validate_step_format=False)
+    child_path = original_path.get_child("baz")
+    prefix = original_path.prefix(1)
+    suffix = original_path.suffix(1)
+    self.assertCountEqual(
+        child_path.concat(prefix).concat(suffix).field_list,
+        ["foo.bar.bat", "baz", "foo.bar.bat"],
+    )
+    self.assertCountEqual(child_path.field_list, ["foo.bar.bat", "baz"])
+
+    another_path = Path(["foo/bar/bat"], validate_step_format=False)
+    ancestor = another_path.get_least_common_ancestor(original_path)
+    self.assertEmpty(ancestor.field_list)
+
   def test_get_child_root(self):
     original_path = create_path("")
     child_path = original_path.get_child("baz")
