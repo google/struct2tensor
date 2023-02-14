@@ -81,9 +81,9 @@ class DepthLimitTest(absltest.TestCase):
 
     """
     expr = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_deep_prensor())
+        prensor_test_util.create_deep_prensor(), validate_step_format=False)
     new_root = depth_limit.limit_depth(expr, 2)
-
+    self.assertFalse(new_root.validate_step_format)
     self.assertIsNone(
         new_root.get_descendant(path.Path(["event", "doc", "bar"])))
     self.assertIsNone(

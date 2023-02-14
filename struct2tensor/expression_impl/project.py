@@ -72,8 +72,17 @@ def _group_paths_by_first_step(
 class _ProjectExpression(expression.Expression):
   """Project all subfields of an expression."""
 
-  def __init__(self, origin: expression.Expression, paths: Sequence[path.Path]):
-    super().__init__(origin.is_repeated, origin.type, origin.schema_feature)
+  def __init__(
+      self,
+      origin: expression.Expression,
+      paths: Sequence[path.Path],
+  ):
+    super().__init__(
+        origin.is_repeated,
+        origin.type,
+        origin.schema_feature,
+        validate_step_format=origin.validate_step_format,
+    )
     self._paths_map = _group_paths_by_first_step(paths)
     self._origin = origin
 

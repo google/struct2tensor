@@ -84,6 +84,27 @@ class ModifyTest(absltest.TestCase):
           })
       expression_add.add_to(root, {path.Path(["user", "friends"]): root_2})
 
+  def test_add_to_with_lenient_field_names(self):
+    root = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+        validate_step_format=False,
+    )
+    root_1 = expression_add.add_paths(
+        root,
+        {
+            path.Path(
+                ["user", "friends_2$"], validate_step_format=False
+            ): root.get_descendant_or_error(
+                path.Path(["user", "friends!:)"], validate_step_format=False)
+            )
+        },
+    )
+
+    new_field = root_1.get_descendant_or_error(
+        path.Path(["user", "friends_2$"], validate_step_format=False)
+    )
+    self.assertIsNotNone(new_field)
+
 
 if __name__ == "__main__":
   absltest.main()

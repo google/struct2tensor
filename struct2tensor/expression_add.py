@@ -60,7 +60,11 @@ class _AddPathsExpression(expression.Expression):
       self, origin: expression.Expression,
       path_map: Mapping[path.Step, Mapping[path.Path, expression.Expression]]):
     super().__init__(
-        origin.is_repeated, origin.type, schema_feature=origin.schema_feature)
+        origin.is_repeated,
+        origin.type,
+        schema_feature=origin.schema_feature,
+        validate_step_format=origin.validate_step_format,
+    )
     self._origin = origin
     self._path_map = path_map
 

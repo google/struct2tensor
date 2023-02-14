@@ -180,7 +180,9 @@ class _MapPrensorExpression(expression.Expression):
                operation: Callable[[prensor.Prensor, calculate_options
                                     .Options], prensor.LeafNodeTensor],
                is_repeated: bool, dtype: tf.DType):
-    super().__init__(is_repeated, dtype)
+    super().__init__(
+        is_repeated, dtype, validate_step_format=origin.validate_step_format
+    )
     self._origin = origin
     self._operation = operation
 

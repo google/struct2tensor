@@ -86,7 +86,9 @@ class _RerootExpression(expression.Expression):
 
   def __init__(self, original_root: expression.Expression,
                field_name: path.Step):
-    super().__init__(True, None)
+    super().__init__(
+        True, None, validate_step_format=original_root.validate_step_format
+    )
     self._field_name = field_name
     self._original_root = original_root
     self._new_root = original_root.get_child_or_error(field_name)

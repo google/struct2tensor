@@ -162,5 +162,14 @@ class RerootTest(tf.test.TestCase):
     self.assertAllEqual(dense_value, [0, 0, 0, 2, 2])
 
 
+def test_reroot_lenient_format(self):
+  expr = create_expression.create_expression_from_prensor(
+      prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+      validate_step_format=False,
+  )
+  new_root = reroot.reroot(expr, path.Path(["doc"]))
+  self.assertFalse(new_root.validate_step_format)
+
+
 if __name__ == "__main__":
   absltest.main()

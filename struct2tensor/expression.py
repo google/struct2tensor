@@ -131,6 +131,10 @@ class Expression(object, metaclass=abc.ABCMeta):
     """Return the schema of the field."""
     return self._schema_feature
 
+  @property
+  def validate_step_format(self) -> bool:
+    return self._validate_step_format
+
   @abc.abstractmethod
   def get_source_expressions(self) -> Sequence["Expression"]:
     """Gets the sources of this expression.
@@ -305,13 +309,11 @@ class Expression(object, metaclass=abc.ABCMeta):
     result = {}
     for field_name, subexpression in known_subexpressions.items():
       subexpression_path = path.Path(
-          [field_name], validate_step_format=self._validate_step_format
+          [field_name], validate_step_format=self.validate_step_format
       )
       for p, expr in subexpression.items():
         result[subexpression_path.concat(p)] = expr
-    result[path.Path([], validate_step_format=self._validate_step_format)] = (
-        self
-    )
+    result[path.Path([], validate_step_format=self.validate_step_format)] = self
     return result
 
   def _schema_string_helper(self, field_name: path.Step,
@@ -370,7 +372,7 @@ class Expression(object, metaclass=abc.ABCMeta):
         self,
         path.create_path(parent_path),
         [
-            path.Path([f], validate_step_format=self._validate_step_format)
+            path.Path([f], validate_step_format=self.validate_step_format)
             for f in source_fields
         ],
         operator,
@@ -411,7 +413,7 @@ class Expression(object, metaclass=abc.ABCMeta):
         self,
         path.create_path(parent_path),
         [
-            path.Path([f], validate_step_format=self._validate_step_format)
+            path.Path([f], validate_step_format=self.validate_step_format)
             for f in source_fields
         ],
         operator,
@@ -546,7 +548,7 @@ class Expression(object, metaclass=abc.ABCMeta):
       result.extend(
           [
               path.Path(
-                  [name], validate_step_format=self._validate_step_format
+                  [name], validate_step_format=self.validate_step_format
               ).concat(x)
               for x in child.get_paths_with_schema()
           ]
@@ -555,7 +557,7 @@ class Expression(object, metaclass=abc.ABCMeta):
     # if there is no schema information on any nodes, including the root.
     if not result:
       result.append(
-          path.Path([], validate_step_format=self._validate_step_format)
+          path.Path([], validate_step_format=self.validate_step_format)
       )
     return result
 

@@ -175,9 +175,10 @@ class FilterExpressionTest(tf.test.TestCase):
   def test_filter_by_child(self):
     """Tests filter_by_child."""
     root = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_big_prensor())
+        prensor_test_util.create_big_prensor(), validate_step_format=False)
     root_2 = filter_expression.filter_by_child(root, path.create_path("doc"),
                                                "keep_me", "new_doc")
+    self.assertFalse(root_2.validate_step_format)
     [result] = calculate.calculate_prensors([root_2])
     self.assertAllEqual(
         result.get_descendant_or_error(path.Path(["new_doc"

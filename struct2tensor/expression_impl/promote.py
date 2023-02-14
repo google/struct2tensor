@@ -162,7 +162,10 @@ class PromoteChildExpression(expression.Expression):
         origin.is_repeated or origin_parent.is_repeated,
         origin.type,
         schema_feature=_get_promote_schema_feature(
-            origin.schema_feature, origin_parent.schema_feature))
+            origin.schema_feature, origin_parent.schema_feature
+        ),
+        validate_step_format=origin.validate_step_format,
+    )
     self._origin = origin
     self._origin_parent = origin_parent
     if self._origin_parent.type is not None:

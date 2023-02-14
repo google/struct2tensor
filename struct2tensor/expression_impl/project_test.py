@@ -34,6 +34,16 @@ class ProjectTest(absltest.TestCase):
         projected.get_descendant(path.Path(["doc", "keep_me"])))
     self.assertIsNone(projected.get_descendant(path.Path(["doc", "bar"])))
 
+  def test_project_lenient_format(self):
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+        validate_step_format=False,
+    )
+    projected = project.project(
+        expr, [path.Path(["doc", "keep_me/x"], validate_step_format=False)]
+    )
+    self.assertLen(projected.get_known_descendants(), 3)
+
 
 if __name__ == "__main__":
   absltest.main()

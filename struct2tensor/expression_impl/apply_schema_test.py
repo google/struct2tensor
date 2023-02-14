@@ -88,6 +88,16 @@ class SchemaUtilTest(absltest.TestCase):
     # correctly.
     self.assertEqual(feature_map["foorepeated"].int_domain.max, 10)
 
+  def test_get_schema_lenient_names(self):
+    """Test that apply_schema preserves origin expression leniency."""
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+        validate_step_format=False,
+    )
+    expr2 = expr.apply_schema(schema_pb2.Schema())
+    self.assertFalse(expr2.validate_step_format)
+    self.assertLen(expr2.get_known_descendants(), 6)
+
 
 if __name__ == "__main__":
   absltest.main()

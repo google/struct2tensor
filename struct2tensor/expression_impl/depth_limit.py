@@ -57,7 +57,11 @@ class _DepthLimitExpression(expression.Expression):
   """Project all subfields of an expression."""
 
   def __init__(self, origin: expression.Expression, depth_limit: int):
-    super().__init__(origin.is_repeated, origin.type)
+    super().__init__(
+        origin.is_repeated,
+        origin.type,
+        validate_step_format=origin.validate_step_format,
+    )
     self._origin = origin
     self._depth_limit = depth_limit
 

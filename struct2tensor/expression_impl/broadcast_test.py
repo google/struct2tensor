@@ -222,6 +222,19 @@ class BroadcastTest(tf.test.TestCase):
                         [False, True, True])
     self.assertAllEqual(new_keep_me_node.parent_index, [0, 1, 3])
 
+  def test_broadcast_with_lenient_names(self):
+    """Tests broadcast with lenient step names."""
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+        validate_step_format=False,
+    )
+    new_root, new_path = broadcast.broadcast_anonymous(
+        expr, path.Path(["doc"], validate_step_format=False), "user"
+    )
+    new_field = new_root.get_descendant_or_error(new_path)
+    leaf_node = expression_test_util.calculate_value_slowly(new_field)
+    self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 2, 2])
+
 
 @test_util.run_all_in_graph_and_eager_modes
 class BroadcastValuesTest(tf.test.TestCase):

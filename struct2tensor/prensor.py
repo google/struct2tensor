@@ -415,7 +415,9 @@ class Prensor(composite_tensor.CompositeTensor):
     for k, v in self._children.items():
       subexpression_descendants = v.get_descendants()
       for k2, v2 in subexpression_descendants.items():
-        result[path.Path([k]).concat(k2)] = v2
+        # Since k is already a path.Step, we know it is valid and needn't
+        # validate it again.
+        result[path.Path([k], validate_step_format=False).concat(k2)] = v2
     return result
 
   def field_names(self) -> FrozenSet[path.Step]:

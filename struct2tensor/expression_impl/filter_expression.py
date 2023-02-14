@@ -217,8 +217,11 @@ class _FilterChildByParentIndicesToKeepExpression(expression.Expression):
 
   def __init__(self, origin: expression.Expression,
                parent: expression.Expression):
-    super(_FilterChildByParentIndicesToKeepExpression,
-          self).__init__(origin.is_repeated, origin.type)
+    super(_FilterChildByParentIndicesToKeepExpression, self).__init__(
+        origin.is_repeated,
+        origin.type,
+        validate_step_format=origin.validate_step_format,
+    )
     self._origin = origin
     self._parent = parent
 
@@ -276,7 +279,11 @@ class _FilterBySiblingExpression(expression.Expression):
 
   def __init__(self, origin: expression.Expression,
                sibling: expression.Expression):
-    super().__init__(origin.is_repeated, origin.type)
+    super().__init__(
+        origin.is_repeated,
+        origin.type,
+        validate_step_format=origin.validate_step_format,
+    )
     self._origin = origin
     self._sibling = sibling
     if sibling.type != tf.bool:
@@ -324,7 +331,11 @@ class _FilterByChildExpression(expression.Expression):
 
   def __init__(self, origin: expression.Expression,
                child: expression.Expression):
-    super().__init__(origin.is_repeated, origin.type)
+    super().__init__(
+        origin.is_repeated,
+        origin.type,
+        validate_step_format=origin.validate_step_format,
+    )
     self._origin = origin
     self._child = child
     if child.type != tf.bool:

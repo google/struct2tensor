@@ -130,9 +130,12 @@ def _apply_feature(original_child: expression.Expression,
 class _SchemaExpression(expression.Expression, metaclass=abc.ABCMeta):
   """An expression represents the application of a schema."""
 
-  def __init__(self, original: expression.Expression,
-               child_features: Sequence[schema_pb2.Feature],
-               schema_feature: Optional[schema_pb2.Feature]):
+  def __init__(
+      self,
+      original: expression.Expression,
+      child_features: Sequence[schema_pb2.Feature],
+      schema_feature: Optional[schema_pb2.Feature],
+  ):
     """Create a new _SchemaExpression.
 
     Args:
@@ -141,7 +144,11 @@ class _SchemaExpression(expression.Expression, metaclass=abc.ABCMeta):
       schema_feature: the optional cleaned feature for this node.
     """
     super().__init__(
-        original.is_repeated, original.type, schema_feature=schema_feature)
+        original.is_repeated,
+        original.type,
+        schema_feature=schema_feature,
+        validate_step_format=original.validate_step_format,
+    )
     self._original = original
     self._child_features = child_features
 

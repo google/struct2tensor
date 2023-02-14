@@ -350,7 +350,11 @@ class _PrensorOpChildExpression(expression.Expression):
   def __init__(self, parent: expression.Expression, step: path.Step,
                schema: Schema):
     super().__init__(
-        schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
+        schema.is_repeated,
+        schema.type,
+        schema_feature=schema.schema_feature,
+        validate_step_format=parent.validate_step_format,
+    )
     self._parent = parent
     self._step = step
     self._schema = schema
@@ -426,7 +430,11 @@ class _PrensorOpExpression(expression.Expression):
         not calculated.
     """
     super().__init__(
-        schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
+        schema.is_repeated,
+        schema.type,
+        schema_feature=schema.schema_feature,
+        validate_step_format=origin.validate_step_format,
+    )
 
     self._origin = origin
     self._operation = operation

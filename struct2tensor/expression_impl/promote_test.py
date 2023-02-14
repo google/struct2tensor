@@ -525,5 +525,15 @@ class PromoteValuesTest(tf.test.TestCase):
     self.assertEqual(keep_me_schema.presence.min_count, 1)
 
 
+def test_promote_lenient_format(self):
+  expr = create_expression.create_expression_from_prensor(
+      prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+      validate_step_format=False,
+  )
+  new_root, _ = promote.promote_anonymous(expr, path.Path(["doc"]))
+  self.assertFalse(new_root.validate_step_format)
+  self.assertLen(new_root.get_known_descendants(), 1)
+
+
 if __name__ == "__main__":
   absltest.main()

@@ -194,6 +194,47 @@ class SliceExpressionTest(tf.test.TestCase):
         result.get_descendant_or_error(new_path).node.values,
         [True, False, True])
 
+  def test_slice_end_lenient_formatting(self):
+    root = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+        validate_step_format=False,
+    )
+    root_2 = slice_expression.slice_expression(
+        root, path.Path(["doc"], validate_step_format=False), "new/doc", None, 1
+    )
+    result = calculate.calculate_prensors([root_2])[0]
+
+    self.assertAllEqual(
+        result.get_descendant_or_error(
+            path.Path(["new/doc"], validate_step_format=False)
+        ).node.parent_index,
+        [0, 1],
+    )
+    self.assertAllEqual(
+        result.get_descendant_or_error(
+            path.Path(["new/doc", "keep_me/x"], validate_step_format=False)
+        ).node.parent_index,
+        [0, 1],
+    )
+    self.assertAllEqual(
+        result.get_descendant_or_error(
+            path.Path(["new/doc", "keep_me/x"], validate_step_format=False)
+        ).node.values,
+        [False, True],
+    )
+    self.assertAllEqual(
+        result.get_descendant_or_error(
+            path.Path(["new/doc", "bar.baz"], validate_step_format=False)
+        ).node.parent_index,
+        [0, 1, 1],
+    )
+    self.assertAllEqual(
+        result.get_descendant_or_error(
+            path.Path(["new/doc", "bar.baz"], validate_step_format=False)
+        ).node.values,
+        [1, 2, 3],
+    )
+
 
 if __name__ == "__main__":
   absltest.main()

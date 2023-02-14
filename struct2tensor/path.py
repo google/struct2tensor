@@ -164,7 +164,8 @@ class Path(object):
     """
     if not self:
       raise ValueError("Tried to find parent of root")
-    return Path(self.field_list[:-1])
+    return Path(self.field_list[:-1],
+                validate_step_format=self._validate_step_format)
 
   def get_child(self, field_name: Step) -> "Path":
     """Get the child path."""
