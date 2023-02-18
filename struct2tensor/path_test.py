@@ -17,13 +17,132 @@
 import pprint
 
 from absl.testing import absltest
+from absl.testing import parameterized
+
 from struct2tensor.path import create_path
+from struct2tensor.path import expand_wildcard_proto_paths
 from struct2tensor.path import from_proto
 from struct2tensor.path import parse_map_indexing_step
 from struct2tensor.path import Path
+from struct2tensor.test import test_pb2
+
+_FORMAT_TEST_CASES = [
+    {
+        "testcase_name": "wildcard_only",
+        "descriptor": test_pb2.Session.DESCRIPTOR,
+        "input_paths": [["*"]],
+        "expected": [
+            Path(["session_id"]),
+            Path(["event", "event_id"]),
+            Path(["event", "query"]),
+            Path(["event", "query_token"]),
+            Path(["event", "action", "number_of_views"]),
+            Path(["event", "action", "doc_id"]),
+            Path(["event", "action", "category"]),
+            Path(["event", "user_info", "gender"]),
+            Path(["event", "user_info", "age_in_years"]),
+            Path(["event", "user_info", "friends"]),
+            Path(["event", "user_info", "age_in_years_alt"]),
+            Path(["event", "action_mask"]),
+            Path(["session_info", "start_time"]),
+            Path(["session_info", "session_feature"]),
+            Path(["session_info", "session_duration_sec"]),
+        ],
+    },
+    {
+        "testcase_name": "expand_1",
+        "descriptor": test_pb2.Session.DESCRIPTOR,
+        "input_paths": [["event", "*"]],
+        "expected": [
+            Path(["event", "event_id"]),
+            Path(["event", "query"]),
+            Path(["event", "query_token"]),
+            Path(["event", "action", "number_of_views"]),
+            Path(["event", "action", "doc_id"]),
+            Path(["event", "action", "category"]),
+            Path(["event", "user_info", "gender"]),
+            Path(["event", "user_info", "age_in_years"]),
+            Path(["event", "user_info", "friends"]),
+            Path(["event", "user_info", "age_in_years_alt"]),
+            Path(["event", "action_mask"]),
+        ],
+    },
+    {
+        "testcase_name": "expand_2",
+        "descriptor": test_pb2.Session.DESCRIPTOR,
+        "input_paths": [["session_id"], ["session_info", "*"]],
+        "expected": [
+            Path(["session_id"]),
+            Path(["session_info", "start_time"]),
+            Path(["session_info", "session_feature"]),
+            Path(["session_info", "session_duration_sec"]),
+        ],
+    },
+    {
+        "testcase_name": "no_expand",
+        "descriptor": test_pb2.Session.DESCRIPTOR,
+        "input_paths": [
+            ["event", "action", "number_of_views"],
+            ["event", "user_info", "gender"],
+        ],
+        "expected": [Path(["event", "action", "number_of_views"]),
+                     Path(["event", "user_info", "gender"])],
+    },
+    {
+        "testcase_name": "test_oneof",
+        "descriptor": test_pb2.HasOneOfFields.DESCRIPTOR,
+        "input_paths": [["test_oneof", "*"]],
+        "expected": [
+            Path(["test_oneof", "name"]),
+            Path(["test_oneof", "value"]),
+        ],
+    },
+]
+
+_FORMAT_TEST_CASES_FAILED = [
+    {
+        "testcase_name": "test_recursion",
+        "descriptor": test_pb2.Recursion.DESCRIPTOR,
+        "input_paths": [["*"]],
+        "expected_error_message": "Proto recursion*",
+    },
+    {
+        "testcase_name": "test_nested_recursion",
+        "descriptor": test_pb2.NestedRecursion.DESCRIPTOR,
+        "input_paths": [["test_recursion", "*"]],
+        "expected_error_message": "Proto recursion*",
+    },
+    {
+        "testcase_name": "duplicate_1",
+        "descriptor": test_pb2.Session.DESCRIPTOR,
+        "input_paths": [
+            ["event", "action", "number_of_views"],
+            ["event", "*"],
+        ],
+        "expected_error_message": "Duplicate path*",
+    },
+    {
+        "testcase_name": "partial_match_1",
+        "descriptor": test_pb2.Session.DESCRIPTOR,
+        "input_paths": [["event", "action*"]],
+        "expected_error_message": "Field*",
+    },
+    {
+        "testcase_name": "invalid_field_name",
+        "descriptor": test_pb2.Session.DESCRIPTOR,
+        "input_paths": [["", "*"]],
+        "expected_error_message": "Field*",
+    },
+    {
+        "testcase_name": "field_name_not_exist",
+        "descriptor": test_pb2.Session.DESCRIPTOR,
+        "input_paths": [["xxxx", "*"]],
+        "expected_error_message": "Field name xxxx does not exist.",
+    },
+]
 
 
-class PathTest(absltest.TestCase):
+class PathTest(parameterized.TestCase):
 
   def test_get_child(self):
     original_path = create_path("foo.bar")
@@ -258,12 +377,28 @@ class PathTest(absltest.TestCase):
     # Test add two paths.
     self.assertEqual(
         create_path("foo.bar") + create_path("baz.bax"),
-        create_path("foo.bar.baz.bax"))
+        create_path("foo.bar.baz.bax"),
+    )
 
     # Test add a path with a string.
     self.assertEqual(
-        create_path("foo.bar") + "baz.bax",
-        create_path("foo.bar.baz.bax"))
+        create_path("foo.bar") + "baz.bax", create_path("foo.bar.baz.bax")
+    )
+
+  @parameterized.named_parameters(*_FORMAT_TEST_CASES)
+  def test_expand_paths_ending_in_wildcard(
+      self, descriptor, input_paths, expected
+  ):
+    self.assertCountEqual(
+        expand_wildcard_proto_paths(input_paths, descriptor), expected
+    )
+
+  @parameterized.named_parameters(*_FORMAT_TEST_CASES_FAILED)
+  def test_expand_paths_ending_in_wildcard_recursion_proto(
+      self, descriptor, input_paths, expected_error_message
+  ):
+    with self.assertRaisesRegex(ValueError, expected_error_message):
+      expand_wildcard_proto_paths(input_paths, descriptor)
 
 
 if __name__ == "__main__":

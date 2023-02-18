@@ -110,3 +110,22 @@ message HasPackedFields {
   repeated float packed_float = 5 [packed = true];
   repeated double packed_double = 6 [packed = true];
 }
+
+message HasOneOfFields {
+  optional DummyOneofMessage test_oneof = 1;
+}
+
+message DummyOneofMessage {
+  oneof dummy_oneof {
+    string name = 1;
+    int64 value = 2;
+  }
+}
+
+message NestedRecursion {
+  optional int64 data = 1;
+  optional MidLevelRecursion test_recursion = 2;
+  message MidLevelRecursion {
+    repeated NestedRecursion mid = 2;
+  }
+}

@@ -20,8 +20,9 @@ such as getting a child or a parent, a client may find this class useful.
 """
 
 import re
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union, List
 
+from google.protobuf import descriptor
 from tensorflow_metadata.proto.v0 import path_pb2 as tf_metadata_path_pb2
 
 # This is for extensions and Any.
@@ -361,3 +362,86 @@ def from_proto(path_proto: tf_metadata_path_pb2.Path) -> Path:
   # Unicode strings, but the Path class may contain either unicode or bytes
   # depending on whether this module is loaded with Python2 or Python3.
   return Path([str(step) for step in path_proto.step])
+
+
+def expand_wildcard_proto_paths(
+    paths: Sequence[List[str]], proto_descriptor: descriptor.Descriptor
+) -> List[Path]:
+  """Expands wildcard paths in the given sequence.
+
+  Each path is represented as a list of str. Supported wildcard patterns are
+  single wildcard or paths ending with wildcard.
+  For example, ["*"] or ["FieldA", "FieldB", "*"].
+  Partial matching paths are invalid, for example, ["Field*"].
+
+  Args:
+    paths: a list of Proto field paths to be expanded.
+    proto_descriptor: proto descriptor.
+
+  Returns:
+    A list of Path objects.
+
+  Raises:
+    ValueError: if any expanded path is also provided by user.
+  """
+  if not paths:
+    return []
+
+  paths_with_wildcards = []
+  result = set()
+  for path in paths:
+    if path == ["*"]:
+      return _get_all_subfields(proto_descriptor)
+    # path prefixes ending with "*" will be expanded
+    elif path[-1] == "*" and len(path) > 1:
+      paths_with_wildcards.append(path[:-1])
+    else:
+      # partial matching paths (e.g., ["feature*"]) will raise an error
+      # when converted to Path objects.
+      result.add(Path(path))
+
+  # expand path prefixes ending with wildcard
+  if paths_with_wildcards:
+    for pattern in paths_with_wildcards:
+      expanded_paths = _proto_glob(pattern, proto_descriptor)
+      for p in expanded_paths:
+        if p in result:
+          raise ValueError(f"Duplicate path {p} is detected.")
+        result.add(p)
+
+  return sorted(result)
+
+
+def _get_all_subfields(proto_descriptor: descriptor.Descriptor) -> List[Path]:
+  """Extracts all subfield paths for the given descriptor."""
+  result = []
+  messages = set()
+
+  def _recurse(d, prefix):
+    messages.add(d)
+    for f in d.fields:
+      if f.message_type in messages:
+        raise ValueError("Proto recursion is detected.")
+      prefix.append(f.name)
+      if f.message_type:
+        _recurse(f.message_type, prefix)
+      else:
+        result.append(Path(prefix))
+      prefix.pop()
+
+  _recurse(proto_descriptor, [])
+  return result
+
+
+def _proto_glob(
+    pattern: List[str], proto_descriptor: descriptor.Descriptor
+) -> List[Path]:
+  """Returns proto paths matching the given prefix pattern."""
+  parent = Path(pattern)
+  for field_name in parent.field_list:
+    if field_name not in proto_descriptor.fields_by_name:
+      raise ValueError(f"Field name {field_name} does not exist.")
+    proto_descriptor = proto_descriptor.fields_by_name[field_name].message_type
+  expanded_leaves = _get_all_subfields(proto_descriptor)
+  expanded_paths = [parent + child for child in expanded_leaves]
+  return expanded_paths
