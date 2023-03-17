@@ -264,7 +264,9 @@ def _prensor_value_from_type_spec_and_component_values(
   """Creates a PrensorValue from a _PrensorTypeSpec and components."""
   # pylint: disable=protected-access
   if prensor_type_spec._node_type == prensor_type_spec._NodeType.ROOT:
-    node = RootNodeValue(next(component_values))
+    size = next(component_values)
+    assert isinstance(size, (int, np.integer)), type(size)
+    node = RootNodeValue(np.int64(size))
   elif prensor_type_spec._node_type == prensor_type_spec._NodeType.CHILD:
     node = ChildNodeValue(next(component_values),
                           prensor_type_spec._is_repeated)
