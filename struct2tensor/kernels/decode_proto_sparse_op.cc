@@ -460,8 +460,8 @@ class FieldBuilderFactoryImpl : public FieldBuilderFactory {
           // behavior).
           // TODO(b/185908025): once struct2tensor builds with a newer proto
           // library, use field_desc->has_optional_keyword() instead.
-          bool has_optional_keyword = true;
-          if (has_optional_keyword) {
+          bool has_presence = true;
+          if (has_presence) {
             return absl::nullopt;
           }
           return GetDefaultValue<T, kDataType == WireFormatLite::TYPE_ENUM>(
