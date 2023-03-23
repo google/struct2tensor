@@ -1,6 +1,6 @@
 # Struct2Tensor
 
-[![Python](https://img.shields.io/badge/python%20-3.7%7C3.8%7C3.9-blue)](https://github.com/google/struct2tensor)
+[![Python](https://img.shields.io/badge/python%20-3.8%7C3.9-blue)](https://github.com/google/struct2tensor)
 [![PyPI](https://badge.fury.io/py/struct2tensor.svg)](https://badge.fury.io/py/struct2tensor)
 
 <!--*
@@ -73,10 +73,10 @@ cd ~/struct2tensor
 ### Use docker-compose
 Install [docker-compose](https://docs.docker.com/compose/).
 
-Use it to build a pip wheel for Python 3.7 with tensorflow version 2:
+Use it to build a pip wheel for Python 3.8 with tensorflow version 2:
 
 ```bash
-docker-compose build --build-arg PYTHON_VERSION=3.7 manylinux2014
+docker-compose build --build-arg PYTHON_VERSION=3.8 manylinux2014
 docker-compose run -e TF_VERSION=RELEASED_TF_2 manylinux2014
 ```
 
