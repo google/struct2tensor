@@ -53,10 +53,10 @@ def struct2tensor_workspace():
         urls = ["https://github.com/apache/arrow/archive/%s.zip" % ARROW_COMMIT],
     )
 
-    _TFMD_COMMIT_HASH = "47c81262a01a28beb46c9b30dbcc7303ac77ae9b"  # 1.12.0
+    _TFMD_COMMIT_HASH = "e34b5df6d644f32f7a30b4a5c89680fdf7b82519"  # 1.13.0
     http_archive(
         name = "com_github_tensorflow_metadata",
-        sha256 = "84842947b7bb15b93843adc70036ad89dd0b7bf92fe333d9a35e7461e24d6f2c",
+        sha256 = "c3ef479c7b6d1e2300edf58591ba1ed9836b8088ba134dd4e9cb8b88ec887037",
         strip_prefix = "metadata-%s" % _TFMD_COMMIT_HASH,
         urls = [
             "https://github.com/tensorflow/metadata/archive/%s.tar.gz" % _TFMD_COMMIT_HASH,
