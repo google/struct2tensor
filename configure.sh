@@ -62,7 +62,7 @@ SHARED_LIBRARY_DIR=${TF_LFLAGS:2}
 SHARED_LIBRARY_NAME=$(echo $TF_LFLAGS | rev | cut -d":" -f1 | rev)
 if ! [[ $TF_LFLAGS =~ .*:.* ]]; then
   if [[ "$(uname)" == "Darwin" ]]; then
-    SHARED_LIBRARY_NAME="libtensorflow_framework.dylib"
+    SHARED_LIBRARY_NAME="libtensorflow_framework.2.dylib"
   else
     SHARED_LIBRARY_NAME="libtensorflow_framework.so"
   fi
