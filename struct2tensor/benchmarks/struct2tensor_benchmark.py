@@ -14,14 +14,6 @@
 r"""Benchmarks for struct2tensor.
 
 
-Usage:
-blaze run -c opt --dynamic_mode=off \
-  --run_under='perflab \
-  --constraints=arch=x86_64,platform_family=iota,platform_genus=sandybridge' \
-  //struct2tensor/benchmarks:struct2tensor_benchmark \
-  -- --notest_mode
-
-
 """
 
 from absl.testing import parameterized

@@ -31,10 +31,10 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_bool(
     "test_mode", False,
-    "if True, run all benchmarks with one iteration to make sure there is no error."
+    "if True, run all benchmarks with two iterations."
 )
 
-_BASE_DIR = "struct2tensor/benchmarks/testdata"
+_BASE_DIR = os.path.join(os.path.dirname(__file__), "testdata")
 
 
 class Struct2tensorBenchmarksBase(parameterized.TestCase):
@@ -65,7 +65,7 @@ class Struct2tensorBenchmarksBase(parameterized.TestCase):
           "Wall Time avg(ms)\tWall Time std\tUser CPU avg (ms)\t"
           "User CPU std\tSystem CPU avg (ms)\tSystem CPU std")
 
-    iterations = 10000
+    iterations = 1000
     # This is the number of iterations in a sample. We will benchmark the
     # total compute time per sample. And find std across all samples.
     sample_size = 100
