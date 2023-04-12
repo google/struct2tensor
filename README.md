@@ -115,7 +115,7 @@ is an integer.
 
 struct2tensor                                                          | tensorflow
 ---------------------------------------------------------------------- | ----------
-[0.44.0](https://github.com/google/struct2tensor/releases/tag/v0.43.0) | 2.11.0
+[0.44.0](https://github.com/google/struct2tensor/releases/tag/v0.43.0) | 2.12.0
 [0.43.0](https://github.com/google/struct2tensor/releases/tag/v0.43.0) | 2.11.0
 [0.42.0](https://github.com/google/struct2tensor/releases/tag/v0.42.0) | 2.10.0
 [0.41.0](https://github.com/google/struct2tensor/releases/tag/v0.41.0) | 2.9.0
