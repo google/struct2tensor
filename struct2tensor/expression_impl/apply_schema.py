@@ -155,7 +155,7 @@ class _SchemaExpression(expression.Expression, metaclass=abc.ABCMeta):
   def get_source_expressions(self) -> Sequence[expression.Expression]:
     return [self._original]
 
-  def calculate(self, source_tensors: Sequence[prensor.NodeTensor],
+  def calculate(self, source_tensors: Sequence[prensor.NodeTensor],  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
                 destinations: Sequence[expression.Expression],
                 options: calculate_options.Options) -> prensor.NodeTensor:
     del destinations, options
