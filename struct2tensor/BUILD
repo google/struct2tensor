@@ -17,7 +17,9 @@
 
 load("//struct2tensor:struct2tensor.bzl", "s2t_pytype_library")
 
-package(default_visibility = ["@//:__subpackages__"])
+package(
+    default_visibility = ["@//:__subpackages__"],
+)
 
 licenses(["notice"])
 

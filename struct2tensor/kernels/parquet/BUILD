@@ -16,7 +16,9 @@
 
 load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_library")
 
-package(default_visibility = ["//struct2tensor:__subpackages__"])
+package(
+    default_visibility = ["//struct2tensor:__subpackages__"],
+)
 
 licenses(["notice"])
 

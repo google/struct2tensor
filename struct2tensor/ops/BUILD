@@ -2,7 +2,9 @@ load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_binary", "s2t_dynamic_lib
 
 # TODO(martinz): Add back integration_with_servo_test.
 
-package(default_visibility = ["//visibility:public"])
+package(
+    default_visibility = ["//visibility:public"],
+)
 
 licenses(["notice"])
 

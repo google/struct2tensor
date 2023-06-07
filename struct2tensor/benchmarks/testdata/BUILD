@@ -14,7 +14,9 @@
 
 licenses(["notice"])
 
-package(default_visibility = ["//struct2tensor/benchmarks:__subpackages__"])
+package(
+    default_visibility = ["//struct2tensor/benchmarks:__subpackages__"],
+)
 
 filegroup(
     name = "data_files",

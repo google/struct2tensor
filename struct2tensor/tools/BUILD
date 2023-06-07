@@ -13,7 +13,9 @@
 # limitations under the License.
 licenses(["notice"])
 
-package(default_visibility = ["//struct2tensor:__subpackages__"])
+package(
+    default_visibility = ["//struct2tensor:__subpackages__"],
+)
 
 py_library(
     name = "build_docs_lib",
