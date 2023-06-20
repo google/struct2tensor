@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*   Depends on `pyarrow>=10,<11`.
+
 ## Breaking Changes
 
 ## Deprecations
