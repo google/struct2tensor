@@ -34,15 +34,15 @@ tf_configure(name = "local_config_tf")
 # To update TensorFlow to a new revision.
 # 1. Update the _TENSORFLOW_GIT_COMMIT value below to include the new git hash.
 #    To find it look for the commit which updated the version number:
-#    https://github.com/tensorflow/tensorflow/blob/2719182f888c16b44dba504c2f2d2240ddc9396d/tensorflow/core/public/version.h#L24
+#    https://github.com/tensorflow/tensorflow/blob/3e6e3ceeedb0dbf2961051fe22002c98a255a6b8/tensorflow/core/public/version.h#L24
 # 2. Get the sha256 hash of the archive with a command such as...
 #    curl -L https://github.com/tensorflow/tensorflow/archive/<_TENSORFLOW_GIT_COMMIT>.tar.gz | sha256sum
 #    and update the 'sha256' arg with the result.
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "0db597d0d758aba578783b5bf46c889700a45085"  # tf 2.12.0
-_TENSORFLOW_ARCHIVE_SHA256 = "e97c242d13e386192e3a9f60fd674461b6595b02b3a2a48edd6fb11aeee7e038"
+_TENSORFLOW_GIT_COMMIT = "3e6e3ceeedb0dbf2961051fe22002c98a255a6b8"  # tf 2.13.0
+_TENSORFLOW_ARCHIVE_SHA256 = "2395cc44ed65d563e9628c7ba457974d941a27033e879acffa08cc19e53fc355"
 
 http_archive(
     name = "org_tensorflow",
