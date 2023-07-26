@@ -76,9 +76,9 @@ setup(
     install_requires=[
         # TODO(b/263060885): Remove the explicit numpy dependency once TF works
         # with numpy>=1.24.
-        'numpy<1.24',
+        'numpy>=1.22',
         'protobuf>=3.20.3,<5',
-        'tensorflow>=2.12,<3',
+        'tensorflow>=2.13,<3',
         'tensorflow-metadata' + select_constraint(
             default='>=1.13.1,<1.14.0',
             nightly='>=1.14.0.dev',
