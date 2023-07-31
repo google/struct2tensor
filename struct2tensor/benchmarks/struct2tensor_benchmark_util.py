@@ -35,6 +35,7 @@ flags.DEFINE_bool(
 )
 
 _BASE_DIR = os.path.join(os.path.dirname(__file__), "testdata")
+_CPU_INFO = cpuinfo.get_cpu_info()
 
 
 class Struct2tensorBenchmarksBase(parameterized.TestCase):
@@ -130,7 +131,7 @@ class ProtoDataBenchmarks(Struct2tensorBenchmarksBase):
   @classmethod
   def setUpClass(cls):
     super().setUpClass()
-    print(f"cpuinfo: {cpuinfo.get_cpu_info()}")
+    print(f"cpuinfo: {_CPU_INFO}")
 
     shuffle_size = 2048
 
@@ -232,6 +233,7 @@ class ProtoDataBenchmarks(Struct2tensorBenchmarksBase):
         for batch_size in batch_sizes
     ]
 
+    # pylint: disable=protected-access
     cls._data = {
         "deep_protos":
             cls._deep_protos,
@@ -252,6 +254,7 @@ class ProtoDataBenchmarks(Struct2tensorBenchmarksBase):
         "tf_examples_100_features_100_values":
             cls._tf_examples_100_features_100_values,
     }
+    # pylint: enable=protected-access
 
 
 class OpsBenchmarks(Struct2tensorBenchmarksBase):
@@ -261,7 +264,7 @@ class OpsBenchmarks(Struct2tensorBenchmarksBase):
   def setUpClass(cls):
     super().setUpClass()
 
-    print(f"cpuinfo: {cpuinfo.get_cpu_info()}")
+    print(f"cpuinfo: {_CPU_INFO}")
     a = list(range(1000))
     b = list(range(1000))
 
