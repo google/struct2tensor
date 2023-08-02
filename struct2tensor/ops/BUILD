@@ -1,3 +1,4 @@
+# Placeholder: load py_test
 load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_binary", "s2t_dynamic_library", "s2t_gen_op_wrapper_py", "s2t_pytype_library")
 
 # TODO(martinz): Add back integration_with_servo_test.

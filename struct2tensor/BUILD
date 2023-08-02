@@ -15,6 +15,8 @@
 # Prensors provide a way to parse protocol buffers and other structured data in tensorflow
 # simply and efficiently.
 
+# Placeholder: load py_test
+
 load("//struct2tensor:struct2tensor.bzl", "s2t_pytype_library")
 
 package(

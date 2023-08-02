@@ -1,3 +1,7 @@
+# Placeholder: load py_library
+# Placeholder: load py_test
+# Placeholder: load py_binary
+
 # Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
