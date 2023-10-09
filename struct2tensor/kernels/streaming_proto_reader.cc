@@ -14,7 +14,7 @@ limitations under the License.
 ==============================================================================*/
 #include "struct2tensor/kernels/streaming_proto_reader.h"
 
-
+#include "absl/base/integral_types.h"
 #include "absl/strings/string_view.h"
 #include "google/protobuf/wire_format_lite.h"
 #include "tensorflow/core/lib/core/coding.h"

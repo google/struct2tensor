@@ -20,7 +20,7 @@ limitations under the License.
 //
 // LOG and CHECK free.
 
-
+#include "absl/base/integral_types.h"
 #include "absl/base/internal/endian.h"
 #include "absl/strings/string_view.h"
 #include "google/protobuf/descriptor.h"

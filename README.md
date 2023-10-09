@@ -1,6 +1,6 @@
 # Struct2Tensor
 
-[![Python](https://img.shields.io/badge/python%20-3.8%7C3.9-blue)](https://github.com/google/struct2tensor)
+[![Python](https://img.shields.io/badge/python%7C3.9-blue)](https://github.com/google/struct2tensor)
 [![PyPI](https://badge.fury.io/py/struct2tensor.svg)](https://badge.fury.io/py/struct2tensor)
 
 <!--*
