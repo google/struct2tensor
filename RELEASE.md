@@ -9,6 +9,9 @@
 *   Bumped the Ubuntu version on which `struct2tensor` is tested to 20.04
     (previously was 16.04).
 
+*   Bump the macOS version on which `struct2tensor` is tested to Ventura (previously was
+    Monterey).
+
 ## Breaking Changes
 
 ## Deprecations
