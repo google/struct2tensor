@@ -78,9 +78,7 @@ py_test(
     main = "struct2tensor_benchmark.py",
     python_version = "PY3",
     shard_count = 4,
-    deps = [
-        ":struct2tensor_benchmark_lib",
-    ],
+    deps = [":struct2tensor_benchmark_lib"],
 )
 
 py_binary(
@@ -101,9 +99,7 @@ py_test(
     main = "ops_benchmark.py",
     python_version = "PY3",
     # shard_count = 4,
-    deps = [
-        ":struct2tensor_benchmark_lib",
-    ],
+    deps = [":struct2tensor_benchmark_lib"],
 )
 
 py_binary(
