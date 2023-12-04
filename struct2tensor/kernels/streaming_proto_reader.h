@@ -20,7 +20,6 @@ limitations under the License.
 //
 // LOG and CHECK free.
 
-#include "absl/base/integral_types.h"
 #include "absl/base/internal/endian.h"
 #include "absl/strings/string_view.h"
 #include "google/protobuf/descriptor.h"
@@ -130,7 +129,7 @@ class PackedValuesReader {
 // Utility function to parse message_set items. MessageSet item's wire format
 // is equivalent to:
 //   repeated group Item {
-//     required int32 id = 2;
+//     required int32_t id = 2;
 //     required bytes value = 3;
 //   }
 bool ParseMessageSetItem(absl::string_view msgset_item, int* id,
@@ -152,7 +151,7 @@ inline const char* VarintSkip32(const char* p) {
 }
 
 // Copied over from tensorflow/c/c_api.cc. However,
-// using uint64_t instead of tensorflow::uint64.
+// using uint64_t instead of tensorflow::uint64_t.
 // This code can be deleted if/when tensorflow uses uint64_t.
 // This avoids an unnecessary copy.
 // See https://github.com/tensorflow/tensorflow/pull/21042
@@ -208,9 +207,9 @@ const char* SkipField(const char* ptr, const char* limit,
 const char* SkipGroup(const char* ptr, const char* limit);
 
 // Functions for decoding values from "raw" values. Raw data types are
-// the following: uint32, uint64, StringPiece.
-// Target value types are primitive values such as: int32, uint32, int64,
-// uint64, bool, float, double, string, StringPiece and PackedValue.
+// the following: uint32_t, uint64_t, StringPiece.
+// Target value types are primitive values such as: int32_t, uint32_t, int64_t,
+// uint64_t, bool, float, double, string, StringPiece and PackedValue.
 
 inline void DecodeRawValue(uint32_t raw_value,
                            google::protobuf::FieldDescriptor::Type type,
@@ -345,7 +344,7 @@ inline const char*
 ReadRawValue<google::protobuf::internal::WireFormatLite::WIRETYPE_VARINT, uint32_t>(
     const char* ptr, const char* limit, uint32_t* value) {
   // Special case where negative values in this encoding are actually
-  // uint64 encoded as varint. So, decode uint64 and take first 4 bytes.
+  // uint64_t encoded as varint. So, decode uint64_t and take first 4 bytes.
   uint64_t v;
   const char* a = GetVarint64Ptr(ptr, limit, &v);
   *value = static_cast<int32_t>(v);

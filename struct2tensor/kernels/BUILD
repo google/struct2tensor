@@ -167,7 +167,6 @@ cc_library(
     srcs = ["streaming_proto_reader.cc"],
     hdrs = ["streaming_proto_reader.h"],
     deps = [
-        "@com_google_absl//absl/base:core_headers",
         "@com_google_absl//absl/base:endian",
         "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
