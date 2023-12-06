@@ -41,8 +41,8 @@ tf_configure(name = "local_config_tf")
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "6887368d6d46223f460358323c4b76d61d1558a8"  # tf 2.15.0
-_TENSORFLOW_ARCHIVE_SHA256 = "bb25fa4574e42ea4d452979e1d2ba3b86b39569d6b8106a846a238b880d73652"
+_TENSORFLOW_GIT_COMMIT = "1cb1a030a62b169d90d34c747ab9b09f332bf905"  # tf 2.13.0
+_TENSORFLOW_ARCHIVE_SHA256 = "a62eba23ebfcf1d6d2d3241f1629b99df576a9f726c439a97c3acd590e71fe62"
 
 http_archive(
     name = "org_tensorflow",

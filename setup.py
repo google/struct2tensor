@@ -78,7 +78,7 @@ setup(
         # with numpy>=1.24.
         'numpy>=1.22',
         'protobuf>=3.20.3,<5',
-        'tensorflow>=2.15,<3',
+        'tensorflow>=2.13,<3',
         'tensorflow-metadata' + select_constraint(
             default='>=1.14.0,<1.15.0',
             nightly='>=1.15.0.dev',
