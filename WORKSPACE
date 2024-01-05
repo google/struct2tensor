@@ -41,8 +41,8 @@ tf_configure(name = "local_config_tf")
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "1cb1a030a62b169d90d34c747ab9b09f332bf905"  # tf 2.13.0
-_TENSORFLOW_ARCHIVE_SHA256 = "a62eba23ebfcf1d6d2d3241f1629b99df576a9f726c439a97c3acd590e71fe62"
+_TENSORFLOW_GIT_COMMIT = "6887368d6d46223f460358323c4b76d61d1558a8"  # tf 2.15.0
+_TENSORFLOW_ARCHIVE_SHA256 = "bb25fa4574e42ea4d452979e1d2ba3b86b39569d6b8106a846a238b880d73652"
 
 http_archive(
     name = "org_tensorflow",
@@ -52,6 +52,11 @@ http_archive(
     ],
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
 )
+
+load("//third_party:python_configure.bzl", "local_python_configure")
+local_python_configure(name = "local_config_python")
+local_python_configure(name = "local_execution_config_python")
+
 
 # Please add all new struct2tensor dependencies in workspace.bzl.
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
@@ -70,9 +75,9 @@ tf_workspace0()
 # boost is required for @thrift
 git_repository(
     name = "com_github_nelhage_rules_boost",
-    commit = "9f9fb8b2f0213989247c9d5c0e814a8451d18d7f",
+    commit = "ff4fefded63953945bcf61bc1f20c924bf7525ce",
     remote = "https://github.com/nelhage/rules_boost",
-    shallow_since = "1570056263 -0700",
+    shallow_since = "1704355380 -0800",
 )
 
 load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
@@ -84,4 +89,4 @@ rules_pkg_dependencies()
 
 # Specify the minimum required bazel version.
 load("@bazel_skylib//lib:versions.bzl", "versions")
-versions.check("5.3.0")
+versions.check("6.1.0")

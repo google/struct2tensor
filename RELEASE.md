@@ -8,6 +8,8 @@
 
 *   Bumped the Ubuntu version on which `struct2tensor` is tested to 20.04
     (previously was 16.04).
+*   Depends on `tensorflow>=2.15.0,<3`.
+*   Bumped the minimum bazel version required to build `struct2tensor` to 6.1.0.
 
 ## Breaking Changes
 
