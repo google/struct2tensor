@@ -75,9 +75,8 @@ tf_workspace0()
 # boost is required for @thrift
 git_repository(
     name = "com_github_nelhage_rules_boost",
-    commit = "ff4fefded63953945bcf61bc1f20c924bf7525ce",
+    commit = "ce0caa8aa9593cb8664d4b5448978fbb94acc8b9",
     remote = "https://github.com/nelhage/rules_boost",
-    shallow_since = "1704355380 -0800",
 )
 
 load("@com_github_nelhage_rules_boost//:boost/boost.bzl", "boost_deps")
