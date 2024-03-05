@@ -15,14 +15,11 @@
 """Setup for pip package."""
 
 import os
-import sys
 
 from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.install import install
 from setuptools.dist import Distribution
-
-_IS_PY311 = sys.version_info >= (3, 11)
 
 
 # struct2tensor is not a purelib. However because of the extension module is not
@@ -80,7 +77,8 @@ setup(
         # TODO(b/263060885): Remove the explicit numpy dependency once TF works
         # with numpy>=1.24.
         'numpy>=1.22',
-        f'protobuf>={"4.25.2" if _IS_PY311 else "3.20.3"},<5',
+        'protobuf>=4.25.2,<5;python_version>="3.11"',
+        'protobuf>=3.20.3,<5;python_version<"3.11"',
         'tensorflow>=2.15,<3',
         'tensorflow-metadata' + select_constraint(
             default='>=1.14.0,<1.15.0',
