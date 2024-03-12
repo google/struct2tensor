@@ -20,6 +20,11 @@ function install_tensorflow() {
   # Install tensorflow from pip.
   #
   # Usage: install_tensorflow NIGHTLY_TF|NIGHTLY_TF_2|RELEASED_TF|PRERELEASED_TF|RELEASED_TF_2|PRERELEASED_TF_2 /PATH/TO/PIP /PATH/TO/PYTHON
+
+  #TODO(b/329181965): As TFX lags for TensorFlow version, let's pass
+  #the ceiling TF Version to the installation script.
+  TF_MAX_VERSION = $4
+
   if [[ ("$1" == NIGHTLY_TF) || ("$1" == NIGHTLY_TF_2) ]]; then
     TF_PIP_PACKAGE="tf-nightly"
   elif [[ "$1" == RELEASED_TF ]]; then
@@ -27,9 +32,17 @@ function install_tensorflow() {
   elif [[ "$1" == PRERELEASED_TF ]]; then
     TF_PIP_PACKAGE="tensorflow<2"
   elif [[ "$1" == RELEASED_TF_2 ]]; then
-    TF_PIP_PACKAGE="tensorflow>=2"
+    if [[ -z "$TF_MAX_VERSION" ]]; then
+      TF_PIP_PACKAGE="tensorflow>=2,<3"
+    else
+      TF_PIP_PACKAGE="tensorflow>=2,<${TF_MAX_VERSION}"
+    fi
   elif [[ "$1" == PRERELEASED_TF_2 ]]; then
-    TF_PIP_PACKAGE="tensorflow>=2"
+    if [[ -z "$TF_MAX_VERSION" ]]; then
+      TF_PIP_PACKAGE="tensorflow>=2,<3"
+    else
+      TF_PIP_PACKAGE="tensorflow>=2,<${TF_MAX_VERSION}"
+    fi
   else
     echo "Invalid tensorflow version string must be one of NIGHTLY_TF, NIGHTLY_TF_2, RELEASED_TF, PRERELEASED_TF, RELEASED_TF_2, PRERELEASED_TF_2."
     exit 1
@@ -69,6 +82,10 @@ for i in "$@"; do
       shift # past argument=value
       SKIP_STATIC_LINK_TEST=1
       ;;
+    --tf_max_version=*)
+      shift # past argument=value
+      TF_MAX_VERSION=${i#*=}
+      ;;
     *)
       printf "Unrecognized argument $1"
       exit 1
@@ -78,7 +95,7 @@ done
 
 set -x
 
-install_tensorflow ${TF_VERSION} ${PIP_BIN_PATH} ${PYTHON_BIN_PATH}
+install_tensorflow ${TF_VERSION} ${PIP_BIN_PATH} ${PYTHON_BIN_PATH} ${TF_MAX_VERSION}
 ./configure.sh --python_bin_path "${PYTHON_BIN_PATH}"
 
 if [[ ("${TF_VERSION}" == "NIGHTLY_TF") || ("${TF_VERSION}" == "NIGHTLY_TF_2") ]]; then

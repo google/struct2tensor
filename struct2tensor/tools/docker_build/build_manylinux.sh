@@ -46,6 +46,13 @@ function bazel_build() {
   if [[ -n ${SKIP_STATIC_LINK_TEST} ]]; then
     build_args+=("--skip_static_link_test")
   fi
+
+  # TODO(b/329181965): TFX requires to install tensorflow<2.16,
+  # as it is not migrated yet.
+  if [[ -n ${TF_MAX_VERSION} ]]; then
+    build_args+=("--tf_max_version=${TF_MAX_VERSION}")
+  fi
+
   ./build_common.sh "${build_args[@]}"
 }
 
