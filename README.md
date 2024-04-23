@@ -4,7 +4,7 @@
 [![PyPI](https://badge.fury.io/py/struct2tensor.svg)](https://badge.fury.io/py/struct2tensor)
 
 <!--*
-freshness: { owner: 'iindyk' reviewed: '2022-04-27' }
+freshness: { owner: 'iindyk' reviewed: '2024-04-22' }
 *-->
 
 ## Introduction
@@ -115,6 +115,7 @@ is an integer.
 
 struct2tensor                                                          | tensorflow
 ---------------------------------------------------------------------- | ----------
+[0.46.0](https://github.com/google/struct2tensor/releases/tag/v0.46.0) | 2.15.0
 [0.45.0](https://github.com/google/struct2tensor/releases/tag/v0.45.0) | 2.13.0
 [0.44.0](https://github.com/google/struct2tensor/releases/tag/v0.44.0) | 2.12.0
 [0.43.0](https://github.com/google/struct2tensor/releases/tag/v0.43.0) | 2.11.0
