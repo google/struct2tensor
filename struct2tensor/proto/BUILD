@@ -1,10 +1,10 @@
+load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc", "s2t_proto_library_py")
+
 package(
     default_visibility = ["@//:__subpackages__"],
 )
 
 licenses(["notice"])
-
-load("//struct2tensor:struct2tensor.bzl", "s2t_proto_library", "s2t_proto_library_cc", "s2t_proto_library_py")
 
 s2t_proto_library(
     name = "query_metadata_proto",

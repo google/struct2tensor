@@ -70,7 +70,7 @@ class Dataset : public tensorflow::data::DatasetBase {
 
   tensorflow::Status CheckExternalState() const
   {
-    return tensorflow::OkStatus();
+    return absl::OkStatus();
   }
 
  protected:
@@ -108,7 +108,7 @@ class Dataset : public tensorflow::data::DatasetBase {
       tensorflow::mutex_lock l(mu_);
       if (current_file_index_ >= filenames_.size()) {
         *end_of_sequence = true;
-        return tensorflow::OkStatus();
+        return absl::OkStatus();
       }
 
       if (!parquet_reader_) {
@@ -167,7 +167,7 @@ class Dataset : public tensorflow::data::DatasetBase {
             std::move(parent_indices_and_values[column_index].values));
       }
 
-      return tensorflow::OkStatus();
+      return absl::OkStatus();
     }
 
    protected:

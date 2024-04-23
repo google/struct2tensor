@@ -52,7 +52,7 @@ class PeekableColumnReader : public PeekableColumnReaderBase {
     *pcr = absl::WrapUnique(
         new PeekableColumnReader<ParquetDataType>(column_index, file_reader));
     TF_RETURN_IF_ERROR(pcr->get()->Advance());
-    return tensorflow::OkStatus();
+    return absl::OkStatus();
   }
 
   PeekableColumnReader<ParquetDataType>& operator=(
@@ -113,7 +113,7 @@ class PeekableColumnReader : public PeekableColumnReaderBase {
           "Expected to read 1 level. Actually read %d level", levels_read);
     }
     value_exists_ = (values_read == 1);
-    return tensorflow::OkStatus();
+    return absl::OkStatus();
   }
 
  private:
@@ -169,7 +169,7 @@ tensorflow::Status GetColumnIndex(const std::string& column_name,
         absl::StrCat("Column not found: ", column_name));
   }
 
-  return tensorflow::OkStatus();
+  return absl::OkStatus();
 }
 
 // Creates the repetition pattern for a path. For example "Document.DocID"
@@ -217,7 +217,7 @@ tensorflow::Status PopulatePeekableColumnReadersVector(
   TF_RETURN_IF_ERROR(internal::PeekableColumnReader<ParquetDataType>::Create(
       column_index, file_reader, &pcr));
   peekable_column_readers->push_back(std::move(pcr));
-  return tensorflow::OkStatus();
+  return absl::OkStatus();
 }
 
 tensorflow::Status ParquetReader::Create(
@@ -301,7 +301,7 @@ tensorflow::Status ParquetReader::Create(
       value_paths, value_dtypes, batch_size, column_indices,
       std::move(file_reader), std::move(peekable_column_readers),
       std::move(parent_indices_builders)));
-  return tensorflow::OkStatus();
+  return absl::OkStatus();
 }
 
 ParquetReader::ParquetReader(
@@ -354,9 +354,9 @@ tensorflow::Status ParquetReader::ReadMessages(
   total_rows_read_ += prev_column_messages_read;
   if (total_rows_read_ >= file_reader_->metadata()->num_rows()) {
     *end_of_file = true;
-    return tensorflow::OkStatus();
+    return absl::OkStatus();
   }
-  return tensorflow::OkStatus();
+  return absl::OkStatus();
 }
 
 tensorflow::Status ParquetReader::ReadOneColumn(
@@ -425,7 +425,7 @@ tensorflow::Status ParquetReader::ReadOneColumn(
   parent_indices_and_values->emplace_back(
       ParentIndicesAndValues{parent_indices, value_tensor[0]});
 
-  return tensorflow::OkStatus();
+  return absl::OkStatus();
 }
 
 template <typename ParquetDataType, typename T>
@@ -450,7 +450,7 @@ tensorflow::Status ParquetReader::ReadOneColumnTemplated(
   struct2tensor::VectorToTensor(cumulative_values, &res,
                                 /*produce_string_view=*/false);
   value_tensor->push_back(res);
-  return tensorflow::OkStatus();
+  return absl::OkStatus();
 }
 
 template <typename ParquetDataType, typename T>
@@ -479,7 +479,7 @@ tensorflow::Status ParquetReader::ReadOneMessageFromOneColumn(
   } while (repetition_level > 0 &&
            repetition_level < max_repetition_level_[column_index]);
 
-  return tensorflow::OkStatus();
+  return absl::OkStatus();
 }
 
 }  // namespace parquet_dataset

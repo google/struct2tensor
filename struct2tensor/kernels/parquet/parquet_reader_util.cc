@@ -24,7 +24,7 @@ tensorflow::Status OpenFileWithStatus(
     std::unique_ptr<parquet::ParquetFileReader>* file_reader) {
   try {
     *file_reader = parquet::ParquetFileReader::OpenFile(filename, false);
-    return tensorflow::OkStatus();
+    return absl::OkStatus();
   } catch (const parquet::ParquetException& e) {
     return tensorflow::errors::Internal(
         absl::StrCat("Invalid File: ", filename));
