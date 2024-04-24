@@ -27,7 +27,7 @@ REGISTER_OP("EquiJoinAnyIndices")
     .SetShapeFn([](InferenceContext* c) {
       c->set_output(0, c->Vector(InferenceContext::kUnknownDim));
       c->set_output(1, c->Vector(InferenceContext::kUnknownDim));
-      return tensorflow::OkStatus();
+      return absl::OkStatus();
     })
     .Doc(R"doc(
 This op is similiar to EquiJoinIndices. However this op does not assume that

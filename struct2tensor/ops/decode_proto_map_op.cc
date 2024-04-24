@@ -36,7 +36,7 @@ REGISTER_OP("DecodeProtoMapV2")
       for (int i = 0; i < 2 * num_keys; ++i) {
         c->set_output(i, c->Vector(c->UnknownDim()));
       }
-      return tensorflow::OkStatus();
+      return absl::OkStatus();
     })
     .Doc(R"doc(
 An op to decode serialized protobuf map entries with given keys into Tensors.
@@ -107,5 +107,5 @@ REGISTER_OP("DecodeProtoMap")
       for (int i = 0; i < 2 * num_keys; ++i) {
         c->set_output(i, c->Vector(c->UnknownDim()));
       }
-      return tensorflow::OkStatus();
+      return absl::OkStatus();
     });

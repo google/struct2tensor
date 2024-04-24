@@ -47,7 +47,7 @@ REGISTER_OP("DecodeProtoSparseV4")
         c->set_output(i, c->Vector(c->UnknownDim()));
       }
 
-      return tensorflow::OkStatus();
+      return absl::OkStatus();
     })
     .Doc(R"doc(
 The `decode_proto_sparse` op extracts fields from a serialized protocol
@@ -157,7 +157,7 @@ REGISTER_OP("DecodeProtoSparseV3")
         c->set_output(i, c->Vector(c->UnknownDim()));
       }
 
-      return tensorflow::OkStatus();
+      return absl::OkStatus();
     });
 
 // See DecodeProtoSparseV3. DecodeProtoSparseV2 omits `backing_string` and
@@ -184,5 +184,5 @@ REGISTER_OP("DecodeProtoSparseV2")
         c->set_output(i, c->Vector(c->UnknownDim()));
       }
 
-      return tensorflow::OkStatus();
+      return absl::OkStatus();
     });
