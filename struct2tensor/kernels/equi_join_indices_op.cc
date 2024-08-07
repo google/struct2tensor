@@ -50,7 +50,7 @@ using tensorflow::TensorShapeUtils;
     memcpy(result_flat.data(), vec.data(),
            tensor_size * sizeof(tensorflow::int64));
   }
-  return tensorflow::OkStatus();
+  return absl::OkStatus();
 }
 
 }  // namespace
