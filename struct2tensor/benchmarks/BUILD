@@ -25,7 +25,6 @@ proto_library(
     srcs = [
         "benchmark.proto",
     ],
-    cc_api_version = 2,
 )
 
 py_proto_library(
