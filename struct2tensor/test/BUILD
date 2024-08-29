@@ -15,7 +15,6 @@ exports_files([
 s2t_proto_library(
     name = "test_proto",
     srcs = ["test.proto"],
-    cc_api_version = 2,
 )
 
 s2t_proto_library_cc(
@@ -35,7 +34,6 @@ s2t_proto_library_py(
 s2t_proto_library(
     name = "test_any_proto",
     srcs = ["test_any.proto"],
-    cc_api_version = 2,
     deps = ["@com_google_protobuf//:cc_wkt_protos"],
 )
 
@@ -54,7 +52,6 @@ s2t_proto_library_py(
 s2t_proto_library(
     name = "test_map_proto",
     srcs = ["test_map.proto"],
-    cc_api_version = 2,
 )
 
 s2t_proto_library_cc(
@@ -71,7 +68,6 @@ s2t_proto_library_py(
 s2t_proto_library(
     name = "test_proto3_proto",
     srcs = ["test_proto3.proto"],
-    cc_api_version = 2,
 )
 
 s2t_proto_library_py(

@@ -31,8 +31,7 @@ def s2t_proto_library(
         deps = [],
         visibility = None,
         testonly = 0,
-        cc_grpc_version = None,
-        cc_api_version = 2):
+        cc_grpc_version = None):
     """Opensource proto_library.
 
     Args:
@@ -43,7 +42,6 @@ def s2t_proto_library(
       visibility: visibility constraints
       testonly: if true, only use in tests.
       cc_grpc_version: If set, use grpc plugin.
-      cc_api_version: The version of the API in C++.
     """
     _ignore = [has_services]
     native.filegroup(
@@ -61,7 +59,6 @@ def s2t_proto_library(
         name = name,
         srcs = srcs,
         deps = deps,
-        #cc_api_version = cc_api_version,
         cc_libs = ["@com_google_protobuf//:protobuf"],
         protoc = "@com_google_protobuf//:protoc",
         default_runtime = "@com_google_protobuf//:protobuf",
