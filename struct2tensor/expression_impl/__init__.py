@@ -16,7 +16,7 @@
 
 The modules in this file should be accessed like the following:
 
-```
+```python
 import struct2tensor as s2t
 from struct2tensor import expression_impl
 
