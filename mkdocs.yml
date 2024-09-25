@@ -120,7 +120,9 @@ nav:
     - "Your structured data into Tensorflow": examples/prensor_playground
 
   - API Docs:
-    - "expression_impl":
-        Overview: api_docs/python/expression_impl.md
     - "s2t":
-        Overview: api_docs/python/s2t.md
+        "Overview": api_docs/python/s2t
+        "s2t": api_docs/python/s2t/s2t
+    - "expression_impl":
+        "Overview": api_docs/python/expression_impl
+        "expression_impl": api_docs/python/expression_impl/expression_impl

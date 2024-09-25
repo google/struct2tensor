@@ -1,17 +1,17 @@
-description: get_positional_index and get_index_from_end methods.
+description: Import all modules in expression_impl.
 
 <div itemscope itemtype="http://developers.google.com/ReferenceObject">
-<meta itemprop="name" content="expression_impl.index" />
+<meta itemprop="name" content="expression_impl" />
 <meta itemprop="path" content="Stable" />
 </div>
 
-# Module: expression_impl.index
+# Module: expression_impl
 
 <!-- Insert buttons and diff -->
 
 <table class="tfo-notebook-buttons tfo-api nocontent" align="left">
 <td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/index.py">
+  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/__init__.py">
     <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
     View source on GitHub
   </a>
@@ -20,117 +20,51 @@ description: get_positional_index and get_index_from_end methods.
 
 
 
-get_positional_index and get_index_from_end methods.
+Import all modules in expression_impl.
 
 
-The parent_index identifies the index of the parent of each element. These
-methods take the parent_index to determine the relationship with respect to
-other elements.
-
-#### Given:
-
-
+The modules in this file should be accessed like the following:
 
 ```
-session: {
-  event: {
-    val: 111
-  }
-  event: {
-    val: 121
-    val: 122
-  }
-}
+import struct2tensor as s2t
+from struct2tensor import expression_impl
 
-session: {
-  event: {
-    val: 10
-    val: 7
-  }
-  event: {
-    val: 1
-  }
-}
+s2t.expression_impl.apply_schema
 ```
 
-```
-get_positional_index(expr, path.Path(["event","val"]), "val_index")
-```
+## Modules
 
-yields:
+[`apply_schema`](./expression_impl/apply_schema.md) module: Apply a schema to an expression.
 
-```
-session: {
-  event: {
-    val: 111
-    val_index: 0
-  }
-  event: {
-    val: 121
-    val: 122
-    val_index: 0
-    val_index: 1
-  }
-}
+[`broadcast`](./expression_impl/broadcast.md) module: Methods for broadcasting a path in a tree.
 
-session: {
-  event: {
-    val: 10
-    val: 7
-    val_index: 0
-    val_index: 1
-  }
-  event: {
-    val: 1
-    val_index: 0
-  }
-}
-```
+[`depth_limit`](./expression_impl/depth_limit.md) module: Caps the depth of an expression.
 
-```
-get_index_from_end(expr, path.Path(["event","val"]), "neg_val_index")
-```
-yields:
+[`filter_expression`](./expression_impl/filter_expression.md) module: Create a new expression that is a filtered version of an original one.
 
-```
-session: {
-  event: {
-    val: 111
-    neg_val_index: -1
-  }
-  event: {
-    val: 121
-    val: 122
-    neg_val_index: -2
-    neg_val_index: -1
-  }
-}
+[`index`](./expression_impl/index.md) module: get_positional_index and get_index_from_end methods.
 
-session: {
-  event: {
-    val: 10
-    val: 7
-    neg_val_index: 2
-    neg_val_index: -1
-  }
-  event: {
-    val: 1
-    neg_val_index: -1
-  }
-}
-```
+[`map_prensor`](./expression_impl/map_prensor.md) module: Arbitrary operations from sparse and ragged tensors to a leaf field.
 
-These methods are useful when you want to depend upon the index of a field.
-For example, if you want to filter examples based upon their index, or
-cogroup two fields by index, then first creating the index is useful.
+[`map_prensor_to_prensor`](./expression_impl/map_prensor_to_prensor.md) module: Arbitrary operations from prensors to prensors in an expression.
 
-Note that while the parent indices of these fields seem like overhead, they
-are just references to the parent indices of other fields, and are therefore
-take little memory or CPU.
+[`map_values`](./expression_impl/map_values.md) module: Maps the values of various leaves of the same child to a single result.
 
-## Functions
+[`parquet`](./expression_impl/parquet.md) module: Apache Parquet Dataset.
 
-[`get_index_from_end(...)`](../expression_impl/index/get_index_from_end.md): Gets the number of steps from the end of the array.
+[`placeholder`](./expression_impl/placeholder.md) module: Placeholder expression.
 
-[`get_positional_index(...)`](../expression_impl/index/get_positional_index.md): Gets the positional index.
+[`project`](./expression_impl/project.md) module: project selects a subtree of an expression.
+
+[`promote`](./expression_impl/promote.md) module: Promote an expression to be a child of its grandparent.
+
+[`promote_and_broadcast`](./expression_impl/promote_and_broadcast.md) module: promote_and_broadcast a set of nodes.
+
+[`proto`](./expression_impl/proto.md) module: Expressions to parse a proto.
+
+[`reroot`](./expression_impl/reroot.md) module: Reroot to a subtree, maintaining an input proto index.
+
+[`size`](./expression_impl/size.md) module: Functions for creating new size or has expression.
+
+[`slice_expression`](./expression_impl/slice_expression.md) module: Implementation of slice.
 
