@@ -1,27 +1,15 @@
-description: Import all modules in expression_impl.
-
-<div itemscope itemtype="http://developers.google.com/ReferenceObject">
-<meta itemprop="name" content="expression_impl" />
-<meta itemprop="path" content="Stable" />
-</div>
-
 # Module: expression_impl
 
-<!-- Insert buttons and diff -->
-
-<table class="tfo-notebook-buttons tfo-api nocontent" align="left">
-<td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/__init__.py">
-    <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
-    View source on GitHub
+<div class="buttons-wrapper">
+  <a class="md-button" target="_blank" href=
+	  "https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/__init__.py">
+    <div class="buttons-content">
+      <img width="32px" src=
+	   "https://www.tensorflow.org/images/GitHub-Mark-32px.png">
+      View source on GitHub
+    </div>
   </a>
-</td>
-</table>
-
-
-
-Import all modules in expression_impl.
-
+</div>
 
 The modules in this file should be accessed like the following:
 

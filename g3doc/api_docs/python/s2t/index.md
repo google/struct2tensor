@@ -1,28 +1,17 @@
-description: Import core names for struct2tensor.
-
-<div itemscope itemtype="http://developers.google.com/ReferenceObject">
-<meta itemprop="name" content="s2t" />
-<meta itemprop="path" content="Stable" />
-</div>
-
 # Module: s2t
 
-<!-- Insert buttons and diff -->
-
-<table class="tfo-notebook-buttons tfo-api nocontent" align="left">
-<td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/__init__.py">
-    <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
-    View source on GitHub
+<div class="buttons-wrapper">
+  <a class="md-button" target="_blank" href=
+	  "https://github.com/google/struct2tensor/blob/master/struct2tensor/__init__.py">
+    <div class="buttons-content">
+      <img width="32px" src=
+	   "https://www.tensorflow.org/images/GitHub-Mark-32px.png">
+      View source on GitHub
+    </div>
   </a>
-</td>
-</table>
-
-
+</div>
 
 Import core names for struct2tensor.
-
-
 
 ## Classes
 

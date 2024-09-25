@@ -17,3 +17,22 @@
 p img {
     background: white;
 }
+
+.buttons-wrapper {}
+
+.buttons-wrapper > a {
+    justify-content: center;
+    align-content: center;
+    flex-wrap: nowrap;
+    align-items: center;
+    text-align: center;
+    flex: 1 1 30%;
+    display: flex;
+}
+
+.md-button > .buttons-content {
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    gap: 1em;
+}
