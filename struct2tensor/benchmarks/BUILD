@@ -29,7 +29,6 @@ proto_library(
 
 py_proto_library(
     name = "benchmark_proto_py_pb2",
-    api_version = 2,
     deps = [":benchmark_proto"],
 )
 
