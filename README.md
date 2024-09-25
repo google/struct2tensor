@@ -16,7 +16,7 @@ examples of struct2tensor in action and an introduction to the main
 concepts. You can
 [run the notebook in your browser](https://colab.research.google.com/github/google/struct2tensor/blob/master/examples/prensor_playground.ipynb)
 through Google's colab environment, or [download the
-file](examples/prensor_playground.ipynb) to run it in your own Jupyter
+file](g3doc/examples/prensor_playground.ipynb) to run it in your own Jupyter
 environment.
 
 

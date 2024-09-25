@@ -116,3 +116,5 @@ extra_javascript:
 watch:
   - struct2tensor
 nav:
+  - Examples:
+    - "Your structured data into Tensorflow": examples/prensor_playground
