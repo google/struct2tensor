@@ -89,6 +89,11 @@ setup(
             git_master='@git+https://github.com/tensorflow/metadata@master'),
         'pyarrow>=10,<11',
     ],
+    extras_require={
+        'lint': [
+            'pre-commit',
+        ]
+    },
     # Add in any packaged data.
     include_package_data=True,
     package_data={'': ['*.lib', '*.so']},
