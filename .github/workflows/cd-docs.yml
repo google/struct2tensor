@@ -32,7 +32,7 @@ jobs:
             mkdocs-material-
 
       - name: Install Dependencies
-        run: pip install mkdocs mkdocs-material mkdocstrings[python] griffe-inherited-docstrings mkdocs-autorefs mkdocs-jupyter mkdocs-caption markdown-grid-tables
+        run: pip install -r requirements-docs.txt
 
       - name: Deploy to GitHub Pages
         if: (github.event_name != 'pull_request')
