@@ -49,12 +49,9 @@ TODO(martinz): Add utilities to:
 import abc
 from typing import FrozenSet, Optional, Sequence
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
-
 from tensorflow_metadata.proto.v0 import schema_pb2
+
+from struct2tensor import calculate_options, expression, path, prensor
 
 
 def apply_schema(expr: expression.Expression,
@@ -80,7 +77,6 @@ def _normalize_feature(feature: schema_pb2.Feature,
     feature: feature to modify in place.
     schema: schema containing any global domains.
   """
-
   if feature.HasField("struct_domain"):
     for x in feature.struct_domain.feature:
       _normalize_feature(x, schema)
@@ -97,8 +93,7 @@ def _normalize_feature(feature: schema_pb2.Feature,
       if float_domain.name == feature.domain:
         feature.float_domain.CopyFrom(float_domain)
         return
-    raise ValueError("Did not find domain {} in schema {}".format(
-        feature.domain, schema))
+    raise ValueError(f"Did not find domain {feature.domain} in schema {schema}")
 
 
 def _clean_feature(feature: schema_pb2.Feature) -> schema_pb2.Feature:

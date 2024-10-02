@@ -16,8 +16,7 @@
 
 from absl.testing import absltest
 
-from struct2tensor import create_expression
-from struct2tensor import path
+from struct2tensor import create_expression, path
 from struct2tensor.expression_impl import depth_limit
 from struct2tensor.test import prensor_test_util
 

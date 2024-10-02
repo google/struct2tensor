@@ -72,4 +72,3 @@ A map from paths to ragged tensors.
 </tr>
 
 </table>
-

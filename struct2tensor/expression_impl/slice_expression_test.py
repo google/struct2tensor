@@ -13,17 +13,20 @@
 # limitations under the License.
 """Tests for slice_expression."""
 
+import tensorflow as tf
 from absl.testing import absltest
-from struct2tensor import calculate
-from struct2tensor import create_expression
-from struct2tensor import path
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
+
 # For tf.Session.Run against a Prensor
-from struct2tensor import prensor_value  # pylint: disable=unused-import
+from struct2tensor import (
+  calculate,
+  create_expression,
+  path,  # pylint: disable=unused-import
+)
 from struct2tensor.expression_impl import slice_expression
 from struct2tensor.test import prensor_test_util
-import tensorflow as tf
-
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
 
 
 @test_util.run_all_in_graph_and_eager_modes

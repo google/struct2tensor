@@ -78,4 +78,3 @@ until they are children of dest_path_parent.
 </tr>
 
 </table>
-

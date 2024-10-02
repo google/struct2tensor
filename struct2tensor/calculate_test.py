@@ -15,19 +15,21 @@
 
 import random
 
-from struct2tensor import calculate
-from struct2tensor import calculate_options
-from struct2tensor import create_expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor.expression_impl import promote
-from struct2tensor.expression_impl import proto_test_util
-from struct2tensor.test import expression_test_util
-from struct2tensor.test import prensor_test_util
 import tensorflow as tf
-
 from absl.testing import absltest
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
+
+from struct2tensor import (
+  calculate,
+  calculate_options,
+  create_expression,
+  expression_add,
+  path,
+)
+from struct2tensor.expression_impl import promote, proto_test_util
+from struct2tensor.test import expression_test_util, prensor_test_util
 
 
 def get_mock_linear_graph(length):
@@ -89,7 +91,7 @@ class CalculateTest(tf.test.TestCase):
     self.assertIs(my_input._calculate_output, result)
 
   def test_calculate_broken_mock_is_repeated(self):
-    with self.assertRaisesRegexp(
+    with self.assertRaisesRegex(
         ValueError,
         "Expression Node0 returned the wrong type: expected: repeated <dtype: "
         "'int64'> actual: optional <dtype: 'int64'>."):
@@ -98,7 +100,7 @@ class CalculateTest(tf.test.TestCase):
       calculate.calculate_values([single_node])
 
   def test_calculate_broken_mock_dtype(self):
-    with self.assertRaisesRegexp(
+    with self.assertRaisesRegex(
         ValueError, "Expression Node0 returned the "
         "wrong type: expected: repeated <dtype: "
         "'int64'> actual: repeated <dtype: 'int32'>."):

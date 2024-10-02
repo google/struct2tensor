@@ -25,18 +25,19 @@ import collections
 import enum
 from typing import FrozenSet, Iterator, List, Mapping, Optional, Sequence, Tuple, Union
 
-from struct2tensor import calculate_options
-from struct2tensor import path
-from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
+from tensorflow.python.framework import (
+  composite_tensor,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.framework import composite_tensor  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import calculate_options, path
+from struct2tensor.ops import struct2tensor_ops
 
 
 # TODO(martinz): Consider creating node.py with the LeafNodeTensor,
 # ChildNodeTensor, and RootNodeTensor, allowing expression.py to depend upon
 # node.py.
-class RootNodeTensor(object):
+class RootNodeTensor:
   """The value of the root."""
 
   __slots__ = ["_size"]
@@ -72,7 +73,7 @@ class RootNodeTensor(object):
     return "RootNodeTensor"
 
 
-class ChildNodeTensor(object):
+class ChildNodeTensor:
   """The value of an intermediate node."""
 
   __slots__ = ["_parent_index", "_is_repeated", "_index_to_value"]
@@ -142,10 +143,10 @@ class ChildNodeTensor(object):
 
   def __str__(self):
     cardinality = "repeated" if self.is_repeated else "optional"
-    return "{} ChildNodeTensor".format(cardinality)
+    return f"{cardinality} ChildNodeTensor"
 
 
-class LeafNodeTensor(object):
+class LeafNodeTensor:
   """The value of a leaf node."""
 
   __slots__ = ["_parent_index", "_values", "_is_repeated"]
@@ -386,8 +387,7 @@ class Prensor(composite_tensor.CompositeTensor):
     result = self._children.get(field_name)
     if result is not None:
       return result
-    raise ValueError("Field not found: {} in {}".format(
-        str(field_name), str(self)))
+    raise ValueError(f"Field not found: {str(field_name)} in {str(self)}")
 
   def get_descendant(self, p: path.Path) -> Optional["Prensor"]:
     """Finds the descendant at the path."""
@@ -402,7 +402,7 @@ class Prensor(composite_tensor.CompositeTensor):
     """Finds the descendant at the path."""
     result = self.get_descendant(p)
     if result is None:
-      raise ValueError("Missing path: {} in {}".format(str(p), str(self)))
+      raise ValueError(f"Missing path: {str(p)} in {str(self)}")
     return result
 
   def get_children(self) -> "collections.OrderedDict[path.Step, Prensor]":
@@ -504,10 +504,10 @@ class Prensor(composite_tensor.CompositeTensor):
     Returns:
       lines to run __str__, that are bytes in Python 2 and unicode in Python 3.
     """
-    result = ["{} {}".format(str(self.node), str(field_name))]
+    result = [f"{str(self.node)} {str(field_name)}"]
     for k, v in self._children.items():
       recursive = v._string_helper(k)  # pylint: disable=protected-access
-      result.extend(["  {}".format(x) for x in recursive])
+      result.extend([f"  {x}" for x in recursive])
     return result
 
   def __str__(self) -> str:
@@ -564,7 +564,7 @@ def create_prensor_from_descendant_nodes(
         subexpressions[first_step] = {}
       subexpressions[first_step][suffix] = v
   if root_node is None:
-    raise ValueError("No root found: {}".format(str(nodes)))
+    raise ValueError(f"No root found: {str(nodes)}")
   return create_prensor_from_root_and_children(
       root_node,
       collections.OrderedDict((k, create_prensor_from_descendant_nodes(v))
@@ -582,7 +582,7 @@ def create_prensor_from_root_and_children(
 ######## Below code is for converting prensor to ragged/sparse tensors.#########
 
 
-class _LeafNodePath(object):
+class _LeafNodePath:
   """A path ending in a leaf.
 
   In order to avoid type checks and casting in the heart of different methods
@@ -611,7 +611,7 @@ class _LeafNodePath(object):
     return self._tail
 
 
-class _ChildNodePath(object):
+class _ChildNodePath:
   """A _ChildNodePath is a path that ends with a child node.
 
   It keeps same triple structure as _LeafNodePath.
@@ -642,15 +642,14 @@ def _as_root_node_tensor(node_tensor: NodeTensor) -> RootNodeTensor:
     return node_tensor
   if isinstance(node_tensor, ChildNodeTensor):
     return RootNodeTensor(node_tensor.size)
-  raise ValueError("Must be child or root node tensor (found {})".format(
-      type(node_tensor)))
+  raise ValueError(f"Must be child or root node tensor (found {type(node_tensor)})")
 
 
 def _get_leaf_node_path(p: path.Path, t: Prensor) -> _LeafNodePath:
   """Creates a _LeafNodePath to p."""
   leaf_node = t.get_descendant_or_error(p).node
   if not isinstance(leaf_node, LeafNodeTensor):
-    raise ValueError("Expected Leaf Node at {} in {}".format(str(p), str(t)))
+    raise ValueError(f"Expected Leaf Node at {str(p)} in {str(t)}")
   if not p:
     raise ValueError("Leaf should not be at the root")
   # If there is a leaf at the root, this will return a ValueError.
@@ -784,7 +783,6 @@ def _get_sparse_tensors(
   Returns:
     A map from paths to sparse tensors.
   """
-
   del options
   return {
       p: _get_sparse_tensor_from_leaf_node_path(v)
@@ -799,7 +797,7 @@ def from_value_rowids_bridge(values,
                              value_rowids=None,
                              nrows=None,
                              validate=True):
-  """validate option is only available internally for tf 0.13.1."""
+  """Validate option is only available internally for tf 0.13.1."""
   return tf.RaggedTensor.from_value_rowids(
       values, value_rowids=value_rowids, nrows=nrows, validate=validate)
 

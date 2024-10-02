@@ -45,8 +45,7 @@ session: {
 get_positional_index(expr, path.Path(["event","val"]), "val_index")
 ```
 
-yields:
-
+Yields:
 ```
 session: {
   event: {
@@ -119,13 +118,10 @@ take little memory or CPU.
 
 from typing import Optional, Sequence, Tuple
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.expression_impl import size
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
+from struct2tensor.expression_impl import size
 
 
 def get_positional_index(expr: expression.Expression, source_path: path.Path,

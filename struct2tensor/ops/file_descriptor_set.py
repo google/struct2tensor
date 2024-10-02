@@ -22,10 +22,9 @@
 """
 from typing import Sequence, Set
 
-from struct2tensor import path
+from google.protobuf import descriptor, descriptor_pb2
 
-from google.protobuf import descriptor_pb2
-from google.protobuf import descriptor
+from struct2tensor import path
 
 
 def _are_dependencies_handled(file_descriptor: descriptor.FileDescriptor,
@@ -42,10 +41,13 @@ def _order_dependencies(file_descriptors: Set[descriptor.FileDescriptor]
   """Given a set of file descriptors, return them as an ordered list.
 
   Each file descriptor in the resulting list follows its dependencies.
+
   Args:
     file_descriptors: a list of file descriptors.
+
   Returns:
     file descriptors as an ordered list.
+
   Raises:
     ValueError: if there is a circular dependency.
   """

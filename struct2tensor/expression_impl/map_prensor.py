@@ -101,13 +101,10 @@ session: {
 
 from typing import Callable, FrozenSet, Optional, Sequence, Tuple
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.expression_impl import project
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
+from struct2tensor.expression_impl import project
 
 
 def map_sparse_tensor(root: expression.Expression, root_path: path.Path,
@@ -132,7 +129,6 @@ def map_sparse_tensor(root: expression.Expression, root_path: path.Path,
     A new root expression containing the old root expression plus the new path,
     root_path.get_child(new_field_name), with the result of the operation.
   """
-
   return _map_sparse_tensor_impl(root, root_path, paths, operation, is_repeated,
                                  dtype, new_field_name)[0]
 
@@ -293,8 +289,7 @@ def _map_sparse_tensor_impl(root: expression.Expression, root_path: path.Path,
     result = _as_leaf_node(result_as_tensor, is_repeated,
                            sparse_tensors[0].dense_shape[0], options)
     if result.values.dtype != dtype:
-      raise ValueError("Type unmatched: actual ({})!= expected ({})".format(
-          str(result.values.dtype), str(dtype)))
+      raise ValueError(f"Type unmatched: actual ({str(result.values.dtype)})!= expected ({str(dtype)})")
     return result
 
   return _map_prensor_impl(root, root_path, paths, new_op, is_repeated, dtype,
@@ -366,8 +361,7 @@ def _map_ragged_tensor_impl(root: expression.Expression, root_path: path.Path,
     result = _ragged_as_leaf_node(result_as_tensor, is_repeated,
                                   ragged_tensors[0], options)
     if result.values.dtype != dtype:
-      raise ValueError("Type unmatched: actual ({})!= expected ({})".format(
-          str(result.values.dtype), str(dtype)))
+      raise ValueError(f"Type unmatched: actual ({str(result.values.dtype)})!= expected ({str(dtype)})")
     return result
 
   return _map_prensor_impl(root, root_path, paths, new_op, is_repeated, dtype,

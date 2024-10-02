@@ -18,16 +18,15 @@ tests here are lightweight to make sure all the connections are present and
 work correctly.
 """
 
-from absl.testing import absltest
-from absl.testing import parameterized
-from struct2tensor.expression_impl import parse_message_level_ex
-from struct2tensor.test import test_any_pb2
-from struct2tensor.test import test_map_pb2
-from struct2tensor.test import test_pb2
 import tensorflow as tf
-
+from absl.testing import absltest, parameterized
 from google.protobuf import text_format
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
+
+from struct2tensor.expression_impl import parse_message_level_ex
+from struct2tensor.test import test_any_pb2, test_map_pb2, test_pb2
 
 _INDEX = "index"
 _VALUE = "value"

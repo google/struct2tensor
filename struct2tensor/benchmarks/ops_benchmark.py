@@ -14,7 +14,6 @@
 # pylint: disable=line-too-long
 r"""Benchmarks for struct2tensor.
 
-
 Usage:
 blaze run -c opt --dynamic_mode=off \
   --run_under='perflab \
@@ -31,10 +30,11 @@ equi_join_indices_random_1000: 10000|12.04043987870682|1.2040439878706821|0.6657
 """
 # pylint: disable=line-too-long
 
+import tensorflow as tf
 from absl.testing import parameterized
+
 from struct2tensor.benchmarks import struct2tensor_benchmark_util
 from struct2tensor.ops import struct2tensor_ops
-import tensorflow as tf
 
 
 class EquiJoinIndicesBenchmarks(struct2tensor_benchmark_util.OpsBenchmarks):

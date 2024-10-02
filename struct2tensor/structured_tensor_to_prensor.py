@@ -41,12 +41,15 @@ This conversion handles a variety of differences in the implementation.
 
 from typing import Mapping, Union
 
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow.compat.v2 as tf
+from tensorflow.python.ops.ragged.row_partition import (
+  RowPartition,  # pylint: disable=g-direct-tensorflow-import
+)
+from tensorflow.python.ops.structured import (
+  structured_tensor,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.ops.ragged.row_partition import RowPartition  # pylint: disable=g-direct-tensorflow-import
-from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import path, prensor
 
 
 def structured_tensor_to_prensor(
@@ -130,6 +133,7 @@ def _expand_dims(st, axis):
 
   Returns:
     a tensor with one more dimension (see tf.expand_dims).
+
   Raises:
     ValueError:
       if the axis is not valid.
@@ -249,7 +253,6 @@ def _partition_if_not_vector(values: tf.Tensor, dtype: tf.dtypes.DType):
   Raises:
     ValueError: if the shape cannot be statically determined or is a scalar.
   """
-
   values_shape = values.shape
   assert values_shape is not None
   values_rank = values_shape.rank
@@ -273,12 +276,14 @@ def _fully_partitioned_ragged_tensor(rt: Union[tf.RaggedTensor, tf.Tensor],
   A fully partitioned ragged tensor is:
   1. A ragged tensor.
   2. The final values are a vector.
+
   Args:
     rt: input to coerce from RaggedTensor or Tensor. Must be at least 2D.
     dtype: requested dtype for partitions: tf.int64 or tf.int32.
 
   Returns:
     A ragged tensor where the flat values are a 1D tensor.
+
   Raises:
     ValueError: if the tensor is 0D or 1D.
   """

@@ -20,12 +20,12 @@
 
 from typing import Mapping
 
-from struct2tensor import calculate_options
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
+from tensorflow.python.util import (
+  deprecation,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.util import deprecation  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import calculate_options, path, prensor
 
 
 @deprecation.deprecated(None, "Use the Prensor class method instead.")

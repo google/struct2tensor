@@ -15,18 +15,19 @@
 
 import itertools
 
-from absl.testing import absltest
-from absl.testing import parameterized
 import numpy as np
-from struct2tensor.ops import struct2tensor_ops
-from struct2tensor.test import test_extension_pb2
-from struct2tensor.test import test_map_pb2
-from struct2tensor.test import test_pb2
-from struct2tensor.test import test_proto3_pb2
 import tensorflow as tf
+from absl.testing import absltest, parameterized
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
 
-
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor.ops import struct2tensor_ops
+from struct2tensor.test import (
+  test_extension_pb2,
+  test_map_pb2,
+  test_pb2,
+)
 
 INDEX = "index"
 VALUE = "value"
@@ -143,8 +144,7 @@ class PrensorOpsTest(parameterized.TestCase, tf.test.TestCase):
           for f in parsed_fields:
             self.assertAllEqual(
                 expected_field_value[f.field_name], f.value,
-                "field: {}, permutation: {}, field_to_parse: {}".format(
-                    f.field_name, indices, comb))
+                f"field: {f.field_name}, permutation: {indices}, field_to_parse: {comb}")
 
   def test_out_of_order_repeated_fields_1(self):
     # This is a 2-1-2 wire number pattern.
@@ -557,9 +557,9 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
   @parameterized.named_parameters(
       [dict(testcase_name=t, key_type=t) for t in _SIGNED_INTEGER_TYPES])
   def test_signed_integer_key_types(self, key_type):
-    field_name = "{}_string_map".format(key_type)
+    field_name = f"{key_type}_string_map"
     message_with_map = test_map_pb2.MessageWithMap()
-    map_entry = getattr(message_with_map, "{}_string_map".format(key_type))
+    map_entry = getattr(message_with_map, f"{key_type}_string_map")
     map_entry[42] = "hello"
     map_entry[-42] = "world"
 
@@ -578,9 +578,9 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
   @parameterized.named_parameters(
       [dict(testcase_name=t, key_type=t) for t in _UNSIGNED_INTEGER_TYPES])
   def test_unsigned_integer_key_types(self, key_type):
-    field_name = "{}_string_map".format(key_type)
+    field_name = f"{key_type}_string_map"
     message_with_map = test_map_pb2.MessageWithMap()
-    map_entry = getattr(message_with_map, "{}_string_map".format(key_type))
+    map_entry = getattr(message_with_map, f"{key_type}_string_map")
     map_entry[42] = "hello"
 
     [(values_42, indices_42),
@@ -592,14 +592,14 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
     self.assertAllEqual(indices_0, [])
 
   def test_invalid_uint32_key(self):
-    with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
+    with self.assertRaisesRegex(tf.errors.InvalidArgumentError,
                                  "Failed to parse .*string"):
       self.evaluate(
           self._parse_map_entry([test_map_pb2.MessageWithMap()],
                                 "uint32_string_map", ["-42"]))
 
   def test_invalid_int32_key(self):
-    with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
+    with self.assertRaisesRegex(tf.errors.InvalidArgumentError,
                                  "Failed to parse .*string"):
       self.evaluate(
           self._parse_map_entry([test_map_pb2.MessageWithMap()],
@@ -617,7 +617,7 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
 
   def test_invalid_bool_key(self):
     message_with_map = test_map_pb2.MessageWithMap()
-    with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
+    with self.assertRaisesRegex(tf.errors.InvalidArgumentError,
                                  "Failed to parse .*string"):
       self.evaluate(
           self._parse_map_entry([message_with_map], "bool_string_map", ["2"]))
@@ -625,9 +625,9 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
   @parameterized.named_parameters(
       [dict(testcase_name=t, value_type=t) for t in _SIGNED_INTEGER_TYPES])
   def test_signed_integer_value_types(self, value_type):
-    field_name = "string_{}_map".format(value_type)
+    field_name = f"string_{value_type}_map"
     message_with_map = test_map_pb2.MessageWithMap()
-    map_entry = getattr(message_with_map, "string_{}_map".format(value_type))
+    map_entry = getattr(message_with_map, f"string_{value_type}_map")
     map_entry["foo"] = 42
     map_entry["bar"] = -42
     [(values_foo, indices_foo), (values_bar, indices_bar),
@@ -644,9 +644,9 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
   @parameterized.named_parameters(
       [dict(testcase_name=t, value_type=t) for t in _UNSIGNED_INTEGER_TYPES])
   def test_unsigned_integer_value_types(self, value_type):
-    field_name = "string_{}_map".format(value_type)
+    field_name = f"string_{value_type}_map"
     message_with_map = test_map_pb2.MessageWithMap()
-    map_entry = getattr(message_with_map, "string_{}_map".format(value_type))
+    map_entry = getattr(message_with_map, f"string_{value_type}_map")
     map_entry["foo"] = 42
     [(values_foo, indices_foo), (values_null, indices_null)
     ] = self._parse_map_entry([message_with_map], field_name, ["foo", ""])
@@ -658,9 +658,9 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
   @parameterized.named_parameters(
       [dict(testcase_name=t, value_type=t) for t in ["float", "double"]])
   def test_fp_value_types(self, value_type):
-    field_name = "string_{}_map".format(value_type)
+    field_name = f"string_{value_type}_map"
     message_with_map = test_map_pb2.MessageWithMap()
-    map_entry = getattr(message_with_map, "string_{}_map".format(value_type))
+    map_entry = getattr(message_with_map, f"string_{value_type}_map")
     map_entry["foo"] = 0.5
     [(values_foo, indices_foo), (values_null, indices_null)
     ] = self._parse_map_entry([message_with_map], field_name, ["foo", ""])

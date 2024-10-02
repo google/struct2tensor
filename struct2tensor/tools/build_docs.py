@@ -22,14 +22,12 @@ import pathlib
 import shutil
 import tempfile
 
-from absl import app
-from absl import flags
+import yaml
+from absl import app, flags
+from tensorflow_docs.api_generator import generate_lib, public_api
+
 import struct2tensor as s2t
 from struct2tensor import expression_impl
-from tensorflow_docs.api_generator import generate_lib
-from tensorflow_docs.api_generator import public_api
-
-import yaml
 
 flags.DEFINE_string("output_dir", "/tmp/s2t_api", "Where to output the docs")
 

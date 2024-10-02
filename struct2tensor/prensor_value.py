@@ -28,14 +28,15 @@ import collections
 from typing import FrozenSet, Iterator, Mapping, Optional, Sequence, Union
 
 import numpy as np
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
+from tensorflow.python.client import (
+  session as session_lib,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.client import session as session_lib  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import path, prensor
 
 
-class RootNodeValue(object):
+class RootNodeValue:
   """The value of the root."""
 
   __slots__ = ["_size"]
@@ -60,13 +61,13 @@ class RootNodeValue(object):
     return "repeated"
 
   def data_string(self):
-    return "size: {}".format(self._size)
+    return f"size: {self._size}"
 
   def __str__(self):
     return "RootNode"
 
 
-class ChildNodeValue(object):
+class ChildNodeValue:
   """The value of an intermediate node."""
 
   __slots__ = ["_parent_index", "_is_repeated"]
@@ -104,13 +105,13 @@ class ChildNodeValue(object):
     return "repeated" if self.is_repeated else "optional"
 
   def data_string(self):
-    return "parent_index: {}".format(self._parent_index)
+    return f"parent_index: {self._parent_index}"
 
   def __str__(self):
-    return "ChildNode {} {}".format(self.schema_string(), self.data_string())
+    return f"ChildNode {self.schema_string()} {self.data_string()}"
 
 
-class LeafNodeValue(object):
+class LeafNodeValue:
   """The value of a leaf node."""
 
   __slots__ = ["_parent_index", "_values", "_is_repeated"]
@@ -143,11 +144,10 @@ class LeafNodeValue(object):
     return self._values
 
   def data_string(self):
-    return "parent_index: {} values: {}".format(self._parent_index,
-                                                self._values)
+    return f"parent_index: {self._parent_index} values: {self._values}"
 
   def schema_string(self) -> str:
-    return u"{} {}".format("repeated" if self.is_repeated else "optional",
+    return "{} {}".format("repeated" if self.is_repeated else "optional",
                            str(self.values.dtype))
 
   def __str__(self):
@@ -158,7 +158,7 @@ class LeafNodeValue(object):
 NodeValue = Union[RootNodeValue, ChildNodeValue, LeafNodeValue]  # pylint: disable=invalid-name
 
 
-class PrensorValue(object):
+class PrensorValue:
   """A tree of NodeValue objects."""
 
   __slots__ = ["_node", "_children"]
@@ -195,7 +195,7 @@ class PrensorValue(object):
     result = self._children.get(field_name)
     if result is not None:
       return result
-    raise ValueError("Field not found: {}".format(str(field_name)))
+    raise ValueError(f"Field not found: {str(field_name)}")
 
   def get_descendant(self, p: path.Path) -> Optional["PrensorValue"]:
     """Finds the descendant at the path."""
@@ -210,7 +210,7 @@ class PrensorValue(object):
     """Finds the descendant at the path."""
     result = self.get_descendant(p)
     if result is None:
-      raise ValueError("Missing path: {}".format(str(p)))
+      raise ValueError(f"Missing path: {str(p)}")
     return result
 
   def get_children(self) -> Mapping[path.Step, "PrensorValue"]:
@@ -233,25 +233,24 @@ class PrensorValue(object):
   def _string_helper(self, field_name: str) -> Sequence[str]:
     """Helper for __str__ that outputs a list of lines."""
     result = [
-        "{} {} {}".format(self.node.schema_string(), str(field_name),
-                          self.node.data_string())
+        f"{self.node.schema_string()} {str(field_name)} {self.node.data_string()}"
     ]
     for k, v in self._children.items():
       recursive = v._string_helper(k)  # pylint: disable=protected-access
-      result.extend(["  {}".format(x) for x in recursive])
+      result.extend([f"  {x}" for x in recursive])
     return result
 
   def _schema_string_helper(self, field_name: str) -> Sequence[str]:
     """Helper for __str__ that outputs a list of lines."""
-    result = [u"{} {}".format(self.node.schema_string(), str(field_name))]
+    result = [f"{self.node.schema_string()} {str(field_name)}"]
     for k, v in self._children.items():
       recursive = v._string_helper(k)  # pylint: disable=protected-access
-      result.extend([u"  {}".format(x) for x in recursive])
+      result.extend([f"  {x}" for x in recursive])
     return result
 
   def schema_string(self):
     """Returns a string representing the schema of the Prensor."""
-    return u"\n".join(self._schema_string_helper(""))
+    return "\n".join(self._schema_string_helper(""))
 
   def __str__(self):
     """Returns a string representing the schema of the Prensor."""

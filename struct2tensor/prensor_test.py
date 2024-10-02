@@ -14,13 +14,13 @@
 
 """Tests for struct2tensor.prensor."""
 
-from struct2tensor import calculate_options
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.test import prensor_test_util
 import tensorflow as tf
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import calculate_options, path, prensor
+from struct2tensor.test import prensor_test_util
 
 _OPTIONS_TO_TEST = [
     calculate_options.get_default_options(),

@@ -23,9 +23,7 @@ add_to: a way to copy fields back to an earlier tree.
 
 from typing import FrozenSet, Mapping, Optional, Sequence, Tuple
 
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
+from struct2tensor import expression, path, prensor
 from struct2tensor.calculate_options import Options
 
 
@@ -106,8 +104,7 @@ class _AddPathsExpression(expression.Expression):
 
   def __str__(self) -> str:
     keys_to_add = ",".join([str(k) for k in self._path_map.keys()])
-    return "_AddPathsExpression({}, [{}])".format(
-        str(self._origin), keys_to_add)
+    return f"_AddPathsExpression({str(self._origin)}, [{keys_to_add}])"
 
 
 def add_paths(root: expression.Expression,
@@ -130,9 +127,9 @@ def add_paths(root: expression.Expression,
   """
   for p in path_map.keys():
     if root.get_descendant(p.get_parent()) is None:
-      raise ValueError("No parent of {}".format(p))
+      raise ValueError(f"No parent of {p}")
     if root.get_descendant(p) is not None:
-      raise ValueError("Path already set: {}".format(str(p)))
+      raise ValueError(f"Path already set: {str(p)}")
   _, map_of_maps = create_subtrees(path_map)
   return _AddPathsExpression(root, map_of_maps)
 
@@ -187,9 +184,9 @@ def add_to(root: expression.Expression,
     if not _is_true_source_expression(
         root.get_descendant_or_error(path_parent),
         origin_root.get_descendant_or_error(path_parent)):
-      raise ValueError("Not a true source for tree with {}".format(str(p)))
+      raise ValueError(f"Not a true source for tree with {str(p)}")
     if root.get_descendant(p) is not None:
-      raise ValueError("Already contains {}.".format(str(p)))
+      raise ValueError(f"Already contains {str(p)}.")
   path_map = {
       p: origin_root.get_descendant_or_error(p)
       for p, origin_root in origins.items()

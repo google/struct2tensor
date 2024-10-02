@@ -19,11 +19,9 @@ create_expression_from_prensor(...) creates an Expression from a Prensor.
 
 from typing import FrozenSet, Mapping, Optional, Sequence
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, path, prensor
 
 
 class _DirectExpression(expression.Expression):
@@ -84,7 +82,7 @@ class _DirectExpression(expression.Expression):
     return frozenset(self._children.keys())
 
   def __str__(self) -> str:
-    return "_DirectExpression: {}".format(str(id(self)))
+    return f"_DirectExpression: {str(id(self))}"
 
 
 def create_expression_from_prensor(

@@ -31,13 +31,10 @@ is always present, and is true if there are one or more bar in foo.
 """
 from typing import Optional, Sequence, Tuple
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.expression_impl import map_values
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
+from struct2tensor.expression_impl import map_values
 
 
 def size_anonymous(root: expression.Expression, source_path: path.Path
@@ -152,7 +149,7 @@ def _size_impl(
   if not source_path:
     raise ValueError("Cannot get the size of the root.")
   if root.get_descendant(source_path) is None:
-    raise ValueError("Path not found: {}".format(str(source_path)))
+    raise ValueError(f"Path not found: {str(source_path)}")
   parent_path = source_path.get_parent()
   new_path = parent_path.get_child(new_field_name)
   return expression_add.add_paths(

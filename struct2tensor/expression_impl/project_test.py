@@ -14,8 +14,8 @@
 """Tests for struct2tensor.project."""
 
 from absl.testing import absltest
-from struct2tensor import create_expression
-from struct2tensor import path
+
+from struct2tensor import create_expression, path
 from struct2tensor.expression_impl import project
 from struct2tensor.test import prensor_test_util
 

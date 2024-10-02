@@ -13,15 +13,15 @@
 # limitations under the License.
 """Tests for struct2tensor.parquet."""
 
-from pyarrow.lib import ArrowIOError
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.expression_impl import parquet
-from struct2tensor.expression_impl import project
-from struct2tensor.expression_impl import promote
 import tensorflow.compat.v2 as tf
 from absl.testing import absltest
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from pyarrow.lib import ArrowIOError
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
+
+from struct2tensor import path, prensor
+from struct2tensor.expression_impl import parquet, project, promote
 
 tf.enable_v2_behavior()
 

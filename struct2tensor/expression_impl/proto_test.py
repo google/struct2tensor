@@ -13,21 +13,21 @@
 # limitations under the License.
 """Tests for struct2tensor.proto."""
 
-from absl.testing import absltest
-from absl.testing import parameterized
-from struct2tensor import calculate_options
-from struct2tensor import path
-from struct2tensor.expression_impl import proto
-from struct2tensor.expression_impl import proto_test_util
-from struct2tensor.test import expression_test_util
-from struct2tensor.test import test_any_pb2
-from struct2tensor.test import test_extension_pb2
-from struct2tensor.test import test_map_pb2
-from struct2tensor.test import test_pb2
-from struct2tensor.test import test_proto3_pb2
 import tensorflow as tf
+from absl.testing import absltest, parameterized
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import calculate_options, path
+from struct2tensor.expression_impl import proto, proto_test_util
+from struct2tensor.test import (
+  expression_test_util,
+  test_any_pb2,
+  test_extension_pb2,
+  test_map_pb2,
+  test_pb2,
+)
 
 
 def _get_expression_with_any():

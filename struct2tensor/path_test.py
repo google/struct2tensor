@@ -16,14 +16,15 @@
 # pylint: disable=protected-access
 import pprint
 
-from absl.testing import absltest
-from absl.testing import parameterized
+from absl.testing import absltest, parameterized
 
-from struct2tensor.path import create_path
-from struct2tensor.path import expand_wildcard_proto_paths
-from struct2tensor.path import from_proto
-from struct2tensor.path import parse_map_indexing_step
-from struct2tensor.path import Path
+from struct2tensor.path import (
+  Path,
+  create_path,
+  expand_wildcard_proto_paths,
+  from_proto,
+  parse_map_indexing_step,
+)
 from struct2tensor.test import test_pb2
 
 _FORMAT_TEST_CASES = [
