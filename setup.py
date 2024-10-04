@@ -67,8 +67,10 @@ __version__ = globals_dict['__version__']
 setup(
     name='struct2tensor',
     version=__version__,
-    description=('Struct2Tensor is a package for parsing and manipulating'
-                 ' structured data for TensorFlow'),
+    description=(
+        'Struct2Tensor is a package for parsing and manipulating'
+        ' structured data for TensorFlow'
+    ),
     author='Google LLC',
     author_email='tensorflow-extended-dev@googlegroups.com',
     # Contained modules and scripts.
@@ -79,14 +81,13 @@ setup(
         'numpy>=1.22',
         'protobuf>=4.25.2,<5;python_version>="3.11"',
         'protobuf>=3.20.3,<5;python_version<"3.11"',
-        'tensorflow' + select_constraint(
-            default='>=2.15,<2.16',
-            nightly='>=2.16.0.dev',
-            git_master='@git+https://github.com/tensorflow/tensorflow@master'),
-        'tensorflow-metadata' + select_constraint(
+        'tensorflow>=2.16,<2.17',
+        'tensorflow-metadata'
+        + select_constraint(
             default='>=1.15.0,<1.16.0',
             nightly='>=1.16.0.dev',
-            git_master='@git+https://github.com/tensorflow/metadata@master'),
+            git_master='@git+https://github.com/tensorflow/metadata@master',
+        ),
         'pyarrow>=10,<11',
     ],
     # Add in any packaged data.
@@ -119,4 +120,5 @@ setup(
     keywords='tensorflow protobuf machine learning',
     long_description=_LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
-    cmdclass={'install': _InstallPlatlib})
+    cmdclass={'install': _InstallPlatlib},
+)
