@@ -6,6 +6,8 @@
 
 ## Bug Fixes and Other Changes
 
+*   Bumped the minimum bazel version required to build `struct2tensor` to 6.5.0.
+
 ## Breaking Changes
 
 ## Deprecations
