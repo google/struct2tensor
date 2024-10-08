@@ -1,136 +1,58 @@
-description: get_positional_index and get_index_from_end methods.
+# Module: expression_impl
 
-<div itemscope itemtype="http://developers.google.com/ReferenceObject">
-<meta itemprop="name" content="expression_impl.index" />
-<meta itemprop="path" content="Stable" />
+<div class="buttons-wrapper">
+  <a class="md-button" target="_blank" href=
+	  "https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/__init__.py">
+    <div class="buttons-content">
+      <img width="32px" src=
+	   "https://www.tensorflow.org/images/GitHub-Mark-32px.png">
+      View source on GitHub
+    </div>
+  </a>
 </div>
 
-# Module: expression_impl.index
+The modules in this file should be accessed like the following:
 
-<!-- Insert buttons and diff -->
+```python
+import struct2tensor as s2t
+from struct2tensor import expression_impl
 
-<table class="tfo-notebook-buttons tfo-api nocontent" align="left">
-<td>
-  <a target="_blank" href="https://github.com/google/struct2tensor/blob/master/struct2tensor/expression_impl/index.py">
-    <img src="https://www.tensorflow.org/images/GitHub-Mark-32px.png" />
-    View source on GitHub
-  </a>
-</td>
-</table>
-
-
-
-get_positional_index and get_index_from_end methods.
-
-
-The parent_index identifies the index of the parent of each element. These
-methods take the parent_index to determine the relationship with respect to
-other elements.
-
-#### Given:
-
-
-
-```
-session: {
-  event: {
-    val: 111
-  }
-  event: {
-    val: 121
-    val: 122
-  }
-}
-
-session: {
-  event: {
-    val: 10
-    val: 7
-  }
-  event: {
-    val: 1
-  }
-}
+s2t.expression_impl.apply_schema
 ```
 
-```
-get_positional_index(expr, path.Path(["event","val"]), "val_index")
-```
+## Modules
 
-yields:
+[`apply_schema`][struct2tensor.expression_impl.apply_schema] module: Apply a schema to an expression.
 
-```
-session: {
-  event: {
-    val: 111
-    val_index: 0
-  }
-  event: {
-    val: 121
-    val: 122
-    val_index: 0
-    val_index: 1
-  }
-}
+[`broadcast`][struct2tensor.expression_impl.broadcast] module: Methods for broadcasting a path in a tree.
 
-session: {
-  event: {
-    val: 10
-    val: 7
-    val_index: 0
-    val_index: 1
-  }
-  event: {
-    val: 1
-    val_index: 0
-  }
-}
-```
+[`depth_limit`][struct2tensor.expression_impl.depth_limit] module: Caps the depth of an expression.
 
-```
-get_index_from_end(expr, path.Path(["event","val"]), "neg_val_index")
-```
-yields:
+[`filter_expression`][struct2tensor.expression_impl.filter_expression] module: Create a new expression that is a filtered version of an original one.
 
-```
-session: {
-  event: {
-    val: 111
-    neg_val_index: -1
-  }
-  event: {
-    val: 121
-    val: 122
-    neg_val_index: -2
-    neg_val_index: -1
-  }
-}
+[`index`][struct2tensor.expression_impl.index] module: get_positional_index and get_index_from_end methods.
 
-session: {
-  event: {
-    val: 10
-    val: 7
-    neg_val_index: 2
-    neg_val_index: -1
-  }
-  event: {
-    val: 1
-    neg_val_index: -1
-  }
-}
-```
+[`map_prensor`][struct2tensor.expression_impl.map_prensor] module: Arbitrary operations from sparse and ragged tensors to a leaf field.
 
-These methods are useful when you want to depend upon the index of a field.
-For example, if you want to filter examples based upon their index, or
-cogroup two fields by index, then first creating the index is useful.
+[`map_prensor_to_prensor`][struct2tensor.expression_impl.map_prensor_to_prensor] module: Arbitrary operations from prensors to prensors in an expression.
 
-Note that while the parent indices of these fields seem like overhead, they
-are just references to the parent indices of other fields, and are therefore
-take little memory or CPU.
+[`map_values`][struct2tensor.expression_impl.map_values] module: Maps the values of various leaves of the same child to a single result.
 
-## Functions
+[`parquet`][struct2tensor.expression_impl.parquet] module: Apache Parquet Dataset.
 
-[`get_index_from_end(...)`](../expression_impl/index/get_index_from_end.md): Gets the number of steps from the end of the array.
+[`placeholder`][struct2tensor.expression_impl.placeholder] module: Placeholder expression.
 
-[`get_positional_index(...)`](../expression_impl/index/get_positional_index.md): Gets the positional index.
+[`project`][struct2tensor.expression_impl.project] module: project selects a subtree of an expression.
+
+[`promote`][struct2tensor.expression_impl.promote] module: Promote an expression to be a child of its grandparent.
+
+[`promote_and_broadcast`][struct2tensor.expression_impl.promote_and_broadcast] module: promote_and_broadcast a set of nodes.
+
+[`proto`][struct2tensor.expression_impl.proto] module: Expressions to parse a proto.
+
+[`reroot`][struct2tensor.expression_impl.reroot] module: Reroot to a subtree, maintaining an input proto index.
+
+[`size`][struct2tensor.expression_impl.size] module: Functions for creating new size or has expression.
+
+[`slice_expression`][struct2tensor.expression_impl.slice_expression] module: Implementation of slice.
 
