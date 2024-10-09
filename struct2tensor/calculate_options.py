@@ -19,7 +19,7 @@ as an argument to calculate, get_sparse_tensor, and get_ragged_tensor.
 """
 
 
-class Options(object):
+class Options:
   """Options for calculate functions.
 
   Do not construct Options directly. The preferred method of creating an object

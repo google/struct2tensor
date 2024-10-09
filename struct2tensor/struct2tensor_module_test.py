@@ -14,6 +14,7 @@
 """Tests for struct2tensor.__init__.py."""
 
 from absl.testing import absltest
+
 import struct2tensor as s2t
 
 
@@ -54,7 +55,6 @@ class Struct2tensorModuleTest(absltest.TestCase):
 
   def test_importing_expression_impl_modules(self):
     """This tests that the expression_impl/__init__.py imports are found."""
-
     from struct2tensor import expression_impl  # pylint: disable=g-import-not-at-top
 
     modules = [

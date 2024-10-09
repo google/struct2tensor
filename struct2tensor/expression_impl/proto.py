@@ -19,20 +19,25 @@ for its children.
 """
 
 import abc
-from typing import Callable, FrozenSet, Mapping, Optional, Sequence, Set, Tuple, Union, cast
+from typing import (
+  Callable,
+  FrozenSet,
+  Mapping,
+  Optional,
+  Sequence,
+  Set,
+  Tuple,
+  Union,
+  cast,
+)
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
+import tensorflow as tf
+from google.protobuf import descriptor, descriptor_pb2
+from google.protobuf.descriptor_pool import DescriptorPool
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
 from struct2tensor.expression_impl import parse_message_level_ex
 from struct2tensor.ops import struct2tensor_ops
-import tensorflow as tf
-
-from google.protobuf import descriptor_pb2
-from google.protobuf import descriptor
-from google.protobuf.descriptor_pool import DescriptorPool
 
 # To the best of my knowledge, ProtoFieldNames ARE strings.
 # Also includes extensions, encoded in a parentheses like (foo.bar.Baz).
@@ -70,7 +75,6 @@ def create_expression_from_file_descriptor_set(
   Returns:
     An expression.
   """
-
   pool = DescriptorPool()
   for f in file_descriptor_set.file:
     # This method raises if f's dependencies have not been added.
@@ -173,8 +177,7 @@ def create_transformed_field(
   source_expr = expr.get_descendant_or_error(source_path)
   if not isinstance(source_expr, _ProtoChildExpression):
     raise ValueError(
-        "Expected _ProtoChildExpression for field {}, but found {}.".format(
-            str(source_path), source_expr))
+        f"Expected _ProtoChildExpression for field {str(source_path)}, but found {source_expr}.")
 
   if isinstance(source_expr, _TransformProtoChildExpression):
     # In order to be able to propagate fields needed for parsing, the source
@@ -290,8 +293,7 @@ class _AbstractProtoChildExpression(expression.Expression):
         parent_value, _ProtoChildNodeTensor):
       parsed_field = parent_value.fields.get(self.name_as_field)
       if parsed_field is None:
-        raise ValueError("Cannot find {} in {}".format(
-            str(self), str(parent_value)))
+        raise ValueError(f"Cannot find {str(self)} in {str(parent_value)}")
       return self.calculate_from_parsed_field(parsed_field, destinations,
                                               options)
     raise ValueError("Not a _ParentProtoNodeTensor: " + str(type(parent_value)))
@@ -357,8 +359,7 @@ class _ProtoLeafExpression(_AbstractProtoChildExpression):
     return frozenset()
 
   def __str__(self) -> str:
-    return "_ProtoLeafExpression: {} from {}".format(self.name_as_field,
-                                                     self._parent)
+    return f"_ProtoLeafExpression: {self.name_as_field} from {self._parent}"
 
 
 class _ProtoChildExpression(_AbstractProtoChildExpression):
@@ -379,6 +380,7 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
 
     This does not take a field descriptor so it can represent syntactic sugar
     fields such as Any and Maps.
+
     Args:
       parent: the parent.
       desc: the message descriptor of the submessage represented by this
@@ -427,8 +429,7 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
     return _known_field_names_from_descriptor(self._desc)
 
   def __str__(self) -> str:
-    return "_ProtoChildExpression: name_as_field: {} desc: {} from {}".format(
-        str(self.name_as_field), str(self._desc.full_name), self._parent)
+    return f"_ProtoChildExpression: name_as_field: {str(self.name_as_field)} desc: {str(self._desc.full_name)} from {self._parent}"
 
 
 class _TransformProtoChildExpression(_ProtoChildExpression):
@@ -475,10 +476,8 @@ class _TransformProtoChildExpression(_ProtoChildExpression):
             and self.transform_fn is expr.transform_fn)
 
   def __str__(self) -> str:
-    return ("_TransformProtoChildExpression: name_as_field: {} desc: {} from {}"
-            .format(
-                str(self.name_as_field), str(self._desc.full_name),
-                self._parent))
+    return (f"_TransformProtoChildExpression: name_as_field: {str(self.name_as_field)} desc: {str(self._desc.full_name)} from {self._parent}"
+            )
 
 
 class _ProtoRootExpression(expression.Expression):
@@ -560,7 +559,7 @@ class _ProtoRootExpression(expression.Expression):
     return _known_field_names_from_descriptor(self._descriptor)
 
   def __str__(self) -> str:
-    return "_ProtoRootExpression: {}".format(str(self._descriptor.full_name))
+    return f"_ProtoRootExpression: {str(self._descriptor.full_name)}"
 
 
 ProtoExpression = Union[_ProtoRootExpression, _ProtoChildExpression,  # pylint: disable=invalid-name

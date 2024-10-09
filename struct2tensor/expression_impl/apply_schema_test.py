@@ -14,13 +14,12 @@
 """Tests for struct2tensor.expression_impl.apply_schema."""
 
 import copy
+
 from absl.testing import absltest
-
-from struct2tensor import create_expression
-from struct2tensor import path
-from struct2tensor.test import prensor_test_util
-
 from tensorflow_metadata.proto.v0 import schema_pb2
+
+from struct2tensor import create_expression, path
+from struct2tensor.test import prensor_test_util
 
 
 def _features_as_map(feature_list):

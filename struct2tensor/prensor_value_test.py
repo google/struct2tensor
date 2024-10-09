@@ -13,11 +13,13 @@
 # limitations under the License.
 """Tests for struct2tensor.create_expression."""
 
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor import prensor_value  # pylint: disable=unused-import
-from struct2tensor.test import prensor_test_util
 import tensorflow as tf
+
+from struct2tensor import (
+  path,
+  prensor,  # pylint: disable=unused-import
+)
+from struct2tensor.test import prensor_test_util
 
 
 # This is a V1 test. The prensor value is not meaningful for V2.

@@ -14,10 +14,10 @@
 """Utilities for tests on proto expressions."""
 
 import tensorflow as tf
-
-from struct2tensor.test import test_pb2
-from struct2tensor.expression_impl import proto
 from google.protobuf import text_format
+
+from struct2tensor.expression_impl import proto
+from struct2tensor.test import test_pb2
 
 
 def text_to_tensor(text_list, example_proto_clz):

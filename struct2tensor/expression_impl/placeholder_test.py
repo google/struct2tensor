@@ -13,18 +13,16 @@
 # limitations under the License.
 """Tests for struct2tensor.expression_impl.placeholder."""
 
-from absl.testing import absltest
-from struct2tensor import calculate
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.expression_impl import map_prensor_to_prensor as mpp
-from struct2tensor.expression_impl import placeholder
-from struct2tensor.expression_impl import project
-from struct2tensor.expression_impl import promote
-from struct2tensor.test import prensor_test_util
 import tensorflow as tf
+from absl.testing import absltest
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import calculate, path, prensor
+from struct2tensor.expression_impl import map_prensor_to_prensor as mpp
+from struct2tensor.expression_impl import placeholder, project, promote
+from struct2tensor.test import prensor_test_util
 
 
 @test_util.run_all_in_graph_and_eager_modes

@@ -13,10 +13,13 @@
 # limitations under the License.
 """Tests for struct2tensor.parquet."""
 
-from struct2tensor.expression_impl import parquet
 import tensorflow as tf
 from absl.testing import absltest
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
+
+from struct2tensor.expression_impl import parquet
 
 
 class ParquetDatasetTestBase(tf.test.TestCase):

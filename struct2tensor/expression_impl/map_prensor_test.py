@@ -13,18 +13,15 @@
 # limitations under the License.
 """Tests for struct2tensor.map_prensor."""
 
-from absl.testing import absltest
-from struct2tensor import calculate_options
-from struct2tensor import create_expression
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.expression_impl import map_prensor
-from struct2tensor.test import expression_test_util
-from struct2tensor.test import prensor_test_util
 import tensorflow as tf
+from absl.testing import absltest
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
 
-
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import calculate_options, create_expression, path, prensor
+from struct2tensor.expression_impl import map_prensor
+from struct2tensor.test import expression_test_util, prensor_test_util
 
 
 def _create_one_value_prensor():

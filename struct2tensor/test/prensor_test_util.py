@@ -19,12 +19,11 @@ See create_simple_prensor() and create_nested_prensor().
 
 from typing import Any, Sequence
 
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
-
 from google.protobuf import text_format
 from tensorflow_metadata.proto.v0 import schema_pb2
+
+from struct2tensor import path, prensor
 
 
 def create_root_node(size: int) -> prensor.RootNodeTensor:
