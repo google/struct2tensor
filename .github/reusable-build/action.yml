@@ -7,6 +7,15 @@ inputs:
 runs:
   using: 'composite'
   steps:
+  - name: Set up Python ${{ matrix.python-version }}
+    uses: actions/setup-python@v5
+    with:
+      python-version: ${{ inputs.python-version }}
+
+  - name: Install build dependencies
+    run: |
+      pip install numpy
+
   - name: Build the package for Python ${{ inputs.python-version }}
     shell: bash
     run: |
