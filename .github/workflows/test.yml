@@ -1,0 +1,37 @@
+name: Test struct2tensor wheels
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build package
+        id: build-package
+        uses: ./.github/reusable-build
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Test dependencies
+        shell: bash
+        run: |
+          pip install pyarrow tensorflow tensorflow-metadata protobuf pytest
+
+      - name: Run Test
+        run: |
+          pytest -v
