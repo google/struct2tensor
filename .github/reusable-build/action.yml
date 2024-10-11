@@ -13,6 +13,7 @@ runs:
       python-version: ${{ inputs.python-version }}
 
   - name: Install build dependencies
+    shell: bash
     run: |
       pip install numpy
 
