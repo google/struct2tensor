@@ -17,30 +17,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Build package
         id: build-package
         uses: ./.github/reusable-build
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Retrieve wheels
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-          path: wheels
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
       - name: List and check wheels
         shell: bash
         run: |
+          # Pin transitive dependency on pkginfo until https://github.com/pypa/twine/issues/1070 is
+          # fixed
           pip install twine pkginfo>=1.10.0
-          ${{ matrix.ls || 'ls -lh' }} wheels/
-          twine check wheels/*
-
+          ${{ matrix.ls || 'ls -lh' }} dist/
+          twine check dist/*
 
   upload_to_pypi:
     name: Upload to PyPI
@@ -64,6 +59,6 @@ jobs:
           ls -lAs wheels/
 
       - name: Upload to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1.9
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages_dir: wheels/
