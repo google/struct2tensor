@@ -34,4 +34,9 @@ jobs:
 
       - name: Run Test
         run: |
-          pytest -v
+          ls
+          pytest -vv
+
+      - name: Debugging with tmate
+        uses: mxschmitt/action-tmate@v3.19
+    
