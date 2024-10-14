@@ -122,13 +122,16 @@ class ChildNodeTensor(object):
 
     The positional index tells us which index of the parent an element is.
 
-    For example, with the following parent indices: [0, 0, 2]
+    For example, with the following parent indices: `[0, 0, 2]`
     we would have positional index:
+
+    ```python
     [
       0, # The 0th element of the 0th parent.
       1, # The 1st element of the 0th parent.
       0  # The 0th element of the 2nd parent.
-    ].
+    ]
+    ```
 
     For more information, view ops/run_length_before_op.cc
 
@@ -183,13 +186,16 @@ class LeafNodeTensor(object):
 
     The positional index tells us which index of the parent an element is.
 
-    For example, with the following parent indices: [0, 0, 2]
+    For example, with the following parent indices: `[0, 0, 2]`
     we would have positional index:
+
+    ```python
     [
       0, # The 0th element of the 0th parent.
       1, # The 1st element of the 0th parent.
       0  # The 0th element of the 2nd parent.
-    ].
+    ]
+    ```
 
     For more information, view ops/run_length_before_op.cc
 
@@ -455,7 +461,7 @@ class Prensor(composite_tensor.CompositeTensor):
 
     Returns:
       A ragged tensor containing values of the leaf node, preserving the
-      structure along the path. Raises an error if the path is not found.
+        structure along the path. Raises an error if the path is not found.
     """
     return _get_ragged_tensor(self, p, options=options)
 
@@ -476,7 +482,7 @@ class Prensor(composite_tensor.CompositeTensor):
 
     Returns:
       A sparse tensor containing values of the leaf node, preserving the
-      structure along the path. Raises an error if the path is not found.
+        structure along the path. Raises an error if the path is not found.
     """
     return _get_sparse_tensor(self, p, options=options)
 

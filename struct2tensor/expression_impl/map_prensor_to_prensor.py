@@ -34,7 +34,7 @@ and produces a prensor of the form my_result_schema:
  foo2 bar2
 ```
 
-```
+```python
 my_result_schema = create_schema(
     is_repeated=True,
     children={"foo2":{is_repeated:True, dtype:tf.int64},
@@ -49,7 +49,9 @@ If you give it an expression original with the schema:
   event
   /  \
 foo   bar
+```
 
+```python
 result = map_prensor_to_prensor(
   original,
   path.Path(["session","event"]),
@@ -155,11 +157,13 @@ def create_schema(is_repeated: bool = True,
                   children: Optional[Dict[path.Step, Any]] = None) -> Schema:
   """Create a schema recursively.
 
-  Example:
-  my_result_schema = create_schema(
-    is_repeated=True,
-    children={"foo2":{is_repeated=True, dtype=tf.int64},
-              "bar2":{is_repeated=False, dtype=tf.int64}})
+  !!! Example
+      ```python
+      my_result_schema = create_schema(
+        is_repeated=True,
+        children={"foo2":{is_repeated=True, dtype=tf.int64},
+                  "bar2":{is_repeated=False, dtype=tf.int64}})
+      ```
 
   Args:
     is_repeated: whether the root is repeated.
@@ -211,37 +215,46 @@ def map_prensor_to_prensor(
 
   For example, suppose you have an op my_op, that takes a prensor of the form:
 
+  ```
     event
-     / \
-   foo   bar
+    /  \
+  foo  bar
+  ```
 
   and produces a prensor of the form my_result_schema:
 
-     event
-      / \
-   foo2 bar2
+  ```
+    event
+    /  \
+  foo2 bar2
+  ```
 
   If you give it an expression original with the schema:
 
+  ```
    session
       |
     event
     /  \
   foo   bar
-
+  ```
+  ```python
   result = map_prensor_to_prensor(
     original,
     path.Path(["session","event"]),
     my_op,
     my_output_schema)
+  ```
 
   Result will have the schema:
 
+  ```
    session
       |
     event--------
     /  \    \    \
   foo   bar foo2 bar2
+  ```
 
   Args:
     root_expr: the root expression
