@@ -13,19 +13,15 @@
 # limitations under the License.
 """Tests for struct2tensor.reroot."""
 
-from absl.testing import absltest
-from struct2tensor import calculate
-from struct2tensor import create_expression
-from struct2tensor import path
-from struct2tensor.expression_impl import proto_test_util
-from struct2tensor.expression_impl import reroot
-from struct2tensor.test import expression_test_util
-from struct2tensor.test import prensor_test_util
-from struct2tensor.test import test_pb2
 import tensorflow as tf
+from absl.testing import absltest
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
 
-
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import calculate, create_expression, path
+from struct2tensor.expression_impl import proto_test_util, reroot
+from struct2tensor.test import expression_test_util, prensor_test_util, test_pb2
 
 
 @test_util.run_all_in_graph_and_eager_modes

@@ -73,4 +73,3 @@ root_2 = filter_expression.filter_by_child(
 [`filter_by_child(...)`](../expression_impl/filter_expression/filter_by_child.md): Filter an expression by an optional boolean child field.
 
 [`filter_by_sibling(...)`](../expression_impl/filter_expression/filter_by_sibling.md): Filter an expression by its sibling.
-

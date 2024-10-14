@@ -63,4 +63,3 @@ a list of paths of placeholder expressions
 </tr>
 
 </table>
-

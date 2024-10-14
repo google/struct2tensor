@@ -24,20 +24,22 @@ s2t.expression_impl.apply_schema
 ```
 """
 
-from struct2tensor.expression_impl import apply_schema
-from struct2tensor.expression_impl import broadcast
-from struct2tensor.expression_impl import depth_limit
-from struct2tensor.expression_impl import filter_expression
-from struct2tensor.expression_impl import index
-from struct2tensor.expression_impl import map_prensor
-from struct2tensor.expression_impl import map_prensor_to_prensor
-from struct2tensor.expression_impl import map_values
-from struct2tensor.expression_impl import parquet
-from struct2tensor.expression_impl import placeholder
-from struct2tensor.expression_impl import project
-from struct2tensor.expression_impl import promote
-from struct2tensor.expression_impl import promote_and_broadcast
-from struct2tensor.expression_impl import proto
-from struct2tensor.expression_impl import reroot
-from struct2tensor.expression_impl import size
-from struct2tensor.expression_impl import slice_expression
+from struct2tensor.expression_impl import (
+    apply_schema,
+    broadcast,
+    depth_limit,
+    filter_expression,
+    index,
+    map_prensor,
+    map_prensor_to_prensor,
+    map_values,
+    parquet,
+    placeholder,
+    project,
+    promote,
+    promote_and_broadcast,
+    proto,
+    reroot,
+    size,
+    slice_expression,
+)

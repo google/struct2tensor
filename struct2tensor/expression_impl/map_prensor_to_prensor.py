@@ -71,17 +71,13 @@ foo   bar foo2 bar2
 
 from typing import Any, Callable, Dict, FrozenSet, Optional, Sequence, Union
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
-
 from tensorflow_metadata.proto.v0 import schema_pb2
 
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
 
-class Schema(object):
+
+class Schema:
   """A finite schema for a prensor.
 
   Effectively, this stores everything for the prensor but the tensors
@@ -138,15 +134,11 @@ class Schema(object):
     return frozenset(self._children.keys())
 
   def __str__(self) -> str:
-    return ("Schema(is_repeated:{is_repeated} type:{type}"
+    return (f"Schema(is_repeated:{self._is_repeated} type:{self._type}"
             " "
-            "schema_feature:({schema_feature})"
+            f"schema_feature:({self._schema_feature})"
             " "
-            "children:{children})").format(
-                is_repeated=self._is_repeated,
-                type=self._type,
-                schema_feature=self._schema_feature,
-                children=self._children)
+            f"children:{self._children})")
 
 
 def create_schema(is_repeated: bool = True,

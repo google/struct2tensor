@@ -47,4 +47,3 @@ result = calculate.calculate_values([new_exp],
 [`create_expression_from_schema(...)`](../expression_impl/placeholder/create_expression_from_schema.md): Creates a placeholder expression from a parquet schema.
 
 [`get_placeholder_paths_from_graph(...)`](../expression_impl/placeholder/get_placeholder_paths_from_graph.md): Gets all placeholder paths from an expression graph.
-

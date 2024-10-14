@@ -13,7 +13,6 @@
 # limitations under the License.
 """Implementation of slice.
 
-
 The slice operation is meant to replicate the slicing of a list in python.
 
 Slicing a list in python is done by specifying a beginning and ending.
@@ -115,13 +114,10 @@ result_2 = [{
 
 from typing import Callable, Optional, Tuple
 
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor.expression_impl import filter_expression
-from struct2tensor.expression_impl import index
-from struct2tensor.expression_impl import map_values
 import tensorflow as tf
+
+from struct2tensor import expression, expression_add, path
+from struct2tensor.expression_impl import filter_expression, index, map_values
 
 IndexValue = expression.IndexValue
 
@@ -177,7 +173,7 @@ def _get_mask(t: expression.Expression, p: path.Path, threshold: IndexValue,
     ValueError: if p is not in t.
   """
   if t.get_descendant(p) is None:
-    raise ValueError("Path not found: {}".format(str(p)))
+    raise ValueError(f"Path not found: {str(p)}")
   work_expr, index_from_end = index.get_index_from_end(
       t, p, path.get_anonymous_field())
   work_expr, mask_for_negative_threshold = map_values.map_values_anonymous(
