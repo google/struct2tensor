@@ -2,7 +2,6 @@ name: Build struct2tensor wheels
 
 on:
   pull_request:
-  workflow_dispatch:
   release:
     types: [published]
 
@@ -34,19 +33,21 @@ jobs:
           # Pin transitive dependency on pkginfo until https://github.com/pypa/twine/issues/1070 is
           # fixed
           pip install twine pkginfo>=1.10.0
-          ${{ matrix.ls || 'ls -lh' }} dist/
+          ls -lh dist/
           twine check dist/*
 
   upload_to_pypi:
     name: Upload to PyPI
     runs-on: ubuntu-latest
-    if: (github.event_name == 'release' && startsWith(github.ref, 'refs/tags')) || (github.event_name == 'workflow_dispatch')
+    if: (github.event_name == 'release' && github.event.action == 'published' || (github.event_name == 'workflow_dispatch')
     needs: [build]
     environment:
       name: pypi
       url: https://pypi.org/p/struct2tensor/
     permissions:
       id-token: write
+      contents: read
+      attestations: write
     steps:
       - name: Retrieve wheels
         uses: actions/download-artifact@v4
@@ -57,6 +58,11 @@ jobs:
       - name: List the build artifacts
         run: |
           ls -lAs wheels/
+
+      - name: Generate artifact attestations for wheels
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "wheels/*"
 
       - name: Upload to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
