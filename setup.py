@@ -67,6 +67,7 @@ __version__ = globals_dict['__version__']
 # Get documentation build requirements
 with open("requirements-docs.txt", "r") as fp:
   docs_reqs = fp.readlines()
+docs_reqs = [req.replace("\n", "") for req in docs_reqs]
 
 setup(
     name='struct2tensor',
