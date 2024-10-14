@@ -38,5 +38,6 @@ jobs:
           pytest -vv
 
       - name: Debugging with tmate
+        if: failure()
         uses: mxschmitt/action-tmate@v3.19
     
