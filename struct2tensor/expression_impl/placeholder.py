@@ -22,7 +22,7 @@ will bind the prensor with the appropriate placeholder expression.
 
 Sample usage:
 
-```
+```python
 placeholder_exp = placeholder.create_expression_from_schema(schema)
 new_exp = expression_queries(placeholder_exp, ..)
 result = calculate.calculate_values([new_exp],
@@ -53,7 +53,7 @@ def create_expression_from_schema(
 
   Returns:
     A PlaceholderRootExpression that should be used as the root of an expression
-    graph.
+      graph.
   """
 
   return _PlaceholderRootExpression(schema)

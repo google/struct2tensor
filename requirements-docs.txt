@@ -1,0 +1,9 @@
+mkdocs
+mkdocs-material
+mkdocstrings[python]
+griffe-inherited-docstrings
+mkdocs-autorefs
+mkdocs-jupyter
+mkdocs-caption
+markdown-grid-tables
+black
