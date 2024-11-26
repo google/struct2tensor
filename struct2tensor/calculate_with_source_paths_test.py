@@ -13,19 +13,17 @@
 # limitations under the License.
 """Tests for calculate_with_source_paths."""
 
-from absl.testing import absltest
-from struct2tensor import calculate_with_source_paths
-from struct2tensor import path
-from struct2tensor.expression_impl import promote
-from struct2tensor.expression_impl import proto
-from struct2tensor.expression_impl import proto_test_util
-from struct2tensor.proto import query_metadata_pb2
-from struct2tensor.test import test_any_pb2
-from struct2tensor.test import test_pb2
 import tensorflow as tf
-
+from absl.testing import absltest
 from google.protobuf import text_format
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
+
+from struct2tensor import calculate_with_source_paths, path
+from struct2tensor.expression_impl import promote, proto, proto_test_util
+from struct2tensor.proto import query_metadata_pb2
+from struct2tensor.test import test_any_pb2, test_pb2
 
 
 @test_util.run_all_in_graph_and_eager_modes
@@ -38,8 +36,8 @@ class CalculateWithSourcePathsTest(tf.test.TestCase):
   # E.g.: ["a", "a", "b"] == ["a", "b"]
   def equal_ignore_order(self, a, b):
     debug_string = "[{}] vs [{}]".format(
-        ",".join(['"{}"'.format(str(ae)) for ae in a]),
-        ",".join(['"{}"'.format(str(be)) for be in b]))
+        ",".join([f'"{str(ae)}"' for ae in a]),
+        ",".join([f'"{str(be)}"' for be in b]))
     for ae in a:
       self.assertIn(ae, b, debug_string)
     for be in b:

@@ -112,11 +112,8 @@ session: {
 
 from typing import Mapping, Tuple
 
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor.expression_impl import broadcast
-from struct2tensor.expression_impl import promote
+from struct2tensor import expression, expression_add, path
+from struct2tensor.expression_impl import broadcast, promote
 
 
 def promote_and_broadcast_anonymous(
@@ -161,7 +158,6 @@ def promote_and_broadcast(root: expression.Expression,
     A new expression, where all the origin paths are promoted and broadcast
     until they are children of dest_path_parent.
   """
-
   result_paths = {}
   # Here, we branch out and create a different tree for each field that is
   # promoted and broadcast.

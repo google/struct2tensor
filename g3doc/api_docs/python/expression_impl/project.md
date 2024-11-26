@@ -41,4 +41,3 @@ prensor_result now has two paths, "foo.bar" and "x.y".
 ## Functions
 
 [`project(...)`](../expression_impl/project/project.md): select a subtree.
-

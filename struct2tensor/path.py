@@ -20,7 +20,7 @@ such as getting a child or a parent, a client may find this class useful.
 """
 
 import re
-from typing import Sequence, Tuple, Union, List
+from typing import List, Sequence, Tuple, Union
 
 from google.protobuf import descriptor
 from tensorflow_metadata.proto.v0 import path_pb2 as tf_metadata_path_pb2
@@ -76,7 +76,7 @@ def _compare_step(a: Step, b: Step) -> int:
   return -1
 
 
-class Path(object):
+class Path:
   """A representation of a path in the expression.
 
   Do not implement __nonzero__, __eq__, __ne__, et cetera as these are
@@ -332,6 +332,7 @@ def create_path(path_source: CoercableToPath) -> Path:
 
   Returns:
     A Path.
+
   Raises:
     ValueError: if this is not a valid path.
   """

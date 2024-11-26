@@ -13,19 +13,22 @@
 # limitations under the License.
 """Tests for struct2tensor.expression_impl.map_prensor_to_prensor."""
 
+import tensorflow as tf
 from absl.testing import absltest
-from struct2tensor import calculate
-from struct2tensor import create_expression
-from struct2tensor import path
-from struct2tensor import prensor
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
+from tensorflow_metadata.proto.v0 import schema_pb2
+
 # For tf.Session.Run against a Prensor
-from struct2tensor import prensor_value  # pylint: disable=unused-import
+from struct2tensor import (
+  calculate,
+  create_expression,
+  path,
+  prensor,  # pylint: disable=unused-import
+)
 from struct2tensor.expression_impl import map_prensor_to_prensor
 from struct2tensor.test import prensor_test_util
-import tensorflow as tf
-
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
-from tensorflow_metadata.proto.v0 import schema_pb2
 
 
 @test_util.run_all_in_graph_and_eager_modes

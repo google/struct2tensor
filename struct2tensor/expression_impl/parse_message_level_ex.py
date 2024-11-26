@@ -75,13 +75,13 @@ my_any_parsed["(foo.bar.Baz)"].value are serialized Baz tensors.
 # pylint: disable=protected-access
 
 import collections
-from typing import List, Mapping, Optional, Sequence, Set
+from typing import Mapping, Optional, Sequence, Set
+
+import tensorflow as tf
+from google.protobuf import descriptor
 
 from struct2tensor import path
 from struct2tensor.ops import struct2tensor_ops
-import tensorflow as tf
-
-from google.protobuf import descriptor
 
 # To the best of my knowledge, ProtoFieldNames ARE strings.
 ProtoFieldName = str

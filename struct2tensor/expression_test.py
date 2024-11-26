@@ -20,17 +20,15 @@ others evaluated the resulting expression object's structure.
 For further tests on expressions, see v1_compat_test.
 """
 
-from absl.testing import absltest
-
-from struct2tensor import create_expression
-from struct2tensor import path
-from struct2tensor.test import expression_test_util
-from struct2tensor.test import prensor_test_util
-
 import tensorflow as tf
-
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from absl.testing import absltest
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
 from tensorflow_metadata.proto.v0 import schema_pb2
+
+from struct2tensor import create_expression, path
+from struct2tensor.test import expression_test_util, prensor_test_util
 
 
 def _features_as_map(feature_list):

@@ -14,15 +14,15 @@
 
 """Tests for struct2tensor.broadcast."""
 
-from absl.testing import absltest
-from struct2tensor import create_expression
-from struct2tensor import path
-from struct2tensor.expression_impl import broadcast
-from struct2tensor.test import expression_test_util
-from struct2tensor.test import prensor_test_util
 import tensorflow as tf
+from absl.testing import absltest
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import create_expression, path
+from struct2tensor.expression_impl import broadcast
+from struct2tensor.test import expression_test_util, prensor_test_util
 
 
 class BroadcastTest(tf.test.TestCase):

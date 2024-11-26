@@ -95,4 +95,3 @@ session: {
 [`broadcast(...)`](../expression_impl/broadcast/broadcast.md)
 
 [`broadcast_anonymous(...)`](../expression_impl/broadcast/broadcast_anonymous.md)
-

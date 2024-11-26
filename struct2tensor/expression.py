@@ -32,13 +32,13 @@ get_known_children().
 import abc
 from typing import Callable, FrozenSet, List, Mapping, Optional, Sequence, Union
 
-from struct2tensor import calculate_options
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
-
-from tensorflow.python.util.lazy_loader import LazyLoader  # pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.util.lazy_loader import (
+  LazyLoader,  # pylint: disable=g-direct-tensorflow-import
+)
 from tensorflow_metadata.proto.v0 import schema_pb2
+
+from struct2tensor import calculate_options, path, prensor
 
 # The purpose of this type is to make it easy to write down paths as literals.
 # If we made it Text instead of str, then it wouldn't be easy anymore.
@@ -82,7 +82,7 @@ slice_expression = LazyLoader("slice_expression", globals(),
 IndexValue = Union[int, tf.Tensor, tf.Variable]  # pylint: disable=invalid-name
 
 
-class Expression(object, metaclass=abc.ABCMeta):
+class Expression(metaclass=abc.ABCMeta):
   """An expression represents the calculation of a prensor object."""
 
   def __init__(
@@ -118,7 +118,7 @@ class Expression(object, metaclass=abc.ABCMeta):
 
   @property
   def type(self) -> Optional[tf.DType]:
-    """dtype of the expression, or None if not a leaf expression."""
+    """Dtype of the expression, or None if not a leaf expression."""
     return self._type
 
   @property
@@ -262,7 +262,7 @@ class Expression(object, metaclass=abc.ABCMeta):
     """Gets a named child."""
     result = self.get_child(field_name)
     if result is None:
-      raise KeyError("No such field: {}".format(field_name))
+      raise KeyError(f"No such field: {field_name}")
     return result
 
   def get_descendant(self, p: path.Path) -> Optional["Expression"]:
@@ -278,8 +278,7 @@ class Expression(object, metaclass=abc.ABCMeta):
     """Finds the descendant at the path."""
     result = self.get_descendant(p)
     if result is None:
-      raise ValueError("Missing path: {} in {}".format(
-          str(p), self.schema_string(limit=20)))
+      raise ValueError(f"Missing path: {str(p)} in {self.schema_string(limit=20)}")
     return result
 
   def get_known_children(self) -> Mapping[path.Step, "Expression"]:
@@ -321,10 +320,10 @@ class Expression(object, metaclass=abc.ABCMeta):
     """Helper for schema_string."""
     repeated_as_string = "repeated" if self.is_repeated else "optional"
     if self.type is None:
-      result = ["{} {}:".format(repeated_as_string, str(field_name))]
+      result = [f"{repeated_as_string} {str(field_name)}:"]
     else:
       result = [
-          "{} {} {}".format(repeated_as_string, str(self.type), str(field_name))
+          f"{repeated_as_string} {str(self.type)} {str(field_name)}"
       ]
     if limit is not None and limit == 0:
       if self.get_known_children():
@@ -335,7 +334,7 @@ class Expression(object, metaclass=abc.ABCMeta):
 
     for field_name, subexpression in self.get_known_children().items():
       recursive = subexpression._schema_string_helper(field_name, new_limit)  # pylint: disable=protected-access
-      result.extend(["  {}".format(x) for x in recursive])
+      result.extend([f"  {x}" for x in recursive])
     return result
 
   # Begin methods compatible with v1 API. ######################################
@@ -521,7 +520,6 @@ class Expression(object, metaclass=abc.ABCMeta):
     Returns:
       An Expression object representing the result of the operation.
     """
-
     return reroot.create_proto_index_field(self, field_name)
 
   def cogroup_by_index(self, source_path: CoercableToPath, left_name: path.Step,
@@ -627,9 +625,10 @@ class Expression(object, metaclass=abc.ABCMeta):
     return id(self)
 
   def __eq__(self, expr: "Expression") -> bool:
-    """if hash(expr1) == hash(expr2): then expr1 == expr2.
+    """If hash(expr1) == hash(expr2): then expr1 == expr2.
 
     Do not override this method.
+
     Args:
       expr: The expression to check equality against
 
