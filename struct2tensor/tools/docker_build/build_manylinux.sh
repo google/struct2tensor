@@ -117,4 +117,3 @@ set -x
 setup_environment && \
 bazel_build && \
 stamp_wheel
-

@@ -18,14 +18,14 @@ import random
 import statistics
 import timeit
 
-from absl import flags
-from absl.testing import parameterized
 import cpuinfo
 import psutil
 import tensorflow as tf
-
-from tensorflow.core.protobuf import rewriter_config_pb2  # pylint: disable=g-direct-tensorflow-import
-
+from absl import flags
+from absl.testing import parameterized
+from tensorflow.core.protobuf import (
+  rewriter_config_pb2,  # pylint: disable=g-direct-tensorflow-import
+)
 
 FLAGS = flags.FLAGS
 

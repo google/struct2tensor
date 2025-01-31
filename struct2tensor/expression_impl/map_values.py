@@ -23,12 +23,9 @@ Note that the operations are on 1-D tensors (as opposed to scalars).
 
 from typing import Callable, FrozenSet, Optional, Sequence, Tuple
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
 
 
 def map_many_values(
@@ -114,7 +111,7 @@ def map_values(root: expression.Expression, source_path: path.Path,
 def _leaf_node_or_error(node: prensor.NodeTensor) -> prensor.LeafNodeTensor:
   if isinstance(node, prensor.LeafNodeTensor):
     return node
-  raise ValueError('node is {} not LeafNodeTensor'.format(str(type(node))))
+  raise ValueError(f'node is {str(type(node))} not LeafNodeTensor')
 
 
 class _MapValuesExpression(expression.Expression):

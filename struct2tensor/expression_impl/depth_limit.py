@@ -41,10 +41,7 @@ You get:
 
 from typing import FrozenSet, Optional, Sequence
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
+from struct2tensor import calculate_options, expression, path, prensor
 
 
 def limit_depth(expr: expression.Expression,

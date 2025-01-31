@@ -82,13 +82,10 @@ session: {
 
 from typing import FrozenSet, Optional, Sequence, Tuple
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
+from struct2tensor.ops import struct2tensor_ops
 
 
 class _BroadcastExpression(expression.Leaf):

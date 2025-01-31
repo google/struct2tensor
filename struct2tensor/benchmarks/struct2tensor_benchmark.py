@@ -16,11 +16,11 @@ r"""Benchmarks for struct2tensor.
 
 """
 
-from absl.testing import parameterized
-import struct2tensor as s2t
-from struct2tensor.benchmarks import benchmark_pb2
-from struct2tensor.benchmarks import struct2tensor_benchmark_util
 import tensorflow as tf
+from absl.testing import parameterized
+
+import struct2tensor as s2t
+from struct2tensor.benchmarks import benchmark_pb2, struct2tensor_benchmark_util
 
 
 class ProjectBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
@@ -516,12 +516,12 @@ class PrensorToTensorBenchmarks(
   # pylint: disable=g-complex-comprehension
   @parameterized.named_parameters(*[
       dict(
-          testcase_name="flat_to_dense_{}_features".format(n),
-          fn_name="flat_to_dense_{}_features".format(n),
+          testcase_name=f"flat_to_dense_{n}_features",
+          fn_name=f"flat_to_dense_{n}_features",
           fn_args=[
               benchmark_pb2.FlatProto.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i + 1)])
+                  s2t.path.Path([f"int_values_{i + 1}"])
                   for i in range(n)
               ]
           ],
@@ -544,7 +544,7 @@ class PrensorToTensorBenchmarks(
           fn_args=[
               benchmark_pb2.FlatProto100.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i)])
+                  s2t.path.Path([f"int_values_{i}"])
                   for i in range(1, 101)
               ]
           ],
@@ -555,7 +555,7 @@ class PrensorToTensorBenchmarks(
           fn_args=[
               benchmark_pb2.FlatProto100.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i)])
+                  s2t.path.Path([f"int_values_{i}"])
                   for i in range(1, 101)
               ]
           ],
@@ -617,12 +617,12 @@ class PrensorToTensorBenchmarks(
   # pylint: disable=g-complex-comprehension
   @parameterized.named_parameters(*[
       dict(
-          testcase_name="flat_to_ragged_{}_features".format(n),
-          fn_name="flat_to_ragged_{}_features".format(n),
+          testcase_name=f"flat_to_ragged_{n}_features",
+          fn_name=f"flat_to_ragged_{n}_features",
           fn_args=[
               benchmark_pb2.FlatProto.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i + 1)])
+                  s2t.path.Path([f"int_values_{i + 1}"])
                   for i in range(n)
               ]
           ],
@@ -645,7 +645,7 @@ class PrensorToTensorBenchmarks(
           fn_args=[
               benchmark_pb2.FlatProto100.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i)])
+                  s2t.path.Path([f"int_values_{i}"])
                   for i in range(1, 101)
               ]
           ],
@@ -656,7 +656,7 @@ class PrensorToTensorBenchmarks(
           fn_args=[
               benchmark_pb2.FlatProto100.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i)])
+                  s2t.path.Path([f"int_values_{i}"])
                   for i in range(1, 101)
               ]
           ],
@@ -718,12 +718,12 @@ class PrensorToTensorBenchmarks(
   # pylint: disable=g-complex-comprehension
   @parameterized.named_parameters(*[
       dict(
-          testcase_name="flat_to_sparse_{}_features".format(n),
-          fn_name="flat_to_sparse_{}_features".format(n),
+          testcase_name=f"flat_to_sparse_{n}_features",
+          fn_name=f"flat_to_sparse_{n}_features",
           fn_args=[
               benchmark_pb2.FlatProto.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i + 1)])
+                  s2t.path.Path([f"int_values_{i + 1}"])
                   for i in range(n)
               ]
           ],
@@ -746,7 +746,7 @@ class PrensorToTensorBenchmarks(
           fn_args=[
               benchmark_pb2.FlatProto100.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i)])
+                  s2t.path.Path([f"int_values_{i}"])
                   for i in range(1, 101)
               ]
           ],
@@ -757,7 +757,7 @@ class PrensorToTensorBenchmarks(
           fn_args=[
               benchmark_pb2.FlatProto100.DESCRIPTOR,
               [
-                  s2t.path.Path(["int_values_{}".format(i)])
+                  s2t.path.Path([f"int_values_{i}"])
                   for i in range(1, 101)
               ]
           ],
@@ -823,8 +823,8 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
   # pylint: disable=g-complex-comprehension
   @parameterized.named_parameters(*[
       dict(
-          testcase_name="to_fixed_len_feature_{}_features_1_value".format(n),
-          fn_name="tf_example_to_fixed_len_feature_{}".format(n),
+          testcase_name=f"to_fixed_len_feature_{n}_features_1_value",
+          fn_name=f"tf_example_to_fixed_len_feature_{n}",
           fn_args=[{
               "int_values_1": tf.io.FixedLenFeature(shape=[1], dtype=tf.int64)
           }],
@@ -842,7 +842,7 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
           testcase_name="to_fixed_len_feature_100_features_1_value",
           fn_name="tf_example_to_fixed_len_feature_100_features_1_value",
           fn_args=[{
-              "int_values_{}".format(i): tf.io.FixedLenFeature(
+              f"int_values_{i}": tf.io.FixedLenFeature(
                   shape=[1], dtype=tf.int64) for i in range(1, 101)
           }],
           proto_list_key="tf_examples_100_features"),
@@ -850,7 +850,7 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
           testcase_name="to_fixed_len_feature_100_features_100_values",
           fn_name="tf_example_to_fixed_len_feature_100_features_100_values",
           fn_args=[{
-              "int_values_{}".format(i): tf.io.FixedLenFeature(
+              f"int_values_{i}": tf.io.FixedLenFeature(
                   shape=[100], dtype=tf.int64) for i in range(1, 101)
           }],
           proto_list_key="tf_examples_100_features_100_values")
@@ -862,8 +862,8 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
 
   @parameterized.named_parameters(*[
       dict(
-          testcase_name="to_var_len_feature_{}_features_1_value".format(n),
-          fn_name="tf_example_to_var_len_feature_{}".format(n),
+          testcase_name=f"to_var_len_feature_{n}_features_1_value",
+          fn_name=f"tf_example_to_var_len_feature_{n}",
           fn_args=[{
               "int_values_1": tf.io.VarLenFeature(dtype=tf.int64)
           }],
@@ -880,7 +880,7 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
           testcase_name="to_var_len_feature_100_features_1_value",
           fn_name="tf_example_to_var_len_feature_100_features_1_value",
           fn_args=[{
-              "int_values_{}".format(i): tf.io.VarLenFeature(dtype=tf.int64)
+              f"int_values_{i}": tf.io.VarLenFeature(dtype=tf.int64)
               for i in range(1, 101)
           }],
           proto_list_key="tf_examples_100_features"),
@@ -888,7 +888,7 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
           testcase_name="to_var_len_feature_100_features_100_values",
           fn_name="tf_example_to_var_len_feature_100_features_100_values",
           fn_args=[{
-              "int_values_{}".format(i): tf.io.VarLenFeature(dtype=tf.int64)
+              f"int_values_{i}": tf.io.VarLenFeature(dtype=tf.int64)
               for i in range(1, 101)
           }],
           proto_list_key="tf_examples_100_features_100_values")
@@ -899,8 +899,8 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
 
   @parameterized.named_parameters(*[
       dict(
-          testcase_name="to_ragged_feature_{}_features_1_value".format(n),
-          fn_name="tf_example_to_ragged_feature_{}".format(n),
+          testcase_name=f"to_ragged_feature_{n}_features_1_value",
+          fn_name=f"tf_example_to_ragged_feature_{n}",
           fn_args=[{
               "int_values_1":
                   tf.io.RaggedFeature(value_key="int_values_1", dtype=tf.int64)
@@ -919,8 +919,8 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
           testcase_name="to_ragged_feature_100_features_1_value",
           fn_name="tf_example_to_ragged_feature_100_features_1_value",
           fn_args=[{
-              "int_values_{}".format(i): tf.io.RaggedFeature(
-                  value_key="int_values_{}".format(i), dtype=tf.int64)
+              f"int_values_{i}": tf.io.RaggedFeature(
+                  value_key=f"int_values_{i}", dtype=tf.int64)
               for i in range(1, 101)
           }],
           proto_list_key="tf_examples_100_features"),
@@ -928,8 +928,8 @@ class TfExampleBenchmarks(struct2tensor_benchmark_util.ProtoDataBenchmarks):
           testcase_name="to_ragged_feature_100_features_100_values",
           fn_name="tf_example_to_ragged_feature_100_features_100_values",
           fn_args=[{
-              "int_values_{}".format(i): tf.io.RaggedFeature(
-                  value_key="int_values_{}".format(i), dtype=tf.int64)
+              f"int_values_{i}": tf.io.RaggedFeature(
+                  value_key=f"int_values_{i}", dtype=tf.int64)
               for i in range(1, 101)
           }],
           proto_list_key="tf_examples_100_features_100_values")

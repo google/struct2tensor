@@ -18,14 +18,10 @@ This method is very slow, and should only be used for testing purposes.
 
 from typing import FrozenSet, Mapping, Optional, Sequence
 
-from struct2tensor import calculate
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
-
 from tensorflow_metadata.proto.v0 import schema_pb2
+
+from struct2tensor import calculate, calculate_options, expression, path, prensor
 
 
 def calculate_value_slowly(
@@ -116,8 +112,7 @@ class MockExpression(expression.Expression):
   def calculate_output(self):
     """The output returned by this expression."""
     if self._calculate_output is None:
-      raise ValueError("Did not specify calculate_output for {}".format(
-          self._name))
+      raise ValueError(f"Did not specify calculate_output for {self._name}")
     return self._calculate_output
 
   def get_source_expressions(self) -> Sequence[expression.Expression]:
@@ -130,7 +125,7 @@ class MockExpression(expression.Expression):
       options: calculate_options.Options,
       side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     if len(source_tensors) != len(self._expected_source_tensors):
-      raise ValueError("Unexpected number of inputs for {}.".format(self._name))
+      raise ValueError(f"Unexpected number of inputs for {self._name}.")
     for i in range(len(source_tensors)):
       if self._expected_source_tensors[i] is not source_tensors[i]:
         raise ValueError("Error calculating " + self._name)
