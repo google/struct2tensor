@@ -90,6 +90,11 @@ setup(
         ),
         'pyarrow>=10,<11',
     ],
+    extras_require={
+        'lint': [
+            'pre-commit',
+        ]
+    },
     # Add in any packaged data.
     include_package_data=True,
     package_data={'': ['*.lib', '*.so']},
