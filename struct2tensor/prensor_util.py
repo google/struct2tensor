@@ -47,7 +47,7 @@ def get_sparse_tensor(
 
   Returns:
     A sparse tensor containing values of the leaf node, preserving the
-    structure along the path. Raises an error if the path is not found.
+      structure along the path. Raises an error if the path is not found.
   """
   return t.get_sparse_tensor(p, options)
 
@@ -88,7 +88,7 @@ def get_ragged_tensor(
 
   Returns:
     A ragged tensor containing values of the leaf node, preserving the
-    structure along the path. Raises an error if the path is not found.
+      structure along the path. Raises an error if the path is not found.
   """
   return t.get_ragged_tensor(p, options)
 
