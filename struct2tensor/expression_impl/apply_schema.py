@@ -32,13 +32,15 @@ To get the schema back, call get_schema().
 
 This does not filter out fields not in the schema.
 
-
+```python
 my_expr = ...
-my_schema = ...schema here...
+my_schema = # ...schema here...
 my_new_schema = my_expr.apply_schema(my_schema).get_schema()
-my_new_schema has semantically identical information on the fields as my_schema.
+# my_new_schema has semantically identical information on the fields as my_schema.
+```
 
 TODO(martinz): Add utilities to:
+
 1. Get the (non-deprecated) paths from a schema.
 2. Check if any paths in the schema are not in the expression.
 3. Check if any paths in the expression are not in the schema.

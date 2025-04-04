@@ -15,16 +15,15 @@
 
 project is often used right before calculating the value.
 
-Example:
+!!! Example
+    ```python
+    expr = ...
+    new_expr = project.project(expr, [path.Path(["foo","bar"]),
+                                      path.Path(["x", "y"])])
+    [prensor_result] = calculate.calculate_prensors([new_expr])
+    ```
 
-```
-expr = ...
-new_expr = project.project(expr, [path.Path(["foo","bar"]),
-                                  path.Path(["x", "y"])])
-[prensor_result] = calculate.calculate_prensors([new_expr])
-```
-
-prensor_result now has two paths, "foo.bar" and "x.y".
+    prensor_result now has two paths, "foo.bar" and "x.y".
 
 """
 
