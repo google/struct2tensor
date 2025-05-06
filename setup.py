@@ -64,11 +64,6 @@ with open('struct2tensor/version.py') as fp:
   exec(fp.read(), globals_dict)  # pylint: disable=exec-used
 __version__ = globals_dict['__version__']
 
-# Get documentation build requirements
-with open("requirements-docs.txt", "r") as fp:
-  docs_reqs = fp.readlines()
-docs_reqs = [req.replace("\n", "") for req in docs_reqs]
-
 setup(
     name='struct2tensor',
     version=__version__,
@@ -95,7 +90,6 @@ setup(
         ),
         'pyarrow>=10,<11',
     ],
-    extras_require={"docs": docs_reqs},
     # Add in any packaged data.
     include_package_data=True,
     package_data={'': ['*.lib', '*.so']},

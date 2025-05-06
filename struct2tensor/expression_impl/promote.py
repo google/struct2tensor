@@ -27,9 +27,7 @@ For example, suppose an expr represents:
      +-event*
          |
          +-val*-int64
-```
 
-```json
 session: {
   event: {
     val: 111
@@ -52,7 +50,7 @@ session: {
 
 ```
 
-```python
+```
 promote.promote(expr, path.Path(["session", "event", "val"]), nval)
 ```
 
@@ -68,9 +66,7 @@ produces:
      |    +-val*-int64
      |
      +-nval*-int64
-```
 
-```python
 session: {
   event: {
     val: 111

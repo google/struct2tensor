@@ -317,7 +317,6 @@ def create_path(path_source: CoercableToPath) -> Path:
   """Create a path from an object.
 
   The BNF for a path is:
-  ```
   letter := [A-Za-z]
   digit := [0-9]
   <simple_step_char> := "_"|"-"| | letter | digit
@@ -325,7 +324,6 @@ def create_path(path_source: CoercableToPath) -> Path:
   <extension> := "(" (<simple_step> ".")* <simple_step> ")"
   <step> := <simple_step> | <extension>
   <path> := ((<step> ".") * <step>)?
-  ```
 
   TODO(martinz): consider removing dash. This would break YouTube WatchNext.
 

@@ -53,7 +53,7 @@ child field.
 
 The following call will have the same effect as above:
 
-```python
+```
 root_2 = filter_expression.filter_by_child(
     root, path.create_path("doc"), "keep_me", "new_doc")
 ```

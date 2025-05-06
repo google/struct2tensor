@@ -27,9 +27,7 @@ For example, suppose an expr represents:
      +-user_info? (question mark indicates optional)
            |
            +-age? int64
-```
 
-```json
 session: {
   event: {
     val: 1
@@ -57,7 +55,7 @@ session: {
 }
 ```
 
-```python
+```
 promote_and_broadcast.promote_and_broadcast(
     path.Path(["event"]),{"nage":path.Path(["user_info","age"])})
 ```
@@ -78,9 +76,7 @@ creates:
      +-user_info? (question mark indicates optional)
            |
            +-age? int64
-```
 
-```json
 session: {
   event: {
     nage: 25
@@ -163,7 +159,7 @@ def promote_and_broadcast(root: expression.Expression,
 
   Returns:
     A new expression, where all the origin paths are promoted and broadcast
-      until they are children of dest_path_parent.
+    until they are children of dest_path_parent.
   """
 
   result_paths = {}

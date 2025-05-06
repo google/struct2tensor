@@ -125,32 +125,30 @@ def create_transformed_field(
     return (transformed_parent_indices, transformed_values)
 
   Given:
-
   - parent_indices: an int64 vector of non-decreasing parent message indices.
   - values: a string vector of serialized protos having the same shape as
     `parent_indices`.
-
   `transform_fn` must return new parent indices and serialized values encoding
   the same proto message as the passed in `values`.  These two vectors must
   have the same size, but it need not be the same as the input arguments.
 
-  !!! Note
-      If CalculateOptions.use_string_view (set at calculate time, thus this
-      Expression cannot know beforehand) is True, `values` passed to
-      `transform_fn` are string views pointing all the way back to the original
-      input tensor (of serialized root protos). And `transform_fn` must maintain
-      such views and avoid creating new values that are either not string views
-      into the root protos or self-owned strings. This is because downstream
-      decoding ops will still produce string views referring into its input
-      (which are string views into the root proto) and they will only hold a
-      reference to the original, root proto tensor, keeping it alive. So the input
-      tensor may get destroyed after the decoding op.
+  Note:
+    If CalculateOptions.use_string_view (set at calculate time, thus this
+    Expression cannot know beforehand) is True, `values` passed to
+    `transform_fn` are string views pointing all the way back to the original
+    input tensor (of serialized root protos). And `transform_fn` must maintain
+    such views and avoid creating new values that are either not string views
+    into the root protos or self-owned strings. This is because downstream
+    decoding ops will still produce string views referring into its input
+    (which are string views into the root proto) and they will only hold a
+    reference to the original, root proto tensor, keeping it alive. So the input
+    tensor may get destroyed after the decoding op.
 
-      In short, you can do element-wise transforms to `values`, but can't mutate
-      the contents of elements in `values` or create new elements.
+    In short, you can do element-wise transforms to `values`, but can't mutate
+    the contents of elements in `values` or create new elements.
 
-      To lift this restriction, a decoding op must be told to hold a reference
-      of the input tensors of all its upstream decoding ops.
+    To lift this restriction, a decoding op must be told to hold a reference
+    of the input tensors of all its upstream decoding ops.
 
 
   Args:
@@ -235,7 +233,6 @@ class _ProtoChildNodeTensor(prensor.ChildNodeTensor):
   information needed by its children.
 
   In particular:
-
   1. Any needed regular fields are included.
   2. Any needed extended fields are included.
   3. Any needed map fields are included.
@@ -368,12 +365,11 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
   """An expression representing a proto submessage.
 
   Supports:
-
-    - A standard submessage.
-    - An extension submessage.
-    - A protobuf.Any submessage.
-    - A proto map submessage.
-    - Also supports having fields of the above types.
+    A standard submessage.
+    An extension submessage.
+    A protobuf.Any submessage.
+    A proto map submessage.
+    Also supports having fields of the above types.
   """
 
   def __init__(self, parent: "_ParentProtoExpression",
@@ -684,10 +680,10 @@ def _get_child(
   """Get a child expression.
 
   This will get one of the following:
-    - A regular field.
-    - An extension.
-    - An Any filtered by value.
-    - A map field.
+    A regular field.
+    An extension.
+    An Any filtered by value.
+    A map field.
 
   Args:
     parent: The parent expression.

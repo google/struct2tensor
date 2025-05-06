@@ -21,7 +21,7 @@ The resulting list consists of all elements in the range.
 
 For example:
 
-```python
+```
 >>> x = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
 >>> print(x[2:5]) # all elements between index 2 inclusive and index 5 exclusive
 ['c', 'd', 'e']
@@ -45,7 +45,7 @@ This is not implemented.
 A prensor can be considered to be interleaved lists and dictionaries.
 E.g.:
 
-```python
+```
 my_expression = [{
   "foo":[
     {"bar":[
@@ -62,7 +62,7 @@ my_expression = [{
 }]
 ```
 
-```python
+```
 result_1 = slice_expression.slice_expression(
   my_expression, "foo.bar", "new_bar",begin=1, end=3)
 
@@ -89,7 +89,7 @@ result_1 = [{
 }]
 ```
 
-```python
+```
 result_2 = slice_expression.slice_expression(
   my_expression, "foo.bar.baz", "new_baz",begin=1, end=3)
 
@@ -234,14 +234,12 @@ def _get_slice_mask(
   For example, given:
   an index with respect to its parent
   The range is specified with beginning and an end.
-
   1. If begin is not present, begin_index is implied to be zero.
   2. If begin is negative, begin_index is the size of a particular
       list + begin
   3. If end is not present, end_index is the length of the list + 1.
   4. If end is negative, end_index is the length of the list + end
   5. If end is non-negative, end_index is end.
-
   The mask is positive for all elements in range(begin_index, end_index), and
   negative elsewhere.
 
