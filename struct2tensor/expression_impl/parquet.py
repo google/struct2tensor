@@ -13,16 +13,17 @@
 # limitations under the License.
 """Apache Parquet Dataset.
 
-!!! Example "Example Usage"
-    ```python
-    exp = create_expression_from_parquet_file(filenames)
-    docid_project_exp = project.project(exp, [path.Path(["DocId"])])
-    pqds = parquet_dataset.calculate_parquet_values([docid_project_exp], exp,
-                                                    filenames, batch_size)
+Example usage:
 
-    for prensors in pqds:
-      doc_id_prensor = prensors[0]
-    ```
+```
+  exp = create_expression_from_parquet_file(filenames)
+  docid_project_exp = project.project(exp, [path.Path(["DocId"])])
+  pqds = parquet_dataset.calculate_parquet_values([docid_project_exp], exp,
+                                                  filenames, batch_size)
+
+  for prensors in pqds:
+    doc_id_prensor = prensors[0]
+```
 
 """
 
@@ -51,7 +52,7 @@ def create_expression_from_parquet_file(
 
   Returns:
     A PlaceholderRootExpression that should be used as the root of an expression
-      graph.
+    graph.
   """
 
   metadata = pq.ParquetFile(filenames[0]).metadata
@@ -219,18 +220,14 @@ class ParquetDataset(_RawParquetDataset):
   The prensor will have a PrensorTypeSpec, which is created based on
   value_paths.
 
-  !!! Note
-      In tensorflow v1 this dataset will not return a prensor. The output will
-      be the same format as _RawParquetDataset's output (a vector of tensors).
-      The following is a workaround in v1:
-
-      ```python
-      pq_ds = ParquetDataset(...)
-      type_spec = pq_ds.element_spec
-      tensors = pq_ds.make_one_shot_iterator().get_next()
-      prensor = type_spec.from_components(tensors)
-      session.run(prensor)
-      ```
+  Note: In tensorflow v1 this dataset will not return a prensor. The output will
+  be the same format as _RawParquetDataset's output (a vector of tensors).
+  The following is a workaround in v1:
+    pq_ds = ParquetDataset(...)
+    type_spec = pq_ds.element_spec
+    tensors = pq_ds.make_one_shot_iterator().get_next()
+    prensor = type_spec.from_components(tensors)
+    session.run(prensor)
   """
 
   def __init__(self, filenames: List[str], value_paths: List[str],

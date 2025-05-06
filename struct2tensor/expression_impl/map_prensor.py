@@ -18,7 +18,7 @@ and map_ragged_tensor.
 
 Assume expr is:
 
-```json
+```
 session: {
   event: {
     val_a: 10
@@ -45,7 +45,7 @@ to create val_sum.
 map_sparse_tensor converts val_a and val_b to sparse tensors,
 and then add them to produce val_sum.
 
-```python
+```
 new_root = map_prensor.map_sparse_tensor(
     expr,
     path.Path(["event"]),
@@ -59,7 +59,7 @@ new_root = map_prensor.map_sparse_tensor(
 map_ragged_tensor converts val_a and val_b to ragged tensors,
 and then add them to produce val_sum.
 
-```python
+```
 new_root = map_prensor.map_ragged_tensor(
     expr,
     path.Path(["event"]),
@@ -72,7 +72,7 @@ new_root = map_prensor.map_ragged_tensor(
 
 The result of either is:
 
-```json
+```
 session: {
   event: {
     val_a: 10
@@ -130,7 +130,7 @@ def map_sparse_tensor(root: expression.Expression, root_path: path.Path,
 
   Returns:
     A new root expression containing the old root expression plus the new path,
-      root_path.get_child(new_field_name), with the result of the operation.
+    root_path.get_child(new_field_name), with the result of the operation.
   """
 
   return _map_sparse_tensor_impl(root, root_path, paths, operation, is_repeated,
@@ -157,7 +157,7 @@ def map_ragged_tensor(root: expression.Expression, root_path: path.Path,
 
   Returns:
     A new root expression containing the old root expression plus the new path,
-      root_path.get_child(new_field_name), with the result of the operation.
+    root_path.get_child(new_field_name), with the result of the operation.
   """
   return _map_ragged_tensor_impl(root, root_path, paths, operation, is_repeated,
                                  dtype, new_field_name)[0]
@@ -353,8 +353,8 @@ def _map_ragged_tensor_impl(root: expression.Expression, root_path: path.Path,
 
   Returns:
     An expression/path pair (expr,p) with a new root expression containing
-      the old root expression plus the new path,
-      root_path.get_child(new_field_name), with the result of the operation.
+    the old root expression plus the new path,
+    root_path.get_child(new_field_name), with the result of the operation.
   """
 
   def new_op(tree: prensor.Prensor,

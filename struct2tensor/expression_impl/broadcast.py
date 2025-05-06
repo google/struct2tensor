@@ -26,9 +26,7 @@ Suppose you have an expr representing:
      +-event*
      |
      +-val*-int64
-```
 
-```json
 session: {
   event: {}
   event: {}
@@ -44,7 +42,7 @@ session: {
 
 Then:
 
-```python
+```
 broadcast.broadcast(expr, path.Path(["session","val"]), "event", "nv")
 ```
 
@@ -60,9 +58,7 @@ becomes:
        |   +---nv*-int64
        |
        +-val*-int64
-```
 
-```json
 session: {
   event: {
     nv: 10

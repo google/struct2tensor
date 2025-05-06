@@ -15,14 +15,14 @@
 
 Given a field "foo.bar",
 
-```python
+```
 root = size(expr, path.Path(["foo","bar"]), "bar_size")
 ```
 
 creates a new expression root that has an optional field "foo.bar_size", which
 is always present, and contains the number of bar in a particular foo.
 
-```python
+```
 root_2 = has(expr, path.Path(["foo","bar"]), "bar_has")
 ```
 
