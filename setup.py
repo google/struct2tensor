@@ -72,8 +72,10 @@ docs_reqs = [req.replace("\n", "") for req in docs_reqs]
 setup(
     name='struct2tensor',
     version=__version__,
-    description=('Struct2Tensor is a package for parsing and manipulating'
-                 ' structured data for TensorFlow'),
+    description=(
+        'Struct2Tensor is a package for parsing and manipulating'
+        ' structured data for TensorFlow'
+    ),
     author='Google LLC',
     author_email='tensorflow-extended-dev@googlegroups.com',
     # Contained modules and scripts.
@@ -82,16 +84,15 @@ setup(
         # TODO(b/263060885): Remove the explicit numpy dependency once TF works
         # with numpy>=1.24.
         'numpy>=1.22',
-        'protobuf>=4.25.2,<5;python_version>="3.11"',
-        'protobuf>=3.20.3,<5;python_version<"3.11"',
-        'tensorflow' + select_constraint(
-            default='>=2.15,<2.16',
-            nightly='>=2.16.0.dev',
-            git_master='@git+https://github.com/tensorflow/tensorflow@master'),
-        'tensorflow-metadata' + select_constraint(
-            default='>=1.15.0,<1.16.0',
-            nightly='>=1.16.0.dev',
-            git_master='@git+https://github.com/tensorflow/metadata@master'),
+        'protobuf>=4.25.2,<6.0.0;python_version>="3.11"',
+        'protobuf>=4.21.6,<6.0.0;python_version<"3.11"',
+        'tensorflow>=2.17,<2.18',
+        'tensorflow-metadata'
+        + select_constraint(
+            default='>=1.17.0,<1.18.0',
+            nightly='>=1.18.0.dev',
+            git_master='@git+https://github.com/tensorflow/metadata@master',
+        ),
         'pyarrow>=10,<11',
     ],
     extras_require={"docs": docs_reqs},
@@ -125,4 +126,5 @@ setup(
     keywords='tensorflow protobuf machine learning',
     long_description=_LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
-    cmdclass={'install': _InstallPlatlib})
+    cmdclass={'install': _InstallPlatlib},
+)
