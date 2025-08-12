@@ -16,6 +16,7 @@
 # Placeholder: load py_binary
 # Placeholder: load py_library
 # Placeholder: load py_test
+load("//third_party/protobuf/bazel:proto_library.bzl", "proto_library")
 load("//tools/build_defs/proto/cpp:cc_proto_library.bzl", "cc_proto_library")
 
 licenses(["notice"])
@@ -74,7 +75,6 @@ py_test(
     # Follow the instructions in the file to properly run the benchmark.
     args = ["--test_mode"],
     main = "struct2tensor_benchmark.py",
-    python_version = "PY3",
     shard_count = 4,
     deps = [":struct2tensor_benchmark_lib"],
 )
@@ -82,7 +82,6 @@ py_test(
 py_binary(
     name = "struct2tensor_benchmark",
     srcs = ["struct2tensor_benchmark.py"],
-    python_version = "PY3",
     deps = [
         ":struct2tensor_benchmark_lib",
     ],
@@ -95,7 +94,6 @@ py_test(
     # Follow the instructions in the file to properly run the benchmark.
     args = ["--test_mode"],
     main = "ops_benchmark.py",
-    python_version = "PY3",
     # shard_count = 4,
     deps = [":struct2tensor_benchmark_lib"],
 )
@@ -103,7 +101,6 @@ py_test(
 py_binary(
     name = "ops_benchmark",
     srcs = ["ops_benchmark.py"],
-    python_version = "PY3",
     deps = [
         ":struct2tensor_benchmark_lib",
     ],
@@ -112,7 +109,6 @@ py_binary(
 py_library(
     name = "struct2tensor_benchmark_util",
     srcs = ["struct2tensor_benchmark_util.py"],
-    srcs_version = "PY3ONLY",
     deps = [
         "//file/colossus/public:cns",
         "//third_party/py/cpuinfo",

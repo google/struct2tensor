@@ -24,7 +24,6 @@ package(
 py_library(
     name = "build_docs_lib",
     srcs = ["build_docs.py"],
-    srcs_version = "PY3",
     deps = [
         "//struct2tensor",
         "//struct2tensor:struct2tensor_expression_impl",
@@ -39,7 +38,6 @@ py_library(
 py_binary(
     name = "build_docs",
     srcs = ["build_docs.py"],
-    python_version = "PY3",
     deps = [
         ":build_docs_lib",
     ],

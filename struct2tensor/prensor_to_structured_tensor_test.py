@@ -95,7 +95,7 @@ class PrensorToStructuredTensorTest(tf.test.TestCase):
   def test_non_root_prensor(self):
     child_prensor = prensor.create_prensor_from_root_and_children(
         prensor_test_util.create_child_node([0, 0, 1, 3, 7], True), {})
-    with self.assertRaisesRegexp(ValueError, "Must be a root prensor"):
+    with self.assertRaisesRegex(ValueError, "Must be a root prensor"):
       prensor_to_structured_tensor.prensor_to_structured_tensor(child_prensor)
 
   def test_e2e_proto(self):
