@@ -10,8 +10,7 @@ runs:
     - name: Build the package for Python ${{ inputs.python-version }}
       shell: bash
       run: |
-        docker compose build --build-arg PYTHON_VERSION=${{ inputs.python-version }} manylinux2014
-        docker compose run -e TF_VERSION=RELEASED_TF_2 manylinux2014
+        cibuildwheel --output-dir dist
 
     - name: Upload wheel artifact for Python ${{ inputs.python-version }}
       uses: actions/upload-artifact@v4
