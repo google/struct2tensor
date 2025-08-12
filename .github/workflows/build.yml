@@ -30,9 +30,7 @@ jobs:
       - name: List and check wheels
         shell: bash
         run: |
-          # Pin transitive dependency on pkginfo until https://github.com/pypa/twine/issues/1070 is
-          # fixed
-          pip install twine pkginfo>=1.10.0
+          pip install twine
           ls -lh dist/
           twine check dist/*
 
