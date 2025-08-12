@@ -39,7 +39,7 @@ jobs:
   upload_to_pypi:
     name: Upload to PyPI
     runs-on: ubuntu-latest
-    if: (github.event_name == 'release' && github.event.action == 'published' || (github.event_name == 'workflow_dispatch')
+    if: (github.event_name == 'release' && github.event.action == 'published') || (github.event_name == 'workflow_dispatch')
     needs: [build]
     environment:
       name: pypi
