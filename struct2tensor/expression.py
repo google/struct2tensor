@@ -300,7 +300,7 @@ class Expression(object, metaclass=abc.ABCMeta):
 
     Returns:
       A mapping from paths (relative to the root of the subexpression) to
-      expressions.
+        expressions.
     """
     known_subexpressions = {
         k: v.get_known_descendants()
@@ -478,7 +478,8 @@ class Expression(object, metaclass=abc.ABCMeta):
                        new_field_name: path.Step) -> "Expression":
     """Map a primitive field to create a new primitive field.
 
-    Note: the dtype argument is added since the v1 API.
+    !!! Note
+        The dtype argument is added since the v1 API.
 
     Args:
       source_path: the origin path.
@@ -601,13 +602,14 @@ class Expression(object, metaclass=abc.ABCMeta):
   def schema_string(self, limit: Optional[int] = None) -> str:
     """Returns a schema for the expression.
 
-    E.g.
-
+    For examle,
+    ```
     repeated root:
       optional int32 foo
       optional bar:
         optional string baz
       optional int64 bak
+    ```
 
     Note that unknown fields and subexpressions are not displayed.
 

@@ -16,7 +16,7 @@ examples of struct2tensor in action and an introduction to the main
 concepts. You can
 [run the notebook in your browser](https://colab.research.google.com/github/google/struct2tensor/blob/master/examples/prensor_playground.ipynb)
 through Google's colab environment, or [download the
-file](examples/prensor_playground.ipynb) to run it in your own Jupyter
+file](https://github.com/google/struct2tensor/tree/master/g3doc/examples/prensor_playground.ipynb) to run it in your own Jupyter
 environment.
 
 
@@ -99,8 +99,9 @@ struct2tensor needs a couple of custom TensorFlow ops to function. If you train
 a model with struct2tensor and wants to serve it with TensorFlow Serving, the
 TensorFlow Serving binary needs to link with those custom ops. We have a
 pre-built docker image that contains such a binary. The `Dockerfile` is
-available at `tools/tf_serving_docker/Dockerfile`. The image is available at
-`gcr.io/tfx-oss-public/s2t_tf_serving`.
+available at [`tools/tf_serving_docker/Dockerfile`](https://github.com/google/struct2tensor/blob/master/struct2tensor/tools/tf_serving_docker/Dockerfile).
+The image is available at
+[`gcr.io/tfx-oss-public/s2t_tf_serving`](gcr.io/tfx-oss-public/s2t_tf_serving).
 
 Please see the `Dockerfile` for details. But in brief, the image exposes port
 8500 as the gRPC endpoint and port 8501 as the REST endpoint. You can set

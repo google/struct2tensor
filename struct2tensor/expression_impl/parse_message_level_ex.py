@@ -25,7 +25,7 @@ these in addition to regular fields and extensions.
 
 Specifically, consider google.protobuf.Any and proto maps:
 
-```
+```python
 package foo.bar;
 
 message MyMessage {
@@ -53,7 +53,7 @@ Also, my_map[x].my_int is an optional path.
 
 Thus, we can run:
 
-```
+```python
 my_message_serialized_tensor = ...
 
 my_message_parsed = parse_message_level_ex(

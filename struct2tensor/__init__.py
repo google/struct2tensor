@@ -18,14 +18,18 @@ from struct2tensor.calculate import calculate_prensors
 from struct2tensor.calculate import calculate_prensors_with_graph
 from struct2tensor.calculate_options import get_default_options
 from struct2tensor.calculate_options import get_options_with_minimal_checks
-from struct2tensor.calculate_with_source_paths import calculate_prensors_with_source_paths
+from struct2tensor.calculate_with_source_paths import (
+    calculate_prensors_with_source_paths,
+)
 
 # Import expressions API.
 from struct2tensor.create_expression import create_expression_from_prensor
 from struct2tensor.expression import Expression
 
 # Import expression queries API
-from struct2tensor.expression_impl.proto import create_expression_from_file_descriptor_set
+from struct2tensor.expression_impl.proto import (
+    create_expression_from_file_descriptor_set,
+)
 from struct2tensor.expression_impl.proto import create_expression_from_proto
 
 # Import path API
@@ -52,3 +56,30 @@ from struct2tensor.prensor_util import get_sparse_tensors
 # tf.compat.v1.Session.run() will be able to take a Prensor and return a
 # PrensorValue.
 import struct2tensor.prensor_value
+
+__all__ = [
+    "s2t",
+    "calculate_prensors",
+    "calculate_prensors_with_graph",
+    "calculate_prensors_with_source_paths",
+    "ChildNodeTensor",
+    "create_expression_from_file_descriptor_set",
+    "create_expression_from_prensor",
+    "create_expression_from_proto",
+    "create_path",
+    "create_prensor_from_descendant_nodes",
+    "create_prensor_from_root_and_children",
+    "Expression",
+    "get_default_options",
+    "get_options_with_minimal_checks",
+    "get_ragged_tensor",
+    "get_ragged_tensors",
+    "get_sparse_tensor",
+    "get_sparse_tensors",
+    "LeafNodeTensor",
+    "NodeTensor",
+    "Path",
+    "Prensor",
+    "RootNodeTensor",
+    "Step",
+]
