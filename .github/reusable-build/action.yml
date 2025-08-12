@@ -7,6 +7,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Install `cibuildwheel`
+      shell: bash
+      run: |
+        pip install cibuildwheel
+
     - name: Build the package for Python ${{ inputs.python-version }}
       shell: bash
       run: |
