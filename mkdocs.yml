@@ -2,8 +2,6 @@ site_name: Struct2Tensor
 repo_name: "Struct2Tensor"
 repo_url: https://github.com/google/struct2tensor
 
-docs_dir: g3doc
-
 theme:
   name: material
   palette:
