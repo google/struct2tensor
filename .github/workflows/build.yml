@@ -23,7 +23,7 @@ jobs:
 
       - name: Build package
         id: build-package
-        uses: ./.github/reusable-build
+        uses: ./.github/actions/reusable-build
         with:
           python-version: ${{ matrix.python-version }}
 
