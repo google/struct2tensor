@@ -15,6 +15,6 @@ runs:
     - name: Upload wheel artifact for Python ${{ inputs.python-version }}
       uses: actions/upload-artifact@v4
       with:
-        name: ml-metadata-wheel-py${{ inputs.python-version }}
+        name: struct2tensor-py${{ inputs.python-version }}
         path: dist/*.whl
         if-no-files-found: error
