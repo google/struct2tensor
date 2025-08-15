@@ -17,5 +17,6 @@ from tensorflow.python.framework import load_library
 from tensorflow.python.platform import resource_loader
 
 equi_join_any_indices_module = load_library.load_op_library(
-    resource_loader.get_path_to_datafile('_equi_join_any_indices_op.so'))
+    resource_loader.get_path_to_datafile("_equi_join_any_indices_op.so")
+)
 equi_join_any_indices = equi_join_any_indices_module.equi_join_any_indices

@@ -115,4 +115,3 @@ session: {
 [`promote(...)`](../expression_impl/promote/promote.md): Promote a path to be a child of its grandparent, and give it a name.
 
 [`promote_anonymous(...)`](../expression_impl/promote/promote_anonymous.md): Promote a path to be a new anonymous child of its grandparent.
-
