@@ -19,54 +19,66 @@ import struct2tensor as s2t
 
 
 class Struct2tensorModuleTest(absltest.TestCase):
+    def test_importing_struct2tensor_modules(self):
+        """This tests that the exposed packages in root __init__.py are found."""
+        # pylint: disable=pointless-statement
 
-  def test_importing_struct2tensor_modules(self):
-    """This tests that the exposed packages in root __init__.py are found."""
-    # pylint: disable=pointless-statement
+        # calculate APIs
+        s2t.calculate_prensors
+        s2t.calculate_prensors_with_graph
+        s2t.get_default_options
+        s2t.get_options_with_minimal_checks
+        s2t.calculate_prensors_with_source_paths
 
-    # calculate APIs
-    s2t.calculate_prensors
-    s2t.calculate_prensors_with_graph
-    s2t.get_default_options
-    s2t.get_options_with_minimal_checks
-    s2t.calculate_prensors_with_source_paths
+        # expression APIs
+        s2t.create_expression_from_prensor
+        s2t.create_expression_from_file_descriptor_set
+        s2t.create_expression_from_proto
+        s2t.Expression
 
-    # expression APIs
-    s2t.create_expression_from_prensor
-    s2t.create_expression_from_file_descriptor_set
-    s2t.create_expression_from_proto
-    s2t.Expression
+        # path API
+        s2t.create_path
+        s2t.Path
+        s2t.Step
 
-    # path API
-    s2t.create_path
-    s2t.Path
-    s2t.Step
+        # prensor APIs
+        s2t.ChildNodeTensor
+        s2t.LeafNodeTensor
+        s2t.NodeTensor
+        s2t.Prensor
+        s2t.RootNodeTensor
+        s2t.create_prensor_from_descendant_nodes
+        s2t.create_prensor_from_root_and_children
+        s2t.prensor_value
+        # pylint: enable=pointless-statement
 
-    # prensor APIs
-    s2t.ChildNodeTensor
-    s2t.LeafNodeTensor
-    s2t.NodeTensor
-    s2t.Prensor
-    s2t.RootNodeTensor
-    s2t.create_prensor_from_descendant_nodes
-    s2t.create_prensor_from_root_and_children
-    s2t.prensor_value
-    # pylint: enable=pointless-statement
+    def test_importing_expression_impl_modules(self):
+        """This tests that the expression_impl/__init__.py imports are found."""
+        from struct2tensor import expression_impl  # pylint: disable=g-import-not-at-top
 
-  def test_importing_expression_impl_modules(self):
-    """This tests that the expression_impl/__init__.py imports are found."""
-    from struct2tensor import expression_impl  # pylint: disable=g-import-not-at-top
+        modules = [
+            "apply_schema",
+            "broadcast",
+            "depth_limit",
+            "filter_expression",
+            "index",
+            "map_prensor",
+            "map_prensor_to_prensor",
+            "map_values",
+            "parquet",
+            "placeholder",
+            "project",
+            "promote",
+            "promote_and_broadcast",
+            "proto",
+            "reroot",
+            "size",
+            "slice_expression",
+        ]
 
-    modules = [
-        'apply_schema', 'broadcast', 'depth_limit', 'filter_expression',
-        'index', 'map_prensor', 'map_prensor_to_prensor', 'map_values',
-        'parquet', 'placeholder', 'project', 'promote', 'promote_and_broadcast',
-        'proto', 'reroot', 'size', 'slice_expression'
-    ]
-
-    for module in modules:
-      getattr(expression_impl, module)
+        for module in modules:
+            getattr(expression_impl, module)
 
 
-if __name__ == '__main__':
-  absltest.main()
+if __name__ == "__main__":
+    absltest.main()

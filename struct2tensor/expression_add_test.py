@@ -21,87 +21,102 @@ from struct2tensor.test import expression_test_util, prensor_test_util
 
 
 class ModifyTest(absltest.TestCase):
+    def test_add_paths(self):
+        expr = create_expression.create_expression_from_prensor(
+            prensor_test_util.create_nested_prensor()
+        )
+        new_root = expression_add.add_paths(
+            expr,
+            {
+                path.Path(["user", "friends_copy"]): expr.get_descendant_or_error(
+                    path.Path(["user", "friends"])
+                )
+            },
+        )
+        new_field = new_root.get_descendant_or_error(
+            path.Path(["user", "friends_copy"])
+        )
+        self.assertIsNotNone(new_field)
+        self.assertTrue(new_field.is_repeated)
+        self.assertEqual(new_field.type, tf.string)
+        self.assertTrue(new_field.is_leaf)
+        leaf_node = expression_test_util.calculate_value_slowly(new_field)
+        self.assertEqual(leaf_node.values.dtype, tf.string)
+        self.assertEqual(new_field.known_field_names(), frozenset())
 
-  def test_add_paths(self):
-    expr = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_nested_prensor())
-    new_root = expression_add.add_paths(
-        expr, {
-            path.Path(["user", "friends_copy"]):
-                expr.get_descendant_or_error(path.Path(["user", "friends"]))
-        })
-    new_field = new_root.get_descendant_or_error(
-        path.Path(["user", "friends_copy"]))
-    self.assertIsNotNone(new_field)
-    self.assertTrue(new_field.is_repeated)
-    self.assertEqual(new_field.type, tf.string)
-    self.assertTrue(new_field.is_leaf)
-    leaf_node = expression_test_util.calculate_value_slowly(new_field)
-    self.assertEqual(leaf_node.values.dtype, tf.string)
-    self.assertEqual(new_field.known_field_names(), frozenset())
+    def test_add_to(self):
+        root = create_expression.create_expression_from_prensor(
+            prensor_test_util.create_nested_prensor()
+        )
+        root_1 = expression_add.add_paths(
+            root,
+            {
+                path.Path(["user", "friends_2"]): root.get_descendant_or_error(
+                    path.Path(["user", "friends"])
+                )
+            },
+        )
+        root_2 = expression_add.add_paths(
+            root_1,
+            {
+                path.Path(["user", "friends_3"]): root_1.get_descendant_or_error(
+                    path.Path(["user", "friends_2"])
+                )
+            },
+        )
+        root_3 = expression_add.add_to(root, {path.Path(["user", "friends_3"]): root_2})
 
-  def test_add_to(self):
-    root = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_nested_prensor())
-    root_1 = expression_add.add_paths(
-        root, {
-            path.Path(["user", "friends_2"]):
-                root.get_descendant_or_error(path.Path(["user", "friends"]))
-        })
-    root_2 = expression_add.add_paths(
-        root_1, {
-            path.Path(["user", "friends_3"]):
-                root_1.get_descendant_or_error(
-                    path.Path(["user", "friends_2"]))
-        })
-    root_3 = expression_add.add_to(root,
-                                   {path.Path(["user", "friends_3"]): root_2})
+        new_field = root_3.get_descendant_or_error(path.Path(["user", "friends_3"]))
+        self.assertIsNotNone(new_field)
+        self.assertTrue(new_field.is_repeated)
+        self.assertEqual(new_field.type, tf.string)
+        leaf_node = expression_test_util.calculate_value_slowly(new_field)
+        self.assertEqual(leaf_node.values.dtype, tf.string)
 
-    new_field = root_3.get_descendant_or_error(path.Path(["user", "friends_3"]))
-    self.assertIsNotNone(new_field)
-    self.assertTrue(new_field.is_repeated)
-    self.assertEqual(new_field.type, tf.string)
-    leaf_node = expression_test_util.calculate_value_slowly(new_field)
-    self.assertEqual(leaf_node.values.dtype, tf.string)
-
-  def test_add_to_already_existing_path(self):
-    with self.assertRaises(ValueError):
-      root = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_nested_prensor())
-      root_1 = expression_add.add_paths(
-          root, {
-              path.Path(["user", "friends_2"]):
-                  root.get_descendant_or_error(path.Path(["user", "friends"]))
-          })
-      root_2 = expression_add.add_paths(
-          root_1, {
-              path.Path(["user", "friends_3"]):
-                  root_1.get_descendant_or_error(
-                      path.Path(["user", "friends_2"]))
-          })
-      expression_add.add_to(root, {path.Path(["user", "friends"]): root_2})
-
-  def test_add_to_with_lenient_field_names(self):
-    root = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_nested_prensor_with_lenient_field_names(),
-        validate_step_format=False,
-    )
-    root_1 = expression_add.add_paths(
-        root,
-        {
-            path.Path(
-                ["user", "friends_2$"], validate_step_format=False
-            ): root.get_descendant_or_error(
-                path.Path(["user", "friends!:)"], validate_step_format=False)
+    def test_add_to_already_existing_path(self):
+        with self.assertRaises(ValueError):
+            root = create_expression.create_expression_from_prensor(
+                prensor_test_util.create_nested_prensor()
             )
-        },
-    )
+            root_1 = expression_add.add_paths(
+                root,
+                {
+                    path.Path(["user", "friends_2"]): root.get_descendant_or_error(
+                        path.Path(["user", "friends"])
+                    )
+                },
+            )
+            root_2 = expression_add.add_paths(
+                root_1,
+                {
+                    path.Path(["user", "friends_3"]): root_1.get_descendant_or_error(
+                        path.Path(["user", "friends_2"])
+                    )
+                },
+            )
+            expression_add.add_to(root, {path.Path(["user", "friends"]): root_2})
 
-    new_field = root_1.get_descendant_or_error(
-        path.Path(["user", "friends_2$"], validate_step_format=False)
-    )
-    self.assertIsNotNone(new_field)
+    def test_add_to_with_lenient_field_names(self):
+        root = create_expression.create_expression_from_prensor(
+            prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+            validate_step_format=False,
+        )
+        root_1 = expression_add.add_paths(
+            root,
+            {
+                path.Path(
+                    ["user", "friends_2$"], validate_step_format=False
+                ): root.get_descendant_or_error(
+                    path.Path(["user", "friends!:)"], validate_step_format=False)
+                )
+            },
+        )
+
+        new_field = root_1.get_descendant_or_error(
+            path.Path(["user", "friends_2$"], validate_step_format=False)
+        )
+        self.assertIsNotNone(new_field)
 
 
 if __name__ == "__main__":
-  absltest.main()
+    absltest.main()

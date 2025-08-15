@@ -25,106 +25,104 @@ from struct2tensor import calculate_options, expression, path, prensor
 
 
 class _DirectExpression(expression.Expression):
-  """An expression where the value is immediate.
+    """An expression where the value is immediate.
 
-  This expression has no sources, and a NodeTensor is set at construction time.
-  """
-
-  def __init__(
-      self,
-      is_repeated: bool,
-      my_type: Optional[tf.DType],
-      value: prensor.NodeTensor,
-      children: Mapping[path.Step, expression.Expression],
-      validate_step_format: bool,
-  ):
-    """Initializes an expression.
-
-    Args:
-      is_repeated: if the expression is repeated.
-      my_type: the DType of a field, or None for an internal node.
-      value: the return value of calculate(...)
-      children: the subexpressions.
-      validate_step_format: If True, validates that steps do not have any
-        characters that could be ambiguously understood as structure delimiters
-        (e.g. "."). If False, such characters are allowed and the client is
-        responsible to ensure to not rely on any auto-coercion of strings to
-        paths.
+    This expression has no sources, and a NodeTensor is set at construction time.
     """
-    super().__init__(
-        is_repeated, my_type, validate_step_format=validate_step_format
-    )
-    self._value = value
-    self._children = children
 
-  def get_source_expressions(self) -> Sequence[expression.Expression]:
-    return []
+    def __init__(
+        self,
+        is_repeated: bool,
+        my_type: Optional[tf.DType],
+        value: prensor.NodeTensor,
+        children: Mapping[path.Step, expression.Expression],
+        validate_step_format: bool,
+    ):
+        """Initializes an expression.
 
-  def calculate(
-      self,
-      sources: Sequence[prensor.NodeTensor],
-      destinations: Sequence[expression.Expression],
-      options: calculate_options.Options,
-      side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
-    return self._value
+        Args:
+          is_repeated: if the expression is repeated.
+          my_type: the DType of a field, or None for an internal node.
+          value: the return value of calculate(...)
+          children: the subexpressions.
+          validate_step_format: If True, validates that steps do not have any
+            characters that could be ambiguously understood as structure delimiters
+            (e.g. "."). If False, such characters are allowed and the client is
+            responsible to ensure to not rely on any auto-coercion of strings to
+            paths.
+        """
+        super().__init__(
+            is_repeated, my_type, validate_step_format=validate_step_format
+        )
+        self._value = value
+        self._children = children
 
-  def calculation_is_identity(self) -> bool:
-    return False
+    def get_source_expressions(self) -> Sequence[expression.Expression]:
+        return []
 
-  def calculation_equal(self, expr: expression.Expression) -> bool:
-    return isinstance(expr, _DirectExpression) and expr._value is self._value  # pylint: disable=protected-access
+    def calculate(
+        self,
+        sources: Sequence[prensor.NodeTensor],
+        destinations: Sequence[expression.Expression],
+        options: calculate_options.Options,
+        side_info: Optional[prensor.Prensor] = None,
+    ) -> prensor.NodeTensor:
+        return self._value
 
-  def _get_child_impl(self,
-                      field_name: path.Step) -> Optional[expression.Expression]:
-    return self._children.get(field_name)
+    def calculation_is_identity(self) -> bool:
+        return False
 
-  def known_field_names(self) -> FrozenSet[path.Step]:
-    return frozenset(self._children.keys())
+    def calculation_equal(self, expr: expression.Expression) -> bool:
+        return isinstance(expr, _DirectExpression) and expr._value is self._value  # pylint: disable=protected-access
 
-  def __str__(self) -> str:
-    return f"_DirectExpression: {str(id(self))}"
+    def _get_child_impl(self, field_name: path.Step) -> Optional[expression.Expression]:
+        return self._children.get(field_name)
+
+    def known_field_names(self) -> FrozenSet[path.Step]:
+        return frozenset(self._children.keys())
+
+    def __str__(self) -> str:
+        return f"_DirectExpression: {str(id(self))}"
 
 
 def create_expression_from_prensor(
     t: prensor.Prensor, validate_step_format: bool = True
 ) -> expression.Expression:
-  """Gets an expression representing the prensor.
+    """Gets an expression representing the prensor.
 
-  Args:
-    t: The prensor to represent.
-    validate_step_format: If True, validates that steps do not have any
-      characters that could be ambiguously understood as structure delimiters
-      (e.g. "."). If False, such characters are allowed and the client is
-      responsible to ensure to not rely on any auto-coercion of strings to
-      paths.
+    Args:
+      t: The prensor to represent.
+      validate_step_format: If True, validates that steps do not have any
+        characters that could be ambiguously understood as structure delimiters
+        (e.g. "."). If False, such characters are allowed and the client is
+        responsible to ensure to not rely on any auto-coercion of strings to
+        paths.
 
-  Returns:
-    An expression representing the prensor.
-  """
-  node_tensor = t.node
-  children = {
-      k: create_expression_from_prensor(
-          v, validate_step_format=validate_step_format
-      )
-      for k, v in t.get_children().items()
-  }
-  if isinstance(node_tensor, prensor.RootNodeTensor):
-    return _DirectExpression(
-        True, None, node_tensor, children, validate_step_format
-    )
-  if isinstance(node_tensor, prensor.ChildNodeTensor):
+    Returns:
+      An expression representing the prensor.
+    """
+    node_tensor = t.node
+    children = {
+        k: create_expression_from_prensor(v, validate_step_format=validate_step_format)
+        for k, v in t.get_children().items()
+    }
+    if isinstance(node_tensor, prensor.RootNodeTensor):
+        return _DirectExpression(
+            True, None, node_tensor, children, validate_step_format
+        )
+    if isinstance(node_tensor, prensor.ChildNodeTensor):
+        return _DirectExpression(
+            node_tensor.is_repeated,
+            None,
+            node_tensor,
+            children,
+            validate_step_format,
+        )
+    # isinstance(node_tensor, LeafNodeTensor)
     return _DirectExpression(
         node_tensor.is_repeated,
-        None,
+        node_tensor.values.dtype,
         node_tensor,
         children,
         validate_step_format,
     )
-  # isinstance(node_tensor, LeafNodeTensor)
-  return _DirectExpression(
-      node_tensor.is_repeated,
-      node_tensor.values.dtype,
-      node_tensor,
-      children,
-      validate_step_format,
-  )

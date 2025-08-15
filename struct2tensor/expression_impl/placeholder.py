@@ -39,167 +39,179 @@ from struct2tensor import calculate, calculate_options, expression, path, prenso
 from struct2tensor.expression_impl import map_prensor_to_prensor as mpp
 
 
-def create_expression_from_schema(
-    schema: mpp.Schema) -> "_PlaceholderRootExpression":
-  """Creates a placeholder expression from a parquet schema.
+def create_expression_from_schema(schema: mpp.Schema) -> "_PlaceholderRootExpression":
+    """Creates a placeholder expression from a parquet schema.
 
-  Args:
-    schema: The schema that describes the prensor tree that this placeholder
-      represents.
+    Args:
+      schema: The schema that describes the prensor tree that this placeholder
+        represents.
 
-  Returns:
-    A PlaceholderRootExpression that should be used as the root of an expression
-    graph.
-  """
-  return _PlaceholderRootExpression(schema)
+    Returns:
+      A PlaceholderRootExpression that should be used as the root of an expression
+      graph.
+    """
+    return _PlaceholderRootExpression(schema)
 
 
 def _is_placeholder_expression(expr: expression.Expression) -> bool:
-  """Returns true if an expression is a ParquetExpression."""
-  return isinstance(expr,
-                    (_PlaceholderRootExpression, _PlaceholderChildExpression))
+    """Returns true if an expression is a ParquetExpression."""
+    return isinstance(expr, (_PlaceholderRootExpression, _PlaceholderChildExpression))
 
 
 def get_placeholder_paths_from_graph(
-    graph: calculate.ExpressionGraph) -> List[path.Path]:
-  """Gets all placeholder paths from an expression graph.
+    graph: calculate.ExpressionGraph,
+) -> List[path.Path]:
+    """Gets all placeholder paths from an expression graph.
 
-  This finds all leaf placeholder expressions in an expression graph, and gets
-  the path of these expressions.
+    This finds all leaf placeholder expressions in an expression graph, and gets
+    the path of these expressions.
 
-  Args:
-    graph: expression graph
+    Args:
+      graph: expression graph
 
-  Returns:
-    a list of paths of placeholder expressions
-  """
-  expressions = [
-      x for x in graph.get_expressions_needed()
-      if (_is_placeholder_expression(x) and x.is_leaf)
-  ]
-  expressions = typing.cast(List[_PlaceholderExpression], expressions)
-  return [e.get_path() for e in expressions]
+    Returns:
+      a list of paths of placeholder expressions
+    """
+    expressions = [
+        x
+        for x in graph.get_expressions_needed()
+        if (_is_placeholder_expression(x) and x.is_leaf)
+    ]
+    expressions = typing.cast(List[_PlaceholderExpression], expressions)
+    return [e.get_path() for e in expressions]
 
 
 class _PlaceholderChildExpression(expression.Expression):
-  """A child or leaf parquet expression."""
+    """A child or leaf parquet expression."""
 
-  # pylint: disable=protected-access
-  def __init__(self, parent: "_PlaceholderExpression", step: path.Step,
-               schema: mpp.Schema):
-    super().__init__(
-        schema.is_repeated, schema.type, schema_feature=schema.schema_feature)
-    self._parent = parent
-    self._step = step
-    self._schema = schema
+    # pylint: disable=protected-access
+    def __init__(
+        self, parent: "_PlaceholderExpression", step: path.Step, schema: mpp.Schema
+    ):
+        super().__init__(
+            schema.is_repeated, schema.type, schema_feature=schema.schema_feature
+        )
+        self._parent = parent
+        self._step = step
+        self._schema = schema
 
-  @property
-  def schema(self):
-    return self._schema
+    @property
+    def schema(self):
+        return self._schema
 
-  @property
-  def is_leaf(self) -> bool:
-    return not self._schema._children
+    @property
+    def is_leaf(self) -> bool:
+        return not self._schema._children
 
-  def get_path(self) -> path.Path:
-    return self._parent.get_path().get_child(self._step)
+    def get_path(self) -> path.Path:
+        return self._parent.get_path().get_child(self._step)
 
-  def get_source_expressions(self) -> Sequence[expression.Expression]:
-    return [self._parent]
+    def get_source_expressions(self) -> Sequence[expression.Expression]:
+        return [self._parent]
 
-  def calculate(  # pytype: disable=signature-mismatch  # overriding-parameter-type-checks
-      self,
-      source_tensors: Sequence[mpp._TreeAsNode],
-      destinations: Sequence[expression.Expression],
-      options: calculate_options.Options,
-      side_info: Optional[prensor.Prensor] = None) -> mpp._TreeAsNode:
-    if side_info:
-      return mpp._tree_as_node(side_info)
-    [parent] = source_tensors
-    if not isinstance(
-        parent, (mpp._PrensorAsLeafNodeTensor, mpp._PrensorAsChildNodeTensor,
-                 mpp._PrensorAsRootNodeTensor)):
-      raise ValueError("calculate() of Parent did not return a "
-                       "_PrensorAsNodeTensor")
-    my_pren = parent.prensor.get_child(self._step)
-    if not my_pren:
-      raise ValueError("step " + self._step + " does not exist in prensor: " +
-                       str(parent.prensor))
-    return mpp._tree_as_node(my_pren)
+    def calculate(  # pytype: disable=signature-mismatch  # overriding-parameter-type-checks
+        self,
+        source_tensors: Sequence[mpp._TreeAsNode],
+        destinations: Sequence[expression.Expression],
+        options: calculate_options.Options,
+        side_info: Optional[prensor.Prensor] = None,
+    ) -> mpp._TreeAsNode:
+        if side_info:
+            return mpp._tree_as_node(side_info)
+        [parent] = source_tensors
+        if not isinstance(
+            parent,
+            (
+                mpp._PrensorAsLeafNodeTensor,
+                mpp._PrensorAsChildNodeTensor,
+                mpp._PrensorAsRootNodeTensor,
+            ),
+        ):
+            raise ValueError(
+                "calculate() of Parent did not return a _PrensorAsNodeTensor"
+            )
+        my_pren = parent.prensor.get_child(self._step)
+        if not my_pren:
+            raise ValueError(
+                "step "
+                + self._step
+                + " does not exist in prensor: "
+                + str(parent.prensor)
+            )
+        return mpp._tree_as_node(my_pren)
 
-  def calculation_is_identity(self) -> bool:
-    return False
+    def calculation_is_identity(self) -> bool:
+        return False
 
-  def calculation_equal(self, expr: expression.Expression) -> bool:
-    return self is expr
+    def calculation_equal(self, expr: expression.Expression) -> bool:
+        return self is expr
 
-  def _get_child_impl(self,
-                      field_name: path.Step) -> Optional[expression.Expression]:
-    if field_name not in self._schema.known_field_names():
-      return None
-    child_schema = self._schema.get_child(field_name)
-    return _PlaceholderChildExpression(self, field_name, child_schema)
+    def _get_child_impl(self, field_name: path.Step) -> Optional[expression.Expression]:
+        if field_name not in self._schema.known_field_names():
+            return None
+        child_schema = self._schema.get_child(field_name)
+        return _PlaceholderChildExpression(self, field_name, child_schema)
 
-  def known_field_names(self) -> FrozenSet[path.Step]:
-    return self._schema.known_field_names()
+    def known_field_names(self) -> FrozenSet[path.Step]:
+        return self._schema.known_field_names()
 
 
 class _PlaceholderRootExpression(expression.Expression):
-  """An expression that calculates to the side_info passed in at calculate()."""
+    """An expression that calculates to the side_info passed in at calculate()."""
 
-  def __init__(self, schema: mpp.Schema):
-    """Initializes the root of the placeholder expression.
+    def __init__(self, schema: mpp.Schema):
+        """Initializes the root of the placeholder expression.
 
-    Args:
-      schema: the schema that represents what the expression tree looks like.
-    """
-    super().__init__(True, None)
-    self._schema = schema
+        Args:
+          schema: the schema that represents what the expression tree looks like.
+        """
+        super().__init__(True, None)
+        self._schema = schema
 
-  @property
-  def schema(self):
-    return self._schema
+    @property
+    def schema(self):
+        return self._schema
 
-  @property
-  def is_leaf(self) -> bool:
-    return False
+    @property
+    def is_leaf(self) -> bool:
+        return False
 
-  def get_path(self) -> path.Path:
-    return path.Path([])
+    def get_path(self) -> path.Path:
+        return path.Path([])
 
-  def get_source_expressions(self) -> Sequence[expression.Expression]:
-    return []
+    def get_source_expressions(self) -> Sequence[expression.Expression]:
+        return []
 
-  def calculate(  # pytype: disable=signature-mismatch  # overriding-parameter-type-checks
-      self, source_tensors: Sequence[prensor.NodeTensor],
-      destinations: Sequence[expression.Expression],
-      options: calculate_options.Options,
-      side_info: prensor.Prensor) -> mpp._TreeAsNode:
-    if source_tensors:
-      raise ValueError("_PlaceholderRootExpression has no sources")
-    if side_info:
-      return mpp._tree_as_node(side_info)  # pylint: disable=protected-access
-    raise ValueError("_PlaceholderRootExpression requires side_info")
+    def calculate(  # pytype: disable=signature-mismatch  # overriding-parameter-type-checks
+        self,
+        source_tensors: Sequence[prensor.NodeTensor],
+        destinations: Sequence[expression.Expression],
+        options: calculate_options.Options,
+        side_info: prensor.Prensor,
+    ) -> mpp._TreeAsNode:
+        if source_tensors:
+            raise ValueError("_PlaceholderRootExpression has no sources")
+        if side_info:
+            return mpp._tree_as_node(side_info)  # pylint: disable=protected-access
+        raise ValueError("_PlaceholderRootExpression requires side_info")
 
-  def calculation_is_identity(self) -> bool:
-    return False
+    def calculation_is_identity(self) -> bool:
+        return False
 
-  def calculation_equal(self, expr: expression.Expression) -> bool:
-    return self is expr
+    def calculation_equal(self, expr: expression.Expression) -> bool:
+        return self is expr
 
-  def _get_child_impl(self,
-                      field_name: path.Step) -> Optional[expression.Expression]:
-    if field_name not in self._schema.known_field_names():
-      return None
-    child_schema = self._schema.get_child(field_name)
-    return _PlaceholderChildExpression(self, field_name, child_schema)
+    def _get_child_impl(self, field_name: path.Step) -> Optional[expression.Expression]:
+        if field_name not in self._schema.known_field_names():
+            return None
+        child_schema = self._schema.get_child(field_name)
+        return _PlaceholderChildExpression(self, field_name, child_schema)
 
-  def __str__(self) -> str:
-    return f"_PlaceholderRootExpression: {str(self._schema)}"
+    def __str__(self) -> str:
+        return f"_PlaceholderRootExpression: {str(self._schema)}"
 
-  def known_field_names(self) -> FrozenSet[path.Step]:
-    return self._schema.known_field_names()
+    def known_field_names(self) -> FrozenSet[path.Step]:
+        return self._schema.known_field_names()
 
 
-_PlaceholderExpression = Union[_PlaceholderRootExpression,
-                               _PlaceholderChildExpression]
+_PlaceholderExpression = Union[_PlaceholderRootExpression, _PlaceholderChildExpression]
