@@ -94,16 +94,19 @@ class CalculateTest(tf.test.TestCase):
     with self.assertRaisesRegex(
         ValueError,
         "Expression Node0 returned the wrong type: expected: repeated <dtype: "
-        "'int64'> actual: optional <dtype: 'int64'>."):
+        "'int64'> actual: optional <dtype: 'int64'>.",
+    ):
       single_node = expression_test_util.get_mock_broken_leaf(
           True, tf.int64, False, tf.int64, name="Node0")
       calculate.calculate_values([single_node])
 
   def test_calculate_broken_mock_dtype(self):
     with self.assertRaisesRegex(
-        ValueError, "Expression Node0 returned the "
+        ValueError,
+        "Expression Node0 returned the "
         "wrong type: expected: repeated <dtype: "
-        "'int64'> actual: repeated <dtype: 'int32'>."):
+        "'int64'> actual: repeated <dtype: 'int32'>.",
+    ):
       single_node = expression_test_util.get_mock_broken_leaf(
           True, tf.int64, True, tf.int32, name="Node0")
       calculate.calculate_values([single_node])

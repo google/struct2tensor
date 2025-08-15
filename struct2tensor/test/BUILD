@@ -109,7 +109,6 @@ s2t_pytype_library(
     srcs = [
         "expression_test_util.py",
     ],
-    srcs_version = "PY3ONLY",
     deps = [
         "//struct2tensor:expression",
         "//struct2tensor:path",
@@ -122,7 +121,6 @@ s2t_pytype_library(
     srcs = [
         "prensor_test_util.py",
     ],
-    srcs_version = "PY3ONLY",
     deps = [
         "//struct2tensor:expression",
         "//struct2tensor:path",

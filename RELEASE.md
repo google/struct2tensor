@@ -1,18 +1,56 @@
 # `struct2tensor` release notes
 
-# Current Version (not yet released; still in development)
+## Current Version (not yet released; still in development)
 
 ## Major Features and Improvements
 
 ## Bug Fixes and Other Changes
 
-*   Bumped the minimum bazel version required to build `struct2tensor` to 6.5.0.
-
 ## Breaking Changes
 
 ## Deprecations
 
-# Version 0.46.0
+## Version 0.48.0
+
+## Major Features and Improvements
+
+*   N/A
+
+## Bug Fixes and Other Changes
+
+*   Depends on `protobuf>=4.25.2,<6.0.0` for Python 3.11 and on `protobuf>=4.21.6,<6.0.0` for 3.9 and 3.10.
+*   Depends on `tensorflow 2.17.1`.
+*   macOS wheel publishing is temporarily paused due to missing ARM64 support.
+
+## Breaking Changes
+
+*   N/A
+
+## Deprecations
+
+*   N/A
+
+## Version 0.47.0
+
+## Major Features and Improvements
+
+*   N/A
+
+## Bug Fixes and Other Changes
+
+*   Bumped the minimum bazel version required to build `struct2tensor` to 6.5.0.
+*   Depends on `tensorflow 2.16.2`.
+*   Relax dependency on Protobuf to include version 5.x
+
+## Breaking Changes
+
+*   N/A
+
+## Deprecations
+
+*   N/A
+
+## Version 0.46.0
 
 ## Major Features and Improvements
 
@@ -35,7 +73,7 @@
 
 *   Deprecated python 3.8 support.
 
-# Version 0.45.0
+## Version 0.45.0
 
 ## Major Features and Improvements
 
@@ -55,7 +93,7 @@
 
 *   N/A
 
-# Version 0.44.0
+## Version 0.44.0
 
 ## Major Features and Improvements
 
@@ -75,7 +113,7 @@
 
 *   Deprecated python 3.7 support.
 
-# Version 0.43.0
+## Version 0.43.0
 
 ## Major Features and Improvements
 
@@ -93,7 +131,7 @@
 
 *   N/A
 
-# Version 0.42.0
+## Version 0.42.0
 
 ## Major Features and Improvements
 
@@ -112,7 +150,7 @@
 
 *   N/A
 
-# Version 0.41.0
+## Version 0.41.0
 
 ## Major Features and Improvements
 
@@ -131,7 +169,7 @@
 
 *   N/A
 
-# Version 0.40.0
+## Version 0.40.0
 
 ## Major Features and Improvements
 
@@ -152,7 +190,7 @@
 
 *   N/A
 
-# Version 0.39.0
+## Version 0.39.0
 
 ## Major Features and Improvements
 
@@ -170,7 +208,7 @@
 
 *   N/A
 
-# Version 0.38.0
+## Version 0.38.0
 
 ## Major Features and Improvements
 
@@ -190,7 +228,7 @@
 
 *   N/A
 
-# Version 0.37.0
+## Version 0.37.0
 
 ## Major Features and Improvements
 
@@ -208,7 +246,7 @@
 
 *   N/A
 
-# Version 0.36.0
+## Version 0.36.0
 
 ## Major Features and Improvements
 
@@ -227,7 +265,7 @@
 
 *   N/A
 
-# Version 0.35.0
+## Version 0.35.0
 
 ## Major Features and Improvements
 
@@ -245,7 +283,7 @@
 
 *   Deprecated python 3.6 support.
 
-# Version 0.34.0
+## Version 0.34.0
 
 ## Major Features and Improvements
 

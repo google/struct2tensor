@@ -592,15 +592,17 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
     self.assertAllEqual(indices_0, [])
 
   def test_invalid_uint32_key(self):
-    with self.assertRaisesRegex(tf.errors.InvalidArgumentError,
-                                 "Failed to parse .*string"):
+    with self.assertRaisesRegex(
+        tf.errors.InvalidArgumentError, "Failed to parse .*string"
+    ):
       self.evaluate(
           self._parse_map_entry([test_map_pb2.MessageWithMap()],
                                 "uint32_string_map", ["-42"]))
 
   def test_invalid_int32_key(self):
-    with self.assertRaisesRegex(tf.errors.InvalidArgumentError,
-                                 "Failed to parse .*string"):
+    with self.assertRaisesRegex(
+        tf.errors.InvalidArgumentError, "Failed to parse .*string"
+    ):
       self.evaluate(
           self._parse_map_entry([test_map_pb2.MessageWithMap()],
                                 "int32_string_map", ["foo"]))
@@ -617,8 +619,9 @@ class DecodeProtoMapOpTest(parameterized.TestCase, tf.test.TestCase):
 
   def test_invalid_bool_key(self):
     message_with_map = test_map_pb2.MessageWithMap()
-    with self.assertRaisesRegex(tf.errors.InvalidArgumentError,
-                                 "Failed to parse .*string"):
+    with self.assertRaisesRegex(
+        tf.errors.InvalidArgumentError, "Failed to parse .*string"
+    ):
       self.evaluate(
           self._parse_map_entry([message_with_map], "bool_string_map", ["2"]))
 
