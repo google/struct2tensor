@@ -289,8 +289,7 @@ class _AbstractProtoChildExpression(expression.Expression):
       options: calculate_options.Options,
       side_info: Optional[prensor.Prensor] = None) -> prensor.NodeTensor:
     [parent_value] = sources
-    if isinstance(parent_value, _ProtoRootNodeTensor) or isinstance(
-        parent_value, _ProtoChildNodeTensor):
+    if isinstance(parent_value, (_ProtoRootNodeTensor, _ProtoChildNodeTensor)):
       parsed_field = parent_value.fields.get(self.name_as_field)
       if parsed_field is None:
         raise ValueError(f"Cannot find {str(self)} in {str(parent_value)}")

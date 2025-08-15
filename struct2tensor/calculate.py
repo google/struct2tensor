@@ -274,8 +274,7 @@ class _ExpressionNode:
     expected_type = self.expression.type
     actual_value = self.value
     if expected_type is None:
-      if not (isinstance(actual_value, prensor.RootNodeTensor) or
-              isinstance(actual_value, prensor.ChildNodeTensor)):
+      if not isinstance(actual_value, (prensor.RootNodeTensor, prensor.ChildNodeTensor)):
         raise self._create_value_error()
     elif isinstance(actual_value, prensor.LeafNodeTensor):
       if expected_type != actual_value.values.dtype:
