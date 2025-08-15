@@ -32,4 +32,3 @@ original proto.
 [`create_proto_index_field(...)`](../expression_impl/reroot/create_proto_index_field.md)
 
 [`reroot(...)`](../expression_impl/reroot/reroot.md): Reroot to a new path, maintaining a input proto index.
-

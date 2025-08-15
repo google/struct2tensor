@@ -14,36 +14,34 @@
 """Tests for struct2tensor.project."""
 
 from absl.testing import absltest
-from struct2tensor import create_expression
-from struct2tensor import path
+
+from struct2tensor import create_expression, path
 from struct2tensor.expression_impl import project
 from struct2tensor.test import prensor_test_util
 
 
 class ProjectTest(absltest.TestCase):
+    def test_project(self):
+        expr = create_expression.create_expression_from_prensor(
+            prensor_test_util.create_nested_prensor()
+        )
+        projected = project.project(
+            expr, [path.Path(["user", "friends"]), path.Path(["doc", "keep_me"])]
+        )
+        self.assertIsNotNone(projected.get_descendant(path.Path(["user", "friends"])))
+        self.assertIsNotNone(projected.get_descendant(path.Path(["doc", "keep_me"])))
+        self.assertIsNone(projected.get_descendant(path.Path(["doc", "bar"])))
 
-  def test_project(self):
-    expr = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_nested_prensor())
-    projected = project.project(
-        expr, [path.Path(["user", "friends"]),
-               path.Path(["doc", "keep_me"])])
-    self.assertIsNotNone(
-        projected.get_descendant(path.Path(["user", "friends"])))
-    self.assertIsNotNone(
-        projected.get_descendant(path.Path(["doc", "keep_me"])))
-    self.assertIsNone(projected.get_descendant(path.Path(["doc", "bar"])))
-
-  def test_project_lenient_format(self):
-    expr = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_nested_prensor_with_lenient_field_names(),
-        validate_step_format=False,
-    )
-    projected = project.project(
-        expr, [path.Path(["doc", "keep_me/x"], validate_step_format=False)]
-    )
-    self.assertLen(projected.get_known_descendants(), 3)
+    def test_project_lenient_format(self):
+        expr = create_expression.create_expression_from_prensor(
+            prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+            validate_step_format=False,
+        )
+        projected = project.project(
+            expr, [path.Path(["doc", "keep_me/x"], validate_step_format=False)]
+        )
+        self.assertLen(projected.get_known_descendants(), 3)
 
 
 if __name__ == "__main__":
-  absltest.main()
+    absltest.main()

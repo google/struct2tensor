@@ -1,0 +1,104 @@
+[build-system]
+requires = [
+  "setuptools",
+  "wheel",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    "W",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # pep8 naming
+    "N",
+    # pydocstyle
+    "D",
+    # annotations
+    "ANN",
+    # debugger
+    "T10",
+    # flake8-pytest
+    "PT",
+    # flake8-return
+    "RET",
+    # flake8-unused-arguments
+    "ARG",
+    # flake8-fixme
+    "FIX",
+    # flake8-eradicate
+    "ERA",
+    # pandas-vet
+    "PD",
+    # numpy-specific rules
+    "NPY",
+]
+ignore = [
+    "ANN002", # Missing type annotation for `*args`
+    "ANN003", # Missing type annotation for `**kwargs`
+    "ANN101", # Missing type annotation for `self`
+    "ANN102", # Missing type annotation for `cls` in classmethod
+    "ANN201", # Missing return type annotation for public function (makes no sense for NoneType return types...)
+    "ANN204", # Missing return type annotation for special method
+    "D100", # Missing docstring in public module
+    "D104", # Missing docstring in public package
+    "D105", # Missing docstring in magic method
+    "D107", # Missing docstring in `__init__`
+    "D206", # Advised to disable by ruff-format
+    "E501", # Advised to disable by ruff-format
+    "N802", # Function name should be lowercase; unittest uses mixed case
+    "W191", # Advised to disable by ruff-format
+
+    # These are issues which remain to be fixed
+    "ANN001", # Missing type annotation for function argument
+    "ANN202", # Missing return type for private function
+    "ANN206", # Missing return type annotation for classmethod
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "ARG002", # Unused method argument
+    "B008", # Do not perform function call in argument defaults
+    "B018", # Found useless expression
+    "D101", # Missing docstring in public class
+    "D102", # Missing docstring in public method
+    "D103", # Missing docstring in public function
+    "E721", # Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
+    "ERA001", # Dead code
+    "FIX002", # Line contains TODO, consider resolving the issue
+    "PD011", # Use `.to_numpy()` instead of `.values`
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "F401", # Unused import
+]
+"*_test.py" = [
+    "ANN001", # Type annotations aren't needed for tests; these are fixtures or parametrizations
+    "PT009", # Use a regular `assert` instead of a unittest-style `assertEqual`
+    "PT027", # Use `pytest.raises` instead of unittest-style `assertRaisesRegex`
+
+    # Missing docstrings; probably want to fill these out for tests. For now, we just disable
+    "D101", # Missing docstring in public class
+    "D102", # Missing docstring in public method
+
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff.lint.pyupgrade]
+# Preserve types, even if a file imports `from __future__ import annotations`.
+keep-runtime-typing = true

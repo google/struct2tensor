@@ -14,41 +14,47 @@
 """Import core names for struct2tensor."""
 
 # Import calculate API.
-from struct2tensor.calculate import calculate_prensors
-from struct2tensor.calculate import calculate_prensors_with_graph
-from struct2tensor.calculate_options import get_default_options
-from struct2tensor.calculate_options import get_options_with_minimal_checks
-from struct2tensor.calculate_with_source_paths import calculate_prensors_with_source_paths
+# Importing this will register the session handler for PrensorValue, and
+# tf.compat.v1.Session.run() will be able to take a Prensor and return a
+# PrensorValue.
+import struct2tensor.prensor_value
+from struct2tensor.calculate import calculate_prensors, calculate_prensors_with_graph
+from struct2tensor.calculate_options import (
+    get_default_options,
+    get_options_with_minimal_checks,
+)
+from struct2tensor.calculate_with_source_paths import (
+    calculate_prensors_with_source_paths,
+)
 
 # Import expressions API.
 from struct2tensor.create_expression import create_expression_from_prensor
 from struct2tensor.expression import Expression
 
 # Import expression queries API
-from struct2tensor.expression_impl.proto import create_expression_from_file_descriptor_set
-from struct2tensor.expression_impl.proto import create_expression_from_proto
+from struct2tensor.expression_impl.proto import (
+    create_expression_from_file_descriptor_set,
+    create_expression_from_proto,
+)
 
 # Import path API
-from struct2tensor.path import create_path
-from struct2tensor.path import Path
-from struct2tensor.path import Step
+from struct2tensor.path import Path, Step, create_path
 
 # Import prensor API
-from struct2tensor.prensor import ChildNodeTensor
-from struct2tensor.prensor import create_prensor_from_descendant_nodes
-from struct2tensor.prensor import create_prensor_from_root_and_children
-from struct2tensor.prensor import LeafNodeTensor
-from struct2tensor.prensor import NodeTensor
-from struct2tensor.prensor import Prensor
-from struct2tensor.prensor import RootNodeTensor
+from struct2tensor.prensor import (
+    ChildNodeTensor,
+    LeafNodeTensor,
+    NodeTensor,
+    Prensor,
+    RootNodeTensor,
+    create_prensor_from_descendant_nodes,
+    create_prensor_from_root_and_children,
+)
 
 # TODO(b/163167832): Remove these after 0.32.0 is released.
-from struct2tensor.prensor_util import get_ragged_tensor
-from struct2tensor.prensor_util import get_ragged_tensors
-from struct2tensor.prensor_util import get_sparse_tensor
-from struct2tensor.prensor_util import get_sparse_tensors
-
-# Importing this will register the session handler for PrensorValue, and
-# tf.compat.v1.Session.run() will be able to take a Prensor and return a
-# PrensorValue.
-import struct2tensor.prensor_value
+from struct2tensor.prensor_util import (
+    get_ragged_tensor,
+    get_ragged_tensors,
+    get_sparse_tensor,
+    get_sparse_tensors,
+)

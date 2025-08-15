@@ -14,31 +14,31 @@
 """Utilities for tests on proto expressions."""
 
 import tensorflow as tf
-
-from struct2tensor.test import test_pb2
-from struct2tensor.expression_impl import proto
 from google.protobuf import text_format
+
+from struct2tensor.expression_impl import proto
+from struct2tensor.test import test_pb2
 
 
 def text_to_tensor(text_list, example_proto_clz):
-  as_protos = [text_format.Parse(x, example_proto_clz()) for x in text_list]
-  serialized = [x.SerializeToString() for x in as_protos]
-  return tf.constant(serialized)
+    as_protos = [text_format.Parse(x, example_proto_clz()) for x in text_list]
+    serialized = [x.SerializeToString() for x in as_protos]
+    return tf.constant(serialized)
 
 
 def text_to_expression(text_list, example_proto_clz):
-  """Create an expression from a list of text format protos."""
-  return proto.create_expression_from_proto(
-      text_to_tensor(text_list, example_proto_clz),
-      example_proto_clz().DESCRIPTOR)
+    """Create an expression from a list of text format protos."""
+    return proto.create_expression_from_proto(
+        text_to_tensor(text_list, example_proto_clz), example_proto_clz().DESCRIPTOR
+    )
 
 
 def _get_expression_from_session_empty_user_info():
-  r"""Run create_root_prensor on a very deep tree.
+    r"""Run create_root_prensor on a very deep tree.
 
-  In addition, the user_info is empty.
+    In addition, the user_info is empty.
 
-  ```
+    ```
                ------*-----------------
               /                        \
         ---session0----             session1
@@ -49,13 +49,14 @@ def _get_expression_from_session_empty_user_info():
     |   |     |        |    |     |      |    |   |
     a   b     c        e    f     g      h    i   j
 
-  ```
+    ```
 
-  Returns:
+    Returns:
     A RootPrensor with the above structure.
-  """
-  return text_to_expression([
-      """
+    """
+    return text_to_expression(
+        [
+            """
           event:{
             action:{
               doc_id:"a"
@@ -81,7 +82,8 @@ def _get_expression_from_session_empty_user_info():
               doc_id:"f"
             }
             event_id: "C"
-          }""", """
+          }""",
+            """
           event:{
             action:{
               doc_id:"g"
@@ -98,5 +100,7 @@ def _get_expression_from_session_empty_user_info():
             action:{
               doc_id:"j"
             }
-          }"""
-  ], test_pb2.Session)
+          }""",
+        ],
+        test_pb2.Session,
+    )

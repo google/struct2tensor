@@ -123,4 +123,3 @@ if the source path is not a proto message field.
 </td>
 </tr>
 </table>
-
