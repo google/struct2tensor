@@ -56,16 +56,9 @@ ignore = [
     "D104", # Missing docstring in public package
     "D105", # Missing docstring in magic method
     "D107", # Missing docstring in `__init__`
-    "D203", # 1 blank line before after class docstring
-    "D204", # 1 blank line required after class docstring
     "D206", # Advised to disable by ruff-format
-    "D211", # No blank line before class
-    "D213", # Multiline summary second line
-    "D413", # 1 blank line after parameters
     "E501", # Advised to disable by ruff-format
     "N802", # Function name should be lowercase; unittest uses mixed case
-    "PD901", # Avoid using 'df' for pandas dataframes. Perfectly fine in functions with limited scope
-    "SIM108", # Simplify if/else to one line; not always clearer
     "W191", # Advised to disable by ruff-format
 
     # These are issues which remain to be fixed
@@ -74,31 +67,15 @@ ignore = [
     "ANN206", # Missing return type annotation for classmethod
     "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
     "ARG002", # Unused method argument
-    "B007", # Loop control variable not used within loop body
     "B008", # Do not perform function call in argument defaults
     "B018", # Found useless expression
-    "B024", # <class> is an abstract base class,  but it has no abstract methods
     "D101", # Missing docstring in public class
     "D102", # Missing docstring in public method
     "D103", # Missing docstring in public function
-    "D200", # One-line docstring should fit on one line
-    "D401", # First line of docstring should be in imperative mood
-    "D404", # First word of the docstring should not be "This"
     "E721", # Use `is` and `is not` for type comparisons, or `isinstance()` for isinstance checks
     "ERA001", # Dead code
     "FIX002", # Line contains TODO, consider resolving the issue
     "PD011", # Use `.to_numpy()` instead of `.values`
-    "PD013", # `.melt` is preferred to `.stack`
-    "RET504", # Unncessary assignment before `return`
-    "RET505", # Unncessary `else` after `return` statement
-    "SIM101", # Multiple `isinstance` calls, merge into a single call
-    "SIM102", # Use a single `if` statement instead of nested `if` statements
-    "SIM105", # Replace with `contextlib.suppress(FileNotFoundError)`
-    "SIM110", # Use `return all(...)` instead of `for` loop
-    "SIM117", # Use a single `with` statement with multiple contexts instead of nested `with` statements
-    "SIM118", # Use `key in dict` instead of `key in dict.keys()`
-    "UP008", # Use `super()` instead of `super(__class__, self)`
-    "UP031", # Use format specifiers instead of percent format
 ]
 
 [tool.ruff.lint.per-file-ignores]
