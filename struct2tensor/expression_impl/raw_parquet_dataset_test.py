@@ -87,7 +87,7 @@ class ParquetDatasetTestBase(tf.test.TestCase):
       def _wrapper():
         r = gn()
         if isinstance(r, tf.TensorArray):
-          return r.stack()
+          return r.melt()
         return r
 
       return _wrapper
