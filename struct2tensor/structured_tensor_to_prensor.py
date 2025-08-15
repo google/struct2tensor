@@ -41,12 +41,15 @@ This conversion handles a variety of differences in the implementation.
 
 from typing import Mapping, Union
 
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow.compat.v2 as tf
+from tensorflow.python.ops.ragged.row_partition import (
+  RowPartition,  # pylint: disable=g-direct-tensorflow-import
+)
+from tensorflow.python.ops.structured import (
+  structured_tensor,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.ops.ragged.row_partition import RowPartition  # pylint: disable=g-direct-tensorflow-import
-from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import path, prensor
 
 
 def structured_tensor_to_prensor(
@@ -73,13 +76,12 @@ def structured_tensor_to_prensor(
     return prensor.create_prensor_from_root_and_children(
         prensor.RootNodeTensor((st).nrows()),
         {default_field_name: child_prensor})
-  elif st.rank == 1:
+  if st.rank == 1:
     return prensor.create_prensor_from_root_and_children(
         prensor.RootNodeTensor((st).nrows()),
         _structured_tensor_prensor_map(st, default_field_name))
-  else:
-    # st is a scalar StructuredTensor.
-    return structured_tensor_to_prensor(_expand_dims(st, 0), default_field_name)
+  # st is a scalar StructuredTensor.
+  return structured_tensor_to_prensor(_expand_dims(st, 0), default_field_name)
 
 
 def _structured_tensor_prensor_map(
@@ -112,7 +114,7 @@ def _expand_dims_nonnegative_axis(axis, rank):
       # Note: this is unreachable in the current code.
       raise ValueError("Axis out of range: " + str(axis))
     return new_axis
-  elif axis > rank:
+  if axis > rank:
     # Note: this is unreachable in the current code.
     raise ValueError("Axis larger than rank: " + str(axis) + " > " + str(rank))
   return axis
@@ -130,6 +132,7 @@ def _expand_dims(st, axis):
 
   Returns:
     a tensor with one more dimension (see tf.expand_dims).
+
   Raises:
     ValueError:
       if the axis is not valid.
@@ -144,16 +147,15 @@ def _expand_dims(st, axis):
     nrows = st.nrows()
     return st.partition_outer_dimension(
         RowPartition.from_uniform_row_length(nrows, nrows))
-  elif nn_axis == 1:
+  if nn_axis == 1:
     # Again, by partitioning the first dimension into vectors of length 1,
     # we can solve this problem.
     nrows = st.nrows()
     return st.partition_outer_dimension(
         RowPartition.from_uniform_row_length(
             tf.constant(1, dtype=nrows.dtype), nrows))
-  else:
-    # Note: this is unreachable in the current code.
-    raise ValueError("Unimplemented: non-negative axis > 1 for _expand_dims")
+  # Note: this is unreachable in the current code.
+  raise ValueError("Unimplemented: non-negative axis > 1 for _expand_dims")
 
 
 def _structured_tensor_field_to_prensor(
@@ -163,8 +165,7 @@ def _structured_tensor_field_to_prensor(
   """Creates a ChildNodeTensor from a field in a structured tensor."""
   if isinstance(field_value, structured_tensor.StructuredTensor):
     return _structured_tensor_to_child_prensor(field_value, default_field_name)
-  else:
-    return _to_leaf_prensor(field_value, default_field_name)
+  return _to_leaf_prensor(field_value, default_field_name)
 
 
 def _row_partition_to_child_node_tensor(row_partition: RowPartition):
@@ -194,7 +195,7 @@ def _structured_tensor_to_child_prensor(
     return prensor.create_prensor_from_root_and_children(
         _row_partition_to_child_node_tensor(row_partition),
         _structured_tensor_prensor_map(child_st, default_field_name))
-  elif len(row_partitions) > 1:
+  if len(row_partitions) > 1:
     row_partition = row_partitions[0]
     child_st = st.merge_dims(0, 1)
     return _one_child_prensor(
@@ -228,10 +229,9 @@ def _to_leaf_prensor_helper(rt: tf.RaggedTensor,
     values = rt.values
     leaf = prensor.LeafNodeTensor(row_partition.value_rowids(), values, True)
     return prensor.create_prensor_from_root_and_children(leaf, {})
-  else:
-    return _one_child_prensor(
-        row_partition, _to_leaf_prensor_helper(rt.values, default_field_name),
-        default_field_name)
+  return _one_child_prensor(
+      row_partition, _to_leaf_prensor_helper(rt.values, default_field_name),
+      default_field_name)
 
 
 def _partition_if_not_vector(values: tf.Tensor, dtype: tf.dtypes.DType):
@@ -249,7 +249,6 @@ def _partition_if_not_vector(values: tf.Tensor, dtype: tf.dtypes.DType):
   Raises:
     ValueError: if the shape cannot be statically determined or is a scalar.
   """
-
   values_shape = values.shape
   assert values_shape is not None
   values_rank = values_shape.rank
@@ -273,12 +272,14 @@ def _fully_partitioned_ragged_tensor(rt: Union[tf.RaggedTensor, tf.Tensor],
   A fully partitioned ragged tensor is:
   1. A ragged tensor.
   2. The final values are a vector.
+
   Args:
     rt: input to coerce from RaggedTensor or Tensor. Must be at least 2D.
     dtype: requested dtype for partitions: tf.int64 or tf.int32.
 
   Returns:
     A ragged tensor where the flat values are a 1D tensor.
+
   Raises:
     ValueError: if the tensor is 0D or 1D.
   """
@@ -286,16 +287,15 @@ def _fully_partitioned_ragged_tensor(rt: Union[tf.RaggedTensor, tf.Tensor],
     rt = rt.with_row_splits_dtype(dtype)
     flattened_values = _partition_if_not_vector(rt.flat_values, dtype=dtype)
     return rt.with_flat_values(flattened_values)
-  else:
-    rt_shape = rt.shape
-    assert rt_shape is not None
-    rt_rank = rt_shape.rank
-    assert rt_rank is not None
-    if rt_rank < 2:
-      # Increase the rank if it is a scalar.
-      return _fully_partitioned_ragged_tensor(tf.expand_dims(rt, -1))
-    return tf.RaggedTensor.from_tensor(
-        rt, ragged_rank=rt_rank - 1, row_splits_dtype=dtype)
+  rt_shape = rt.shape
+  assert rt_shape is not None
+  rt_rank = rt_shape.rank
+  assert rt_rank is not None
+  if rt_rank < 2:
+    # Increase the rank if it is a scalar.
+    return _fully_partitioned_ragged_tensor(tf.expand_dims(rt, -1))
+  return tf.RaggedTensor.from_tensor(
+      rt, ragged_rank=rt_rank - 1, row_splits_dtype=dtype)
 
 
 def _to_leaf_prensor(rt: Union[tf.RaggedTensor, tf.Tensor],

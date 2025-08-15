@@ -16,7 +16,6 @@
 project is often used right before calculating the value.
 
 Example:
-
 ```
 expr = ...
 new_expr = project.project(expr, [path.Path(["foo","bar"]),
@@ -31,15 +30,12 @@ prensor_result now has two paths, "foo.bar" and "x.y".
 import collections
 from typing import FrozenSet, List, Mapping, Optional, Sequence
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
+from struct2tensor import calculate_options, expression, path, prensor
 
 
 def project(expr: expression.Expression,
             paths: Sequence[path.Path]) -> expression.Expression:
-  """select a subtree.
+  """Select a subtree.
 
   Paths not selected are removed.
   Paths that are selected are "known", such that if calculate_prensors is
@@ -113,7 +109,7 @@ class _ProjectExpression(expression.Expression):
     original = self._origin.get_child(field_name)
     if original is None:
       raise ValueError(
-          "Project a field that doesn't exist: {}".format(field_name))
+          f"Project a field that doesn't exist: {field_name}")
     return _ProjectExpression(original, paths)
 
   def known_field_names(self) -> FrozenSet[path.Step]:

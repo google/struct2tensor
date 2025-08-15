@@ -71,17 +71,13 @@ foo   bar foo2 bar2
 
 from typing import Any, Callable, Dict, FrozenSet, Optional, Sequence, Union
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
-
 from tensorflow_metadata.proto.v0 import schema_pb2
 
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
 
-class Schema(object):
+
+class Schema:
   """A finite schema for a prensor.
 
   Effectively, this stores everything for the prensor but the tensors
@@ -138,15 +134,11 @@ class Schema(object):
     return frozenset(self._children.keys())
 
   def __str__(self) -> str:
-    return ("Schema(is_repeated:{is_repeated} type:{type}"
+    return (f"Schema(is_repeated:{self._is_repeated} type:{self._type}"
             " "
-            "schema_feature:({schema_feature})"
+            f"schema_feature:({self._schema_feature})"
             " "
-            "children:{children})").format(
-                is_repeated=self._is_repeated,
-                type=self._type,
-                schema_feature=self._schema_feature,
-                children=self._children)
+            f"children:{self._children})")
 
 
 def create_schema(is_repeated: bool = True,
@@ -261,8 +253,7 @@ def map_prensor_to_prensor(
       source.get_child(k): prensor_child.get_child_or_error(k)
       for k in prensor_child.known_field_names()
   }
-  result = expression_add.add_paths(root_expr, paths_map)
-  return result
+  return expression_add.add_paths(root_expr, paths_map)
 
 
 ##################### Implementation Follows ###################################
@@ -323,8 +314,7 @@ class _PrensorAsLeafNodeTensor(prensor.LeafNodeTensor):
   def __init__(self, prensor_tree: prensor.Prensor,
                leaf: prensor.LeafNodeTensor):
     """Call _tree_as_node instead."""
-    super(_PrensorAsLeafNodeTensor,
-          self).__init__(leaf.parent_index, leaf.values, leaf.is_repeated)
+    super().__init__(leaf.parent_index, leaf.values, leaf.is_repeated)
     self._prensor = prensor_tree
 
   @property
@@ -446,7 +436,7 @@ class _PrensorOpExpression(expression.Expression):
 
   def _get_source_paths(self) -> Sequence[path.Path]:
     """Returns the source paths in a deterministic order."""
-    result = [k for k in self._origin.get_known_descendants().keys()]
+    result = [k for k in self._origin.get_known_descendants()]
     # In order to make certain that the source_paths are in a deterministic
     # order, we sort them here.
     result.sort()

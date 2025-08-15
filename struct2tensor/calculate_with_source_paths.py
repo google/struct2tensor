@@ -13,28 +13,25 @@
 # limitations under the License.
 """Given an expression, calculate the prensor and source paths."""
 
-from typing import List, NamedTuple, Optional, Sequence, Set, Tuple
+from typing import List, NamedTuple, Optional, Sequence, Tuple
 
-from struct2tensor import calculate
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
+import tensorflow as tf
+from google.protobuf import descriptor
+
+from struct2tensor import calculate, calculate_options, expression, path, prensor
 from struct2tensor.expression_impl import proto
 from struct2tensor.proto import query_metadata_pb2
-import tensorflow as tf
 
-from google.protobuf import descriptor
 
 # A proto summary represents the tensor of protos and descriptor, along with
 # all the paths associated with it.
 # tensor is tf.Tensor
 # descriptor is descriptor.Descriptor
 # paths is List[path.Path]
-ProtoRequirements = NamedTuple("ProtoRequirements",
-                               [("tensor", tf.Tensor),
-                                ("descriptor", descriptor.Descriptor),
-                                ("paths", List[path.Path])])
+class ProtoRequirements(NamedTuple):
+  tensor: tf.Tensor
+  descriptor: descriptor.Descriptor
+  paths: List[path.Path]
 
 
 def calculate_prensors_with_source_paths(
@@ -92,7 +89,6 @@ def requirements_to_metadata_proto(
     inp: Sequence[ProtoRequirements]
     result: a proto to be populated.
   """
-
   for x in inp:
     _requirement_to_parsed_proto_info(x, result.parsed_proto_info.add())  # pytype: disable=wrong-arg-types
 

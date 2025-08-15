@@ -13,10 +13,13 @@
 # limitations under the License.
 """Tests for struct2tensor.parquet."""
 
-from struct2tensor.expression_impl import parquet
 import tensorflow as tf
 from absl.testing import absltest
-from tensorflow.python.framework import test_util  # pylint: disable=g-direct-tensorflow-import
+from tensorflow.python.framework import (
+  test_util,  # pylint: disable=g-direct-tensorflow-import
+)
+
+from struct2tensor.expression_impl import parquet
 
 
 class ParquetDatasetTestBase(tf.test.TestCase):
@@ -27,7 +30,7 @@ class ParquetDatasetTestBase(tf.test.TestCase):
   """
 
   def setUp(self):
-    super(ParquetDatasetTestBase, self).setUp()
+    super().setUp()
     self._test_filenames = [
         "struct2tensor/testdata/parquet_testdata/dremel_example.parquet"
     ]
@@ -84,9 +87,8 @@ class ParquetDatasetTestBase(tf.test.TestCase):
       def _wrapper():
         r = gn()
         if isinstance(r, tf.TensorArray):
-          return r.stack()
-        else:
-          return r
+          return r.melt()
+        return r
 
       return _wrapper
 
@@ -94,14 +96,13 @@ class ParquetDatasetTestBase(tf.test.TestCase):
     if tf.executing_eagerly() or building_function:
       iterator = iter(dataset)
       return ta_wrapper(iterator._next_internal)
+    if requires_initialization:
+      iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
+      self.evaluate(iterator.initializer)
     else:
-      if requires_initialization:
-        iterator = tf.compat.v1.data.make_initializable_iterator(dataset)
-        self.evaluate(iterator.initializer)
-      else:
-        iterator = tf.compat.v1.data.make_one_shot_iterator(dataset)
-      get_next = iterator.get_next()
-      return ta_wrapper(lambda: get_next)
+      iterator = tf.compat.v1.data.make_one_shot_iterator(dataset)
+    get_next = iterator.get_next()
+    return ta_wrapper(lambda: get_next)
 
   def assertDatasetProduces(self,
                             dataset,

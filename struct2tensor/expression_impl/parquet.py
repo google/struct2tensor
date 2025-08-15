@@ -32,15 +32,12 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-from struct2tensor import calculate
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
+import tensorflow as tf
+
+from struct2tensor import calculate, calculate_options, expression, path, prensor
 from struct2tensor.expression_impl import map_prensor_to_prensor as mpp
 from struct2tensor.expression_impl import placeholder
 from struct2tensor.ops import gen_parquet_dataset
-import tensorflow as tf
 
 
 def create_expression_from_parquet_file(
@@ -54,7 +51,6 @@ def create_expression_from_parquet_file(
     A PlaceholderRootExpression that should be used as the root of an expression
     graph.
   """
-
   metadata = pq.ParquetFile(filenames[0]).metadata
   parquet_schema = metadata.schema
   arrow_schema = parquet_schema.to_arrow_schema()
@@ -149,12 +145,11 @@ class _RawParquetDataset(tf.compat.v1.data.Dataset):
     """
     metadata = pq.ParquetFile(metadata_file).metadata
 
-    path_to_column_index = {
+    return {
         metadata.schema.column(index).path: index
         for index in range(metadata.num_columns)
     }
 
-    return path_to_column_index
 
   def _parquet_to_tf_type(self, parquet_type: str) -> Union[tf.DType, None]:
     """Maps tensorflow datatype to a parquet datatype.
@@ -261,8 +256,7 @@ class ParquetDataset(_RawParquetDataset):
     self._create_parent_index_paths_and_index_from_type_spec(
         self.element_structure, 0, 0)
 
-    super(ParquetDataset,
-          self).__init__(filenames, self._value_paths, self._value_dtypes,
+    super().__init__(filenames, self._value_paths, self._value_dtypes,
                          self._parent_index_paths, self._path_index, batch_size)
 
   def _get_column_dtypes(
@@ -307,7 +301,7 @@ class ParquetDataset(_RawParquetDataset):
       p = (col.path)
       paths[p] = col.physical_type
 
-    for i, p in enumerate(value_paths):
+    for p in value_paths:
       if p not in paths:
         raise ValueError("path " + p + " does not exist in the file.")
 
@@ -328,7 +322,6 @@ class ParquetDataset(_RawParquetDataset):
     Returns:
       a child or leaf _PrensorTypeSpec.
     """
-
     # pylint: disable=protected-access
     curr_steps_as_set = collections.OrderedDict()
     # Construct the dictionary of paths we need.
@@ -370,7 +363,6 @@ class ParquetDataset(_RawParquetDataset):
     Returns:
       a root _PrensorTypeSpec.
     """
-
     metadata = pq.ParquetFile(self._filenames[0]).metadata
     parquet_schema = metadata.schema
     arrow_schema = parquet_schema.to_arrow_schema()
@@ -512,8 +504,7 @@ class _ParquetDatasetWithExpression(ParquetDataset):
 
     parquet_paths = [".".join(p.field_list) for p in paths]
 
-    super(_ParquetDatasetWithExpression,
-          self).__init__(filenames, parquet_paths, batch_size)
+    super().__init__(filenames, parquet_paths, batch_size)
 
   def _calculate_prensor(self, pren) -> List[prensor.Prensor]:
     """Function for applying expression queries to a prensor.

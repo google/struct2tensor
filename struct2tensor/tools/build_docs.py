@@ -17,19 +17,18 @@ blaze run //struct2tensor/opensource_only/tools:build_docs -- \
   --output_dir=$(pwd)/struct2tensor/opensource_only/g3doc/api_docs/python
 """
 
+import contextlib
 import inspect
 import pathlib
 import shutil
 import tempfile
 
-from absl import app
-from absl import flags
+import yaml
+from absl import app, flags
+from tensorflow_docs.api_generator import generate_lib, public_api
+
 import struct2tensor as s2t
 from struct2tensor import expression_impl
-from tensorflow_docs.api_generator import generate_lib
-from tensorflow_docs.api_generator import public_api
-
-import yaml
 
 flags.DEFINE_string("output_dir", "/tmp/s2t_api", "Where to output the docs")
 
@@ -91,11 +90,9 @@ def build_docs(output_dir: pathlib.Path) -> None:
     shutil.rmtree(output_dir / name, ignore_errors=True)
     shutil.copytree(tmp_dir / name, output_dir / name)
     shutil.copy(tmp_dir / f"{name}.md", output_dir / f"{name}.md")
-    try:
+    with contextlib.suppress(FileNotFoundError):
       shutil.copy(tmp_dir / name / "_redirects.yaml",
                   output_dir / name / "_redirects.yaml")
-    except FileNotFoundError:
-      pass
     shutil.copy(tmp_dir / name / "_toc.yaml", output_dir / name / "_toc.yaml")
 
   splice("s2t", s2t_out)

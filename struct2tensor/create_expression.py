@@ -19,11 +19,9 @@ create_expression_from_prensor(...) creates an Expression from a Prensor.
 
 from typing import FrozenSet, Mapping, Optional, Sequence
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, path, prensor
 
 
 class _DirectExpression(expression.Expression):
@@ -84,7 +82,7 @@ class _DirectExpression(expression.Expression):
     return frozenset(self._children.keys())
 
   def __str__(self) -> str:
-    return "_DirectExpression: {}".format(str(id(self)))
+    return f"_DirectExpression: {str(id(self))}"
 
 
 def create_expression_from_prensor(
@@ -114,7 +112,7 @@ def create_expression_from_prensor(
     return _DirectExpression(
         True, None, node_tensor, children, validate_step_format
     )
-  elif isinstance(node_tensor, prensor.ChildNodeTensor):
+  if isinstance(node_tensor, prensor.ChildNodeTensor):
     return _DirectExpression(
         node_tensor.is_repeated,
         None,
@@ -122,12 +120,11 @@ def create_expression_from_prensor(
         children,
         validate_step_format,
     )
-  else:
-    # isinstance(node_tensor, LeafNodeTensor)
-    return _DirectExpression(
-        node_tensor.is_repeated,
-        node_tensor.values.dtype,
-        node_tensor,
-        children,
-        validate_step_format,
-    )
+  # isinstance(node_tensor, LeafNodeTensor)
+  return _DirectExpression(
+      node_tensor.is_repeated,
+      node_tensor.values.dtype,
+      node_tensor,
+      children,
+      validate_step_format,
+  )

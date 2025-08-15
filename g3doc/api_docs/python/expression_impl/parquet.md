@@ -47,4 +47,3 @@ Apache Parquet Dataset.
 [`calculate_parquet_values(...)`](../expression_impl/parquet/calculate_parquet_values.md): Calculates expressions and returns a parquet dataset.
 
 [`create_expression_from_parquet_file(...)`](../expression_impl/parquet/create_expression_from_parquet_file.md): Creates a placeholder expression from a parquet file.
-

@@ -20,12 +20,9 @@ original proto.
 """
 from typing import FrozenSet, Optional, Sequence
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
 
 
 def reroot(root: expression.Expression,
@@ -42,7 +39,6 @@ def reroot(root: expression.Expression,
   Returns:
     the new root.
   """
-
   new_root = root
   for step in source_path.field_list:
     new_root = _RerootExpression(new_root, step)
@@ -93,8 +89,7 @@ class _RerootExpression(expression.Expression):
     self._original_root = original_root
     self._new_root = original_root.get_child_or_error(field_name)
     if self._new_root.type is not None:
-      raise ValueError("New root must be a message type: {}".format(
-          str(self._field_name)))
+      raise ValueError(f"New root must be a message type: {str(self._field_name)}")
     # TODO(martinz): Check that the "original root source expression" has a type
     # in (_RerootExpression, prensor._ProtoRootExpression)
     # To do this, we need a general technique similar to
@@ -167,8 +162,7 @@ class _InputProtoIndexExpression(expression.Leaf):
           _get_input_proto_index(root_node),
           is_repeated=False)
     raise ValueError(
-        "Illegal operation: expected a true root node: got {}".format(
-            str(root_node)))
+        f"Illegal operation: expected a true root node: got {str(root_node)}")
 
   def calculation_is_identity(self) -> bool:
     return False

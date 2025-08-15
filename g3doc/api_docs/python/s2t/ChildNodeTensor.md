@@ -132,8 +132,3 @@ A tensor of positional indices.
 </tr>
 
 </table>
-
-
-
-
-

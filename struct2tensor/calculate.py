@@ -45,11 +45,9 @@ All of this code does a variety of optimizations:
 
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, path, prensor
 
 # type(id(...)), disambiguated for clarity
 IDExpression = int
@@ -152,7 +150,6 @@ def calculate_prensors(
   Returns:
     a list of prensors.
   """
-
   return calculate_prensors_with_graph(
       expressions, options=options, feed_dict=feed_dict)[0]
 
@@ -191,6 +188,7 @@ def _get_earliest_equal_calculation(expr: expression.Expression):
   """Finds an expression with an equal value.
 
   Recursively traverses sources while expressions are the identity.
+
   Args:
     expr: the expression to find an equal value.
 
@@ -210,11 +208,10 @@ def _fancy_type_str(is_repeated: bool, dtype: Optional[tf.DType]):
 def _node_type_str(node_tensor: prensor.NodeTensor):
   if isinstance(node_tensor, prensor.LeafNodeTensor):
     return _fancy_type_str(node_tensor.is_repeated, node_tensor.values.dtype)
-  else:
-    return _fancy_type_str(node_tensor.is_repeated, None)
+  return _fancy_type_str(node_tensor.is_repeated, None)
 
 
-class _ExpressionNode(object):
+class _ExpressionNode:
   """A node representing an expression in the ExpressionGraph."""
 
   def __init__(self, expr: expression.Expression):
@@ -223,7 +220,6 @@ class _ExpressionNode(object):
     Args:
       expr: must be the result of _get_earliest_equal_calculation(...)
     """
-
     self.expression = expr
     self.sources = [
         _get_earliest_equal_calculation(x)
@@ -250,12 +246,8 @@ class _ExpressionNode(object):
     return all([a is b for a, b in zip(self.sources, node.sources)])
 
   def __str__(self) -> str:
-    return ("expression: {expression} sources: {sources} destinations: "
-            "{destinations} value: {value}").format(
-                expression=str(self.expression),
-                sources=str(self.sources),
-                destinations=str(self.destinations),
-                value=str(self.value))
+    return (f"expression: {str(self.expression)} sources: {str(self.sources)} destinations: "
+            f"{str(self.destinations)} value: {str(self.value)}")
 
   def _create_value_error(self) -> ValueError:
     """Creates a ValueError, assuming there should be one for this node."""
@@ -281,8 +273,7 @@ class _ExpressionNode(object):
     expected_type = self.expression.type
     actual_value = self.value
     if expected_type is None:
-      if not (isinstance(actual_value, prensor.RootNodeTensor) or
-              isinstance(actual_value, prensor.ChildNodeTensor)):
+      if not isinstance(actual_value, (prensor.RootNodeTensor, prensor.ChildNodeTensor)):
         raise self._create_value_error()
     elif isinstance(actual_value, prensor.LeafNodeTensor):
       if expected_type != actual_value.values.dtype:
@@ -295,7 +286,7 @@ class _ExpressionNode(object):
     return hash(tuple([id(x) for x in self.sources]))
 
 
-class ExpressionGraph(object):
+class ExpressionGraph:
   """A graph representing the computation of a list of expressions."""
 
   def __init__(self):
@@ -473,10 +464,9 @@ class CanonicalExpressionGraph(ExpressionGraph):
     if maybe_canonical in self._node_map:
       self._node[id(expr)] = self._node_map[maybe_canonical]
       return None
-    else:
-      self._node_map[maybe_canonical] = maybe_canonical
-      self._node[id(expr)] = maybe_canonical
-      return maybe_canonical
+    self._node_map[maybe_canonical] = maybe_canonical
+    self._node[id(expr)] = maybe_canonical
+    return maybe_canonical
 
   def _get_canonical_or_error(self, expr: expression.Expression
                              ) -> expression.Expression:
@@ -484,5 +474,4 @@ class CanonicalExpressionGraph(ExpressionGraph):
     node = self._get_node(expr)
     if node is not None:
       return node.expression
-    else:
-      raise ValueError("Expression not found: " + str(expr))
+    raise ValueError("Expression not found: " + str(expr))

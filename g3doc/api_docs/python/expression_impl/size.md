@@ -50,4 +50,3 @@ is always present, and is true if there are one or more bar in foo.
 [`size(...)`](../expression_impl/size/size.md): Get the size of a field as a new sibling field.
 
 [`size_anonymous(...)`](../expression_impl/size/size_anonymous.md): Calculate the size of a field, and store it as an anonymous sibling.
-

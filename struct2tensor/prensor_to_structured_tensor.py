@@ -29,12 +29,15 @@ There are only four issues:
 
 from typing import Mapping, Union
 
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
+from tensorflow.python.ops.ragged.row_partition import (
+  RowPartition,  # pylint: disable=g-direct-tensorflow-import
+)
+from tensorflow.python.ops.structured import (
+  structured_tensor,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.ops.ragged.row_partition import RowPartition  # pylint: disable=g-direct-tensorflow-import
-from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import path, prensor
 
 
 def prensor_to_structured_tensor(

@@ -15,15 +15,15 @@
 """Tests for struct2tensor.ops.file_descriptor_set."""
 
 from absl.testing import absltest
+
 from struct2tensor.ops import file_descriptor_set
-from struct2tensor.test import dependent_test_pb2
 
 # Notice that while text_extension_pb2 is not used directly,
 # it must be linked in and imported so that the extension can be found in the
 # pool.
-from struct2tensor.test import test_extension_pb2  # pylint: disable=unused-import
-from struct2tensor.test import test_map_pb2
-from struct2tensor.test import test_pb2
+from struct2tensor.test import (
+  test_map_pb2,
+)
 
 
 def _get_base_directory():

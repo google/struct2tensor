@@ -16,16 +16,18 @@
 
 from typing import NamedTuple, Optional, Sequence, Tuple
 
-from struct2tensor import path
-from struct2tensor.ops import file_descriptor_set
-from struct2tensor.ops import gen_decode_proto_map_op
-from struct2tensor.ops import gen_decode_proto_sparse
-from struct2tensor.ops import gen_equi_join_any_indices
-from struct2tensor.ops import gen_equi_join_indices
-from struct2tensor.ops import gen_run_length_before
 import tensorflow as tf
-
 from google.protobuf import descriptor
+
+from struct2tensor import path
+from struct2tensor.ops import (
+  file_descriptor_set,
+  gen_decode_proto_map_op,
+  gen_decode_proto_sparse,
+  gen_equi_join_any_indices,
+  gen_equi_join_indices,
+  gen_run_length_before,
+)
 
 
 def _get_dtype_from_cpp_type(cpp_type: int) -> tf.DType:
@@ -52,10 +54,11 @@ def _get_dtype_from_cpp_type(cpp_type: int) -> tf.DType:
 #   field_descriptor: descriptor.FieldDescriptor (note: not used in V2).
 #   value: tf.Tensor
 #   index: tf.Tensor
-_ParsedField = NamedTuple(
-    "_ParsedField", [("field_name", str),
-                     ("field_descriptor", Optional[descriptor.FieldDescriptor]),
-                     ("value", tf.Tensor), ("index", tf.Tensor)])
+class _ParsedField(NamedTuple):
+  field_name: str
+  field_descriptor: Optional[descriptor.FieldDescriptor]
+  value: tf.Tensor
+  index: tf.Tensor
 
 
 def parse_full_message_level(
@@ -69,6 +72,7 @@ def parse_full_message_level(
   If there is a field with a message type, it is parsed as a string. Then, the
   function can be applied recursively.
   Note: this will not extract extensions.
+
   Args:
     tensor_of_protos: a 1-D tensor of strings of protocol buffers.
     descriptor_type: a descriptor for the protocol buffer to parse. See
@@ -83,6 +87,7 @@ def parse_full_message_level(
       "optional" or "repeated" label) is requested to be parsed, it will always
       have a value for each input parent message. If a value is not present on
       wire, the default value (0 or "") will be used.
+
   Returns:
     list of named tuples, one per field_name in field_names:
     field_name: the string from field_names.
@@ -92,7 +97,6 @@ def parse_full_message_level(
       value value[i]. Note that sometimes index[i]=index[i+1], implying a
       repeated field field_name.
   """
-
   field_names = [field.name for field in descriptor_type.fields]
   return parse_message_level(
       tensor_of_protos,
@@ -108,8 +112,7 @@ def _get_field_descriptor(descriptor_type: descriptor.Descriptor,
   if path.is_extension(field_name):
     return descriptor_type.file.pool.FindExtensionByName(
         path.get_raw_extension_name(field_name))
-  else:
-    return descriptor_type.fields_by_name[field_name]
+  return descriptor_type.fields_by_name[field_name]
 
 
 def parse_message_level(
@@ -138,6 +141,7 @@ def parse_message_level(
       "optional" or "repeated" label) is requested to be parsed, it will always
       have a value for each input parent message. If a value is not present on
       wire, the default value (0 or "") will be used.
+
   Returns:
     list of named _ParsedField, one per field_name in field_names:
     field_name: the string from field_names.
@@ -199,7 +203,6 @@ def parse_message_level(
 
 def run_length_before(a: tf.Tensor) -> tf.Tensor:
   r"""Returns the run length of each set of elements in a vector.
-
 
   Args:
     a: a 1D int64 tensor. This assumes that for all a_i, a_j, if i <= j, then
@@ -302,10 +305,7 @@ def parse_proto_map(
   keys_needed_as_list = list(keys_needed)
   value_fd = map_entry_descriptor.fields_by_name["value"]
 
-  if tf.is_tensor(backing_str_tensor):
-    backing_str_tensor = [backing_str_tensor]
-  else:
-    backing_str_tensor = []
+  backing_str_tensor = [backing_str_tensor] if tf.is_tensor(backing_str_tensor) else []
 
   values, parent_indices = gen_decode_proto_map_op.decode_proto_map_v2(
       map_entries, map_entry_parent_indices, backing_str_tensor,

@@ -98,14 +98,10 @@ session: {
 
 from typing import FrozenSet, Optional, Sequence, Tuple
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
 import tensorflow as tf
-
 from tensorflow_metadata.proto.v0 import schema_pb2
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
 
 
 class PromoteExpression(expression.Leaf):
@@ -326,7 +322,7 @@ def _promote_impl(root: expression.Expression, p: path.Path,
     An _AddPathsExpression that wraps a PromoteExpression.
   """
   if len(p) < 2:
-    raise ValueError("Cannot do a promotion beyond the root: {}".format(str(p)))
+    raise ValueError(f"Cannot do a promotion beyond the root: {str(p)}")
   parent_path = p.get_parent()
   grandparent_path = parent_path.get_parent()
 

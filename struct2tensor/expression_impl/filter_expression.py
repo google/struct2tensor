@@ -62,20 +62,16 @@ root_2 = filter_expression.filter_by_child(
 
 from typing import FrozenSet, Optional, Sequence, Union
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import expression_add
-from struct2tensor import path
-from struct2tensor import prensor
-from struct2tensor.ops import struct2tensor_ops
 import tensorflow as tf
+
+from struct2tensor import calculate_options, expression, expression_add, path, prensor
+from struct2tensor.ops import struct2tensor_ops
 
 
 def filter_by_sibling(expr: expression.Expression, p: path.Path,
                       sibling_field_name: path.Step,
                       new_field_name: path.Step) -> expression.Expression:
   """Filter an expression by its sibling.
-
 
   This is similar to boolean_mask. The shape of the path being filtered and
   the sibling must be identical (e.g., each parent object must have an
@@ -217,7 +213,7 @@ class _FilterChildByParentIndicesToKeepExpression(expression.Expression):
 
   def __init__(self, origin: expression.Expression,
                parent: expression.Expression):
-    super(_FilterChildByParentIndicesToKeepExpression, self).__init__(
+    super().__init__(
         origin.is_repeated,
         origin.type,
         validate_step_format=origin.validate_step_format,

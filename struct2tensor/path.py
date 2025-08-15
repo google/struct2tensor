@@ -20,7 +20,7 @@ such as getting a child or a parent, a client may find this class useful.
 """
 
 import re
-from typing import Sequence, Tuple, Union, List
+from typing import List, Sequence, Tuple, Union
 
 from google.protobuf import descriptor
 from tensorflow_metadata.proto.v0 import path_pb2 as tf_metadata_path_pb2
@@ -67,7 +67,7 @@ def _compare_step(a: Step, b: Step) -> int:
   if aint == bint:
     if a > b:
       return 1
-    elif a < b:
+    if a < b:
       return -1
     return 0
 
@@ -76,7 +76,7 @@ def _compare_step(a: Step, b: Step) -> int:
   return -1
 
 
-class Path(object):
+class Path:
   """A representation of a path in the expression.
 
   Do not implement __nonzero__, __eq__, __ne__, et cetera as these are
@@ -238,7 +238,7 @@ class Path(object):
       elif isinstance(x, AnonymousId):
         raise ValueError("Cannot serialize a path with anonymous fields")
       else:
-        raise ValueError("Unexpected path element type: %s" % type(x))
+        raise ValueError(f"Unexpected path element type: {type(x)}")
     return result
 
   def __repr__(self) -> str:
@@ -332,6 +332,7 @@ def create_path(path_source: CoercableToPath) -> Path:
 
   Returns:
     A Path.
+
   Raises:
     ValueError: if this is not a valid path.
   """
@@ -393,7 +394,7 @@ def expand_wildcard_proto_paths(
     if path == ["*"]:
       return _get_all_subfields(proto_descriptor)
     # path prefixes ending with "*" will be expanded
-    elif path[-1] == "*" and len(path) > 1:
+    if path[-1] == "*" and len(path) > 1:
       paths_with_wildcards.append(path[:-1])
     else:
       # partial matching paths (e.g., ["feature*"]) will raise an error
@@ -443,5 +444,4 @@ def _proto_glob(
       raise ValueError(f"Field name {field_name} does not exist.")
     proto_descriptor = proto_descriptor.fields_by_name[field_name].message_type
   expanded_leaves = _get_all_subfields(proto_descriptor)
-  expanded_paths = [parent + child for child in expanded_leaves]
-  return expanded_paths
+  return [parent + child for child in expanded_leaves]

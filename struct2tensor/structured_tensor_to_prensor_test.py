@@ -13,15 +13,17 @@
 # limitations under the License.
 """Tests for StructuredTensor."""
 
-from absl.testing import parameterized
-
 import numpy as np
-from struct2tensor import path
-from struct2tensor import structured_tensor_to_prensor
 import tensorflow.compat.v2 as tf
+from absl.testing import parameterized
+from tensorflow.python.ops.ragged.row_partition import (
+  RowPartition,  # pylint: disable=g-direct-tensorflow-import
+)
+from tensorflow.python.ops.structured import (
+  structured_tensor,  # pylint: disable=g-direct-tensorflow-import
+)
 
-from tensorflow.python.ops.ragged.row_partition import RowPartition  # pylint: disable=g-direct-tensorflow-import
-from tensorflow.python.ops.structured import structured_tensor  # pylint: disable=g-direct-tensorflow-import
+from struct2tensor import path, structured_tensor_to_prensor
 
 
 def _make_structured_tensor(shape, fields):

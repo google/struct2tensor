@@ -35,11 +35,7 @@ result = calculate.calculate_values([new_exp],
 import typing
 from typing import FrozenSet, List, Optional, Sequence, Union
 
-from struct2tensor import calculate
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
+from struct2tensor import calculate, calculate_options, expression, path, prensor
 from struct2tensor.expression_impl import map_prensor_to_prensor as mpp
 
 
@@ -55,7 +51,6 @@ def create_expression_from_schema(
     A PlaceholderRootExpression that should be used as the root of an expression
     graph.
   """
-
   return _PlaceholderRootExpression(schema)
 
 
@@ -184,8 +179,7 @@ class _PlaceholderRootExpression(expression.Expression):
       raise ValueError("_PlaceholderRootExpression has no sources")
     if side_info:
       return mpp._tree_as_node(side_info)  # pylint: disable=protected-access
-    else:
-      raise ValueError("_PlaceholderRootExpression requires side_info")
+    raise ValueError("_PlaceholderRootExpression requires side_info")
 
   def calculation_is_identity(self) -> bool:
     return False
@@ -201,7 +195,7 @@ class _PlaceholderRootExpression(expression.Expression):
     return _PlaceholderChildExpression(self, field_name, child_schema)
 
   def __str__(self) -> str:
-    return "_PlaceholderRootExpression: {}".format(str(self._schema))
+    return f"_PlaceholderRootExpression: {str(self._schema)}"
 
   def known_field_names(self) -> FrozenSet[path.Step]:
     return self._schema.known_field_names()
