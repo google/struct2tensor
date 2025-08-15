@@ -720,22 +720,19 @@ def _get_dewey_encoding(
     if p.tail.is_repeated:
       return (tf.stack([p.tail.parent_index, positional_index],
                        axis=1), tf.concat([parent_size, current_size], 0))
-    else:
-      return tf.expand_dims(p.tail.parent_index, -1), parent_size
-  else:
-    parent_dewey_encoding, parent_size = _get_dewey_encoding(
-        _get_node_path_parent(p))
-    if p.tail.is_repeated:
-      positional_index_as_matrix = tf.expand_dims(
-          p.tail.get_positional_index(), -1)
-      indices = tf.concat([
-          tf.gather(parent_dewey_encoding, p.tail.parent_index),
-          positional_index_as_matrix
-      ], 1)
-      size = tf.concat([parent_size, current_size], 0)
-      return (indices, size)
-    else:
-      return tf.gather(parent_dewey_encoding, p.tail.parent_index), parent_size
+    return tf.expand_dims(p.tail.parent_index, -1), parent_size
+  parent_dewey_encoding, parent_size = _get_dewey_encoding(
+      _get_node_path_parent(p))
+  if p.tail.is_repeated:
+    positional_index_as_matrix = tf.expand_dims(
+        p.tail.get_positional_index(), -1)
+    indices = tf.concat([
+        tf.gather(parent_dewey_encoding, p.tail.parent_index),
+        positional_index_as_matrix
+    ], 1)
+    size = tf.concat([parent_size, current_size], 0)
+    return (indices, size)
+  return tf.gather(parent_dewey_encoding, p.tail.parent_index), parent_size
 
 
 def _get_sparse_tensor_from_leaf_node_path(p: _LeafNodePath) -> tf.SparseTensor:

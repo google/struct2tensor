@@ -597,9 +597,8 @@ def _get_any_child(
     field_message = desc.file.pool.FindMessageTypeByName(full_name_child)
     return _ProtoChildExpression(parent, field_message, False, field_name,
                                  backing_str_tensor)
-  else:
-    return _get_child_helper(parent, desc.fields_by_name.get(field_name),
-                             field_name, backing_str_tensor)
+  return _get_child_helper(parent, desc.fields_by_name.get(field_name),
+                           field_name, backing_str_tensor)
 
 
 def _is_map_field_desc(field_desc: descriptor.FieldDescriptor) -> bool:

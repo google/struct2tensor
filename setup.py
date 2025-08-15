@@ -46,12 +46,11 @@ def select_constraint(default, nightly=None, git_master=None):
   selector = os.environ.get('TFX_DEPENDENCY_SELECTOR')
   if selector == 'UNCONSTRAINED':
     return ''
-  elif selector == 'NIGHTLY' and nightly is not None:
+  if selector == 'NIGHTLY' and nightly is not None:
     return nightly
-  elif selector == 'GIT_MASTER' and git_master is not None:
+  if selector == 'GIT_MASTER' and git_master is not None:
     return git_master
-  else:
-    return default
+  return default
 
 
 # Get the long description from the README file.

@@ -179,8 +179,7 @@ class _PlaceholderRootExpression(expression.Expression):
       raise ValueError("_PlaceholderRootExpression has no sources")
     if side_info:
       return mpp._tree_as_node(side_info)  # pylint: disable=protected-access
-    else:
-      raise ValueError("_PlaceholderRootExpression requires side_info")
+    raise ValueError("_PlaceholderRootExpression requires side_info")
 
   def calculation_is_identity(self) -> bool:
     return False

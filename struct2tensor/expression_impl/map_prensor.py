@@ -253,8 +253,7 @@ def _as_leaf_node(sparse_tensor: tf.SparseTensor, is_repeated: bool,
   if options.sparse_checks:
     return _as_leaf_node_with_checks(sparse_tensor, is_repeated,
                                      required_batch_size)
-  else:
-    return _as_leaf_node_no_checks(sparse_tensor, is_repeated)
+  return _as_leaf_node_no_checks(sparse_tensor, is_repeated)
 
 
 def _map_prensor_impl(

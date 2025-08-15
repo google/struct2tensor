@@ -67,7 +67,7 @@ def _compare_step(a: Step, b: Step) -> int:
   if aint == bint:
     if a > b:
       return 1
-    elif a < b:
+    if a < b:
       return -1
     return 0
 
@@ -394,7 +394,7 @@ def expand_wildcard_proto_paths(
     if path == ["*"]:
       return _get_all_subfields(proto_descriptor)
     # path prefixes ending with "*" will be expanded
-    elif path[-1] == "*" and len(path) > 1:
+    if path[-1] == "*" and len(path) > 1:
       paths_with_wildcards.append(path[:-1])
     else:
       # partial matching paths (e.g., ["feature*"]) will raise an error

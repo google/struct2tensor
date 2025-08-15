@@ -192,15 +192,14 @@ def _get_mask(t: expression.Expression, p: path.Path, threshold: IndexValue,
     if threshold >= 0:
       return work_expr, mask_for_non_negative_threshold
     return work_expr, mask_for_negative_threshold
-  else:
 
-    def tf_cond_on_threshold(a, b):
-      return tf.cond(tf.greater_equal(threshold, 0), a, b)
+  def tf_cond_on_threshold(a, b):
+    return tf.cond(tf.greater_equal(threshold, 0), a, b)
 
-    return map_values.map_many_values(work_expr, p.get_parent(), [
-        x.field_list[-1]
-        for x in [mask_for_non_negative_threshold, mask_for_negative_threshold]
-    ], tf_cond_on_threshold, tf.bool, path.get_anonymous_field())
+  return map_values.map_many_values(work_expr, p.get_parent(), [
+      x.field_list[-1]
+      for x in [mask_for_non_negative_threshold, mask_for_negative_threshold]
+  ], tf_cond_on_threshold, tf.bool, path.get_anonymous_field())
 
 
 def _get_begin_mask(expr: expression.Expression, p: path.Path, begin: IndexValue
@@ -257,12 +256,11 @@ def _get_slice_mask(
     if end is None:
       raise ValueError("Must specify begin or end.")
     return _get_end_mask(expr, p, end)
-  else:
-    if end is None:
-      return _get_begin_mask(expr, p, begin)
-    work_expr, begin_mask = _get_begin_mask(expr, p, begin)
-    work_expr, end_mask = _get_end_mask(work_expr, p, end)
-    return map_values.map_many_values(
-        work_expr, p.get_parent(),
-        [x.field_list[-1] for x in [begin_mask, end_mask]], tf.logical_and,
-        tf.bool, path.get_anonymous_field())
+  if end is None:
+    return _get_begin_mask(expr, p, begin)
+  work_expr, begin_mask = _get_begin_mask(expr, p, begin)
+  work_expr, end_mask = _get_end_mask(work_expr, p, end)
+  return map_values.map_many_values(
+      work_expr, p.get_parent(),
+      [x.field_list[-1] for x in [begin_mask, end_mask]], tf.logical_and,
+      tf.bool, path.get_anonymous_field())

@@ -112,7 +112,7 @@ def create_expression_from_prensor(
     return _DirectExpression(
         True, None, node_tensor, children, validate_step_format
     )
-  elif isinstance(node_tensor, prensor.ChildNodeTensor):
+  if isinstance(node_tensor, prensor.ChildNodeTensor):
     return _DirectExpression(
         node_tensor.is_repeated,
         None,
@@ -120,12 +120,11 @@ def create_expression_from_prensor(
         children,
         validate_step_format,
     )
-  else:
-    # isinstance(node_tensor, LeafNodeTensor)
-    return _DirectExpression(
-        node_tensor.is_repeated,
-        node_tensor.values.dtype,
-        node_tensor,
-        children,
-        validate_step_format,
-    )
+  # isinstance(node_tensor, LeafNodeTensor)
+  return _DirectExpression(
+      node_tensor.is_repeated,
+      node_tensor.values.dtype,
+      node_tensor,
+      children,
+      validate_step_format,
+  )

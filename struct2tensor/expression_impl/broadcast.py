@@ -209,9 +209,8 @@ class _RecalculateExpression(expression.Expression):
       new_values = tf.gather(origin_value.values, index_to_values)
       return prensor.LeafNodeTensor(broadcasted_to_sibling_index, new_values,
                                     self.is_repeated)
-    else:
-      return prensor.ChildNodeTensor(broadcasted_to_sibling_index,
-                                     self.is_repeated, index_to_values)
+    return prensor.ChildNodeTensor(broadcasted_to_sibling_index,
+                                   self.is_repeated, index_to_values)
 
   def calculation_is_identity(self) -> bool:
     return False

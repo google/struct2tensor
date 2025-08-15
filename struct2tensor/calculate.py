@@ -208,8 +208,7 @@ def _fancy_type_str(is_repeated: bool, dtype: Optional[tf.DType]):
 def _node_type_str(node_tensor: prensor.NodeTensor):
   if isinstance(node_tensor, prensor.LeafNodeTensor):
     return _fancy_type_str(node_tensor.is_repeated, node_tensor.values.dtype)
-  else:
-    return _fancy_type_str(node_tensor.is_repeated, None)
+  return _fancy_type_str(node_tensor.is_repeated, None)
 
 
 class _ExpressionNode:
@@ -465,10 +464,9 @@ class CanonicalExpressionGraph(ExpressionGraph):
     if maybe_canonical in self._node_map:
       self._node[id(expr)] = self._node_map[maybe_canonical]
       return None
-    else:
-      self._node_map[maybe_canonical] = maybe_canonical
-      self._node[id(expr)] = maybe_canonical
-      return maybe_canonical
+    self._node_map[maybe_canonical] = maybe_canonical
+    self._node[id(expr)] = maybe_canonical
+    return maybe_canonical
 
   def _get_canonical_or_error(self, expr: expression.Expression
                              ) -> expression.Expression:
@@ -476,5 +474,4 @@ class CanonicalExpressionGraph(ExpressionGraph):
     node = self._get_node(expr)
     if node is not None:
       return node.expression
-    else:
-      raise ValueError("Expression not found: " + str(expr))
+    raise ValueError("Expression not found: " + str(expr))

@@ -112,8 +112,7 @@ def _get_field_descriptor(descriptor_type: descriptor.Descriptor,
   if path.is_extension(field_name):
     return descriptor_type.file.pool.FindExtensionByName(
         path.get_raw_extension_name(field_name))
-  else:
-    return descriptor_type.fields_by_name[field_name]
+  return descriptor_type.fields_by_name[field_name]
 
 
 def parse_message_level(
