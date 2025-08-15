@@ -415,7 +415,7 @@ class _ProtoChildExpression(_AbstractProtoChildExpression):
   def calculation_equal(self, expr: expression.Expression) -> bool:
     # Ensure that we're dealing with the _ProtoChildExpression and not any
     # of its subclasses.
-    if type(expr) != _ProtoChildExpression:  # pylint: disable=unidiomatic-typecheck
+    if type(expr) != _ProtoChildExpression:  # noqa: E721
       return False
     expr = cast(_ProtoChildExpression, expr)  # Keep pytype happy.
     return (self._desc == expr._desc and  # pylint: disable=protected-access
@@ -439,8 +439,7 @@ class _TransformProtoChildExpression(_ProtoChildExpression):
                desc: descriptor.Descriptor, is_repeated: bool,
                name_as_field: StrStep, transform_fn: TransformFn,
                backing_str_tensor: Optional[tf.Tensor]):
-    super(_TransformProtoChildExpression,
-          self).__init__(parent, desc, is_repeated, name_as_field,
+    super().__init__(parent, desc, is_repeated, name_as_field,
                          backing_str_tensor)
     self._transform_fn = transform_fn
 
