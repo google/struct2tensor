@@ -36,9 +36,9 @@ def text_to_expression(text_list, example_proto_clz):
 def _get_expression_from_session_empty_user_info():
     r"""Run create_root_prensor on a very deep tree.
 
-  In addition, the user_info is empty.
+    In addition, the user_info is empty.
 
-  ```
+    ```
                ------*-----------------
               /                        \
         ---session0----             session1
@@ -49,11 +49,11 @@ def _get_expression_from_session_empty_user_info():
     |   |     |        |    |     |      |    |   |
     a   b     c        e    f     g      h    i   j
 
-  ```
+    ```
 
-  Returns:
+    Returns:
     A RootPrensor with the above structure.
-  """
+    """
     return text_to_expression(
         [
             """

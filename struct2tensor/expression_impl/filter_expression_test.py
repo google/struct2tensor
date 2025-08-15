@@ -33,7 +33,7 @@ from struct2tensor.test import expression_test_util, prensor_test_util, test_pb2
 def _create_slice_and_project_example():
     r"""Creates an example for test_slice_and_project.
 
-  Returns:
+    Returns:
                ------*-----------------
               /                        \
         ---session0----             session1
@@ -44,8 +44,8 @@ def _create_slice_and_project_example():
     |   |     |        |    |     |      |    |   |
     a   b     c        e    f     g      h    i   j
 
-  This also adds an action_mask that is false for the zeroeth action.
-  """
+    This also adds an action_mask that is false for the zeroeth action.
+    """
     return proto_test_util.text_to_expression(
         [
             """
@@ -107,17 +107,17 @@ def _create_nested_prensor():
    root0                    root1-----------------------      root2 (empty)
     /   \                   /    \               \      \
     |  keep_my_sib0:False  |  keep_my_sib1:True   | keep_my_sib2:False
-  doc0-----               doc1---------------    doc2--------
-   |       \                \           \    \               \
+    doc0-----               doc1---------------    doc2--------
+    |       \                \           \    \               \
   bar:"a"  keep_me:False    bar:"b" bar:"c" keep_me:True      bar:"d"
 
-  Returns:
+    Returns:
     a prensor expression representing:
     {doc:[{bar:["a"], keep_me:False}], keep_my_sib:False}
     {doc:[{bar:["b","c"], keeo}, {bar:["d"]}],
      keep_me:True}
     {}
-  """
+    """
     return prensor.create_prensor_from_descendant_nodes(
         {
             path.Path([]): prensor_test_util.create_root_node(3),
@@ -138,24 +138,24 @@ def _create_nested_prensor():
 def _create_nested_prensor_2():
     r"""Creates a prensor representing a list of nested protocol buffers.
 
-  keep_me no longer has a value in doc0.
+    keep_me no longer has a value in doc0.
 
        -----*----------------------------------------------------
       /                       \                                  \
    root0                    root1-----------------------      root2 (empty)
     /   \                   /    \               \      \
     |  keep_my_sib0:False  |  keep_my_sib1:True   | keep_my_sib2:False
-  doc0                    doc1---------------    doc2--------
-   |                        \           \    \               \
+    doc0                    doc1---------------    doc2--------
+    |                        \           \    \               \
   bar:"a"                   bar:"b" bar:"c" keep_me:True      bar:"d"
 
-  Returns:
+    Returns:
     a prensor expression representing:
     {doc:[{bar:["a"], keep_me:False}], keep_my_sib:False}
     {doc:[{bar:["b","c"], keeo}, {bar:["d"]}],
      keep_me:True}
     {}
-  """
+    """
     return prensor.create_prensor_from_descendant_nodes(
         {
             path.Path([]): prensor_test_util.create_root_node(3),
@@ -290,19 +290,19 @@ class FilterExpressionTest(tf.test.TestCase):
     def test_filter_by_sibling(self):
         r"""Tests filter_by_sibling.
 
-    Beginning with the struct:
+        Beginning with the struct:
          -----*----------------------------------------------------
         /                       \                                  \
      root0                    root1-----------------------      root2 (empty)
-      /   \                   /    \               \      \
+        /   \                   /    \               \      \
       |  keep_my_sib0:False  |  keep_my_sib1:True   | keep_my_sib2:False
-    doc0-----               doc1---------------    doc2--------
-     |       \                \           \    \               \
+        doc0-----               doc1---------------    doc2--------
+        |       \                \           \    \               \
     bar:"a"  keep_me:False    bar:"b" bar:"c" keep_me:True      bar:"d"
 
-    Filter doc with keep_my_sib:
+        Filter doc with keep_my_sib:
 
-    End with the struct (suppressing original doc):
+        End with the struct (suppressing original doc):
          -----*----------------------------------------------------
         /                       \                                  \
     root0                    root1------------------        root2 (empty)
@@ -312,7 +312,7 @@ class FilterExpressionTest(tf.test.TestCase):
                              \           \    \
                              bar:"b" bar:"c" keep_me:True
 
-    """
+        """
         root = create_expression.create_expression_from_prensor(
             _create_nested_prensor()
         )

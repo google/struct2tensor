@@ -260,11 +260,7 @@ class _ExpressionNode:
     def _create_value_error(self) -> ValueError:
         """Creates a ValueError, assuming there should be one for this node."""
         return ValueError(
-            "Expression {} returned the wrong type: expected: {} actual: {}.".format(
-                self.expression,
-                _fancy_type_str(self.expression.is_repeated, self.expression.type),
-                _node_type_str(self.value),
-            )
+            f"Expression {self.expression} returned the wrong type: expected: {_fancy_type_str(self.expression.is_repeated, self.expression.type)} actual: {_node_type_str(self.value)}."
         )
 
     def calculate(

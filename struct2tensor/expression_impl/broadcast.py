@@ -139,17 +139,17 @@ class _BroadcastExpression(expression.Leaf):
 class _RecalculateExpression(expression.Expression):
     r"""Expression for recalculating a broadcasted subtree's parent indices.
 
-  This is needed because when a subtree is broadcasted, the nested fields
-  could be duplicated. Their parent indices need to be updated.
+    This is needed because when a subtree is broadcasted, the nested fields
+    could be duplicated. Their parent indices need to be updated.
 
-  For example, given the expression tree:
+    For example, given the expression tree:
                     _DirectExpression(root)
                     /                      \
       _DirectExpression(parent)     _DirectExpression(sibling)
                   /
-  _DirectExpression(submessage)
+    _DirectExpression(submessage)
 
-  If we broadcast (parent) into (sibling), then we get:
+    If we broadcast (parent) into (sibling), then we get:
                     _DirectExpression(root)
                     /                      \
       _DirectExpression(parent)     _DirectExpression(sibling)
@@ -158,19 +158,19 @@ class _RecalculateExpression(expression.Expression):
                                                \
                                       _RecalculateExpression(new_submessage)
 
-  This tree represents a field `parent` broadcasted into `sibling`. In this case
-  the `origin` of `_RecalculateExpression(new_submessage)` would be
-  `_DirectExpression(submessage)` and the `parent` of
-  `_RecalculateExpression(new_submessage)` would be
-  `_BroadcastChildExpression(new_parent)`
+    This tree represents a field `parent` broadcasted into `sibling`. In this case
+    the `origin` of `_RecalculateExpression(new_submessage)` would be
+    `_DirectExpression(submessage)` and the `parent` of
+    `_RecalculateExpression(new_submessage)` would be
+    `_BroadcastChildExpression(new_parent)`
 
-  Attributes:
+    Attributes:
     origin: The origin expression should be a _DirectExpression that represents
       the original subtree's field. It can represent a Child or Leaf NodeTensor.
     parent: The parent expression should be a _BroadcastChildExpression or
       _RecalculateExpression that represents the 'broadcasted' parent's
       ChildNodeTensor.
-  """
+    """
 
     def __init__(self, origin: expression.Expression, parent: expression.Expression):
         super().__init__(

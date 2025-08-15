@@ -208,50 +208,50 @@ def map_prensor_to_prensor(
 ) -> expression.Expression:
     r"""Maps an expression to a prensor, and merges that prensor.
 
-  For example, suppose you have an op my_op, that takes a prensor of the form:
+    For example, suppose you have an op my_op, that takes a prensor of the form:
 
     event
      / \
    foo   bar
 
-  and produces a prensor of the form my_result_schema:
+    and produces a prensor of the form my_result_schema:
 
      event
       / \
    foo2 bar2
 
-  If you give it an expression original with the schema:
+    If you give it an expression original with the schema:
 
-   session
+    session
       |
     event
     /  \
   foo   bar
 
-  result = map_prensor_to_prensor(
+    result = map_prensor_to_prensor(
     original,
     path.Path(["session","event"]),
     my_op,
     my_output_schema)
 
-  Result will have the schema:
+    Result will have the schema:
 
-   session
+    session
       |
     event--------
     /  \    \    \
   foo   bar foo2 bar2
 
-  Args:
+    Args:
     root_expr: the root expression
     source: the path where the prensor op is applied.
     paths_needed: the paths needed for the op.
     prensor_op: the prensor op
     output_schema: the output schema of the op.
 
-  Returns:
+    Returns:
     A new expression where the prensor is merged.
-  """
+    """
     original_child = root_expr.get_descendant_or_error(source).project(paths_needed)
     prensor_child = _PrensorOpExpression(original_child, prensor_op, output_schema)
     paths_map = {

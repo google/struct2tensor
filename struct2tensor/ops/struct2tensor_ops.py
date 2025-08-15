@@ -173,9 +173,9 @@ def parse_message_level(
         for field_descriptor in field_descriptors
     ]
     if tf.is_tensor(backing_str_tensor):
-        assert message_format == "binary", (
-            "message_format must be 'binary' if a backing_str_tensor is provided"
-        )
+        assert (
+            message_format == "binary"
+        ), "message_format must be 'binary' if a backing_str_tensor is provided"
         backing_str_tensor = [backing_str_tensor]
     else:
         backing_str_tensor = []
