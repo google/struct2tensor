@@ -238,7 +238,7 @@ class Path:
       elif isinstance(x, AnonymousId):
         raise ValueError("Cannot serialize a path with anonymous fields")
       else:
-        raise ValueError("Unexpected path element type: %s" % type(x))
+        raise ValueError(f"Unexpected path element type: {type(x)}")
     return result
 
   def __repr__(self) -> str:
