@@ -302,7 +302,7 @@ class ParquetDataset(_RawParquetDataset):
       p = (col.path)
       paths[p] = col.physical_type
 
-    for i, p in enumerate(value_paths):
+    for p in value_paths:
       if p not in paths:
         raise ValueError("path " + p + " does not exist in the file.")
 
