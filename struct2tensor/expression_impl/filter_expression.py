@@ -213,7 +213,7 @@ class _FilterChildByParentIndicesToKeepExpression(expression.Expression):
 
   def __init__(self, origin: expression.Expression,
                parent: expression.Expression):
-    super(_FilterChildByParentIndicesToKeepExpression, self).__init__(
+    super().__init__(
         origin.is_repeated,
         origin.type,
         validate_step_format=origin.validate_step_format,

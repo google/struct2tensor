@@ -237,8 +237,7 @@ class _PositionalIndexFromEndExpression(expression.Leaf):
         get_positional_index).
       size_inp: the size of the field (from size.size).
     """
-    super(_PositionalIndexFromEndExpression,
-          self).__init__(positional_index.is_repeated, tf.int64)
+    super().__init__(positional_index.is_repeated, tf.int64)
     self._positional_index = positional_index
     self._size = size_inp
 

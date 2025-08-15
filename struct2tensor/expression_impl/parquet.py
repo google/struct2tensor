@@ -257,8 +257,7 @@ class ParquetDataset(_RawParquetDataset):
     self._create_parent_index_paths_and_index_from_type_spec(
         self.element_structure, 0, 0)
 
-    super(ParquetDataset,
-          self).__init__(filenames, self._value_paths, self._value_dtypes,
+    super().__init__(filenames, self._value_paths, self._value_dtypes,
                          self._parent_index_paths, self._path_index, batch_size)
 
   def _get_column_dtypes(
@@ -506,8 +505,7 @@ class _ParquetDatasetWithExpression(ParquetDataset):
 
     parquet_paths = [".".join(p.field_list) for p in paths]
 
-    super(_ParquetDatasetWithExpression,
-          self).__init__(filenames, parquet_paths, batch_size)
+    super().__init__(filenames, parquet_paths, batch_size)
 
   def _calculate_prensor(self, pren) -> List[prensor.Prensor]:
     """Function for applying expression queries to a prensor.

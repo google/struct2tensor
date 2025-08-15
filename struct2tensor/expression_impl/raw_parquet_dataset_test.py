@@ -30,7 +30,7 @@ class ParquetDatasetTestBase(tf.test.TestCase):
   """
 
   def setUp(self):
-    super(ParquetDatasetTestBase, self).setUp()
+    super().setUp()
     self._test_filenames = [
         "struct2tensor/testdata/parquet_testdata/dremel_example.parquet"
     ]

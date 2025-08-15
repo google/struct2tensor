@@ -315,8 +315,7 @@ class _PrensorAsLeafNodeTensor(prensor.LeafNodeTensor):
   def __init__(self, prensor_tree: prensor.Prensor,
                leaf: prensor.LeafNodeTensor):
     """Call _tree_as_node instead."""
-    super(_PrensorAsLeafNodeTensor,
-          self).__init__(leaf.parent_index, leaf.values, leaf.is_repeated)
+    super().__init__(leaf.parent_index, leaf.values, leaf.is_repeated)
     self._prensor = prensor_tree
 
   @property
