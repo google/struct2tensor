@@ -103,7 +103,7 @@ class _AddPathsExpression(expression.Expression):
     return self._origin.known_field_names().union(self._path_map.keys())
 
   def __str__(self) -> str:
-    keys_to_add = ",".join([str(k) for k in self._path_map.keys()])
+    keys_to_add = ",".join([str(k) for k in self._path_map])
     return f"_AddPathsExpression({str(self._origin)}, [{keys_to_add}])"
 
 
@@ -125,7 +125,7 @@ def add_paths(root: expression.Expression,
   Returns:
     a new tree with the nodes from the root and the new subtrees.
   """
-  for p in path_map.keys():
+  for p in path_map:
     if root.get_descendant(p.get_parent()) is None:
       raise ValueError(f"No parent of {p}")
     if root.get_descendant(p) is not None:

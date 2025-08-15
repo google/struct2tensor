@@ -437,7 +437,7 @@ class _PrensorOpExpression(expression.Expression):
 
   def _get_source_paths(self) -> Sequence[path.Path]:
     """Returns the source paths in a deterministic order."""
-    result = [k for k in self._origin.get_known_descendants().keys()]
+    result = [k for k in self._origin.get_known_descendants()]
     # In order to make certain that the source_paths are in a deterministic
     # order, we sort them here.
     result.sort()

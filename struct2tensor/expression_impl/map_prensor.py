@@ -184,7 +184,7 @@ class _MapPrensorExpression(expression.Expression):
 
   def _get_source_paths(self) -> Sequence[path.Path]:
     """Returns the source paths in a deterministic order."""
-    result = [k for k in self._origin.get_known_descendants().keys()]
+    result = [k for k in self._origin.get_known_descendants()]
     result.sort()
     return result
 
