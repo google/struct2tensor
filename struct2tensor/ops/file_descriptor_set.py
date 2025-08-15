@@ -30,10 +30,7 @@ from struct2tensor import path
 def _are_dependencies_handled(file_descriptor: descriptor.FileDescriptor,
                               dependencies: Set[descriptor.Descriptor]) -> bool:
   """Returns True iff dependencies of descriptor are in dependencies."""
-  for dependency in file_descriptor.dependencies:
-    if dependency not in dependencies:
-      return False
-  return True
+  return all(dependency in dependencies for dependency in file_descriptor.dependencies)
 
 
 def _order_dependencies(file_descriptors: Set[descriptor.FileDescriptor]
