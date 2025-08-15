@@ -38,64 +38,66 @@ from struct2tensor.ops import struct2tensor_ops
 
 
 class EquiJoinIndicesBenchmarks(struct2tensor_benchmark_util.OpsBenchmarks):
-  """Benchmarks for EquiJoinIndices."""
+    """Benchmarks for EquiJoinIndices."""
 
-  @parameterized.named_parameters(*[
-      dict(
-          testcase_name="equi_join_indices_monotonic_increasing",
-          fn_name="equi_join_indices_monotonic_increasing",
-          fn_args=[],
-          data_key="monotonic_increasing",
-      ),
-      dict(
-          testcase_name="equi_join_indices_random",
-          fn_name="equi_join_indices_random",
-          fn_args=[],
-          data_key="random",
-      ),
-  ])
-  def test_equi_join_indices(self, fn_name, fn_args, data_key):
+    @parameterized.named_parameters(
+        *[
+            dict(
+                testcase_name="equi_join_indices_monotonic_increasing",
+                fn_name="equi_join_indices_monotonic_increasing",
+                fn_args=[],
+                data_key="monotonic_increasing",
+            ),
+            dict(
+                testcase_name="equi_join_indices_random",
+                fn_name="equi_join_indices_random",
+                fn_args=[],
+                data_key="random",
+            ),
+        ]
+    )
+    def test_equi_join_indices(self, fn_name, fn_args, data_key):
+        def benchmark_fn(session):
+            a = tf.compat.v1.placeholder(dtype=tf.int64, shape=(None,))
+            b = tf.compat.v1.placeholder(dtype=tf.int64, shape=(None,))
+            result = struct2tensor_ops.equi_join_indices(a, b)
+            with tf.control_dependencies(result):
+                x = tf.constant(1)
+            return session.make_callable(x, feed_list=[a, b])
 
-    def benchmark_fn(session):
-      a = tf.compat.v1.placeholder(dtype=tf.int64, shape=(None,))
-      b = tf.compat.v1.placeholder(dtype=tf.int64, shape=(None,))
-      result = struct2tensor_ops.equi_join_indices(a, b)
-      with tf.control_dependencies(result):
-        x = tf.constant(1)
-      return session.make_callable(x, feed_list=[a, b])
-
-    self.run_benchmarks(fn_name, benchmark_fn, fn_args, data_key)
+        self.run_benchmarks(fn_name, benchmark_fn, fn_args, data_key)
 
 
 class EquiJoinAnyIndicesBenchmarks(struct2tensor_benchmark_util.OpsBenchmarks):
-  """Benchmarks for EquiJoinAnyIndices."""
+    """Benchmarks for EquiJoinAnyIndices."""
 
-  @parameterized.named_parameters(*[
-      dict(
-          testcase_name="equi_join_any_indices_monotonic_increasing",
-          fn_name="equi_join_any_indices_monotonic_increasing",
-          fn_args=[],
-          data_key="monotonic_increasing",
-      ),
-      dict(
-          testcase_name="equi_join_any_indices_random",
-          fn_name="equi_join_any_indices_random",
-          fn_args=[],
-          data_key="random",
-      ),
-  ])
-  def test_equi_join_indices(self, fn_name, fn_args, data_key):
+    @parameterized.named_parameters(
+        *[
+            dict(
+                testcase_name="equi_join_any_indices_monotonic_increasing",
+                fn_name="equi_join_any_indices_monotonic_increasing",
+                fn_args=[],
+                data_key="monotonic_increasing",
+            ),
+            dict(
+                testcase_name="equi_join_any_indices_random",
+                fn_name="equi_join_any_indices_random",
+                fn_args=[],
+                data_key="random",
+            ),
+        ]
+    )
+    def test_equi_join_indices(self, fn_name, fn_args, data_key):
+        def benchmark_fn(session):
+            a = tf.compat.v1.placeholder(dtype=tf.int64, shape=(None,))
+            b = tf.compat.v1.placeholder(dtype=tf.int64, shape=(None,))
+            result = struct2tensor_ops.equi_join_any_indices(a, b)
+            with tf.control_dependencies(result):
+                x = tf.constant(1)
+            return session.make_callable(x, feed_list=[a, b])
 
-    def benchmark_fn(session):
-      a = tf.compat.v1.placeholder(dtype=tf.int64, shape=(None,))
-      b = tf.compat.v1.placeholder(dtype=tf.int64, shape=(None,))
-      result = struct2tensor_ops.equi_join_any_indices(a, b)
-      with tf.control_dependencies(result):
-        x = tf.constant(1)
-      return session.make_callable(x, feed_list=[a, b])
-
-    self.run_benchmarks(fn_name, benchmark_fn, fn_args, data_key)
+        self.run_benchmarks(fn_name, benchmark_fn, fn_args, data_key)
 
 
 if __name__ == "__main__":
-  tf.test.main()
+    tf.test.main()

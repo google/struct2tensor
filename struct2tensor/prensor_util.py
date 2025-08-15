@@ -22,7 +22,7 @@ from typing import Mapping
 
 import tensorflow as tf
 from tensorflow.python.util import (
-  deprecation,  # pylint: disable=g-direct-tensorflow-import
+    deprecation,  # pylint: disable=g-direct-tensorflow-import
 )
 
 from struct2tensor import calculate_options, path, prensor
@@ -32,80 +32,76 @@ from struct2tensor import calculate_options, path, prensor
 def get_sparse_tensor(
     t: prensor.Prensor,
     p: path.Path,
-    options: calculate_options.Options = calculate_options.get_default_options(
-    )
+    options: calculate_options.Options = calculate_options.get_default_options(),
 ) -> tf.SparseTensor:
-  """Gets a sparse tensor for path p.
+    """Gets a sparse tensor for path p.
 
-  Note that any optional fields are not registered as dimensions, as they can't
-  be represented in a sparse tensor.
+    Note that any optional fields are not registered as dimensions, as they can't
+    be represented in a sparse tensor.
 
-  Args:
-    t: The Prensor to extract tensors from.
-    p: The path to a leaf node in `t`.
-    options: Currently unused.
+    Args:
+      t: The Prensor to extract tensors from.
+      p: The path to a leaf node in `t`.
+      options: Currently unused.
 
-  Returns:
-    A sparse tensor containing values of the leaf node, preserving the
-    structure along the path. Raises an error if the path is not found.
-  """
-  return t.get_sparse_tensor(p, options)
+    Returns:
+      A sparse tensor containing values of the leaf node, preserving the
+      structure along the path. Raises an error if the path is not found.
+    """
+    return t.get_sparse_tensor(p, options)
 
 
 @deprecation.deprecated(None, "Use the Prensor class method instead.")
 def get_sparse_tensors(
     t: prensor.Prensor,
-    options: calculate_options.Options = calculate_options.get_default_options(
-    )
+    options: calculate_options.Options = calculate_options.get_default_options(),
 ) -> Mapping[path.Path, tf.SparseTensor]:
-  """Gets sparse tensors for all the leaves of the prensor expression.
+    """Gets sparse tensors for all the leaves of the prensor expression.
 
-  Args:
-    t: The Prensor to extract tensors from.
-    options: Currently unused.
+    Args:
+      t: The Prensor to extract tensors from.
+      options: Currently unused.
 
-  Returns:
-    A map from paths to sparse tensors.
-  """
-  return t.get_sparse_tensors(options)
+    Returns:
+      A map from paths to sparse tensors.
+    """
+    return t.get_sparse_tensors(options)
 
 
 @deprecation.deprecated(None, "Use the Prensor class method instead.")
 def get_ragged_tensor(
     t: prensor.Prensor,
     p: path.Path,
-    options: calculate_options.Options = calculate_options.get_default_options(
-    )
+    options: calculate_options.Options = calculate_options.get_default_options(),
 ) -> tf.RaggedTensor:
-  """Get a ragged tensor for a path.
+    """Get a ragged tensor for a path.
 
-  All steps are represented in the ragged tensor.
+    All steps are represented in the ragged tensor.
 
-  Args:
-    t: The Prensor to extract tensors from.
-    p: the path to a leaf node in `t`.
-    options: used to pass options for calculating ragged tensors.
+    Args:
+      t: The Prensor to extract tensors from.
+      p: the path to a leaf node in `t`.
+      options: used to pass options for calculating ragged tensors.
 
-  Returns:
-    A ragged tensor containing values of the leaf node, preserving the
-    structure along the path. Raises an error if the path is not found.
-  """
-  return t.get_ragged_tensor(p, options)
+    Returns:
+      A ragged tensor containing values of the leaf node, preserving the
+      structure along the path. Raises an error if the path is not found.
+    """
+    return t.get_ragged_tensor(p, options)
 
 
 @deprecation.deprecated(None, "Use the Prensor class method instead.")
 def get_ragged_tensors(
     t: prensor.Prensor,
-    options: calculate_options.Options = calculate_options.get_default_options(
-    )
+    options: calculate_options.Options = calculate_options.get_default_options(),
 ) -> Mapping[path.Path, tf.RaggedTensor]:
-  """Gets ragged tensors for all the leaves of the prensor expression.
+    """Gets ragged tensors for all the leaves of the prensor expression.
 
-  Args:
-    t: The Prensor to extract tensors from.
-    options: used to pass options for calculating ragged tensors.
+    Args:
+      t: The Prensor to extract tensors from.
+      options: used to pass options for calculating ragged tensors.
 
-  Returns:
-    A map from paths to ragged tensors.
-  """
-  return t.get_ragged_tensors(options)
+    Returns:
+      A map from paths to ragged tensors.
+    """
+    return t.get_ragged_tensors(options)

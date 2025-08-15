@@ -16,7 +16,7 @@
 import tensorflow as tf
 from absl.testing import absltest
 from tensorflow.python.framework import (
-  test_util,  # pylint: disable=g-direct-tensorflow-import
+    test_util,  # pylint: disable=g-direct-tensorflow-import
 )
 
 from struct2tensor import calculate, create_expression, path
@@ -26,146 +26,155 @@ from struct2tensor.test import expression_test_util, prensor_test_util, test_pb2
 
 @test_util.run_all_in_graph_and_eager_modes
 class RerootTest(tf.test.TestCase):
+    def test_reroot_and_create_proto_index(self):
+        expr = create_expression.create_expression_from_prensor(
+            prensor_test_util.create_big_prensor()
+        )
+        new_root = reroot.reroot(expr, path.Path(["doc"]))
+        proto_index = reroot.create_proto_index_field(
+            new_root, "proto_index"
+        ).get_child("proto_index")
+        new_field = new_root.get_child("bar")
+        leaf_node = expression_test_util.calculate_value_slowly(new_field)
+        proto_index_node = expression_test_util.calculate_value_slowly(proto_index)
 
-  def test_reroot_and_create_proto_index(self):
-    expr = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_big_prensor())
-    new_root = reroot.reroot(expr, path.Path(["doc"]))
-    proto_index = reroot.create_proto_index_field(
-        new_root, "proto_index").get_child("proto_index")
-    new_field = new_root.get_child("bar")
-    leaf_node = expression_test_util.calculate_value_slowly(new_field)
-    proto_index_node = expression_test_util.calculate_value_slowly(proto_index)
+        self.assertIsNotNone(new_field)
+        self.assertTrue(new_field.is_repeated)
+        self.assertEqual(new_field.type, tf.string)
+        self.assertTrue(new_field.is_leaf)
+        self.assertEqual(new_field.known_field_names(), frozenset())
+        self.assertEqual(leaf_node.values.dtype, tf.string)
 
-    self.assertIsNotNone(new_field)
-    self.assertTrue(new_field.is_repeated)
-    self.assertEqual(new_field.type, tf.string)
-    self.assertTrue(new_field.is_leaf)
-    self.assertEqual(new_field.known_field_names(), frozenset())
-    self.assertEqual(leaf_node.values.dtype, tf.string)
+        self.assertIsNotNone(proto_index)
+        self.assertFalse(proto_index.is_repeated)
+        self.assertEqual(proto_index.type, tf.int64)
+        self.assertTrue(proto_index.is_leaf)
+        self.assertEqual(proto_index.known_field_names(), frozenset())
 
-    self.assertIsNotNone(proto_index)
-    self.assertFalse(proto_index.is_repeated)
-    self.assertEqual(proto_index.type, tf.int64)
-    self.assertTrue(proto_index.is_leaf)
-    self.assertEqual(proto_index.known_field_names(), frozenset())
+        self.assertEqual(proto_index_node.values.dtype, tf.int64)
 
-    self.assertEqual(proto_index_node.values.dtype, tf.int64)
+        self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node.values)
+        self.assertAllEqual([0, 1, 1, 2], leaf_node.parent_index)
+        self.assertAllEqual([0, 1, 1], proto_index_node.values)
+        self.assertAllEqual([0, 1, 2], proto_index_node.parent_index)
 
-    self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node.values)
-    self.assertAllEqual([0, 1, 1, 2], leaf_node.parent_index)
-    self.assertAllEqual([0, 1, 1], proto_index_node.values)
-    self.assertAllEqual([0, 1, 2], proto_index_node.parent_index)
+    def test_reroot_and_create_proto_index_deep(self):
+        expr = create_expression.create_expression_from_prensor(
+            prensor_test_util.create_deep_prensor()
+        )
+        new_root = reroot.reroot(expr, path.Path(["event", "doc"]))
+        proto_index = reroot.create_proto_index_field(
+            new_root, "proto_index"
+        ).get_child("proto_index")
+        new_field = new_root.get_child("bar")
+        leaf_node = expression_test_util.calculate_value_slowly(new_field)
+        proto_index_node = expression_test_util.calculate_value_slowly(proto_index)
 
-  def test_reroot_and_create_proto_index_deep(self):
-    expr = create_expression.create_expression_from_prensor(
-        prensor_test_util.create_deep_prensor())
-    new_root = reroot.reroot(expr, path.Path(["event", "doc"]))
-    proto_index = reroot.create_proto_index_field(
-        new_root, "proto_index").get_child("proto_index")
-    new_field = new_root.get_child("bar")
-    leaf_node = expression_test_util.calculate_value_slowly(new_field)
-    proto_index_node = expression_test_util.calculate_value_slowly(proto_index)
+        self.assertIsNotNone(new_field)
+        self.assertTrue(new_field.is_repeated)
+        self.assertEqual(new_field.type, tf.string)
+        self.assertTrue(new_field.is_leaf)
+        self.assertEqual(new_field.known_field_names(), frozenset())
+        self.assertEqual(leaf_node.values.dtype, tf.string)
 
-    self.assertIsNotNone(new_field)
-    self.assertTrue(new_field.is_repeated)
-    self.assertEqual(new_field.type, tf.string)
-    self.assertTrue(new_field.is_leaf)
-    self.assertEqual(new_field.known_field_names(), frozenset())
-    self.assertEqual(leaf_node.values.dtype, tf.string)
+        self.assertIsNotNone(proto_index)
+        self.assertFalse(proto_index.is_repeated)
+        self.assertEqual(proto_index.type, tf.int64)
+        self.assertTrue(proto_index.is_leaf)
+        self.assertEqual(proto_index.known_field_names(), frozenset())
 
-    self.assertIsNotNone(proto_index)
-    self.assertFalse(proto_index.is_repeated)
-    self.assertEqual(proto_index.type, tf.int64)
-    self.assertTrue(proto_index.is_leaf)
-    self.assertEqual(proto_index.known_field_names(), frozenset())
+        self.assertEqual(proto_index_node.values.dtype, tf.int64)
 
-    self.assertEqual(proto_index_node.values.dtype, tf.int64)
+        self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node.values)
+        self.assertAllEqual([0, 1, 1, 2], leaf_node.parent_index)
+        self.assertAllEqual([0, 1, 1], proto_index_node.values)
+        self.assertAllEqual([0, 1, 2], proto_index_node.parent_index)
 
-    self.assertAllEqual([b"a", b"b", b"c", b"d"], leaf_node.values)
-    self.assertAllEqual([0, 1, 1, 2], leaf_node.parent_index)
-    self.assertAllEqual([0, 1, 1], proto_index_node.values)
-    self.assertAllEqual([0, 1, 2], proto_index_node.parent_index)
-
-  def test_create_proto_index_directly_reroot_at_action(self):
-    sessions = [
-        """
+    def test_create_proto_index_directly_reroot_at_action(self):
+        sessions = [
+            """
         event {
           action {}
           action {}
         }
         event {}
         event { action {} }
-        """, "", """
+        """,
+            "",
+            """
         event {}
         event {
           action {}
           action {}
         }
         event {  }
-        """
-    ]
-    expr = proto_test_util.text_to_expression(sessions, test_pb2.Session)
-    reroot_expr = expr.reroot("event.action")
-    # Reroot with a depth > 1 (all the other cases are depth == 1)
-    proto_index_directly_reroot_at_action = (
-        reroot_expr.create_proto_index("proto_index_directly_reroot_at_action")
-        .get_child_or_error("proto_index_directly_reroot_at_action"))
+        """,
+        ]
+        expr = proto_test_util.text_to_expression(sessions, test_pb2.Session)
+        reroot_expr = expr.reroot("event.action")
+        # Reroot with a depth > 1 (all the other cases are depth == 1)
+        proto_index_directly_reroot_at_action = reroot_expr.create_proto_index(
+            "proto_index_directly_reroot_at_action"
+        ).get_child_or_error("proto_index_directly_reroot_at_action")
 
-    self.assertFalse(proto_index_directly_reroot_at_action.is_repeated)
-    result = expression_test_util.calculate_value_slowly(
-        proto_index_directly_reroot_at_action)
-    self.assertAllEqual(result.parent_index, [0, 1, 2, 3, 4])
-    self.assertAllEqual(result.values, [0, 0, 0, 2, 2])
+        self.assertFalse(proto_index_directly_reroot_at_action.is_repeated)
+        result = expression_test_util.calculate_value_slowly(
+            proto_index_directly_reroot_at_action
+        )
+        self.assertAllEqual(result.parent_index, [0, 1, 2, 3, 4])
+        self.assertAllEqual(result.values, [0, 0, 0, 2, 2])
 
-  def test_create_proto_index_directly_reroot_at_action_sparse_dense(self):
-    sessions = [
-        """
+    def test_create_proto_index_directly_reroot_at_action_sparse_dense(self):
+        sessions = [
+            """
         event {
           action {}
           action {}
         }
         event {}
         event { action {} }
-        """, "", """
+        """,
+            "",
+            """
         event {}
         event {
           action {}
           action {}
         }
         event {  }
-        """
-    ]
-    expr = proto_test_util.text_to_expression(sessions, test_pb2.Session)
-    reroot_expr = expr.reroot("event.action")
-    # Reroot with a depth > 1 (all the other cases are depth == 1)
-    [prensor_tree] = calculate.calculate_prensors([
-        reroot_expr.create_proto_index("proto_index_directly_reroot_at_action")
-    ])
-    proto_index_node = prensor_tree.get_child_or_error(
-        "proto_index_directly_reroot_at_action").node
-    self.assertFalse(proto_index_node.is_repeated)
-    sparse_tensors = prensor_tree.get_sparse_tensors()
-    proto_index_directly_reroot_at_action = sparse_tensors[path.Path(
-        ["proto_index_directly_reroot_at_action"])]
-    dense_value = tf.sparse.to_dense(
-        proto_index_directly_reroot_at_action)
-    sparse_value = proto_index_directly_reroot_at_action
+        """,
+        ]
+        expr = proto_test_util.text_to_expression(sessions, test_pb2.Session)
+        reroot_expr = expr.reroot("event.action")
+        # Reroot with a depth > 1 (all the other cases are depth == 1)
+        [prensor_tree] = calculate.calculate_prensors(
+            [reroot_expr.create_proto_index("proto_index_directly_reroot_at_action")]
+        )
+        proto_index_node = prensor_tree.get_child_or_error(
+            "proto_index_directly_reroot_at_action"
+        ).node
+        self.assertFalse(proto_index_node.is_repeated)
+        sparse_tensors = prensor_tree.get_sparse_tensors()
+        proto_index_directly_reroot_at_action = sparse_tensors[
+            path.Path(["proto_index_directly_reroot_at_action"])
+        ]
+        dense_value = tf.sparse.to_dense(proto_index_directly_reroot_at_action)
+        sparse_value = proto_index_directly_reroot_at_action
 
-    self.assertAllEqual(sparse_value.values, [0, 0, 0, 2, 2])
-    self.assertAllEqual(sparse_value.indices, [[0], [1], [2], [3], [4]])
-    self.assertAllEqual(sparse_value.dense_shape, [5])
-    self.assertAllEqual(dense_value, [0, 0, 0, 2, 2])
+        self.assertAllEqual(sparse_value.values, [0, 0, 0, 2, 2])
+        self.assertAllEqual(sparse_value.indices, [[0], [1], [2], [3], [4]])
+        self.assertAllEqual(sparse_value.dense_shape, [5])
+        self.assertAllEqual(dense_value, [0, 0, 0, 2, 2])
 
 
 def test_reroot_lenient_format(self):
-  expr = create_expression.create_expression_from_prensor(
-      prensor_test_util.create_nested_prensor_with_lenient_field_names(),
-      validate_step_format=False,
-  )
-  new_root = reroot.reroot(expr, path.Path(["doc"]))
-  self.assertFalse(new_root.validate_step_format)
+    expr = create_expression.create_expression_from_prensor(
+        prensor_test_util.create_nested_prensor_with_lenient_field_names(),
+        validate_step_format=False,
+    )
+    new_root = reroot.reroot(expr, path.Path(["doc"]))
+    self.assertFalse(new_root.validate_step_format)
 
 
 if __name__ == "__main__":
-  absltest.main()
+    absltest.main()

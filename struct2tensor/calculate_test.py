@@ -18,183 +18,199 @@ import random
 import tensorflow as tf
 from absl.testing import absltest
 from tensorflow.python.framework import (
-  test_util,  # pylint: disable=g-direct-tensorflow-import
+    test_util,  # pylint: disable=g-direct-tensorflow-import
 )
 
 from struct2tensor import (
-  calculate,
-  calculate_options,
-  create_expression,
-  expression_add,
-  path,
+    calculate,
+    calculate_options,
+    create_expression,
+    expression_add,
+    path,
 )
 from struct2tensor.expression_impl import promote, proto_test_util
 from struct2tensor.test import expression_test_util, prensor_test_util
 
 
 def get_mock_linear_graph(length):
-  result = [expression_test_util.get_mock_leaf(True, tf.int64, name="Node0")]
-  for i in range(1, length):
-    result.append(
-        expression_test_util.get_mock_leaf(
-            False,
-            tf.int64,
-            name="Node" + str(i),
-            source_expressions=[result[i - 1]]))
-  return result[-1]
+    result = [expression_test_util.get_mock_leaf(True, tf.int64, name="Node0")]
+    for i in range(1, length):
+        result.append(
+            expression_test_util.get_mock_leaf(
+                False,
+                tf.int64,
+                name="Node" + str(i),
+                source_expressions=[result[i - 1]],
+            )
+        )
+    return result[-1]
 
 
 def create_random_graph_helper(size, density, fraction_identity):
-  partial = []
-  if size:
-    partial = create_random_graph_helper(size - 1, density, fraction_identity)
-  if random.random() < fraction_identity and partial:
-    source_expressions = [partial[random.randint(0, len(partial) - 1)]]
+    partial = []
+    if size:
+        partial = create_random_graph_helper(size - 1, density, fraction_identity)
+    if random.random() < fraction_identity and partial:
+        source_expressions = [partial[random.randint(0, len(partial) - 1)]]
+        partial.append(
+            expression_test_util.get_mock_leaf(
+                False,
+                tf.int64,
+                name="Node" + str(size - 1),
+                source_expressions=source_expressions,
+                calculate_is_identity=True,
+            )
+        )
+        return partial
+
+    source_expressions = []
+    for x in partial:
+        if random.random() < density:
+            source_expressions.append(x)
     partial.append(
         expression_test_util.get_mock_leaf(
             False,
             tf.int64,
             name="Node" + str(size - 1),
             source_expressions=source_expressions,
-            calculate_is_identity=True))
+        )
+    )
     return partial
-
-  source_expressions = []
-  for x in partial:
-    if random.random() < density:
-      source_expressions.append(x)
-  partial.append(
-      expression_test_util.get_mock_leaf(
-          False,
-          tf.int64,
-          name="Node" + str(size - 1),
-          source_expressions=source_expressions))
-  return partial
 
 
 def create_random_graph(size, density, fraction_identity):
-  return create_random_graph_helper(size, density, fraction_identity)[-1]
+    return create_random_graph_helper(size, density, fraction_identity)[-1]
 
 
 options_to_test = [
     calculate_options.get_default_options(),
-    calculate_options.get_options_with_minimal_checks(), None
+    calculate_options.get_options_with_minimal_checks(),
+    None,
 ]
 
 
 @test_util.run_all_in_graph_and_eager_modes
 class CalculateTest(tf.test.TestCase):
-
-  def test_calculate_mock(self):
-    my_input = get_mock_linear_graph(5)
-    [result] = calculate.calculate_values([my_input])
-    self.assertIs(my_input._calculate_output, result)
-
-  def test_calculate_broken_mock_is_repeated(self):
-    with self.assertRaisesRegex(
-        ValueError,
-        "Expression Node0 returned the wrong type: expected: repeated <dtype: "
-        "'int64'> actual: optional <dtype: 'int64'>.",
-    ):
-      single_node = expression_test_util.get_mock_broken_leaf(
-          True, tf.int64, False, tf.int64, name="Node0")
-      calculate.calculate_values([single_node])
-
-  def test_calculate_broken_mock_dtype(self):
-    with self.assertRaisesRegex(
-        ValueError,
-        "Expression Node0 returned the "
-        "wrong type: expected: repeated <dtype: "
-        "'int64'> actual: repeated <dtype: 'int32'>.",
-    ):
-      single_node = expression_test_util.get_mock_broken_leaf(
-          True, tf.int64, True, tf.int32, name="Node0")
-      calculate.calculate_values([single_node])
-
-  def test_calculate_random_mock(self):
-    """Test calculate on 1000 graphs with 20 nodes.
-
-    This will have identity operations.
-    This will not have equal operations (outside of identity operations).
-    All nodes in the graph are leaf expressions.
-    """
-    random.seed(a=12345)
-    for options in options_to_test:
-      for _ in range(1000):
-        my_input = create_random_graph(20, 0.5, 0.2)
-        [result] = calculate.calculate_values([my_input], options=options)
+    def test_calculate_mock(self):
+        my_input = get_mock_linear_graph(5)
+        [result] = calculate.calculate_values([my_input])
         self.assertIs(my_input._calculate_output, result)
 
-  def test_calculate_root_direct(self):
-    """Calculates the value of a node with no sources."""
-    for options in options_to_test:
-      tree = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_simple_prensor())
-      [root_value] = calculate.calculate_values([tree], options=options)
-      self.assertAllEqual(root_value.size, 3)
+    def test_calculate_broken_mock_is_repeated(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "Expression Node0 returned the wrong type: expected: repeated <dtype: "
+            "'int64'> actual: optional <dtype: 'int64'>.",
+        ):
+            single_node = expression_test_util.get_mock_broken_leaf(
+                True, tf.int64, False, tf.int64, name="Node0"
+            )
+            calculate.calculate_values([single_node])
 
-  def test_calculate_root_indirect(self):
-    """Calculates the value of a node with one source."""
-    for options in options_to_test:
-      tree = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_simple_prensor())
-      tree_2 = expression_add.add_paths(tree, {})
-      [root_value] = calculate.calculate_values([tree_2], options=options)
-      self.assertAllEqual(root_value.size, 3)
+    def test_calculate_broken_mock_dtype(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "Expression Node0 returned the "
+            "wrong type: expected: repeated <dtype: "
+            "'int64'> actual: repeated <dtype: 'int32'>.",
+        ):
+            single_node = expression_test_util.get_mock_broken_leaf(
+                True, tf.int64, True, tf.int32, name="Node0"
+            )
+            calculate.calculate_values([single_node])
 
-  def test_calculate_tree_root_direct(self):
-    """Calculates the value of a tree with no sources."""
-    for options in options_to_test:
-      tree = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_simple_prensor())
-      [new_expr] = calculate.calculate_prensors([tree], options=options)
-      self.assertAllEqual(new_expr.node.size, 3)
+    def test_calculate_random_mock(self):
+        """Test calculate on 1000 graphs with 20 nodes.
 
-  def test_calculate_promote_anonymous(self):
-    """Performs promote_test.PromoteValuesTest, but with calculate_values."""
-    for options in options_to_test:
-      expr = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_nested_prensor())
-      new_root, new_path = promote.promote_anonymous(
-          expr, path.Path(["user", "friends"]))
-      new_field = new_root.get_descendant_or_error(new_path)
-      [leaf_node] = calculate.calculate_values([new_field], options=options)
-      self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 1, 2])
-      self.assertAllEqual(leaf_node.values, [b"a", b"b", b"c", b"d", b"e"])
+        This will have identity operations.
+        This will not have equal operations (outside of identity operations).
+        All nodes in the graph are leaf expressions.
+        """
+        random.seed(a=12345)
+        for options in options_to_test:
+            for _ in range(1000):
+                my_input = create_random_graph(20, 0.5, 0.2)
+                [result] = calculate.calculate_values([my_input], options=options)
+                self.assertIs(my_input._calculate_output, result)
 
-  def test_calculate_promote_named(self):
-    """Performs promote_test.PromoteValuesTest, but with calculate_values."""
-    for options in options_to_test:
-      expr = create_expression.create_expression_from_prensor(
-          prensor_test_util.create_nested_prensor())
-      new_root = promote.promote(expr, path.Path(["user", "friends"]),
-                                 "new_friends")
-      # projected = project.project(new_root, [path.Path(["new_friends"])])
-      new_field = new_root.get_child_or_error("new_friends")
-      [leaf_node] = calculate.calculate_values([new_field], options=options)
-      self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 1, 2])
-      self.assertAllEqual(leaf_node.values, [b"a", b"b", b"c", b"d", b"e"])
+    def test_calculate_root_direct(self):
+        """Calculates the value of a node with no sources."""
+        for options in options_to_test:
+            tree = create_expression.create_expression_from_prensor(
+                prensor_test_util.create_simple_prensor()
+            )
+            [root_value] = calculate.calculate_values([tree], options=options)
+            self.assertAllEqual(root_value.size, 3)
 
-  def test_create_query_and_calculate_event_value(self):
-    """Calculating a child value in a proto tests dependencies."""
-    for options in options_to_test:
-      expr = proto_test_util._get_expression_from_session_empty_user_info()
-      [event_value
-      ] = calculate.calculate_values([expr.get_child_or_error("event")],
-                                     options=options)
-      self.assertAllEqual(event_value.parent_index, [0, 0, 0, 1, 1])
+    def test_calculate_root_indirect(self):
+        """Calculates the value of a node with one source."""
+        for options in options_to_test:
+            tree = create_expression.create_expression_from_prensor(
+                prensor_test_util.create_simple_prensor()
+            )
+            tree_2 = expression_add.add_paths(tree, {})
+            [root_value] = calculate.calculate_values([tree_2], options=options)
+            self.assertAllEqual(root_value.size, 3)
 
-  def test_create_query_modify_and_calculate_event_value(self):
-    """Calculating a child value in a proto tests dependencies."""
-    for options in options_to_test:
-      root = proto_test_util._get_expression_from_session_empty_user_info()
-      root_2 = expression_add.add_paths(
-          root, {path.Path(["event_copy"]): root.get_child_or_error("event")})
-      [event_value
-      ] = calculate.calculate_values([root_2.get_child_or_error("event_copy")],
-                                     options=options)
-      self.assertAllEqual(event_value.parent_index, [0, 0, 0, 1, 1])
+    def test_calculate_tree_root_direct(self):
+        """Calculates the value of a tree with no sources."""
+        for options in options_to_test:
+            tree = create_expression.create_expression_from_prensor(
+                prensor_test_util.create_simple_prensor()
+            )
+            [new_expr] = calculate.calculate_prensors([tree], options=options)
+            self.assertAllEqual(new_expr.node.size, 3)
+
+    def test_calculate_promote_anonymous(self):
+        """Performs promote_test.PromoteValuesTest, but with calculate_values."""
+        for options in options_to_test:
+            expr = create_expression.create_expression_from_prensor(
+                prensor_test_util.create_nested_prensor()
+            )
+            new_root, new_path = promote.promote_anonymous(
+                expr, path.Path(["user", "friends"])
+            )
+            new_field = new_root.get_descendant_or_error(new_path)
+            [leaf_node] = calculate.calculate_values([new_field], options=options)
+            self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 1, 2])
+            self.assertAllEqual(leaf_node.values, [b"a", b"b", b"c", b"d", b"e"])
+
+    def test_calculate_promote_named(self):
+        """Performs promote_test.PromoteValuesTest, but with calculate_values."""
+        for options in options_to_test:
+            expr = create_expression.create_expression_from_prensor(
+                prensor_test_util.create_nested_prensor()
+            )
+            new_root = promote.promote(
+                expr, path.Path(["user", "friends"]), "new_friends"
+            )
+            # projected = project.project(new_root, [path.Path(["new_friends"])])
+            new_field = new_root.get_child_or_error("new_friends")
+            [leaf_node] = calculate.calculate_values([new_field], options=options)
+            self.assertAllEqual(leaf_node.parent_index, [0, 1, 1, 1, 2])
+            self.assertAllEqual(leaf_node.values, [b"a", b"b", b"c", b"d", b"e"])
+
+    def test_create_query_and_calculate_event_value(self):
+        """Calculating a child value in a proto tests dependencies."""
+        for options in options_to_test:
+            expr = proto_test_util._get_expression_from_session_empty_user_info()
+            [event_value] = calculate.calculate_values(
+                [expr.get_child_or_error("event")], options=options
+            )
+            self.assertAllEqual(event_value.parent_index, [0, 0, 0, 1, 1])
+
+    def test_create_query_modify_and_calculate_event_value(self):
+        """Calculating a child value in a proto tests dependencies."""
+        for options in options_to_test:
+            root = proto_test_util._get_expression_from_session_empty_user_info()
+            root_2 = expression_add.add_paths(
+                root, {path.Path(["event_copy"]): root.get_child_or_error("event")}
+            )
+            [event_value] = calculate.calculate_values(
+                [root_2.get_child_or_error("event_copy")], options=options
+            )
+            self.assertAllEqual(event_value.parent_index, [0, 0, 0, 1, 1])
 
 
 if __name__ == "__main__":
-  absltest.main()
+    absltest.main()
