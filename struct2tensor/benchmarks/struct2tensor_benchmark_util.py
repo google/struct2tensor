@@ -76,17 +76,20 @@ class Struct2tensorBenchmarksBase(parameterized.TestCase):
       iterations = 2  # 2 iterations so we can calculate stdev.
       sample_size = 1
 
-    with tf.Graph().as_default():
-      # Disable control dependency optimization. Otherwise we cannot use the
-      # trick to force the parsing to happen without using its output. e.g.:
-      # with tf.control_dependencies([parsed_tensors]):
-      #   return tf.constant(1)
-      with tf.compat.v1.Session(
+    with (
+        tf.Graph().as_default(),
+        # Disable control dependency optimization. Otherwise we cannot use the
+        # trick to force the parsing to happen without using its output. e.g.:
+        # with tf.control_dependencies([parsed_tensors]):
+        #   return tf.constant(1)
+        tf.compat.v1.Session(
           config=tf.compat.v1.ConfigProto(
               graph_options=tf.compat.v1.GraphOptions(
                   rewrite_options=rewriter_config_pb2.RewriterConfig(
                       dependency_optimization=rewriter_config_pb2.RewriterConfig
-                      .OFF)))) as sess:
+                      .OFF))))
+        as sess
+    ):
         benchmark_fn = get_benchmark_fn(sess, *fn_args)
 
         for input_data in self._data[data_key]:
