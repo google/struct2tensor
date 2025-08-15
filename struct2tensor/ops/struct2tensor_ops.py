@@ -306,10 +306,7 @@ def parse_proto_map(
   keys_needed_as_list = list(keys_needed)
   value_fd = map_entry_descriptor.fields_by_name["value"]
 
-  if tf.is_tensor(backing_str_tensor):
-    backing_str_tensor = [backing_str_tensor]
-  else:
-    backing_str_tensor = []
+  backing_str_tensor = [backing_str_tensor] if tf.is_tensor(backing_str_tensor) else []
 
   values, parent_indices = gen_decode_proto_map_op.decode_proto_map_v2(
       map_entries, map_entry_parent_indices, backing_str_tensor,
