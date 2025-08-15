@@ -253,8 +253,7 @@ def map_prensor_to_prensor(
       source.get_child(k): prensor_child.get_child_or_error(k)
       for k in prensor_child.known_field_names()
   }
-  result = expression_add.add_paths(root_expr, paths_map)
-  return result
+  return expression_add.add_paths(root_expr, paths_map)
 
 
 ##################### Implementation Follows ###################################

@@ -145,12 +145,11 @@ class _RawParquetDataset(tf.compat.v1.data.Dataset):
     """
     metadata = pq.ParquetFile(metadata_file).metadata
 
-    path_to_column_index = {
+    return {
         metadata.schema.column(index).path: index
         for index in range(metadata.num_columns)
     }
 
-    return path_to_column_index
 
   def _parquet_to_tf_type(self, parquet_type: str) -> Union[tf.DType, None]:
     """Maps tensorflow datatype to a parquet datatype.

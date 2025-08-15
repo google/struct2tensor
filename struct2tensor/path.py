@@ -444,5 +444,4 @@ def _proto_glob(
       raise ValueError(f"Field name {field_name} does not exist.")
     proto_descriptor = proto_descriptor.fields_by_name[field_name].message_type
   expanded_leaves = _get_all_subfields(proto_descriptor)
-  expanded_paths = [parent + child for child in expanded_leaves]
-  return expanded_paths
+  return [parent + child for child in expanded_leaves]
