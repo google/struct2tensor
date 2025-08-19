@@ -60,6 +60,7 @@ cc_library(
     deps = [
         ":parent_indices_builder_lib",
         ":parquet_reader_util_lib",
+        "@com_google_absl//absl/status",
         "@com_google_absl//absl/strings",
         "@arrow//:arrow",
         "//struct2tensor/kernels:vector_to_tensor",
