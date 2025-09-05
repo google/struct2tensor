@@ -14,6 +14,8 @@
 #
 # Parquet Dataset Kernel Implementation.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_library")
 
 package(
