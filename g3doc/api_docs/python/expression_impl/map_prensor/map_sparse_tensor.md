@@ -112,4 +112,3 @@ root_path.get_child(new_field_name), with the result of the operation.
 </tr>
 
 </table>
-

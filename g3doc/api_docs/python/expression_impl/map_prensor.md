@@ -114,4 +114,3 @@ session: {
 [`map_ragged_tensor(...)`](../expression_impl/map_prensor/map_ragged_tensor.md): Map a ragged tensor.
 
 [`map_sparse_tensor(...)`](../expression_impl/map_prensor/map_sparse_tensor.md): Maps a sparse tensor.
-
