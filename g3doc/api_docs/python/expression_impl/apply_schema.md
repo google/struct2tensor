@@ -57,4 +57,3 @@ my_new_schema has semantically identical information on the fields as my_schema.
 ## Functions
 
 [`apply_schema(...)`](../expression_impl/apply_schema/apply_schema.md)
-

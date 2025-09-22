@@ -17,6 +17,7 @@ from tensorflow.python.framework import load_library
 from tensorflow.python.platform import resource_loader
 
 parquet_dataset_module = load_library.load_op_library(
-    resource_loader.get_path_to_datafile('_parquet_dataset_op.so'))
+    resource_loader.get_path_to_datafile("_parquet_dataset_op.so")
+)
 
 parquet_dataset = parquet_dataset_module.parquet_dataset

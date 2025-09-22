@@ -95,4 +95,3 @@ a new Schema represented by the inputs.
 </tr>
 
 </table>
-

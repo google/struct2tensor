@@ -49,147 +49,148 @@ TODO(martinz): Add utilities to:
 import abc
 from typing import FrozenSet, Optional, Sequence
 
-from struct2tensor import calculate_options
-from struct2tensor import expression
-from struct2tensor import path
-from struct2tensor import prensor
-
 from tensorflow_metadata.proto.v0 import schema_pb2
 
-
-def apply_schema(expr: expression.Expression,
-                 schema: schema_pb2.Schema) -> expression.Expression:
-  schema_copy = schema_pb2.Schema()
-  schema_copy.CopyFrom(schema)
-  for x in schema_copy.feature:
-    _normalize_feature(x, schema_copy)
-  return _SchemaExpression(expr, schema_copy.feature, None)
+from struct2tensor import calculate_options, expression, path, prensor
 
 
-def _normalize_feature(feature: schema_pb2.Feature,
-                       schema: schema_pb2.Schema) -> None:
-  """Make each feature self-contained.
+def apply_schema(
+    expr: expression.Expression, schema: schema_pb2.Schema
+) -> expression.Expression:
+    schema_copy = schema_pb2.Schema()
+    schema_copy.CopyFrom(schema)
+    for x in schema_copy.feature:
+        _normalize_feature(x, schema_copy)
+    return _SchemaExpression(expr, schema_copy.feature, None)
 
-  If the feature references a global domain, copy the global domain locally.
-  Also do this for any child features.
 
-  Note: the name of the domain is retained, so if we want to, we could attempt
-  to "unnormalize" the feature, recreating global domains.
+def _normalize_feature(feature: schema_pb2.Feature, schema: schema_pb2.Schema) -> None:
+    """Make each feature self-contained.
 
-  Args:
-    feature: feature to modify in place.
-    schema: schema containing any global domains.
-  """
+    If the feature references a global domain, copy the global domain locally.
+    Also do this for any child features.
 
-  if feature.HasField("struct_domain"):
-    for x in feature.struct_domain.feature:
-      _normalize_feature(x, schema)
-  if feature.HasField("domain"):
-    for string_domain in schema.string_domain:
-      if string_domain.name == feature.domain:
-        feature.string_domain.CopyFrom(string_domain)
-        return
-    for int_domain in schema.int_domain:
-      if int_domain.name == feature.domain:
-        feature.int_domain.CopyFrom(int_domain)
-        return
-    for float_domain in schema.float_domain:
-      if float_domain.name == feature.domain:
-        feature.float_domain.CopyFrom(float_domain)
-        return
-    raise ValueError("Did not find domain {} in schema {}".format(
-        feature.domain, schema))
+    Note: the name of the domain is retained, so if we want to, we could attempt
+    to "unnormalize" the feature, recreating global domains.
+
+    Args:
+      feature: feature to modify in place.
+      schema: schema containing any global domains.
+    """
+    if feature.HasField("struct_domain"):
+        for x in feature.struct_domain.feature:
+            _normalize_feature(x, schema)
+    if feature.HasField("domain"):
+        for string_domain in schema.string_domain:
+            if string_domain.name == feature.domain:
+                feature.string_domain.CopyFrom(string_domain)
+                return
+        for int_domain in schema.int_domain:
+            if int_domain.name == feature.domain:
+                feature.int_domain.CopyFrom(int_domain)
+                return
+        for float_domain in schema.float_domain:
+            if float_domain.name == feature.domain:
+                feature.float_domain.CopyFrom(float_domain)
+                return
+        raise ValueError(f"Did not find domain {feature.domain} in schema {schema}")
 
 
 def _clean_feature(feature: schema_pb2.Feature) -> schema_pb2.Feature:
-  """Remove name and all children of a feature (if any exist), returning a copy.
+    """Remove name and all children of a feature (if any exist), returning a copy.
 
-  Args:
-    feature: input feature
+    Args:
+      feature: input feature
 
-  Returns:
-    cleaned feature
-  """
-  copy = schema_pb2.Feature()
-  copy.CopyFrom(feature)
-  copy.ClearField("name")
-  if copy.HasField("struct_domain"):
-    del copy.struct_domain.feature[:]
-  return copy
+    Returns:
+      cleaned feature
+    """
+    copy = schema_pb2.Feature()
+    copy.CopyFrom(feature)
+    copy.ClearField("name")
+    if copy.HasField("struct_domain"):
+        del copy.struct_domain.feature[:]
+    return copy
 
 
-def _apply_feature(original_child: expression.Expression,
-                   feature: schema_pb2.Feature):
-  """Apply a feature to an expression. Feature should be "unclean"."""
-  feature_copy = [x for x in feature.struct_domain.feature
-                 ] if feature.HasField("struct_domain") else []
-  return _SchemaExpression(original_child, feature_copy,
-                           _clean_feature(feature))
+def _apply_feature(original_child: expression.Expression, feature: schema_pb2.Feature):
+    """Apply a feature to an expression. Feature should be "unclean"."""
+    feature_copy = (
+        [x for x in feature.struct_domain.feature]
+        if feature.HasField("struct_domain")
+        else []
+    )
+    return _SchemaExpression(original_child, feature_copy, _clean_feature(feature))
 
 
 class _SchemaExpression(expression.Expression, metaclass=abc.ABCMeta):
-  """An expression represents the application of a schema."""
+    """An expression represents the application of a schema."""
 
-  def __init__(
-      self,
-      original: expression.Expression,
-      child_features: Sequence[schema_pb2.Feature],
-      schema_feature: Optional[schema_pb2.Feature],
-  ):
-    """Create a new _SchemaExpression.
+    def __init__(
+        self,
+        original: expression.Expression,
+        child_features: Sequence[schema_pb2.Feature],
+        schema_feature: Optional[schema_pb2.Feature],
+    ):
+        """Create a new _SchemaExpression.
 
-    Args:
-      original: the original expression.
-      child_features: the uncleaned Feature protos for its children.
-      schema_feature: the optional cleaned feature for this node.
-    """
-    super().__init__(
-        original.is_repeated,
-        original.type,
-        schema_feature=schema_feature,
-        validate_step_format=original.validate_step_format,
-    )
-    self._original = original
-    self._child_features = child_features
+        Args:
+          original: the original expression.
+          child_features: the uncleaned Feature protos for its children.
+          schema_feature: the optional cleaned feature for this node.
+        """
+        super().__init__(
+            original.is_repeated,
+            original.type,
+            schema_feature=schema_feature,
+            validate_step_format=original.validate_step_format,
+        )
+        self._original = original
+        self._child_features = child_features
 
-  def get_source_expressions(self) -> Sequence[expression.Expression]:
-    return [self._original]
+    def get_source_expressions(self) -> Sequence[expression.Expression]:
+        return [self._original]
 
-  def calculate(self, source_tensors: Sequence[prensor.NodeTensor],  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
-                destinations: Sequence[expression.Expression],
-                options: calculate_options.Options) -> prensor.NodeTensor:
-    del destinations, options
-    [original_result] = source_tensors
-    return original_result
+    def calculate(
+        self,
+        source_tensors: Sequence[
+            prensor.NodeTensor
+        ],  # pytype: disable=signature-mismatch  # overriding-parameter-count-checks
+        destinations: Sequence[expression.Expression],
+        options: calculate_options.Options,
+    ) -> prensor.NodeTensor:
+        del destinations, options
+        [original_result] = source_tensors
+        return original_result
 
-  def calculation_is_identity(self) -> bool:
-    return True
+    def calculation_is_identity(self) -> bool:
+        return True
 
-  def calculation_equal(self, expr: expression.Expression) -> bool:
-    return expr.calculation_is_identity()
+    def calculation_equal(self, expr: expression.Expression) -> bool:
+        return expr.calculation_is_identity()
 
-  def _find_feature_proto(self, field_name: path.Step
-                         ) -> Optional[schema_pb2.Feature]:
-    for feature in self._child_features:
-      if feature.name == field_name:
-        return feature
-    return None
+    def _find_feature_proto(
+        self, field_name: path.Step
+    ) -> Optional[schema_pb2.Feature]:
+        for feature in self._child_features:
+            if feature.name == field_name:
+                return feature
+        return None
 
-  def _get_child_impl(self,
-                      field_name: path.Step) -> Optional[expression.Expression]:
-    original_child = self._original.get_child(field_name)
-    if original_child is None:
-      return None
-    feature_proto = self._find_feature_proto(field_name)
-    if feature_proto is None:
-      return original_child
-    return _apply_feature(original_child, feature_proto)
+    def _get_child_impl(self, field_name: path.Step) -> Optional[expression.Expression]:
+        original_child = self._original.get_child(field_name)
+        if original_child is None:
+            return None
+        feature_proto = self._find_feature_proto(field_name)
+        if feature_proto is None:
+            return original_child
+        return _apply_feature(original_child, feature_proto)
 
-  def known_field_names(self) -> FrozenSet[path.Step]:
-    result = set(self._original.known_field_names())
-    for feature_proto in self._child_features:
-      field_name = str(feature_proto.name)
-      associated_child = self.get_child(field_name)
-      if associated_child is not None:
-        result.add(field_name)
-    return frozenset(result)
+    def known_field_names(self) -> FrozenSet[path.Step]:
+        result = set(self._original.known_field_names())
+        for feature_proto in self._child_features:
+            field_name = str(feature_proto.name)
+            associated_child = self.get_child(field_name)
+            if associated_child is not None:
+                result.add(field_name)
+        return frozenset(result)

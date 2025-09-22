@@ -75,4 +75,3 @@ Import core names for struct2tensor.
 [`NodeTensor`](./s2t/NodeTensor.md)
 
 [`Step`](./s2t/Step.md)
-

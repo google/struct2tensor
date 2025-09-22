@@ -17,5 +17,6 @@ from tensorflow.python.framework import load_library
 from tensorflow.python.platform import resource_loader
 
 run_length_before_module = load_library.load_op_library(
-    resource_loader.get_path_to_datafile('_run_length_before_op.so'))
+    resource_loader.get_path_to_datafile("_run_length_before_op.so")
+)
 run_length_before = run_length_before_module.run_length_before

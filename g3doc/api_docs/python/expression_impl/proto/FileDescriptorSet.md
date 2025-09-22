@@ -36,6 +36,3 @@ A ProtocolMessage
 </td>
 </tr>
 </table>
-
-
-
