@@ -1,0 +1,31 @@
+name: Reusable action which builds struct2tensor
+
+inputs:
+  python-version:
+    description: 'Python version'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+  - name: Set up Python ${{ matrix.python-version }}
+    uses: actions/setup-python@v5
+    with:
+      python-version: ${{ inputs.python-version }}
+
+  - name: Install build dependencies
+    shell: bash
+    run: |
+      pip install numpy
+
+  - name: Build the package for Python ${{ inputs.python-version }}
+    shell: bash
+    run: |
+      docker compose build --build-arg PYTHON_VERSION=${{ inputs.python-version }} manylinux2014
+      docker compose run -e TF_VERSION=RELEASED_TF_2 manylinux2014
+      bazel build -c opt struct2tensor:struct2tensor_kernels_and_ops
+
+  - name: Upload wheel artifact for Python ${{ inputs.python-version }}
+    uses: actions/upload-artifact@v4
+    with:
+      name: ml-metadata-wheel-py${{ inputs.python-version }}
+      path: dist/*.whl
