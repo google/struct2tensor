@@ -26,6 +26,7 @@ s2t_proto_library_cc(
 
 s2t_proto_library_py(
     name = "test_py_pb2",
+    srcs = ["test.proto"],
     api_version = 2,
     proto_library = "test_proto",
 )
@@ -33,8 +34,7 @@ s2t_proto_library_py(
 s2t_proto_library(
     name = "test_any_proto",
     srcs = ["test_any.proto"],
-    # Use a local any.proto so protoc can read it inside sandbox
-    deps = [":any_local_proto"],
+    deps = ["@com_google_protobuf//:cc_wkt_protos"],
 )
 
 s2t_proto_library_cc(
@@ -44,14 +44,9 @@ s2t_proto_library_cc(
 
 s2t_proto_library_py(
     name = "test_any_py_pb2",
+    srcs = ["test_any.proto"],
     api_version = 2,
     proto_library = "test_any_proto",
-)
-
-# Local wrapper for any.proto so it becomes an input and importable
-s2t_proto_library(
-    name = "any_local_proto",
-    srcs = ["any.proto"],
 )
 
 s2t_proto_library(
@@ -66,6 +61,7 @@ s2t_proto_library_cc(
 
 s2t_proto_library_py(
     name = "test_map_py_pb2",
+    srcs = ["test_map.proto"],
     proto_library = "test_map_proto",
 )
 
@@ -76,6 +72,7 @@ s2t_proto_library(
 
 s2t_proto_library_py(
     name = "test_proto3_py_pb2",
+    srcs = ["test_proto3.proto"],
     api_version = 2,
     proto_library = "test_proto3_proto",
 )
@@ -88,6 +85,7 @@ s2t_proto_library(
 
 s2t_proto_library_py(
     name = "test_extension_py_pb2",
+    srcs = ["test_extension.proto"],
     oss_deps = [":test_py_pb2"],
     proto_library = "test_extension_proto",
 )
@@ -100,6 +98,7 @@ s2t_proto_library(
 
 s2t_proto_library_py(
     name = "dependent_test_py_pb2",
+    srcs = ["dependent_test.proto"],
     oss_deps = [":test_py_pb2"],
     proto_library = "dependent_test_proto",
 )
