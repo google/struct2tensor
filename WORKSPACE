@@ -51,6 +51,8 @@ http_archive(
         "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
     ],
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
+    patches = ["//third_party:tensorflow.patch"],
+    patch_args = ["-p1"],
 )
 
 load("//third_party:python_configure.bzl", "local_python_configure")
@@ -61,6 +63,21 @@ local_python_configure(name = "local_execution_config_python")
 # Please add all new struct2tensor dependencies in workspace.bzl.
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 struct2tensor_workspace()
+
+# ===== Protobuf 4.23.4 dependency =====
+# Must be declared BEFORE TensorFlow's workspaces to override the version they pull
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "5f3cd52d6e5062071d99da57a96ea87e39bc020d6d25748001d919c474a4d8ed",
+    strip_prefix = "protobuf-4.23.4",
+    urls = [
+        "https://github.com/protocolbuffers/protobuf/archive/v4.23.4.tar.gz",
+    ],
+)
+
+# Load Protobuf dependencies
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
 
 # Initialize TensorFlow's external dependencies.
 load("@org_tensorflow//tensorflow:workspace3.bzl", "tf_workspace3")

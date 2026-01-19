@@ -1,0 +1,136 @@
+diff --git a/third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl b/third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl
+index 35cdcdc50..df3badf2d 100644
+--- a/third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl
++++ b/third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl
+@@ -1,7 +1,6 @@
+ # Platform-specific build configurations.
+ 
+ load("@com_github_grpc_grpc//bazel:generate_cc.bzl", "generate_cc")
+-load("@com_google_protobuf//:protobuf.bzl", "proto_gen")
+ load(
+     "@local_xla//xla/tsl:tsl.bzl",
+     "clean_dep",
+@@ -195,18 +194,15 @@ def cc_proto_library(
+     if protolib_name == None:
+         protolib_name = name
+ 
+-    genproto_deps = ([s + "_genproto" for s in protolib_deps] +
+-                     ["@com_google_protobuf//:cc_wkt_protos_genproto"])
+     if internal_bootstrap_hack:
+         # For pre-checked-in generated files, we add the internal_bootstrap_hack
+         # which will skip the codegen action.
+-        proto_gen(
++        # Skip proto generation for internal bootstrap
++
++        native.proto_library(
+             name = protolib_name + "_genproto",
+-            srcs = srcs,
+-            includes = includes,
+-            protoc = protoc,
++            deps = protolib_deps,
+             visibility = ["//visibility:public"],
+-            deps = genproto_deps,
+         )
+ 
+         # An empty cc_library to make rule dependency consistent.
+@@ -227,18 +223,16 @@ def cc_proto_library(
+     gen_hdrs = _proto_cc_hdrs(srcs, use_grpc_plugin)
+     outs = gen_srcs + gen_hdrs
+ 
+-    proto_gen(
++    native.proto_library(
+         name = protolib_name + "_genproto",
+         srcs = srcs,
+-        outs = outs,
+-        gen_cc = 1,
+-        includes = includes,
+-        plugin = grpc_cpp_plugin,
+-        plugin_language = "grpc",
+-        plugin_options = plugin_options,
+-        protoc = protoc,
++        deps = protolib_deps,
+         visibility = ["//visibility:public"],
+-        deps = genproto_deps,
++    )
++
++    native.cc_proto_library(
++        name = protolib_name + "_cc_genproto",
++        deps = [":" + protolib_name + "_genproto"],
+     )
+ 
+     if use_grpc_plugin:
+@@ -265,7 +259,7 @@ def cc_proto_library(
+ 
+     native.cc_library(
+         name = impl_name,
+-        srcs = gen_srcs,
++        srcs = [],
+         hdrs = gen_hdrs,
+         deps = cc_libs + deps,
+         includes = includes,
+@@ -402,32 +396,18 @@ def py_proto_library(
+     genproto_deps = []
+     for dep in deps:
+         if dep != "@com_google_protobuf//:protobuf_python":
+-            genproto_deps.append(dep + "_genproto")
+-        else:
+-            genproto_deps.append("@com_google_protobuf//:well_known_types_py_pb2_genproto")
++            genproto_deps.append(dep)
+ 
+-    proto_gen(
++    native.proto_library(
+         name = name + "_genproto",
+         srcs = srcs,
+-        outs = outs,
+-        gen_py = 1,
+-        includes = includes,
+-        plugin = grpc_python_plugin,
+-        plugin_language = "grpc",
+-        protoc = protoc,
+-        visibility = ["//visibility:public"],
+         deps = genproto_deps,
++        visibility = ["//visibility:public"],
+     )
+ 
+-    if default_runtime and not default_runtime in py_libs + deps:
+-        py_libs = py_libs + [default_runtime]
+-
+-    native.py_library(
++    native.py_proto_library(
+         name = name,
+-        srcs = outs + py_extra_srcs,
+-        deps = py_libs + deps,
+-        imports = includes,
+-        **kwargs
++        deps = [":" + name + "_genproto"],
+     )
+ 
+ def tf_proto_library_cc(
+@@ -467,11 +447,10 @@ def tf_proto_library_cc(
+     if not srcs:
+         # This is a collection of sub-libraries. Build header-only and impl
+         # libraries containing all the sources.
+-        proto_gen(
++        native.proto_library(
+             name = name + "_genproto",
+-            protoc = "@com_google_protobuf//:protoc",
+-            visibility = ["//visibility:public"],
+             deps = [s + "_genproto" for s in protolib_deps],
++            visibility = ["//visibility:public"],
+         )
+ 
+         native.alias(
+@@ -538,11 +517,10 @@ def tf_proto_library_py(
+     if not srcs:
+         # This is a collection of sub-libraries. Build header-only and impl
+         # libraries containing all the sources.
+-        proto_gen(
++        native.proto_library(
+             name = py_name + "_genproto",
+-            protoc = "@com_google_protobuf//:protoc",
+-            visibility = ["//visibility:public"],
+             deps = [s + "_genproto" for s in py_deps],
++            visibility = ["//visibility:public"],
+         )
+         native.py_library(
+             name = py_name,
