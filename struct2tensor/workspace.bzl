@@ -17,6 +17,7 @@
 """struct2tensor external dependencies that can be loaded in WORKSPACE files."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 def struct2tensor_workspace():
     """All struct2tensor external dependencies."""
@@ -63,7 +64,7 @@ def struct2tensor_workspace():
         urls = ["https://github.com/apache/arrow/archive/%s.zip" % ARROW_COMMIT],
     )
 
-    _TFMD_COMMIT_HASH = "404805761e614561cceedc429e67c357c62be26d"  # 1.17.0
+    _TFMD_COMMIT_HASH = "404805761e614561cceedc429e67c357c62be26d"  # 1.17.1
     http_archive(
         name = "com_github_tensorflow_metadata",
         sha256 = "9abfe4019f33ff067438ce69053fe63fc2e8dde5192aa7cf30d501809e45c18c",
@@ -71,4 +72,6 @@ def struct2tensor_workspace():
         urls = [
             "https://github.com/tensorflow/metadata/archive/%s.tar.gz" % _TFMD_COMMIT_HASH,
         ],
+        patches = ["//third_party:tfmd_protobuf_downgrade.patch"],
+        patch_args = ["-p1"],
     )
