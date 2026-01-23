@@ -14,6 +14,7 @@
 
 # CPU kernels for struct2tensors.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_library")
 
 package(
@@ -68,7 +69,6 @@ s2t_dynamic_library(
         "@com_google_absl//absl/base:endian",
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/container:inlined_vector",
-        "@com_google_absl//absl/container:inlined_vector_internal",
         "@com_google_absl//absl/memory",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
@@ -104,7 +104,6 @@ s2t_dynamic_library(
         "@com_google_absl//absl/base:endian",
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/container:inlined_vector",
-        "@com_google_absl//absl/container:inlined_vector_internal",
         "@com_google_absl//absl/strings",
         "@com_google_absl//absl/types:span",
     ],

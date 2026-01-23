@@ -14,6 +14,8 @@
 #
 # Parquet Dataset Kernel Implementation.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_library")
 
 package(
@@ -60,6 +62,7 @@ cc_library(
     deps = [
         ":parent_indices_builder_lib",
         ":parquet_reader_util_lib",
+        "@com_google_absl//absl/status",
         "@com_google_absl//absl/strings",
         "@arrow//:arrow",
         "//struct2tensor/kernels:vector_to_tensor",

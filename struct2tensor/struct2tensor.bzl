@@ -287,7 +287,7 @@ DYNAMIC_DEPS = ["@local_config_tf//:libtensorflow_framework", "@local_config_tf/
 
 def s2t_dynamic_binary(name, deps):
     """Creates a .so file intended for linking with tensorflow_framework.so."""
-    native.cc_binary(
+    cc_binary(
         name = name,
         copts = DYNAMIC_COPTS,
         linkshared = 1,
@@ -300,7 +300,7 @@ def s2t_dynamic_library(
         deps = None):
     """Creates a static library intended for linking with tensorflow_framework.so."""
     true_deps = [] if deps == None else deps
-    native.cc_library(
+    cc_library(
         name = name,
         srcs = srcs,
         alwayslink = 1,

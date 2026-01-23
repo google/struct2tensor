@@ -16,6 +16,7 @@ limitations under the License.
 
 #include <memory>
 
+#include "absl/status/status.h"
 #include "absl/strings/str_cat.h"
 #include "struct2tensor/kernels/parquet/parquet_reader_util.h"
 #include "struct2tensor/kernels/vector_to_tensor.h"
@@ -440,7 +441,7 @@ tensorflow::Status ParquetReader::ReadOneColumnTemplated(
         column_index, def_levels, rep_levels, &cumulative_values);
 
     ++(*messages_read);
-    if (tensorflow::errors::IsOutOfRange(s)) {
+    if (absl::IsOutOfRange(s)) {
       break;
     }
     TF_RETURN_IF_ERROR(s);
