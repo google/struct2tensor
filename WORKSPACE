@@ -64,14 +64,14 @@ local_python_configure(name = "local_execution_config_python")
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 struct2tensor_workspace()
 
-# ===== Protobuf 4.23.4 dependency =====
+# ===== Protobuf 4.25.6 dependency =====
 # Must be declared BEFORE TensorFlow's workspaces to override the version they pull
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "5f3cd52d6e5062071d99da57a96ea87e39bc020d6d25748001d919c474a4d8ed",
-    strip_prefix = "protobuf-4.23.4",
+    sha256 = "4e6727bc5d23177edefa3ad86fd2f5a92cd324151636212fd1f7f13aef3fd2b7",
+    strip_prefix = "protobuf-4.25.6",
     urls = [
-        "https://github.com/protocolbuffers/protobuf/archive/v4.23.4.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/archive/v4.25.6.tar.gz",
     ],
 )
 
