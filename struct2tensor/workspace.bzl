@@ -72,6 +72,6 @@ def struct2tensor_workspace():
         urls = [
             "https://github.com/tensorflow/metadata/archive/%s.tar.gz" % _TFMD_COMMIT_HASH,
         ],
-        patches = ["//third_party:tfmd_protobuf_downgrade.patch"],
+        patches = ["//third_party:tfmd.patch"],
         patch_args = ["-p1"],
     )

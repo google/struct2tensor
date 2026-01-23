@@ -17,5 +17,5 @@ licenses(["notice"])
 
 exports_files([
     "python_configure.bzl",
-    "tfmd_protobuf_downgrade.patch",
+    "tfmd.patch",
 ])
