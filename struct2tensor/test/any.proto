@@ -1,0 +1,47 @@
+// Protocol Buffers - Google's data interchange format
+// Minimal local copy to satisfy imports for struct2tensor tests.
+// Source reference: https://github.com/protocolbuffers/protobuf/blob/v3.21.9/src/google/protobuf/any.proto
+
+syntax = "proto3";
+
+package google.protobuf;
+
+option cc_enable_arenas = true;
+option java_package = "com.google.protobuf";
+option java_outer_classname = "AnyProto";
+option java_multiple_files = true;
+option objc_class_prefix = "GPB";
+option csharp_namespace = "Google.Protobuf.WellKnownTypes";
+
+// "Any" contains an arbitrary serialized protocol buffer message along with a
+// URL that describes the type of the serialized message.
+//
+// The protocol buffer library provides support to pack/unpack Any values in the
+// form of utility APIs. Note that any API that accepts or returns an Any value
+// will perform type checking and packing/unpacking on the fly. Therefore, if you
+// need to convert between a known proto type and Any, use the library helpers
+// rather than manipulating this message directly.
+//
+// Example usage:
+//   Foo foo = ...;
+//   Any any = Any.pack(foo);
+//   ...
+//   if (any.is<Foo>()) {
+//     Foo foo2 = any.unpack<Foo>();
+//   }
+//
+// JSON
+// ====
+// The JSON representation of an Any value uses the following format:
+//
+//  { "@type": <type_url>, "value": <JSON representation of the value> }
+//
+// where the value field depends on the type_url.
+message Any {
+  // A URL/resource name uniquely identifying the type of the serialized
+  // protocol buffer message.
+  string type_url = 1;
+
+  // Must be a valid serialized protocol buffer of the above specified type.
+  bytes value = 2;
+}
