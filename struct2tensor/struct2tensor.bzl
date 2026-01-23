@@ -14,8 +14,7 @@
 
 """Bazel macros used in OSS."""
 
-load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
-load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 def _py_proto_library_impl(ctx):
     """Implementation of py_proto_library rule."""
     proto_deps = ctx.attr.deps
