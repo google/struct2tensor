@@ -104,10 +104,36 @@ RUN git clone --branch=${TF_SERVING_VERSION_GIT_BRANCH} https://github.com/tenso
     if [ "${TF_SERVING_VERSION_GIT_COMMIT}" != "head" ]; then \
      git checkout ${TF_SERVING_VERSION_GIT_COMMIT}; fi && \
      echo "tensorflow-serving: $(git rev-parse HEAD)" && \
-     echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2tensor\")" \
+    cat <<'PATCH' | patch -p1
+diff --git a/WORKSPACE b/WORKSPACE
+index c2af3b7f..8d243cfc 100644
+--- a/WORKSPACE
++++ b/WORKSPACE
+@@ -51,6 +51,13 @@ http_archive(
+     ],
+ )
+
++http_archive(
++    name = "rules_cc",
++    sha256 = "b8b918a85f9144c01f6cfe0f45e4f2838c7413961a8ff23bc0c6cdf8bb07a3b6",
++    strip_prefix = "rules_cc-0.1.5",
++    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.1.5/rules_cc-0.1.5.tar.gz",
++)
++
+ http_archive(
+     name = "rules_python",
+     sha256 = "84aec9e21cc56fbc7f1335035a71c850d1b9b5cc6ff497306f84cced9a769841",
+@@ -84,4 +91,3 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
+
+ rules_proto_dependencies()
+ rules_proto_toolchains()
+-
+PATCH
+
+RUN echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2tensor\")" \
          >> WORKSPACE && \
-     buildozer "add deps @com_google_struct2tensor//struct2tensor:struct2tensor_kernels_and_ops" \
-         //tensorflow_serving/model_servers:tensorflow_model_server
+    buildozer "add deps @com_google_struct2tensor//struct2tensor:struct2tensor_kernels_and_ops" \
+        //tensorflow_serving/model_servers:tensorflow_model_server
 
 
 FROM base_build as binary_build
