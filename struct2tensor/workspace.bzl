@@ -17,9 +17,17 @@
 """struct2tensor external dependencies that can be loaded in WORKSPACE files."""
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 def struct2tensor_workspace():
     """All struct2tensor external dependencies."""
+
+    http_archive(
+        name = "rules_cc",
+        sha256 = "b8b918a85f9144c01f6cfe0f45e4f2838c7413961a8ff23bc0c6cdf8bb07a3b6",
+        strip_prefix = "rules_cc-0.1.5",
+        url = "https://github.com/bazelbuild/rules_cc/releases/download/0.1.5/rules_cc-0.1.5.tar.gz",
+    )
 
     # ===== Bazel package rules dependency =====
     http_archive(
@@ -63,12 +71,14 @@ def struct2tensor_workspace():
         urls = ["https://github.com/apache/arrow/archive/%s.zip" % ARROW_COMMIT],
     )
 
-    _TFMD_COMMIT_HASH = "e0f569f3b1039b6a51e9156bf323f677a026e537"  # 1.17.0
+    _TFMD_COMMIT_HASH = "404805761e614561cceedc429e67c357c62be26d"  # 1.17.1
     http_archive(
         name = "com_github_tensorflow_metadata",
-        sha256 = "24e498b5030062e7836eabf2fde93664e27054a162df5f43a7934a22bda24153",
+        sha256 = "9abfe4019f33ff067438ce69053fe63fc2e8dde5192aa7cf30d501809e45c18c",
         strip_prefix = "metadata-%s" % _TFMD_COMMIT_HASH,
         urls = [
             "https://github.com/tensorflow/metadata/archive/%s.tar.gz" % _TFMD_COMMIT_HASH,
         ],
+        patches = ["//third_party:tfmd.patch"],
+        patch_args = ["-p1"],
     )

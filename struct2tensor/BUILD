@@ -15,6 +15,7 @@
 # Prensors provide a way to parse protocol buffers and other structured data in tensorflow
 # simply and efficiently.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 # Placeholder: load py_test
 
 load("//struct2tensor:struct2tensor.bzl", "s2t_pytype_library")
@@ -83,7 +84,7 @@ s2t_pytype_library(
         "path.py",
     ],
     deps = [
-        "@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:py_metadata_v0_proto_py",
+        "@com_github_tensorflow_metadata//tensorflow_metadata/proto/v0:metadata_v0_proto_py_pb2",
         "@com_google_protobuf//:protobuf_python",
     ],
 )
