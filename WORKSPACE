@@ -41,8 +41,8 @@ tf_configure(name = "local_config_tf")
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "5bc9d26649cca274750ad3625bd93422617eed4b"  # tf 2.16.1
-_TENSORFLOW_ARCHIVE_SHA256 = "fe592915c85d1a89c20f3dd89db0772ee22a0fbda78e39aa46a778d638a96abc"
+_TENSORFLOW_GIT_COMMIT = "3c92ac03cab816044f7b18a86eb86aa01a294d95"  # tf 2.17.1
+_TENSORFLOW_ARCHIVE_SHA256 = "317dd95c4830a408b14f3e802698eb68d70d81c7c7cfcd3d28b0ba023fe84a68"
 
 http_archive(
     name = "org_tensorflow",
@@ -51,6 +51,8 @@ http_archive(
         "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
     ],
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
+    patches = ["//third_party:tensorflow.patch"],
+    patch_args = ["-p1"],
 )
 
 load("//third_party:python_configure.bzl", "local_python_configure")
@@ -61,6 +63,21 @@ local_python_configure(name = "local_execution_config_python")
 # Please add all new struct2tensor dependencies in workspace.bzl.
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 struct2tensor_workspace()
+
+# ===== Protobuf 4.25.6 dependency =====
+# Must be declared BEFORE TensorFlow's workspaces to override the version they pull
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "4e6727bc5d23177edefa3ad86fd2f5a92cd324151636212fd1f7f13aef3fd2b7",
+    strip_prefix = "protobuf-4.25.6",
+    urls = [
+        "https://github.com/protocolbuffers/protobuf/archive/v4.25.6.tar.gz",
+    ],
+)
+
+# Load Protobuf dependencies
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
 
 # Initialize TensorFlow's external dependencies.
 load("@org_tensorflow//tensorflow:workspace3.bzl", "tf_workspace3")
