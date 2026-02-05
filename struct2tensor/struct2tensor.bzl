@@ -15,6 +15,8 @@
 """Bazel macros used in OSS."""
 
 load("@com_google_protobuf//:protobuf.bzl", "cc_proto_library", "py_proto_library")
+load("@rules_cc//cc:cc_binary.bzl", "cc_binary")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 def s2t_pytype_library(
         name,
@@ -74,7 +76,7 @@ DYNAMIC_DEPS = ["@local_config_tf//:libtensorflow_framework", "@local_config_tf/
 
 def s2t_dynamic_binary(name, deps):
     """Creates a .so file intended for linking with tensorflow_framework.so."""
-    native.cc_binary(
+    cc_binary(
         name = name,
         copts = DYNAMIC_COPTS,
         linkshared = 1,
@@ -87,7 +89,7 @@ def s2t_dynamic_library(
         deps = None):
     """Creates a static library intended for linking with tensorflow_framework.so."""
     true_deps = [] if deps == None else deps
-    native.cc_library(
+    cc_library(
         name = name,
         srcs = srcs,
         alwayslink = 1,

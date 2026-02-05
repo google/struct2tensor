@@ -1,3 +1,6 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+
 # Placeholder: load py_test
 load("//struct2tensor:struct2tensor.bzl", "s2t_dynamic_binary", "s2t_dynamic_library", "s2t_gen_op_wrapper_py", "s2t_pytype_library")
 
