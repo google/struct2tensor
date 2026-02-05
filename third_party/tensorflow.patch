@@ -1,0 +1,523 @@
+diff --git a/tensorflow/core/lib/gtl/BUILD b/tensorflow/core/lib/gtl/BUILD
+index 868d05f09..4876f801c 100644
+--- a/tensorflow/core/lib/gtl/BUILD
++++ b/tensorflow/core/lib/gtl/BUILD
+@@ -83,6 +83,7 @@ cc_library(
+     name = "flatrep",
+     hdrs = ["flatrep.h"],
+     deps = [
++        "@com_google_absl//absl/base",
+         "@local_tsl//tsl/lib/gtl:flatrep",
+     ],
+ )
+diff --git a/tensorflow/core/util/BUILD b/tensorflow/core/util/BUILD
+index 3902d1700..74f6adeae 100644
+--- a/tensorflow/core/util/BUILD
++++ b/tensorflow/core/util/BUILD
+@@ -73,6 +73,7 @@ filegroup(
+ filegroup(
+     name = "mobile_srcs_only_runtime",
+     srcs = [
++        "absl_base_prefetch.h",
+         "activation_mode.h",
+         "batch_util.cc",
+         "batch_util.h",
+@@ -208,6 +209,7 @@ filegroup(
+ filegroup(
+     name = "framework_internal_impl_srcs",
+     srcs = [
++        "absl_base_prefetch.h",
+         "activation_mode.cc",
+         "batch_util.cc",
+         "bcast.cc",
+diff --git a/tensorflow/core/util/absl_base_prefetch.h b/tensorflow/core/util/absl_base_prefetch.h
+new file mode 100644
+index 000000000..429a17315
+--- /dev/null
++++ b/tensorflow/core/util/absl_base_prefetch.h
+@@ -0,0 +1,62 @@
++/* Copyright 2026 The TensorFlow Authors. All Rights Reserved.
++
++Licensed under the Apache License, Version 2.0 (the "License");
++you may not use this file except in compliance with the License.
++You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++==============================================================================*/
++
++#ifndef ABSL_BASE_PREFETCH_H_
++#define ABSL_BASE_PREFETCH_H_
++
++// Minimal compatibility shim for absl/base/prefetch.h. Provides the prefetch
++// helpers used by TensorFlow when the corresponding Abseil header is absent.
++// This should be sufficient for builds that depend on an older Abseil release.
++
++namespace absl {
++
++// Hints the processor to prefetch the given address into the local cache for
++// read-mostly access.
++inline void PrefetchToLocalCache(const void* addr) {
++#if defined(__GNUC__) || defined(__clang__)
++  __builtin_prefetch(addr, 0 /* read */, 3 /* high temporal locality */);
++#else
++  (void)addr;
++#endif
++}
++
++// Hints the processor to prefetch the given address into the local cache for
++// imminent writes.
++inline void PrefetchToLocalCacheForWrite(const void* addr) {
++#if defined(__GNUC__) || defined(__clang__)
++  __builtin_prefetch(addr, 1 /* write */, 3 /* high temporal locality */);
++#else
++  (void)addr;
++#endif
++}
++
++// Non-temporal prefetch (prefer not to pollute caches).
++inline void PrefetchToLocalCacheNta(const void* addr) {
++#if defined(__GNUC__) || defined(__clang__)
++  __builtin_prefetch(addr, 0 /* read */, 0 /* no temporal locality */);
++#else
++  (void)addr;
++#endif
++}
++
++// Convenience aliases mirroring Abseil's API.
++inline void Prefetch(const void* addr) { PrefetchToLocalCache(addr); }
++inline void PrefetchForWrite(const void* addr) {
++  PrefetchToLocalCacheForWrite(addr);
++}
++
++}  // namespace absl
++
++#endif  // ABSL_BASE_PREFETCH_H_
+diff --git a/tensorflow/core/util/presized_cuckoo_map.h b/tensorflow/core/util/presized_cuckoo_map.h
+index 2a03c511e..8d73d6f85 100644
+--- a/tensorflow/core/util/presized_cuckoo_map.h
++++ b/tensorflow/core/util/presized_cuckoo_map.h
+@@ -19,7 +19,7 @@ limitations under the License.
+ #include <algorithm>
+ #include <vector>
+ 
+-#include "absl/base/prefetch.h"
++#include "absl_base_prefetch.h"
+ #include "absl/numeric/int128.h"
+ #include "tensorflow/core/framework/types.h"
+ #include "tensorflow/core/platform/macros.h"
+diff --git a/third_party/xla/third_party/tsl/tsl/lib/gtl/BUILD b/third_party/xla/third_party/tsl/tsl/lib/gtl/BUILD
+index ed2d8656f..fd53055c2 100644
+--- a/third_party/xla/third_party/tsl/tsl/lib/gtl/BUILD
++++ b/third_party/xla/third_party/tsl/tsl/lib/gtl/BUILD
+@@ -58,8 +58,8 @@ cc_library(
+     name = "flatrep",
+     hdrs = ["flatrep.h"],
+     deps = [
++        "//tsl/platform:prefetch",
+         "//tsl/platform:types",
+-        "@com_google_absl//absl/base:prefetch",
+     ],
+ )
+ 
+diff --git a/third_party/xla/third_party/tsl/tsl/lib/gtl/flatrep.h b/third_party/xla/third_party/tsl/tsl/lib/gtl/flatrep.h
+index dfc65844e..e9be67ca6 100644
+--- a/third_party/xla/third_party/tsl/tsl/lib/gtl/flatrep.h
++++ b/third_party/xla/third_party/tsl/tsl/lib/gtl/flatrep.h
+@@ -20,7 +20,7 @@ limitations under the License.
+ 
+ #include <utility>
+ 
+-#include "absl/base/prefetch.h"
++#include "tsl/platform/prefetch.h"
+ #include "tsl/platform/types.h"
+ 
+ namespace tsl {
+diff --git a/third_party/xla/third_party/tsl/tsl/lib/hash/BUILD b/third_party/xla/third_party/tsl/tsl/lib/hash/BUILD
+index c497abfe1..fffee96fe 100644
+--- a/third_party/xla/third_party/tsl/tsl/lib/hash/BUILD
++++ b/third_party/xla/third_party/tsl/tsl/lib/hash/BUILD
+@@ -39,7 +39,6 @@ cc_library(
+         "//tsl/platform:types",
+         "@com_google_absl//absl/crc:crc32c",
+         "@com_google_absl//absl/strings:cord",
+-        "@com_google_absl//absl/strings:string_view",
+     ],
+ )
+ 
+diff --git a/third_party/xla/third_party/tsl/tsl/platform/BUILD b/third_party/xla/third_party/tsl/tsl/platform/BUILD
+index 273fd5306..028c5db06 100644
+--- a/third_party/xla/third_party/tsl/tsl/platform/BUILD
++++ b/third_party/xla/third_party/tsl/tsl/platform/BUILD
+@@ -1069,10 +1069,13 @@ cc_library(
+ 
+ cc_library(
+     name = "prefetch",
+-    hdrs = ["prefetch.h"],
++    hdrs = [
++        "prefetch.h",
++        "absl_base_prefetch.h",
++    ],
+     compatible_with = get_compatible_with_portable(),
+     deps = [
+-        "@com_google_absl//absl/base:prefetch",
++        "@com_google_absl//absl/base",
+     ],
+ )
+ 
+diff --git a/third_party/xla/third_party/tsl/tsl/platform/absl_base_prefetch.h b/third_party/xla/third_party/tsl/tsl/platform/absl_base_prefetch.h
+new file mode 100644
+index 000000000..429a17315
+--- /dev/null
++++ b/third_party/xla/third_party/tsl/tsl/platform/absl_base_prefetch.h
+@@ -0,0 +1,62 @@
++/* Copyright 2026 The TensorFlow Authors. All Rights Reserved.
++
++Licensed under the Apache License, Version 2.0 (the "License");
++you may not use this file except in compliance with the License.
++You may obtain a copy of the License at
++
++    http://www.apache.org/licenses/LICENSE-2.0
++
++Unless required by applicable law or agreed to in writing, software
++distributed under the License is distributed on an "AS IS" BASIS,
++WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++See the License for the specific language governing permissions and
++limitations under the License.
++==============================================================================*/
++
++#ifndef ABSL_BASE_PREFETCH_H_
++#define ABSL_BASE_PREFETCH_H_
++
++// Minimal compatibility shim for absl/base/prefetch.h. Provides the prefetch
++// helpers used by TensorFlow when the corresponding Abseil header is absent.
++// This should be sufficient for builds that depend on an older Abseil release.
++
++namespace absl {
++
++// Hints the processor to prefetch the given address into the local cache for
++// read-mostly access.
++inline void PrefetchToLocalCache(const void* addr) {
++#if defined(__GNUC__) || defined(__clang__)
++  __builtin_prefetch(addr, 0 /* read */, 3 /* high temporal locality */);
++#else
++  (void)addr;
++#endif
++}
++
++// Hints the processor to prefetch the given address into the local cache for
++// imminent writes.
++inline void PrefetchToLocalCacheForWrite(const void* addr) {
++#if defined(__GNUC__) || defined(__clang__)
++  __builtin_prefetch(addr, 1 /* write */, 3 /* high temporal locality */);
++#else
++  (void)addr;
++#endif
++}
++
++// Non-temporal prefetch (prefer not to pollute caches).
++inline void PrefetchToLocalCacheNta(const void* addr) {
++#if defined(__GNUC__) || defined(__clang__)
++  __builtin_prefetch(addr, 0 /* read */, 0 /* no temporal locality */);
++#else
++  (void)addr;
++#endif
++}
++
++// Convenience aliases mirroring Abseil's API.
++inline void Prefetch(const void* addr) { PrefetchToLocalCache(addr); }
++inline void PrefetchForWrite(const void* addr) {
++  PrefetchToLocalCacheForWrite(addr);
++}
++
++}  // namespace absl
++
++#endif  // ABSL_BASE_PREFETCH_H_
+diff --git a/third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl b/third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl
+index 35cdcdc50..1920ec210 100644
+--- a/third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl
++++ b/third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl
+@@ -1,7 +1,6 @@
+ # Platform-specific build configurations.
+ 
+ load("@com_github_grpc_grpc//bazel:generate_cc.bzl", "generate_cc")
+-load("@com_google_protobuf//:protobuf.bzl", "proto_gen")
+ load(
+     "@local_xla//xla/tsl:tsl.bzl",
+     "clean_dep",
+@@ -195,18 +194,13 @@ def cc_proto_library(
+     if protolib_name == None:
+         protolib_name = name
+ 
+-    genproto_deps = ([s + "_genproto" for s in protolib_deps] +
+-                     ["@com_google_protobuf//:cc_wkt_protos_genproto"])
+     if internal_bootstrap_hack:
+         # For pre-checked-in generated files, we add the internal_bootstrap_hack
+         # which will skip the codegen action.
+-        proto_gen(
++        native.proto_library(
+             name = protolib_name + "_genproto",
+-            srcs = srcs,
+-            includes = includes,
+-            protoc = protoc,
++            deps = protolib_deps,
+             visibility = ["//visibility:public"],
+-            deps = genproto_deps,
+         )
+ 
+         # An empty cc_library to make rule dependency consistent.
+@@ -227,18 +221,11 @@ def cc_proto_library(
+     gen_hdrs = _proto_cc_hdrs(srcs, use_grpc_plugin)
+     outs = gen_srcs + gen_hdrs
+ 
+-    proto_gen(
+-        name = protolib_name + "_genproto",
+-        srcs = srcs,
+-        outs = outs,
+-        gen_cc = 1,
+-        includes = includes,
+-        plugin = grpc_cpp_plugin,
+-        plugin_language = "grpc",
+-        plugin_options = plugin_options,
+-        protoc = protoc,
+-        visibility = ["//visibility:public"],
+-        deps = genproto_deps,
++    # Don't create proto_library - it should already exist from tf_proto_library
++    # Just create cc_proto_library that depends on the existing proto_library
++    native.cc_proto_library(
++        name = protolib_name + "_cc_genproto",
++        deps = [":" + protolib_name],
+     )
+ 
+     if use_grpc_plugin:
+@@ -263,11 +250,12 @@ def cc_proto_library(
+             visibility = kwargs["visibility"],
+         )
+ 
++    # Depend on generated cc_proto_library instead of declaring hdrs/srcs
+     native.cc_library(
+         name = impl_name,
+-        srcs = gen_srcs,
+-        hdrs = gen_hdrs,
+-        deps = cc_libs + deps,
++        srcs = [],
++        hdrs = [],
++        deps = cc_libs + deps + [":" + protolib_name + "_cc_genproto"],
+         includes = includes,
+         alwayslink = 1,
+         **kwargs
+@@ -276,8 +264,9 @@ def cc_proto_library(
+         name = header_only_name,
+         deps = [
+             "@com_google_protobuf//:protobuf_headers",
++            ":" + protolib_name + "_cc_genproto",
+         ] + header_only_deps + if_tsl_link_protobuf([impl_name]),
+-        hdrs = gen_hdrs,
++        hdrs = [],
+         **kwargs
+     )
+ 
+@@ -348,6 +337,102 @@ def cc_grpc_library(
+         **kwargs
+     )
+ 
++# Custom implementation for py_proto_library to support Protobuf 4.x
++# which removed the built-in py_proto_library rule.
++def _tsl_py_proto_library_impl(ctx):
++    """Generate Python code from proto_library deps."""
++    proto_deps = ctx.attr.deps
++    all_sources = []
++    py_infos = []
++
++    for dep in proto_deps:
++        if ProtoInfo in dep:
++            all_sources.extend(dep[ProtoInfo].direct_sources)
++        elif PyInfo in dep:
++            py_infos.append(dep[PyInfo])
++
++    # Filter workspace sources only
++    workspace_sources = []
++    for src in all_sources:
++        if not src.short_path.startswith("external/") and not src.short_path.startswith("../"):
++            workspace_sources.append(src)
++
++    # Generate Python files
++    py_outputs = []
++    for proto_src in workspace_sources:
++        basename = proto_src.basename[:-6]  # Remove .proto
++        py_file = ctx.actions.declare_file(basename + "_pb2.py")
++        py_outputs.append(py_file)
++
++    if py_outputs:
++        proto_path_args = ["--proto_path=."]
++        proto_paths = {".": True}
++
++        for dep in proto_deps:
++            if ProtoInfo in dep:
++                for src in dep[ProtoInfo].transitive_sources.to_list():
++                    if src.path.startswith("external/com_google_protobuf/"):
++                        proto_path = "external/com_google_protobuf/src"
++                        if proto_path not in proto_paths:
++                            proto_paths[proto_path] = True
++                            proto_path_args.append("--proto_path=" + proto_path)
++                    elif src.path.startswith("external/"):
++                        parts = src.path.split("/")
++                        if len(parts) >= 2:
++                            proto_path = "/".join(parts[:2])
++                            if proto_path not in proto_paths:
++                                proto_paths[proto_path] = True
++                                proto_path_args.append("--proto_path=" + proto_path)
++                    if src.root.path and src.root.path not in proto_paths:
++                        proto_paths[src.root.path] = True
++                        proto_path_args.append("--proto_path=" + src.root.path)
++
++        proto_file_args = [src.short_path for src in workspace_sources]
++        output_root = ctx.bin_dir.path
++
++        ctx.actions.run(
++            inputs = depset(direct = workspace_sources, transitive = [
++                dep[ProtoInfo].transitive_sources for dep in proto_deps if ProtoInfo in dep
++            ]),
++            outputs = py_outputs,
++            executable = ctx.executable._protoc,
++            arguments = ["--python_out=" + output_root] + proto_path_args + proto_file_args,
++            mnemonic = "ProtocPython",
++        )
++
++    all_transitive_sources = [depset(py_outputs)]
++    all_imports = [depset([ctx.bin_dir.path])] if py_outputs else []
++
++    for py_info in py_infos:
++        all_transitive_sources.append(py_info.transitive_sources)
++        if hasattr(py_info, 'imports'):
++            all_imports.append(py_info.imports)
++
++    return [
++        DefaultInfo(files = depset(py_outputs)),
++        PyInfo(
++            transitive_sources = depset(transitive = all_transitive_sources),
++            imports = depset(transitive = all_imports),
++            has_py2_only_sources = False,
++            has_py3_only_sources = True,
++        ),
++    ]
++
++_tsl_py_proto_library_rule = rule(
++    implementation = _tsl_py_proto_library_impl,
++    attrs = {
++        "deps": attr.label_list(
++            providers = [[ProtoInfo], [PyInfo]],
++        ),
++        "_protoc": attr.label(
++            default = "@com_google_protobuf//:protoc",
++            executable = True,
++            cfg = "exec",
++        ),
++    },
++    provides = [PyInfo],
++)
++
+ # Re-defined protocol buffer rule to bring in the change introduced in commit
+ # https://github.com/google/protobuf/commit/294b5758c373cbab4b72f35f4cb62dc1d8332b68
+ # which was not part of a stable protobuf release in 04/2018.
+@@ -402,32 +487,19 @@ def py_proto_library(
+     genproto_deps = []
+     for dep in deps:
+         if dep != "@com_google_protobuf//:protobuf_python":
+-            genproto_deps.append(dep + "_genproto")
+-        else:
+-            genproto_deps.append("@com_google_protobuf//:well_known_types_py_pb2_genproto")
++            genproto_deps.append(dep)
+ 
+-    proto_gen(
++    native.proto_library(
+         name = name + "_genproto",
+         srcs = srcs,
+-        outs = outs,
+-        gen_py = 1,
+-        includes = includes,
+-        plugin = grpc_python_plugin,
+-        plugin_language = "grpc",
+-        protoc = protoc,
+-        visibility = ["//visibility:public"],
+         deps = genproto_deps,
++        visibility = ["//visibility:public"],
+     )
+ 
+-    if default_runtime and not default_runtime in py_libs + deps:
+-        py_libs = py_libs + [default_runtime]
+-
+-    native.py_library(
++    # Use custom rule instead of removed native.py_proto_library
++    _tsl_py_proto_library_rule(
+         name = name,
+-        srcs = outs + py_extra_srcs,
+-        deps = py_libs + deps,
+-        imports = includes,
+-        **kwargs
++        deps = [":" + name + "_genproto"] + deps,
+     )
+ 
+ def tf_proto_library_cc(
+@@ -467,11 +539,10 @@ def tf_proto_library_cc(
+     if not srcs:
+         # This is a collection of sub-libraries. Build header-only and impl
+         # libraries containing all the sources.
+-        proto_gen(
++        native.proto_library(
+             name = name + "_genproto",
+-            protoc = "@com_google_protobuf//:protoc",
+-            visibility = ["//visibility:public"],
+             deps = [s + "_genproto" for s in protolib_deps],
++            visibility = ["//visibility:public"],
+         )
+ 
+         native.alias(
+@@ -538,11 +609,10 @@ def tf_proto_library_py(
+     if not srcs:
+         # This is a collection of sub-libraries. Build header-only and impl
+         # libraries containing all the sources.
+-        proto_gen(
++        native.proto_library(
+             name = py_name + "_genproto",
+-            protoc = "@com_google_protobuf//:protoc",
+-            visibility = ["//visibility:public"],
+             deps = [s + "_genproto" for s in py_deps],
++            visibility = ["//visibility:public"],
+         )
+         native.py_library(
+             name = py_name,
+diff --git a/third_party/xla/third_party/tsl/tsl/platform/prefetch.h b/third_party/xla/third_party/tsl/tsl/platform/prefetch.h
+index d883529c6..05f3469a4 100644
+--- a/third_party/xla/third_party/tsl/tsl/platform/prefetch.h
++++ b/third_party/xla/third_party/tsl/tsl/platform/prefetch.h
+@@ -16,7 +16,7 @@ limitations under the License.
+ #ifndef TENSORFLOW_TSL_PLATFORM_PREFETCH_H_
+ #define TENSORFLOW_TSL_PLATFORM_PREFETCH_H_
+ 
+-#include "absl/base/prefetch.h"
++#include "absl_base_prefetch.h"
+ 
+ namespace tsl {
+ namespace port {
+diff --git a/third_party/xla/third_party/tsl/tsl/platform/status.h b/third_party/xla/third_party/tsl/tsl/platform/status.h
+index 84954ff48..724ad934b 100644
+--- a/third_party/xla/third_party/tsl/tsl/platform/status.h
++++ b/third_party/xla/third_party/tsl/tsl/platform/status.h
+@@ -126,7 +126,10 @@ const char* NullTerminatedMessage(const absl::Status& status);
+ #else
+ ABSL_DEPRECATE_AND_INLINE()
+ inline const char* NullTerminatedMessage(const absl::Status& status) {
+-  return absl::StatusMessageAsCStr(status);
++  // absl::StatusMessageAsCStr doesn't exist in older Abseil versions
++  // Inline implementation from newer Abseil
++  auto sv_message = status.message();
++  return sv_message.empty() ? "" : sv_message.data();
+ }
+ #endif
+ 
