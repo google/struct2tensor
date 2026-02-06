@@ -19,7 +19,7 @@ other elements.
 
 Given:
 
-```
+```json
 session: {
   event: {
     val: 111
@@ -41,13 +41,13 @@ session: {
 }
 ```
 
-```
+```python
 get_positional_index(expr, path.Path(["event","val"]), "val_index")
 ```
 
 yields:
 
-```
+```json
 session: {
   event: {
     val: 111
@@ -75,12 +75,12 @@ session: {
 }
 ```
 
-```
+```python
 get_index_from_end(expr, path.Path(["event","val"]), "neg_val_index")
 ```
 yields:
 
-```
+```json
 session: {
   event: {
     val: 111
