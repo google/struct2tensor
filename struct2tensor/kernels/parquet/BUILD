@@ -99,40 +99,38 @@ cc_library(
     ],
 )
 
-# Test file parent_indices_builder_test.cc does not exist, commenting out
-# cc_test(
-#     name = "parent_indices_builder_test",
-#     srcs = ["parent_indices_builder_test.cc"],
-#     deps = [
-#         ":parent_indices_builder_lib",
-#         "@com_google_googletest//:gtest_main",  # Replaces Google-internal //testing/base/public:gunit_main
-#         "@org_tensorflow//tensorflow/core:lib",
-#         "@org_tensorflow//tensorflow/core:test",
-#     ],
-# )
+cc_test(
+    name = "parent_indices_builder_test",
+    srcs = ["parent_indices_builder_test.cc"],
+    deps = [
+        ":parent_indices_builder_lib",
+        "//testing/base/public:gunit_main",
+        "@org_tensorflow//tensorflow/core:lib",
+        "@org_tensorflow//tensorflow/core:test",
+    ],
+)
 
-# Test file parquet_reader_test.cc does not exist, commenting out
-# cc_test(
-#     name = "parquet_reader_test",
-#     srcs = ["parquet_reader_test.cc"],
-#     data = [
-#         "//struct2tensor/testdata/parquet_testdata",
-#     ],
-#     deps = [
-#         ":parquet_reader_lib",
-#         "@com_google_googletest//:gtest_main",  # Replaces Google-internal //testing/base/public:gunit_main
-#         "@org_tensorflow//tensorflow/core:framework",
-#     ],
-# )
-# Test file parquet_reader_util_test.cc does not exist, commenting out
-# cc_test(
-#     name = "parquet_reader_util_test",
-#     srcs = ["parquet_reader_util_test.cc"],
-#     data = [
-#         "//struct2tensor/testdata/parquet_testdata",
-#     ],
-#     deps = [
-#         ":parquet_reader_util_lib",
-#         "@com_google_googletest//:gtest_main",  # Replaces Google-internal //testing/base/public:gunit_main
-#     ],
-# )
+cc_test(
+    name = "parquet_reader_test",
+    srcs = ["parquet_reader_test.cc"],
+    data = [
+        "//struct2tensor/testdata/parquet_testdata",
+    ],
+    deps = [
+        ":parquet_reader_lib",
+        "//testing/base/public:gunit_main",
+        "@org_tensorflow//tensorflow/core:framework",
+    ],
+)
+
+cc_test(
+    name = "parquet_reader_util_test",
+    srcs = ["parquet_reader_util_test.cc"],
+    data = [
+        "//struct2tensor/testdata/parquet_testdata",
+    ],
+    deps = [
+        ":parquet_reader_util_lib",
+        "//testing/base/public:gunit_main",
+    ],
+)
