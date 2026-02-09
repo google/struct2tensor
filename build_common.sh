@@ -62,6 +62,21 @@ function install_tensorflow() {
   "${PYTHON_BIN_PATH}" -c 'import tensorflow as tf; print(tf.version.VERSION)'
 }
 
+function build_dynamic_libraries() {
+  # Explicitly build the dynamic library targets that are needed for the wheel.
+  # These are required by the stamp_wheel function.
+  bazel build //struct2tensor/ops:_decode_proto_map_op.so || exit 1;
+  bazel build //struct2tensor/ops:_decode_proto_sparse_op.so || exit 1;
+  bazel build //struct2tensor/ops:_run_length_before_op.so || exit 1;
+  bazel build //struct2tensor/ops:_equi_join_any_indices_op.so || exit 1;
+  bazel build //struct2tensor/ops:_equi_join_indices_op.so || exit 1;
+  bazel build //struct2tensor/ops:_parquet_dataset_op.so || exit 1;
+
+  RUNFILES_DIR=$(pwd)
+  cp -f bazel-bin/struct2tensor/ops/*.so ${RUNFILES_DIR}/struct2tensor/ops/
+
+}
+
 set -x
 
 for i in "$@"; do
@@ -115,6 +130,8 @@ if [[ ("${TF_VERSION}" == "NIGHTLY_TF") || ("${TF_VERSION}" == "NIGHTLY_TF_2") ]
     || { echo "failed to replace tf sha256 in tf_version.bzl"; exit 1; }
 
 fi
+
+build_dynamic_libraries
 
 # :build_pip_package builds and links struct2tensor ops against a TF
 # installation and packages the result dynamic libraries.
