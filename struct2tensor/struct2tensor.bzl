@@ -181,3 +181,15 @@ def s2t_proto_library_py(name, proto_library, srcs = [], deps = [], oss_deps = [
         visibility = visibility,
         testonly = testonly,
     )
+
+def py_proto_library(name, deps, visibility = None, **kwargs):
+    """Simple wrapper for py_proto_library using custom rule.
+
+    This macro provides OSS compatibility for py_proto_library targets.
+    """
+    _py_proto_library_rule(
+        name = name,
+        deps = deps,
+        visibility = visibility,
+        **kwargs
+    )
