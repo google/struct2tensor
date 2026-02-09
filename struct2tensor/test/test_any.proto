@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package struct2tensor.test;
 
-import "any.proto";
+import "struct2tensor/test/any.proto";
 
 message MessageWithAny {
   google.protobuf.Any my_any = 1;

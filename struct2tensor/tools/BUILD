@@ -27,10 +27,11 @@ py_library(
     deps = [
         "//struct2tensor",
         "//struct2tensor:struct2tensor_expression_impl",
-        "//third_party/py/absl:app",
-        "//third_party/py/tensorflow_docs/api_generator:generate_lib",
-        "//third_party/py/tensorflow_docs/api_generator:public_api",
-        "//third_party/py/yaml",
+        # Google-internal dependencies - not available in OSS
+        # "//third_party/py/absl:app",
+        # "//third_party/py/tensorflow_docs/api_generator:generate_lib",
+        # "//third_party/py/tensorflow_docs/api_generator:public_api",
+        # "//third_party/py/yaml",
         "@absl_py//absl/flags",
     ],
 )
