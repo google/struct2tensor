@@ -12,12 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Placeholder: load py_proto_library
-# Placeholder: load py_binary
-# Placeholder: load py_library
-# Placeholder: load py_test
-load("//third_party/protobuf/bazel:proto_library.bzl", "proto_library")
-load("//tools/build_defs/proto/cpp:cc_proto_library.bzl", "cc_proto_library")
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
+load("//struct2tensor:struct2tensor.bzl", "py_proto_library")
 
 licenses(["notice"])
 
@@ -33,26 +29,28 @@ py_proto_library(
     deps = [":benchmark_proto"],
 )
 
+# Use native cc_proto_library instead of custom macro since we already have proto_library defined
 cc_proto_library(
     name = "benchmark_cc_proto",
     deps = [":benchmark_proto"],
 )
 
-cc_test(
-    name = "serialization_benchmark",
-    srcs = ["serialization_benchmark.cc"],
-    deps = [
-        ":benchmark_cc_proto",
-        "//testing/base/public:gunit",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:parse",
-        "@com_google_absl//absl/random",
-        "@com_google_absl//absl/random:distributions",
-        "@com_google_protobuf//:protobuf",
-        "@org_tensorflow//tensorflow/core:feature_util",
-        "@org_tensorflow//tensorflow/core:protos_all_cc",
-    ],
-)
+# Google-internal benchmark - commented out for OSS
+# cc_test(
+#     name = "serialization_benchmark",
+#     srcs = ["serialization_benchmark.cc"],
+#     deps = [
+#         ":benchmark_cc_proto",
+#         "//testing/base/public:gunit",
+#         "@com_google_absl//absl/flags:flag",
+#         "@com_google_absl//absl/flags:parse",
+#         "@com_google_absl//absl/random",
+#         "@com_google_absl//absl/random:distributions",
+#         "@com_google_protobuf//:protobuf",
+#         "@org_tensorflow//tensorflow/core:feature_util",
+#         "@org_tensorflow//tensorflow/core:protos_all_cc",
+#     ],
+# )
 
 py_library(
     name = "struct2tensor_benchmark_lib",
@@ -61,10 +59,11 @@ py_library(
         ":benchmark_proto_py_pb2",
         ":struct2tensor_benchmark_util",
         "//struct2tensor",
-        "//testing/pybase",
-        "//testing/pybase:parameterized",
-        "//third_party/py/cpuinfo",
-        "//third_party/py/psutil",
+        # Google-internal dependencies - not available in OSS
+        # "//testing/pybase",
+        # "//testing/pybase:parameterized",
+        # "//third_party/py/cpuinfo",
+        # "//third_party/py/psutil",
     ],
 )
 
@@ -110,9 +109,10 @@ py_library(
     name = "struct2tensor_benchmark_util",
     srcs = ["struct2tensor_benchmark_util.py"],
     deps = [
-        "//file/colossus/public:cns",
-        "//third_party/py/cpuinfo",
-        "//third_party/py/psutil",
+        # Google-internal dependencies - not available in OSS
+        # "//file/colossus/public:cns",
+        # "//third_party/py/cpuinfo",
+        # "//third_party/py/psutil",
         "@absl_py//absl/flags",
         "@absl_py//absl/testing:parameterized",
     ],

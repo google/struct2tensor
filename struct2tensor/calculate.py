@@ -259,6 +259,7 @@ class _ExpressionNode(object):
 
   def _create_value_error(self) -> ValueError:
     """Creates a ValueError, assuming there should be one for this node."""
+    assert self.value is not None
     return ValueError("Expression {} returned the wrong type:"
                       " expected: {}"
                       " actual: {}.".format(
@@ -353,8 +354,14 @@ class ExpressionGraph(object):
       options: calculate_options.Options,
       feed_dict: Optional[Dict[expression.Expression, prensor.Prensor]] = None
   ) -> None:
+    """Calculates the values of the expressions in the graph."""
     for node in self.ordered_node_list:
-      source_values = [self._node[id(x)].value for x in node.sources]
+      source_values = [
+          self._node[id(x)].value
+          for x in node.sources
+          if self._node[id(x)] is not None
+          and self._node[id(x)].value is not None
+      ]
       side_info = feed_dict[node.expression] if feed_dict and (
           node.expression in feed_dict) else None
       node.calculate(source_values, options, side_info=side_info)
