@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up conda environment
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-activate-base: false
+        activate-environment: s2t-env
+        environment-file: environment.yml
+
+    - name: Install Bazel
+      shell: bash -l {0}
+      run: |
+        # Install Bazelisk (manages Bazel versions)
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-darwin-amd64
+        fi
+        chmod +x /tmp/bazelisk
+        sudo mv /tmp/bazelisk /usr/local/bin/bazel
+
+    - name: Configure Bazel
+      shell: bash -l {0}
+      run: |
+        ./configure.sh
+        bazel --version
+
+    - name: Patch Apple CC toolchain (macOS only)
+      if: runner.os == 'macOS'
+      shell: bash -l {0}
+      run: bazel build //:patch_local_config_apple_cc
+
+    - name: Build struct2tensor
+      shell: bash -l {0}
+      run: bazel build //struct2tensor:path --verbose_failures
+
+    - name: Build all targets
+      if: runner.os == 'Linux'
+      shell: bash -l {0}
+      run: bazel build //...
