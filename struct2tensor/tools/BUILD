@@ -21,6 +21,12 @@ package(
     default_visibility = ["//struct2tensor:__subpackages__"],
 )
 
+sh_binary(
+    name = "patch_wrapped_clang",
+    srcs = ["patch_wrapped_clang.sh"],
+    visibility = ["//visibility:public"],
+)
+
 py_library(
     name = "build_docs_lib",
     srcs = ["build_docs.py"],

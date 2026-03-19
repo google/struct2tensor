@@ -26,6 +26,25 @@ tf_configure(name = "local_config_tf")
 
 #####################################################################################
 
+http_archive(
+    name = "zlib",
+    build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+    sha256 = "17e88863f3600672ab49182f217281b6fc4d3c762bde361935e436a95214d05c",
+    strip_prefix = "zlib-1.3.1",
+    urls = ["https://github.com/madler/zlib/archive/v1.3.1.tar.gz"],
+)
+
+# ===== Protobuf 4.25.6 dependency =====
+# Must be declared BEFORE TensorFlow's workspaces to override the version they pull
+http_archive(
+    name = "com_google_protobuf",
+    sha256 = "4e6727bc5d23177edefa3ad86fd2f5a92cd324151636212fd1f7f13aef3fd2b7",
+    strip_prefix = "protobuf-4.25.6",
+    urls = [
+        "https://github.com/protocolbuffers/protobuf/archive/v4.25.6.tar.gz",
+    ],
+)
+
 # ===== TensorFlow dependency =====
 #
 # TensorFlow is imported here instead of in tf_serving_workspace() because
@@ -63,17 +82,6 @@ local_python_configure(name = "local_execution_config_python")
 # Please add all new struct2tensor dependencies in workspace.bzl.
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 struct2tensor_workspace()
-
-# ===== Protobuf 4.25.6 dependency =====
-# Must be declared BEFORE TensorFlow's workspaces to override the version they pull
-http_archive(
-    name = "com_google_protobuf",
-    sha256 = "4e6727bc5d23177edefa3ad86fd2f5a92cd324151636212fd1f7f13aef3fd2b7",
-    strip_prefix = "protobuf-4.25.6",
-    urls = [
-        "https://github.com/protocolbuffers/protobuf/archive/v4.25.6.tar.gz",
-    ],
-)
 
 # Load Protobuf dependencies
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")

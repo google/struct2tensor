@@ -18,6 +18,20 @@ licenses(["notice"])  # Apache 2.0
 
 package(default_visibility = ["//visibility:public"])
 
+genrule(
+    name = "patch_local_config_apple_cc",
+    tools = ["//struct2tensor/tools:patch_wrapped_clang"],
+    outs = ["patch_local_config_apple_cc.stamp"],
+    cmd = "$(execpath //struct2tensor/tools:patch_wrapped_clang) && touch $@",
+    tags = [
+        "local",
+        "no-cache",
+        "no-remote",
+        "no-sandbox",
+    ],
+    target_compatible_with = ["@platforms//os:osx"],
+)
+
 sh_binary(
     name = "build_pip_package",
     testonly = True,  # Some files are testonly
