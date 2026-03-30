@@ -60,8 +60,8 @@ http_archive(
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "3c92ac03cab816044f7b18a86eb86aa01a294d95"  # tf 2.17.1
-_TENSORFLOW_ARCHIVE_SHA256 = "317dd95c4830a408b14f3e802698eb68d70d81c7c7cfcd3d28b0ba023fe84a68"
+_TENSORFLOW_GIT_COMMIT = "cb64295ec7308f770b22db6047a1e755b35b7bee"  # tf 2.18.1
+_TENSORFLOW_ARCHIVE_SHA256 = ""
 
 http_archive(
     name = "org_tensorflow",
@@ -70,9 +70,18 @@ http_archive(
         "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
     ],
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
-    patches = ["//third_party:tensorflow.patch"],
-    patch_args = ["-p1"],
+    patch_args = ["-p0"],
+    patches = [
+        "//third_party:proto_gen.patch",
+    ],
 )
+local_repository(
+    name = "local_config_cuda",
+    path = "third_party/dummy_cuda",
+)
+
+
+
 
 load("//third_party:python_configure.bzl", "local_python_configure")
 local_python_configure(name = "local_config_python")
@@ -82,6 +91,18 @@ local_python_configure(name = "local_execution_config_python")
 # Please add all new struct2tensor dependencies in workspace.bzl.
 load("//struct2tensor:workspace.bzl", "struct2tensor_workspace")
 struct2tensor_workspace()
+
+# Overriding com_google_absl to apply local patch for GCC 15 compatibility
+http_archive(
+    name = "com_google_absl",
+    patch_args = ["-p1"],
+    patches = ["//third_party:absl.patch"],
+    sha256 = "aa768256d0567f626334fcbe722f564c40b281518fc8423e2708a308e5f983ea",
+    strip_prefix = "abseil-cpp-fb3621f4f897824c0dbe0615fa94543df6192f30",
+    urls = [
+        "https://github.com/abseil/abseil-cpp/archive/fb3621f4f897824c0dbe0615fa94543df6192f30.zip",
+    ],
+)
 
 # Load Protobuf dependencies
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
