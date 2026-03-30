@@ -24,9 +24,10 @@ function write_to_bazelrc() {
   echo "$1" >> .bazelrc
 }
 
-function write_repo_env_to_bazelrc() {
-  write_to_bazelrc "build --repo_env $1=\"$2\""
+function write_action_env_to_bazelrc() {
+  write_to_bazelrc "build --action_env $1=\"$2\""
 }
+
 
 
 function has_tensorflow() {
@@ -65,7 +66,7 @@ ensure_tensorflow
 TF_CFLAGS=( $(${PYTHON_BIN_PATH} -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_compile_flags()))') )
 TF_LFLAGS="$(${PYTHON_BIN_PATH} -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_link_flags()))')"
 
-write_repo_env_to_bazelrc "TF_HEADER_DIR" ${TF_CFLAGS:2}
+write_action_env_to_bazelrc "TF_HEADER_DIR" ${TF_CFLAGS:2}
 SHARED_LIBRARY_DIR=${TF_LFLAGS:2}
 SHARED_LIBRARY_NAME=$(echo $TF_LFLAGS | rev | cut -d":" -f1 | rev)
 if ! [[ $TF_LFLAGS =~ .*:.* ]]; then
@@ -75,5 +76,5 @@ if ! [[ $TF_LFLAGS =~ .*:.* ]]; then
     SHARED_LIBRARY_NAME="libtensorflow_framework.so"
   fi
 fi
-write_repo_env_to_bazelrc "TF_SHARED_LIBRARY_DIR" ${SHARED_LIBRARY_DIR}
-write_repo_env_to_bazelrc "TF_SHARED_LIBRARY_NAME" ${SHARED_LIBRARY_NAME}
+write_action_env_to_bazelrc "TF_SHARED_LIBRARY_DIR" ${SHARED_LIBRARY_DIR}
+write_action_env_to_bazelrc "TF_SHARED_LIBRARY_NAME" ${SHARED_LIBRARY_NAME}
