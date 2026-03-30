@@ -61,7 +61,8 @@ http_archive(
 #    reliable downloads.
 
 _TENSORFLOW_GIT_COMMIT = "cb64295ec7308f770b22db6047a1e755b35b7bee"  # tf 2.18.1
-_TENSORFLOW_ARCHIVE_SHA256 = ""
+_TENSORFLOW_ARCHIVE_SHA256 = "5fcca4ec0732e146547fc26f6966cf92236c2f85a9e086b85c83d303e2c38980"
+
 
 http_archive(
     name = "org_tensorflow",
