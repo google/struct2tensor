@@ -47,6 +47,6 @@ build:macos --host_cxxopt=-std=c++17
 build:short_logs --output_filter=DONT_MATCH_ANYTHING
 
 build:macos --macos_minimum_os=10.12
-build --action_env TF_HEADER_DIR="/usr/local/google/home/vkarampudi/anaconda3/envs/3.11/lib/python3.11/site-packages/tensorflow/include"
-build --action_env TF_SHARED_LIBRARY_DIR="/usr/local/google/home/vkarampudi/anaconda3/envs/3.11/lib/python3.11/site-packages/tensorflow"
-build --action_env TF_SHARED_LIBRARY_NAME="libtensorflow_framework.so.2"
+
+
+
