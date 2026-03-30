@@ -81,10 +81,6 @@ local_repository(
     path = "third_party/cuda_stub",
 )
 
-
-
-
-
 load("//third_party:python_configure.bzl", "local_python_configure")
 local_python_configure(name = "local_config_python")
 local_python_configure(name = "local_execution_config_python")
