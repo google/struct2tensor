@@ -1,0 +1,51 @@
+--- third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl
++++ third_party/xla/third_party/tsl/tsl/platform/default/build_config.bzl
+@@ -4,1 +4,1 @@
+-load("@com_google_protobuf//:protobuf.bzl", "proto_gen")
++# Removed load of missing proto_gen
+@@ -848,2 +848,45 @@
+ def tf_cuda_libdevice_path_deps():
+     return tf_platform_deps("cuda_libdevice_path")
++def proto_gen_disabled(name, srcs = [], outs = [], gen_cc = 0, includes = [], **kwargs):
++    pass
++def proto_gen(name, srcs = [], outs = [], gen_cc = 0, includes = [], **kwargs):
++    if not srcs:
++        native.filegroup(name = name, srcs = kwargs.get("deps", []))
++        return
++    protoc = "@com_google_protobuf//:protoc"
++    pkg = native.package_name()
++    cmd = ""
++    for s in srcs:
++        if type(s) == "string" and s.startswith(":"):
++            loc = "$(location " + s + ")"
++        else:
++            loc = "$(locations " + s + ")"
++        cmd += "for f in " + loc + "; do "
++        cmd += "rel=\"$$f\"; "
++        cmd += "if [[ \"$$f\" == external/org_tensorflow/third_party/xla/* ]]; then rel=\"$${f#external/org_tensorflow/third_party/xla/}\"; repo=\"external/org_tensorflow/third_party/xla\"; "
++        cmd += "elif [[ \"$$f\" == external/org_tensorflow/* ]]; then rel=\"$${f#external/org_tensorflow/}\"; repo=\"external/org_tensorflow\"; "
++        cmd += "elif [[ \"$$f\" == external/local_tsl/* ]]; then rel=\"$${f#external/local_tsl/}\"; repo=\"external/local_tsl\"; "
++        cmd += "elif [[ \"$$f\" == external/local_xla/* ]]; then rel=\"$${f#external/local_xla/}\"; repo=\"external/local_xla\"; "
++        cmd += "else rel=\"$$f\"; repo=\".\"; fi; "
++        cmd += "h_file=\"$${rel%.proto}.pb.h\"; "
++        cmd += "cc_file=\"$${rel%.proto}.pb.cc\"; "
++        cmd += "mkdir -p \"$(RULEDIR)/$$(dirname \"$$rel\")\"; "
++        cmd += "$(location " + protoc + ") -I$$repo -I. -Iexternal/org_tensorflow -Iexternal/local_tsl -Iexternal/local_xla -Iexternal/org_tensorflow/third_party/xla -Iexternal/com_google_protobuf/src --cpp_out=$(RULEDIR) $$rel; "
++        cmd += "if [[ -n \"" + pkg + "\" ]]; then "
++        cmd += "  if [[ \"$(RULEDIR)/$$h_file\" != \"$(RULEDIR)/$${h_file#\"" + pkg + "\"/}\" ]]; then mv \"$(RULEDIR)/$$h_file\" \"$(RULEDIR)/$${h_file#\"" + pkg + "\"/}\"; fi; "
++        cmd += "  if [[ \"$(RULEDIR)/$$cc_file\" != \"$(RULEDIR)/$${cc_file#\"" + pkg + "\"/}\" ]]; then mv \"$(RULEDIR)/$$cc_file\" \"$(RULEDIR)/$${cc_file#\"" + pkg + "\"/}\"; fi; "
++        cmd += "fi; done; "
++    stripped_outs = []
++    for o in outs:
++        if pkg and o.startswith(pkg + "/"):
++            stripped_outs.append(o[len(pkg)+1:])
++        else:
++            stripped_outs.append(o)
++    native.genrule(
++        name = name,
++        srcs = srcs,
++        outs = stripped_outs,
++        cmd = cmd,
++        tools = [protoc],
++        tags = ["no-sandbox"],
++    )
