@@ -77,8 +77,9 @@ http_archive(
 )
 local_repository(
     name = "local_config_cuda",
-    path = "third_party/dummy_cuda",
+    path = "third_party/cuda_stub",
 )
+
 
 
 
