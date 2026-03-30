@@ -31,7 +31,8 @@ dependencies:
     - opt-einsum==3.4.0
     - optree==0.19.0
     - protobuf==4.25.8
-    - pyarrow==10.0.1
+    - pyarrow==15.0.0
+
     - pygments==2.19.2
     - requests==2.32.5
     - rich==14.3.3
