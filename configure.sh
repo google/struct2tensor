@@ -28,8 +28,6 @@ function write_action_env_to_bazelrc() {
   write_to_bazelrc "build --action_env $1=\"$2\""
 }
 
-
-
 function has_tensorflow() {
   ${PYTHON_BIN_PATH} -c "import tensorflow" > /dev/null
 }
