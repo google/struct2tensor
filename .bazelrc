@@ -40,8 +40,7 @@ build --host_cxxopt=-std=c++17
 build:linux --cxxopt=-D_GLIBCXX_USE_CXX11_ABI=1
 build:macos --cxxopt=-D_GLIBCXX_USE_CXX11_ABI=1
 
-# Disable sframe in assembler to avoid linker errors with gcc 15
-build:linux --copt=-Wa,--gsframe=no
+# Disable sframe in assembler to avoid linker errors with gcc 15 (removed for PR compatibility)
 
 
 
