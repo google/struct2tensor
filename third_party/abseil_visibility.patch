@@ -1,0 +1,7 @@
+--- absl/base/BUILD.bazel
++++ absl/base/BUILD.bazel
+@@ -546,3 +546,3 @@
+     visibility = [
+-        "//absl:__subpackages__",
++        "//visibility:public",
+     ],

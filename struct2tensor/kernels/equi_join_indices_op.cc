@@ -22,6 +22,7 @@ limitations under the License.
 // Notice that when combined with tf.gather(...), this can be used to do "some"
 // sparse_gather operations.
 
+#include <cstdint>
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/shape_inference.h"

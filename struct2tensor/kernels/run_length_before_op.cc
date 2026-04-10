@@ -16,6 +16,7 @@ limitations under the License.
 // b_n := \sum_{i=0}^{n-1} I(a_i=a_n)
 // This assumes that for all a_i, a_j, if i <= j, then a_i <= a_j.
 
+#include <cstdint>
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/shape_inference.h"

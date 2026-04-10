@@ -18,6 +18,7 @@ limitations under the License.
 // This differs from equi_join_indices in that vectors a,b do not need to be
 // monotonically increasing.
 
+#include <cstdint>
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/shape_inference.h"
