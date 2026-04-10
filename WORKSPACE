@@ -119,6 +119,8 @@ http_archive(
     urls = [
         "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.1.zip",
     ],
+    patches = ["//third_party:protobuf_retain_options.patch"],
+    patch_args = ["-p1"],
 )
 
 # ===== TensorFlow dependency =====
@@ -143,7 +145,7 @@ http_archive(
     name = "org_tensorflow",
     sha256 = _TENSORFLOW_ARCHIVE_SHA256,
     urls = [
-        "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
+        "https://github.com/tensorflow/tensorflow/archive/v%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
     ],
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
     patches = ["//third_party:tensorflow.patch"],
