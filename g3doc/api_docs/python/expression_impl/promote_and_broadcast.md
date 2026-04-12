@@ -123,4 +123,3 @@ session: {
 [`promote_and_broadcast(...)`](../expression_impl/promote_and_broadcast/promote_and_broadcast.md): Promote and broadcast a set of paths to a particular location.
 
 [`promote_and_broadcast_anonymous(...)`](../expression_impl/promote_and_broadcast/promote_and_broadcast_anonymous.md): Promotes then broadcasts the origin until its parent is new_parent.
-

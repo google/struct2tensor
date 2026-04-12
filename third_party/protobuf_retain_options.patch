@@ -4,4 +4,3 @@
      if ctx.attr._experimental_proto_descriptor_sets_include_source_info[BuildSettingInfo].value:
          args.add("--include_source_info")
 -    args.add("--retain_options")
- 

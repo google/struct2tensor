@@ -86,4 +86,3 @@ foo   bar foo2 bar2
 [`create_schema(...)`](../expression_impl/map_prensor_to_prensor/create_schema.md): Create a schema recursively.
 
 [`map_prensor_to_prensor(...)`](../expression_impl/map_prensor_to_prensor/map_prensor_to_prensor.md): Maps an expression to a prensor, and merges that prensor.
-

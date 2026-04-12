@@ -67,4 +67,3 @@ s2t.expression_impl.apply_schema
 [`size`](./expression_impl/size.md) module: Functions for creating new size or has expression.
 
 [`slice_expression`](./expression_impl/slice_expression.md) module: Implementation of slice.
-

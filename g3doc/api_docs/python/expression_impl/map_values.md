@@ -36,4 +36,3 @@ Note that the operations are on 1-D tensors (as opposed to scalars).
 [`map_values(...)`](../expression_impl/map_values/map_values.md): Map field into a new sibling.
 
 [`map_values_anonymous(...)`](../expression_impl/map_values/map_values_anonymous.md): Map field into a new sibling.
-

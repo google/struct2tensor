@@ -49,4 +49,3 @@ You get:
 ## Functions
 
 [`limit_depth(...)`](../expression_impl/depth_limit/limit_depth.md): Limit the depth to nodes k steps from expr.
-
