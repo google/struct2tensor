@@ -1,6 +1,6 @@
 # `struct2tensor` release notes
 
-## Version 0.49.0 (not yet released; still in development)
+## Current Version (not yet released; still in development)
 
 ## Major Features and Improvements
 
