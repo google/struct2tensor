@@ -43,11 +43,12 @@ build:macos --cxxopt=-D_GLIBCXX_USE_CXX11_ABI=1
 # Disable sframe in assembler to avoid linker errors with gcc 15
 build:linux --copt=-Wa,--gsframe=no
 
-
-
-
-
 # Suppress all warning messages.
 build:short_logs --output_filter=DONT_MATCH_ANYTHING
 
 build:macos --macos_minimum_os=10.12
+
+common --noenable_bzlmod
+
+test --noincompatible_check_sharding_support
+

@@ -1,6 +1,8 @@
 --- a/bazel/private/proto_library_rule.bzl
-+++ b/b/bazel/private/proto_library_rule.bzl
-@@ -166,4 +166,3 @@
++++ b/bazel/private/proto_library_rule.bzl
+@@ -165,5 +165,4 @@
+     args = ctx.actions.args()
+ 
      if ctx.attr._experimental_proto_descriptor_sets_include_source_info[BuildSettingInfo].value:
          args.add("--include_source_info")
 -    args.add("--retain_options")

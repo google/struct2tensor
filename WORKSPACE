@@ -119,8 +119,12 @@ http_archive(
     urls = [
         "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.1.zip",
     ],
-    patches = ["//third_party:protobuf_retain_options.patch"],
+    patches = ["//third_party:protobuf_tensorflow.patch"],
     patch_args = ["-p1"],
+)
+
+register_toolchains(
+    "@com_google_protobuf//bazel/private/toolchains:cc_source_toolchain_bazel7",
 )
 
 # ===== TensorFlow dependency =====
