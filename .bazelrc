@@ -51,4 +51,3 @@ build:macos --macos_minimum_os=10.12
 common --noenable_bzlmod
 
 test --noincompatible_check_sharding_support
-
