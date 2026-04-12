@@ -15,6 +15,8 @@
 *   Disabled Bzlmod in `.bazelrc` to resolve protobuf conflicts.
 *   Added dummy repositories in `WORKSPACE` to bypass circular dependencies with TensorFlow.
 *   Fixed missing `#include <cstdint>` in various files to support compilation with `gcc 15`.
+*   Added support for Python 3.12.
+*   Dropped support for Python 3.9.
 
 ## Breaking Changes
 
