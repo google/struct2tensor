@@ -53,12 +53,7 @@ else
   fi
 fi
 
-# Set Bazel version based on OS
-if [[ "$(uname)" == "Darwin" ]]; then
-  echo "7.4.1" > .bazelversion
-else
-  echo "6.5.0" > .bazelversion
-fi
+# Bazel version is controlled by .bazelversion file.
 
 ensure_tensorflow
 TF_CFLAGS=( $(${PYTHON_BIN_PATH} -c 'import tensorflow as tf; print(" ".join(tf.sysconfig.get_compile_flags()))') )
