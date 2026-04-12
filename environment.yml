@@ -16,7 +16,7 @@ dependencies:
     - google-pasta==0.2.0
     - googleapis-common-protos==1.72.0
     - grpcio==1.78.0
-    - h5py==3.16.0
+    - h5py==3.14.0
     - idna==3.11
     - keras==3.13.2
     - libclang==18.1.1
