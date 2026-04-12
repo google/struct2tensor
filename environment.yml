@@ -30,15 +30,15 @@ dependencies:
     - numpy==1.26.4
     - opt-einsum==3.4.0
     - optree==0.19.0
-    - protobuf==4.25.8
-    - pyarrow==10.0.1
+    - protobuf==6.31.1
+    - pyarrow>=14
     - pygments==2.19.2
     - requests==2.32.5
     - rich==14.3.3
     - six==1.17.0
     - tensorboard==2.17.1
     - tensorboard-data-server==0.7.2
-    - tensorflow==2.17.1
+    - tensorflow==2.21.0
     - tensorflow-io-gcs-filesystem==0.37.1
     - tensorflow-metadata==1.17.3
     - termcolor==3.3.0
