@@ -2,7 +2,8 @@ name: s2t-env-py312
 channels:
   - conda-forge
 dependencies:
-  - python=3.12
+  - python>=3.10,<3.13
+
   - pip
   - pip:
     - --index-url https://pypi.org/simple
