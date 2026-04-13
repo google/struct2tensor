@@ -18,6 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Remove fixed python version from environment.yml
+      run: python -c "with open('environment.yml') as f: lines = f.readlines(); with open('environment.yml', 'w') as f: [f.write(l) for l in lines if '- python=' not in l]"
+
     - name: Set up conda environment
       uses: conda-incubator/setup-miniconda@v3
       with:
