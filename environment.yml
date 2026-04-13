@@ -20,7 +20,8 @@ dependencies:
     - grpcio==1.78.0
     - h5py==3.14.0
     - idna==3.11
-    - keras==3.13.2
+    - keras>=3.0.0
+
     - libclang==18.1.1
     - macholib==1.16.4
     - markdown==3.10.2
