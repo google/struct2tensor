@@ -80,9 +80,8 @@ setup(
         # with numpy>=1.24.
         'numpy>=1.22',
         'protobuf>=6.0.0,<7.0.0',
-
-
         'tensorflow>=2.21,<2.22',
+
         'tensorflow-metadata'
         + select_constraint(
             default='>=1.17.0,<1.18.0',
