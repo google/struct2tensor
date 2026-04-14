@@ -79,7 +79,8 @@ setup(
         # TODO(b/263060885): Remove the explicit numpy dependency once TF works
         # with numpy>=1.24.
         'numpy>=1.22',
-        'protobuf>=4.25.2,<7.0.0',
+        'protobuf>=6.0.0,<7.0.0',
+
 
         'tensorflow>=2.21,<2.22',
         'tensorflow-metadata'
