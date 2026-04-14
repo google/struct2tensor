@@ -71,14 +71,9 @@ def struct2tensor_workspace():
         urls = ["https://github.com/apache/arrow/archive/%s.zip" % ARROW_COMMIT],
     )
 
-    _TFMD_COMMIT_HASH = "404805761e614561cceedc429e67c357c62be26d"  # 1.17.1
-    http_archive(
+    git_repository(
         name = "com_github_tensorflow_metadata",
-        sha256 = "9abfe4019f33ff067438ce69053fe63fc2e8dde5192aa7cf30d501809e45c18c",
-        strip_prefix = "metadata-%s" % _TFMD_COMMIT_HASH,
-        urls = [
-            "https://github.com/tensorflow/metadata/archive/%s.tar.gz" % _TFMD_COMMIT_HASH,
-        ],
-        patches = ["//third_party:tfmd.patch"],
-        patch_args = ["-p1"],
+        remote = "https://github.com/vkarampudi/metadata.git",
+        branch = "align-tf-2.21",
     )
+
