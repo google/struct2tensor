@@ -79,16 +79,17 @@ setup(
         # TODO(b/263060885): Remove the explicit numpy dependency once TF works
         # with numpy>=1.24.
         'numpy>=1.22',
-        'protobuf>=4.25.2,<6.0.0;python_version>="3.11"',
-        'protobuf>=4.21.6,<6.0.0;python_version<"3.11"',
-        'tensorflow>=2.17,<2.18',
+        'protobuf>=6.0.0,<7.0.0',
+
+
+        'tensorflow>=2.21,<2.22',
         'tensorflow-metadata'
         + select_constraint(
             default='>=1.17.0,<1.18.0',
             nightly='>=1.18.0.dev',
             git_master='@git+https://github.com/tensorflow/metadata@master',
         ),
-        'pyarrow>=10,<11',
+        'pyarrow>=14',
     ],
     # Add in any packaged data.
     include_package_data=True,
@@ -105,9 +106,9 @@ setup(
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',

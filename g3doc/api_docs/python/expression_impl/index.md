@@ -133,4 +133,3 @@ take little memory or CPU.
 [`get_index_from_end(...)`](../expression_impl/index/get_index_from_end.md): Gets the number of steps from the end of the array.
 
 [`get_positional_index(...)`](../expression_impl/index/get_positional_index.md): Gets the positional index.
-

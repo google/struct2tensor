@@ -132,4 +132,3 @@ result_2 = [{
 ## Type Aliases
 
 [`IndexValue`](../expression_impl/slice_expression/IndexValue.md)
-

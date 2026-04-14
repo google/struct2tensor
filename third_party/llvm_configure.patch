@@ -1,0 +1,11 @@
+--- a/utils/bazel/configure.bzl
++++ b/utils/bazel/configure.bzl
+@@ -53,7 +53,7 @@
+             name = entry.basename
+             full_rel_path = rel_dir + "/" + name
+
+-            if entry.is_dir:
++            if repository_ctx.execute(["test", "-d", str(entry)]).return_code == 0:
+                 stack.append(full_rel_path)
+                 overlay_dirs[name] = None
+             else:

@@ -4,11 +4,27 @@
 
 ## Major Features and Improvements
 
+*   N/A
+
 ## Bug Fixes and Other Changes
+
+*   Depends on `tensorflow 2.21.0`.
+*   Depends on `protobuf==6.31.1`.
+*   Depends on `pyarrow==23.0.1`.
+*   Enforced C++17 in `.bazelrc`.
+*   Disabled Bzlmod in `.bazelrc` to resolve protobuf conflicts.
+*   Added dummy repositories in `WORKSPACE` to bypass circular dependencies with TensorFlow.
+*   Fixed missing `#include <cstdint>` in various files to support compilation with `gcc 15`.
+*   Added support for Python 3.12.
+*   Dropped support for Python 3.9.
 
 ## Breaking Changes
 
+*   N/A
+
 ## Deprecations
+
+*   N/A
 
 # Version 0.48.1
 

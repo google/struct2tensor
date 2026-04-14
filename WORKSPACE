@@ -16,6 +16,58 @@
 
 workspace(name = "struct2tensor")
 
+local_repository(
+    name = "python_version_repo",
+    path = "third_party/python_version_repo",
+)
+
+local_repository(
+    name = "python_3_11_host",
+    path = "third_party/python_3_11_host",
+)
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
+
+local_repository(
+    name = "rules_java",
+    path = "third_party/rules_java",
+)
+
+local_repository(
+    name = "local_config_cuda",
+    path = "third_party/local_config_cuda",
+)
+
+local_repository(
+    name = "local_config_tensorrt",
+    path = "third_party/local_config_tensorrt",
+)
+
+local_repository(
+    name = "local_config_rocm",
+    path = "third_party/local_config_rocm",
+)
+
+local_repository(
+    name = "local_config_sycl",
+    path = "third_party/local_config_sycl",
+)
+
+local_repository(
+    name = "tf_wheel_version_suffix",
+    path = "third_party/tf_wheel_version_suffix",
+)
+
+maybe(
+    http_archive,
+    name = "platforms",
+    urls = [
+        "https://github.com/bazelbuild/platforms/releases/download/0.0.11/platforms-0.0.11.tar.gz",
+    ],
+    sha256 = "29742e87275809b5e598dc2f04d86960cc7a55b3067d97221c9abbc9926bff0f",
+)
+
 load("//tf:tf_configure.bzl", "tf_configure")
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
@@ -26,23 +78,53 @@ tf_configure(name = "local_config_tf")
 
 #####################################################################################
 
+
+
+# ===== Abseil dependency =====
 http_archive(
-    name = "zlib",
-    build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
-    sha256 = "17e88863f3600672ab49182f217281b6fc4d3c762bde361935e436a95214d05c",
-    strip_prefix = "zlib-1.3.1",
-    urls = ["https://github.com/madler/zlib/archive/v1.3.1.tar.gz"],
+    name = "com_google_absl",
+    sha256 = "d1abe9da2003e6cbbd7619b0ced3e52047422f4f4ac6c66a9bef5d2e99fea837",
+    strip_prefix = "abseil-cpp-d38452e1ee03523a208362186fd42248ff2609f6",
+    urls = [
+        "https://github.com/abseil/abseil-cpp/archive/d38452e1ee03523a208362186fd42248ff2609f6.tar.gz",
+    ],
+    patches = [
+        "//third_party:abseil_visibility.patch",
+    ],
+    patch_args = ["-p0"],
 )
 
-# ===== Protobuf 4.25.6 dependency =====
+http_archive(
+    name = "abseil-cpp",
+    sha256 = "d1abe9da2003e6cbbd7619b0ced3e52047422f4f4ac6c66a9bef5d2e99fea837",
+    strip_prefix = "abseil-cpp-d38452e1ee03523a208362186fd42248ff2609f6",
+    urls = [
+        "https://github.com/abseil/abseil-cpp/archive/d38452e1ee03523a208362186fd42248ff2609f6.tar.gz",
+    ],
+    patches = [
+        "//third_party:abseil_visibility.patch",
+    ],
+    patch_args = ["-p0"],
+)
+
+
+
+
+# ===== Protobuf 6.31.1 dependency =====
 # Must be declared BEFORE TensorFlow's workspaces to override the version they pull
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "4e6727bc5d23177edefa3ad86fd2f5a92cd324151636212fd1f7f13aef3fd2b7",
-    strip_prefix = "protobuf-4.25.6",
+    sha256 = "6e09bbc950ba60c3a7b30280210cd285af8d7d8ed5e0a6ed101c72aff22e8d88",
+    strip_prefix = "protobuf-6.31.1",
     urls = [
-        "https://github.com/protocolbuffers/protobuf/archive/v4.25.6.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/archive/refs/tags/v6.31.1.zip",
     ],
+    patches = ["//third_party:protobuf_tensorflow.patch"],
+    patch_args = ["-p1"],
+)
+
+register_toolchains(
+    "@com_google_protobuf//bazel/private/toolchains:cc_source_toolchain_bazel7",
 )
 
 # ===== TensorFlow dependency =====
@@ -60,23 +142,55 @@ http_archive(
 # 3. Request the new archive to be mirrored on mirror.bazel.build for more
 #    reliable downloads.
 
-_TENSORFLOW_GIT_COMMIT = "3c92ac03cab816044f7b18a86eb86aa01a294d95"  # tf 2.17.1
-_TENSORFLOW_ARCHIVE_SHA256 = "317dd95c4830a408b14f3e802698eb68d70d81c7c7cfcd3d28b0ba023fe84a68"
+_TENSORFLOW_GIT_COMMIT = "2.21.0"  # tf 2.21.0
+_TENSORFLOW_ARCHIVE_SHA256 = "ef3568bb4865d6c1b2564fb5689c19b6b9a5311572cd1f2ff9198636a8520921"
 
 http_archive(
     name = "org_tensorflow",
     sha256 = _TENSORFLOW_ARCHIVE_SHA256,
     urls = [
-        "https://github.com/tensorflow/tensorflow/archive/%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
+        "https://github.com/tensorflow/tensorflow/archive/v%s.tar.gz" % _TENSORFLOW_GIT_COMMIT,
     ],
     strip_prefix = "tensorflow-%s" % _TENSORFLOW_GIT_COMMIT,
     patches = ["//third_party:tensorflow.patch"],
     patch_args = ["-p1"],
+    repo_mapping = {
+        "@abseil-cpp": "@com_google_absl",
+    },
 )
 
-load("//third_party:python_configure.bzl", "local_python_configure")
-local_python_configure(name = "local_config_python")
-local_python_configure(name = "local_execution_config_python")
+http_archive(
+    name = "llvm-raw",
+
+    strip_prefix = "llvm-project-909041e4802c4b9a2223ca04099f35bf1dbbd460",
+    urls = [
+        "https://storage.googleapis.com/mirror.tensorflow.org/github.com/llvm/llvm-project/archive/909041e4802c4b9a2223ca04099f35bf1dbbd460.tar.gz",
+        "https://github.com/llvm/llvm-project/archive/909041e4802c4b9a2223ca04099f35bf1dbbd460.tar.gz",
+    ],
+    build_file = "@xla//third_party/llvm:llvm.BUILD",
+    patches = [
+        "@xla//third_party/llvm:generated.patch",
+        "@xla//third_party/llvm:build.patch",
+        "@xla//third_party/llvm:mathextras.patch",
+        "@xla//third_party/llvm:toolchains.patch",
+        "@xla//third_party/llvm:zstd.patch",
+        "@xla//third_party/llvm:lit_test.patch",
+        "//third_party:llvm_configure.patch",
+    ],
+    patch_args = ["-p1"],
+)
+
+http_archive(
+    name = "zlib",
+    build_file = "@com_google_protobuf//:third_party/zlib.BUILD",
+    sha256 = "17e88863f3600672ab49182f217281b6fc4d3c762bde361935e436a95214d05c",
+    strip_prefix = "zlib-1.3.1",
+    urls = ["https://github.com/madler/zlib/archive/v1.3.1.tar.gz"],
+)
+
+# load("//third_party:python_configure.bzl", "local_python_configure")
+# local_python_configure(name = "local_config_python")
+# local_python_configure(name = "local_execution_config_python")
 
 
 # Please add all new struct2tensor dependencies in workspace.bzl.
