@@ -161,7 +161,7 @@ http_archive(
 
 http_archive(
     name = "llvm-raw",
-    sha256 = "3f986184ee126677dbd77edb16d6b82c057ec869fefd7a9871979941e52e837a",
+
     strip_prefix = "llvm-project-909041e4802c4b9a2223ca04099f35bf1dbbd460",
     urls = [
         "https://storage.googleapis.com/mirror.tensorflow.org/github.com/llvm/llvm-project/archive/909041e4802c4b9a2223ca04099f35bf1dbbd460.tar.gz",
