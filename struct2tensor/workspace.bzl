@@ -80,5 +80,3 @@ def struct2tensor_workspace():
         patch_args = ["-p0"],
 
     )
-
-
