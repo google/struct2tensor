@@ -75,5 +75,10 @@ def struct2tensor_workspace():
         name = "com_github_tensorflow_metadata",
         remote = "https://github.com/vkarampudi/metadata.git",
         branch = "align-tf-2.21",
+        patches = ["//third_party:tfmd_fork.patch"],
+
+        patch_args = ["-p0"],
+
     )
+
 
