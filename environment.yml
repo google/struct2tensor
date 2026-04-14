@@ -35,8 +35,9 @@ dependencies:
     - optree==0.19.0
     - protobuf==6.31.1
     - pyarrow==23.0.1
-    - pygments==2.19.2
-    - requests==2.32.5
+    - pygments==2.20
+    - requests==2.33
+
     - rich==14.3.3
     - six==1.17.0
     - tensorboard==2.17.1
