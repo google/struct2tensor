@@ -15,8 +15,11 @@
 # Defines an image that contains a tensorflow-serving model server binary
 # that has struct2tensor ops linked in.
 
-FROM ubuntu:20.04 as base_build
-ARG TF_SERVING_VERSION_GIT_BRANCH=2.17.1
+FROM ubuntu:24.04 as base_build
+
+ARG TF_SERVING_VERSION_GIT_BRANCH=2.19.1
+
+
 ARG TF_SERVING_VERSION_GIT_COMMIT=head
 ARG S2T_VERSION_GIT_BRANCH=master
 ARG S2T_VERSION_GIT_COMMIT=head
@@ -38,43 +41,41 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libpng-dev \
         libtool \
         libzmq3-dev \
-        mlocate \
         openjdk-8-jdk\
         openjdk-8-jre-headless \
         pkg-config \
-        python-dev \
         software-properties-common \
         swig \
         unzip \
         wget \
         zip \
         zlib1g-dev \
-        python3-distutils \
         python3-dev \
         python3-pip \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install python 3.9.
-RUN add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && apt-get install -y \
-    python3.9 python3.9-dev python3-pip python3.9-venv && \
+
+# Install python 3.12.
+RUN apt-get update && apt-get install -y \
+    python3.12 python3.12-dev python3.12-venv && \
     rm -rf /var/lib/apt/lists/* && \
-    python3.9 -m pip install pip --upgrade && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 0
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 0
 
-# Make python3.9 and the default python version
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 0
 
-RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
-    python3 get-pip.py && \
-    rm get-pip.py
 
-RUN pip3 --no-cache-dir install --upgrade numpy
+# Make python3.12 and the default python version
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 0
+
+
+RUN pip3 --no-cache-dir install --upgrade numpy --break-system-packages
+
 
 # Set up Bazel
-ENV BAZEL_VERSION 6.5.0
+ENV BAZEL_VERSION 7.7.0
+
+
 WORKDIR /bazel
 RUN curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
     chmod +x bazel-*.sh && \
@@ -90,11 +91,8 @@ RUN curl -fSsL -O https://github.com/bazelbuild/buildtools/releases/download/$BU
 
 # Download s2t sources.
 WORKDIR /struct2tensor
-RUN git clone --branch=${S2T_VERSION_GIT_BRANCH} https://github.com/google/struct2tensor . && \
-    git remote add upstream https://github.com/google/struct2tensor.git && \
-    if [ "${S2T_VERSION_GIT_COMMIT}" != "head" ]; then \
-     git checkout ${S2T_VERSION_GIT_COMMIT}; fi && \
-    echo "struct2tensor: $(git rev-parse HEAD)"
+COPY . .
+
 
 
 # Download TF Serving sources.
@@ -104,42 +102,60 @@ RUN git clone --branch=${TF_SERVING_VERSION_GIT_BRANCH} https://github.com/tenso
     if [ "${TF_SERVING_VERSION_GIT_COMMIT}" != "head" ]; then \
      git checkout ${TF_SERVING_VERSION_GIT_COMMIT}; fi && \
      echo "tensorflow-serving: $(git rev-parse HEAD)" && \
-    cat <<'PATCH' | patch -p1
-diff --git a/WORKSPACE b/WORKSPACE
-index c2af3b7f..8d243cfc 100644
---- a/WORKSPACE
-+++ b/WORKSPACE
-@@ -51,6 +51,13 @@ http_archive(
-     ],
- )
+    cat <<'EOF' > WORKSPACE.new
+workspace(name = "tf_serving")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "rules_cc",
+    urls = ["https://github.com/bazelbuild/rules_cc/archive/0.0.9.tar.gz"],
+    sha256 = "2037875b9a4456dce4a79d112a8ae885bbc4aad968e6587dca6e64f3a0900cdf",
+    strip_prefix = "rules_cc-0.0.9",
+)
+local_repository(
+    name = "local_config_nccl",
+    path = "/struct2tensor/local_config_nccl_dummy",
+)
+local_repository(
+    name = "local_xla",
+    path = "/struct2tensor/local_xla_dummy",
+)
+local_repository(
+    name = "local_tsl",
+    path = "/struct2tensor/local_tsl_dummy",
+)
+local_repository(
+    name = "local_config_cuda",
+    path = "/struct2tensor/local_config_cuda_dummy",
+)
+local_repository(
+    name = "local_config_tensorrt",
+    path = "/struct2tensor/local_config_tensorrt_dummy",
+)
+local_repository(
+    name = "com_google_struct2tensor",
+    path = "/struct2tensor",
+)
+local_repository(
+    name = "build_bazel_rules_apple",
+    path = "/struct2tensor/rules_apple_dummy",
+)
+EOF
+RUN sed -i '/workspace(name = "tf_serving")/d' WORKSPACE && \
+    sed -i '/rules_proto_toolchains()/,/nccl_configure(name = "local_config_nccl")/d' WORKSPACE && \
+    echo 'rules_proto_toolchains()' >> WORKSPACE && \
+    cat WORKSPACE >> WORKSPACE.new && \
+    mv WORKSPACE.new WORKSPACE && \
+    head -n 20 WORKSPACE
 
-+http_archive(
-+    name = "rules_cc",
-+    sha256 = "b8b918a85f9144c01f6cfe0f45e4f2838c7413961a8ff23bc0c6cdf8bb07a3b6",
-+    strip_prefix = "rules_cc-0.1.5",
-+    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.1.5/rules_cc-0.1.5.tar.gz",
-+)
-+
- http_archive(
-     name = "rules_python",
-     sha256 = "84aec9e21cc56fbc7f1335035a71c850d1b9b5cc6ff497306f84cced9a769841",
-@@ -84,4 +91,3 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
-
- rules_proto_dependencies()
- rules_proto_toolchains()
--
-PATCH
-
-RUN echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2tensor\")" \
-         >> WORKSPACE && \
-    buildozer "add deps @com_google_struct2tensor//struct2tensor:struct2tensor_kernels_and_ops" \
+RUN buildozer "add deps @com_google_struct2tensor//struct2tensor:struct2tensor_kernels_and_ops" \
         //tensorflow_serving/model_servers:tensorflow_model_server
 
 
 FROM base_build as binary_build
 ARG TF_SERVING_BUILD_OPTIONS="--config=release"
 RUN echo "Building with build options: ${TF_SERVING_BUILD_OPTIONS}"
-ARG TF_SERVING_BAZEL_OPTIONS=""
+ARG TF_SERVING_BAZEL_OPTIONS="--noenable_bzlmod --copt=-DTF_CUDA_VERSION=\\\"12.8\\\" --copt=-DTF_CUDART_VERSION=\\\"12.8\\\" --copt=-DTF_CUPTI_VERSION=\\\"12.8\\\" --copt=-DTF_CUDNN_VERSION=\\\"9.0\\\" --copt=-DTF_CUBLAS_VERSION=\\\"12.8\\\" --copt=-DTF_CUSOLVER_VERSION=\\\"11.0\\\" --copt=-DTF_CUFFT_VERSION=\\\"11.0\\\" --copt=-DTF_CUSPARSE_VERSION=\\\"12.8\\\" --copt=-DTF_NCCL_VERSION=\\\"2.20\\\" --copt=-DTF_TENSORRT_VERSION=\\\"10.0\\\""
+
 RUN echo "Building with Bazel options: ${TF_SERVING_BAZEL_OPTIONS}"
 RUN bazel build --color=yes --curses=yes \
     ${TF_SERVING_BAZEL_OPTIONS} \
