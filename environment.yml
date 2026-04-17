@@ -2,7 +2,7 @@ name: s2t-env-py312
 channels:
   - conda-forge
 dependencies:
-  - python>=3.10,<3.13
+  - python>=3.10,<3.14
 
   - pip
   - pip:

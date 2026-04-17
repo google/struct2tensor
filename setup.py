@@ -81,7 +81,6 @@ setup(
         'numpy>=1.22',
         'protobuf>=6.0.0,<7.0.0',
         'tensorflow>=2.21,<2.22',
-
         'tensorflow-metadata'
         + select_constraint(
             default='>=1.17.0,<1.18.0',
@@ -108,6 +107,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
