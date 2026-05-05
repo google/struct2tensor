@@ -227,4 +227,4 @@ rules_pkg_dependencies()
 
 # Specify the minimum required bazel version.
 load("@bazel_skylib//lib:versions.bzl", "versions")
-versions.check("6.5.0")
+versions.check("7.7.0")
