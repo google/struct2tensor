@@ -16,7 +16,7 @@
 # that has struct2tensor ops linked in.
 
 FROM ubuntu:20.04 as base_build
-ARG TF_SERVING_VERSION_GIT_BRANCH=2.17.1
+ARG TF_SERVING_VERSION_GIT_BRANCH=r2.19
 ARG TF_SERVING_VERSION_GIT_COMMIT=head
 ARG S2T_VERSION_GIT_BRANCH=master
 ARG S2T_VERSION_GIT_COMMIT=head
@@ -56,16 +56,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install python 3.9.
+# Install python 3.13.
 RUN add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && apt-get install -y \
-    python3.9 python3.9-dev python3-pip python3.9-venv && \
+    python3.13 python3.13-dev python3-pip python3.13-venv && \
     rm -rf /var/lib/apt/lists/* && \
-    python3.9 -m pip install pip --upgrade && \
-    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 0
+    python3.13 -m pip install pip --upgrade && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 0
 
-# Make python3.9 and the default python version
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 0
+# Make python3.13 and the default python version
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.13 0
 
 RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
     python3 get-pip.py && \
@@ -74,7 +74,7 @@ RUN curl -fSsL -O https://bootstrap.pypa.io/get-pip.py && \
 RUN pip3 --no-cache-dir install --upgrade numpy
 
 # Set up Bazel
-ENV BAZEL_VERSION 6.5.0
+ENV BAZEL_VERSION 7.7.0
 WORKDIR /bazel
 RUN curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
     chmod +x bazel-*.sh && \
@@ -103,35 +103,10 @@ RUN git clone --branch=${TF_SERVING_VERSION_GIT_BRANCH} https://github.com/tenso
     git remote add upstream https://github.com/tensorflow/serving.git && \
     if [ "${TF_SERVING_VERSION_GIT_COMMIT}" != "head" ]; then \
      git checkout ${TF_SERVING_VERSION_GIT_COMMIT}; fi && \
-     echo "tensorflow-serving: $(git rev-parse HEAD)" && \
-    cat <<'PATCH' | patch -p1
-diff --git a/WORKSPACE b/WORKSPACE
-index c2af3b7f..8d243cfc 100644
---- a/WORKSPACE
-+++ b/WORKSPACE
-@@ -51,6 +51,13 @@ http_archive(
-     ],
- )
+     echo "tensorflow-serving: $(git rev-parse HEAD)"
 
-+http_archive(
-+    name = "rules_cc",
-+    sha256 = "b8b918a85f9144c01f6cfe0f45e4f2838c7413961a8ff23bc0c6cdf8bb07a3b6",
-+    strip_prefix = "rules_cc-0.1.5",
-+    url = "https://github.com/bazelbuild/rules_cc/releases/download/0.1.5/rules_cc-0.1.5.tar.gz",
-+)
-+
- http_archive(
-     name = "rules_python",
-     sha256 = "84aec9e21cc56fbc7f1335035a71c850d1b9b5cc6ff497306f84cced9a769841",
-@@ -84,4 +91,3 @@ load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_
-
- rules_proto_dependencies()
- rules_proto_toolchains()
--
-PATCH
-
-RUN echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2tensor\")" \
-         >> WORKSPACE && \
+RUN echo 'http_archive(name = "rules_cc", sha256 = "b8b918a85f9144c01f6cfe0f45e4f2838c7413961a8ff23bc0c6cdf8bb07a3b6", strip_prefix = "rules_cc-0.1.5", url = "https://github.com/bazelbuild/rules_cc/releases/download/0.1.5/rules_cc-0.1.5.tar.gz")' >> WORKSPACE && \
+    echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2tensor\")" >> WORKSPACE && \
     buildozer "add deps @com_google_struct2tensor//struct2tensor:struct2tensor_kernels_and_ops" \
         //tensorflow_serving/model_servers:tensorflow_model_server
 
