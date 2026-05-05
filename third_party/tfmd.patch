@@ -4,14 +4,14 @@ index 24cf416..9e426aa 100644
 +++ b/tensorflow_metadata/proto/v0/BUILD
 @@ -14,22 +14,14 @@
  # ==============================================================================
- 
- 
+
+
 -load("@com_google_protobuf//bazel:py_proto_library.bzl", "py_proto_library")
 -
  licenses(["notice"])  # Apache 2.0
- 
+
  package(default_visibility = ["//visibility:public"])
- 
+
  proto_library(
      name = "metadata_v0_proto",
      srcs = [
@@ -43,7 +43,7 @@ index 24cf416..9e426aa 100644
 @@ -59,8 +51,10 @@ cc_library(
      deps = [":cc_metadata_v0_proto_cc"],
  )
- 
+
 -py_proto_library(
 -    name = "metadata_v0_proto_py_pb2",
 -    deps = [
