@@ -25,6 +25,7 @@ jobs:
         activate-environment: s2t-env
         environment-file: environment.yml
         python-version: ${{ matrix.python-version }}
+        use-mamba: true
 
     - name: Install Bazel
       shell: bash -l {0}

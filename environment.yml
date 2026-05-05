@@ -1,4 +1,4 @@
-name: s2t-env-py312
+name: s2t-env-py313
 channels:
   - conda-forge
 dependencies:
