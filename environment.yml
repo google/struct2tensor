@@ -43,7 +43,7 @@ dependencies:
     - tensorboard==2.17.1
     - tensorboard-data-server==0.7.2
     - tensorflow>=2.21.0
-    - tensorflow-metadata==1.17.3
+    - git+https://github.com/tensorflow/metadata.git@d3194a388344cb7a10d42b2a7c01bf384f3d1741
     - termcolor==3.3.0
     - typing-extensions==4.15.0
     - urllib3==2.6.3
