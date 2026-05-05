@@ -1,28 +1,26 @@
-diff --git a/tensorflow_metadata/proto/v0/BUILD b/tensorflow_metadata/proto/v0/BUILD
-index 24cf416..9e426aa 100644
 --- a/tensorflow_metadata/proto/v0/BUILD
 +++ b/tensorflow_metadata/proto/v0/BUILD
-@@ -14,5 +14,2 @@
+@@ -13,8 +13,6 @@
+ # limitations under the License.
  # ==============================================================================
--
+ 
 -
 -load("@com_google_protobuf//bazel:py_proto_library.bzl", "py_proto_library")
--
-@@ -56,12 +53,14 @@ cc_library(
-     name = "metadata_v0_proto_cc_pb2",
+ 
+ licenses(["notice"])  # Apache 2.0
+ 
+@@ -60,9 +58,12 @@
      deps = [":cc_metadata_v0_proto_cc"],
  )
  
 -py_proto_library(
--    name = "metadata_v0_proto_py_pb2",
++alias(
+     name = "metadata_v0_proto_py_pb2",
 -    deps = [
 -        ":metadata_v0_proto",
 -    ],
--)
-+alias(
-+    name = "metadata_v0_proto_py_pb2",
 +    actual = ":metadata_v0_proto",
-+)
+ )
 +
 +alias(
 +    name = "metadata_v0_proto_py_pb2_genproto",
