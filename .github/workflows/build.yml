@@ -71,4 +71,3 @@ jobs:
       run: |
         cd struct2tensor/tools/tf_serving_docker
         docker build -t struct2tensor-serving:latest .
-
