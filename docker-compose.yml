@@ -43,4 +43,3 @@ services:
       dockerfile: struct2tensor/tools/docker_build/Dockerfile.manylinux_2_28
     volumes:
       - .:/struct2tensor:delegated
-
