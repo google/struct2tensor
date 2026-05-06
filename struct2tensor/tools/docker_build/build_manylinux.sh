@@ -96,7 +96,9 @@ function stamp_wheel() {
     zip "${WHEEL_PATH}" "${SO_FILE_PATH}" || exit 1;
   done
   popd
-  auditwheel repair --plat manylinux2014_x86_64 -w "${WHEEL_DIR}" "${WHEEL_PATH}"  || exit 1;
+  PLATFORM_TAG="${AUDITWHEEL_PLAT_TAG:-manylinux2014}"
+  auditwheel repair --plat "${PLATFORM_TAG}_x86_64" -w "${WHEEL_DIR}" "${WHEEL_PATH}"  || exit 1;
+
   rm "${WHEEL_PATH}" || exit 1;
   MANY_LINUX_WHEEL_PATH=$(ls "${WHEEL_DIR}"/*manylinux*.whl)
   # Unzip the wheel and pack it again with the original .so file.

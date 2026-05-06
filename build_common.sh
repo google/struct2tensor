@@ -23,7 +23,7 @@ function install_tensorflow() {
 
   #TODO(b/329181965): As TFX lags for TensorFlow version, let's pass
   #the ceiling TF Version to the installation script.
-  TF_MAX_VERSION = $4
+  TF_MAX_VERSION=$4
 
   if [[ ("$1" == NIGHTLY_TF) || ("$1" == NIGHTLY_TF_2) ]]; then
     TF_PIP_PACKAGE="tf-nightly"

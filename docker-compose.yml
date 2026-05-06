@@ -35,3 +35,12 @@ services:
       dockerfile: struct2tensor/tools/docker_build/Dockerfile.manylinux2014
     volumes:
       - .:/struct2tensor:delegated
+
+  manylinux_2_28:
+    image: struct2tensor-build:manylinux_2_28
+    build:
+      context: .
+      dockerfile: struct2tensor/tools/docker_build/Dockerfile.manylinux_2_28
+    volumes:
+      - .:/struct2tensor:delegated
+
