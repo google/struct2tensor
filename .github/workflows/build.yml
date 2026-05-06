@@ -61,3 +61,14 @@ jobs:
       if: runner.os == 'Linux'
       shell: bash -l {0}
       run: bazel build //...
+
+  docker-serving-build:
+    name: Build Docker Serving Image
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build TF-Serving Docker Image
+      run: |
+        cd struct2tensor/tools/tf_serving_docker
+        docker build -t struct2tensor-serving:latest .
+
