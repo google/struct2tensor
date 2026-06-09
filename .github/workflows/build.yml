@@ -78,9 +78,12 @@ jobs:
         docker build -t struct2tensor-serving:latest .
 
   pypi-publish:
-    name: Build and Publish Wheels to PyPI
+    name: Build and Publish Wheels to PyPI (Python ${{ matrix.python-version }})
     if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/r'))
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
     - uses: actions/checkout@v4
 
@@ -90,7 +93,7 @@ jobs:
         auto-activate-base: false
         activate-environment: s2t-env
         environment-file: environment.yml
-        python-version: "3.12"
+        python-version: ${{ matrix.python-version }}
         use-mamba: true
 
     - name: Install Bazel
@@ -111,3 +114,4 @@ jobs:
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
         packages-dir: dist/
+        skip-existing: true
