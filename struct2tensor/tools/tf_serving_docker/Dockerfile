@@ -15,7 +15,7 @@
 # Defines an image that contains a tensorflow-serving model server binary
 # that has struct2tensor ops linked in.
 
-FROM ubuntu:22.04 as base_build
+FROM ubuntu:22.04 AS base_build
 ARG TF_SERVING_VERSION_GIT_BRANCH=r2.19
 ARG TF_SERVING_VERSION_GIT_COMMIT=head
 ARG S2T_VERSION_GIT_BRANCH=master
@@ -126,7 +126,7 @@ RUN echo "local_repository(name=\"com_google_struct2tensor\", path=\"/struct2ten
         //tensorflow_serving/model_servers:tensorflow_model_server
 
 
-FROM base_build as binary_build
+FROM base_build AS binary_build
 ARG TF_SERVING_BUILD_OPTIONS="--config=release"
 RUN echo "Building with build options: ${TF_SERVING_BUILD_OPTIONS}"
 ARG TF_SERVING_BAZEL_OPTIONS="--noenable_bzlmod"

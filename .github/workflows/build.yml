@@ -67,6 +67,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Pre-pull Ubuntu base image from GCR mirror to prevent Docker Hub timeouts
+      run: |
+        docker pull mirror.gcr.io/library/ubuntu:22.04
+        docker tag mirror.gcr.io/library/ubuntu:22.04 ubuntu:22.04
     - name: Build TF-Serving Docker Image
       run: |
         cd struct2tensor/tools/tf_serving_docker
