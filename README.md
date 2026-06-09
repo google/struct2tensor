@@ -1,6 +1,6 @@
 # Struct2Tensor
 
-[![Python](https://img.shields.io/badge/python%7C3.9-blue)](https://github.com/google/struct2tensor)
+[![Python](https://img.shields.io/badge/python%7C3.10%7C3.11%7C3.12%7C3.13-blue)](https://github.com/google/struct2tensor)
 [![PyPI](https://badge.fury.io/py/struct2tensor.svg)](https://badge.fury.io/py/struct2tensor)
 
 <!--*
@@ -115,6 +115,7 @@ is an integer.
 
 struct2tensor                                                          | tensorflow
 ---------------------------------------------------------------------- | ----------
+[0.52.0](https://github.com/google/struct2tensor/releases/tag/v0.52.0) | 2.21.0
 [0.48.0](https://github.com/google/struct2tensor/releases/tag/v0.48.0) | 2.17.0
 [0.47.0](https://github.com/google/struct2tensor/releases/tag/v0.47.0) | 2.16.2
 [0.46.0](https://github.com/google/struct2tensor/releases/tag/v0.46.0) | 2.15.0
