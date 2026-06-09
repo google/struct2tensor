@@ -78,7 +78,7 @@ jobs:
         docker build -t struct2tensor-serving:latest .
 
   pypi-publish:
-    name: Build and Publish Wheels to PyPI (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    name: Build and Publish Wheels to PyPI
     if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/r'))
     runs-on: ${{ matrix.os }}
     strategy:
