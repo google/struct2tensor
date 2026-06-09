@@ -2,9 +2,10 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, 'r*' ]
+    tags: [ 'v*' ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, 'r*' ]
 
 env:
   USE_BAZEL_VERSION: 7.7.0
@@ -75,3 +76,38 @@ jobs:
       run: |
         cd struct2tensor/tools/tf_serving_docker
         docker build -t struct2tensor-serving:latest .
+
+  pypi-publish:
+    name: Build and Publish Wheels to PyPI
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/r'))
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up conda environment
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-activate-base: false
+        activate-environment: s2t-env
+        environment-file: environment.yml
+        python-version: "3.12"
+        use-mamba: true
+
+    - name: Install Bazel
+      shell: bash -l {0}
+      run: |
+        curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
+        chmod +x /tmp/bazelisk
+        sudo mv /tmp/bazelisk /usr/local/bin/bazel
+
+    - name: Build Release Wheel
+      shell: bash -l {0}
+      run: |
+        ./configure.sh
+        bazel run --config=sframe_fix //:build_pip_package -- --python_bin_path python
+
+    - name: Publish Package to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: dist/
