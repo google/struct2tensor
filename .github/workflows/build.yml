@@ -118,7 +118,7 @@ jobs:
       shell: bash -l {0}
       run: |
         ./configure.sh
-        bazel run --config=sframe_fix //:build_pip_package -- --python_bin_path python
+        bazel run //:build_pip_package -- --python_bin_path python
 
     - name: Publish Package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
