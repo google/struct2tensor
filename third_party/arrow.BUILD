@@ -53,6 +53,14 @@ fbs_headers = [
     "cpp/src/generated/Tensor_generated.h",
 ]
 
+arrow_simd_srcs = select({
+    "@platforms//cpu:x86_64": glob([
+        "cpp/src/arrow/compute/**/*_avx2.cc",
+        "cpp/src/arrow/compute/**/*_avx512.cc",
+    ]),
+    "//conditions:default": [],
+})
+
 cc_library(
     name = "arrow",
     srcs = glob(
@@ -87,6 +95,8 @@ cc_library(
             "cpp/src/arrow/util/bpacking_avx512.*",
             "cpp/src/arrow/util/bpacking_neon*",
             "cpp/src/arrow/util/bpacking_simd*",
+            "cpp/src/arrow/compute/**/*_avx2.*",
+            "cpp/src/arrow/compute/**/*_avx512.*",
             "cpp/src/arrow/util/compression_brotli*",
             "cpp/src/arrow/util/compression_bz2*",
             "cpp/src/arrow/util/compression_lz4*",
@@ -106,7 +116,7 @@ cc_library(
             #"cpp/src/arrow/vendored/datetime/**",
             "cpp/src/parquet/encryption/encryption_internal.cc",
         ],
-    ),
+    ) + arrow_simd_srcs,
     hdrs = [
         # Headers from above genrules.
         "cpp/src/arrow/util/config.h",
