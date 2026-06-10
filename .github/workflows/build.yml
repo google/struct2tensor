@@ -2,9 +2,10 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, 'r*' ]
+    tags: [ 'v*' ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, 'r*' ]
 
 env:
   USE_BAZEL_VERSION: 7.7.0
@@ -37,7 +38,12 @@ jobs:
         if [ "$RUNNER_OS" == "Linux" ]; then
           curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
         elif [ "$RUNNER_OS" == "macOS" ]; then
-          curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-darwin-amd64
+          ARCH=$(uname -m)
+          if [ "$ARCH" == "arm64" ]; then
+            curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-darwin-arm64
+          else
+            curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-darwin-amd64
+          fi
         fi
         chmod +x /tmp/bazelisk
         sudo mv /tmp/bazelisk /usr/local/bin/bazel
@@ -62,12 +68,56 @@ jobs:
       shell: bash -l {0}
       run: bazel build //...
 
+    - name: Build Release Wheel
+      shell: bash -l {0}
+      run: bazel run //:build_pip_package
+
+    - name: Repair Linux Wheel with Auditwheel
+      if: runner.os == 'Linux'
+      shell: bash -l {0}
+      run: |
+        python -m pip install auditwheel
+        auditwheel repair --exclude 'libtensorflow_framework.so.*' dist/*.whl -w repaired_wheels/
+        rm -f dist/*.whl
+        mv repaired_wheels/*.whl dist/
+
+    - name: Upload Wheel Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: wheels-${{ matrix.os }}-${{ matrix.python-version }}
+        path: dist/*.whl
+
   docker-serving-build:
     name: Build Docker Serving Image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Pre-pull Ubuntu base image from GCR mirror to prevent Docker Hub timeouts
+      run: |
+        docker pull mirror.gcr.io/library/ubuntu:22.04
+        docker tag mirror.gcr.io/library/ubuntu:22.04 ubuntu:22.04
     - name: Build TF-Serving Docker Image
       run: |
         cd struct2tensor/tools/tf_serving_docker
         docker build -t struct2tensor-serving:latest .
+
+  pypi-publish:
+    name: Publish Wheels to PyPI
+    needs: build
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/r'))
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download all wheels
+      uses: actions/download-artifact@v4
+      with:
+        pattern: wheels-*
+        path: dist/
+        merge-multiple: true
+
+    - name: Publish Package to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        packages-dir: dist/
+        skip-existing: true

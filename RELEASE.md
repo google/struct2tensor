@@ -4,11 +4,22 @@
 
 ## Major Features and Improvements
 
+## Bug Fixes and Other Changes
+
+## Breaking Changes
+
+## Deprecations
+
+## Version 0.52.0
+
+## Major Features and Improvements
+
 *   N/A
 
 ## Bug Fixes and Other Changes
 
 *   Depends on `tensorflow 2.21.0`.
+*   Depends on `tensorflow-metadata>=1.21.0,<1.22.0`.
 *   Depends on `protobuf==6.31.1`.
 *   Depends on `pyarrow==23.0.1`.
 *   Enforced C++17 in `.bazelrc`.
