@@ -65,7 +65,7 @@ jobs:
 
     - name: Build Release Wheel
       shell: bash -l {0}
-      run: bazel run //:build_pip_package -- --python_bin_path python
+      run: bazel run //:build_pip_package
 
     - name: Publish Package to PyPI
       if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/r'))
