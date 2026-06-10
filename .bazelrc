@@ -45,8 +45,10 @@ build:macos --cxxopt=-D_GLIBCXX_USE_CXX11_ABI=1
 
 build:short_logs --output_filter=DONT_MATCH_ANYTHING
 
-# Config to disable sframe in assembler to avoid linker errors with gcc 15
-build:sframe_fix --copt=-Wa,--gsframe=no
+# Config to disable sframe unwind tables to avoid assembler/linker errors with gcc 15
+build:sframe_fix --copt=-fno-asynchronous-unwind-tables
+build:sframe_fix --host_copt=-fno-asynchronous-unwind-tables
+build:linux --config=sframe_fix
 
 build:macos --macos_minimum_os=10.12
 
