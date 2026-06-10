@@ -38,7 +38,12 @@ jobs:
         if [ "$RUNNER_OS" == "Linux" ]; then
           curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
         elif [ "$RUNNER_OS" == "macOS" ]; then
-          curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-darwin-amd64
+          ARCH=$(uname -m)
+          if [ "$ARCH" == "arm64" ]; then
+            curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-darwin-arm64
+          else
+            curl -Lo /tmp/bazelisk https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-darwin-amd64
+          fi
         fi
         chmod +x /tmp/bazelisk
         sudo mv /tmp/bazelisk /usr/local/bin/bazel
