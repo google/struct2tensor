@@ -65,6 +65,7 @@ jobs:
 
   docker-serving-build:
     name: Build Docker Serving Image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
